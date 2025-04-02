@@ -8,8 +8,8 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Kinde Auth",
-  description: "Kinde with NextJS App Router",
+  title: "Herit",
+  description: "Manage your Will and Estate with Herit!",
 };
 
 export default async function RootLayout({
@@ -24,7 +24,7 @@ export default async function RootLayout({
       <body>
         <header>
           <nav className="nav container">
-            <h1 className="text-display-3">KindeAuth</h1>
+            <h1 className="text-display-3">Herit</h1>
             <div>
               {!(await isAuthenticated()) ? (
                 <>
@@ -72,7 +72,7 @@ export default async function RootLayout({
             </p>
 
             <small className="text-subtle">
-              © 2023 KindeAuth, Inc. All rights reserved
+              © 2025 Herit Software Limited. All rights reserved
             </small>
           </div>
         </footer>
