@@ -231,6 +231,7 @@ export default function OnboardingPage() {
             personalInfo={personalInfo}
             initialSignature={signature}
             onChange={setSignature}
+            onComplete={() => handleStepComplete(currentStep, signature)}
           />
         );
       case 2:
@@ -240,6 +241,7 @@ export default function OnboardingPage() {
             signature={signature}
             initialConsents={consents}
             onChange={setConsents}
+            onComplete={() => handleStepComplete(currentStep, consents)}
           />
         ) : (
           <div className="text-center py-8">
@@ -250,6 +252,7 @@ export default function OnboardingPage() {
         return (
           <VerificationStep
             {...commonProps}
+            onComplete={() => handleStepComplete(currentStep, {})}
           />
         );
       default:
