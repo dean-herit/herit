@@ -1,0 +1,51 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { Spinner } from '@heroui/react';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requireOnboarding?: boolean;
+}
+
+export function ProtectedRoute({ children, requireOnboarding = false }: ProtectedRouteProps) {
+  const router = useRouter();
+  const { user, isAuthenticated, isSessionLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isSessionLoading) {
+      if (!isAuthenticated) {
+        router.push('/login');
+        return;
+      }
+
+      if (requireOnboarding && user && !user.onboarding_completed) {
+        router.push('/onboarding');
+        return;
+      }
+    }
+  }, [isAuthenticated, isSessionLoading, user, requireOnboarding, router]);
+
+  if (isSessionLoading || (!isAuthenticated && typeof window !== 'undefined')) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner size="lg" color="primary" />
+          <p className="text-default-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (requireOnboarding && user && !user.onboarding_completed) {
+    return null;
+  }
+
+  return <>{children}</>;
+}

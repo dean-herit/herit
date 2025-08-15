@@ -1,0 +1,50 @@
+/* Custom fonts for cursive signature text */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@config "../tailwind.config.js";
+
+/* Custom styles for the Herit app */
+.font-cursive {
+  font-family: 'Dancing Script', cursive;
+}
+
+/* Ensure proper scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom loading spinner animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Focus visible improvements for accessibility */
+.focus\:ring-2:focus-visible {
+  outline: 2px solid theme('colors.primary.500');
+  outline-offset: 2px;
+}
+
+/* Custom step progress animations */
+@keyframes step-complete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.step-complete {
+  animation: step-complete 0.3s ease-in-out;
+}
