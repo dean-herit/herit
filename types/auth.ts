@@ -1,12 +1,12 @@
 export interface User {
   id: string;
   email: string;
-  given_name?: string;
-  family_name?: string;
-  picture?: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  profilePhotoUrl?: string | null;
+  onboardingStatus?: string | null;
+  onboardingCurrentStep?: string | null;
   onboarding_completed?: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Session {
@@ -23,6 +23,6 @@ export interface LoginCredentials {
 export interface SignupCredentials {
   email: string;
   password: string;
-  given_name: string;
-  family_name: string;
+  firstName: string;
+  lastName: string;
 }

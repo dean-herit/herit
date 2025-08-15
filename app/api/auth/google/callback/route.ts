@@ -40,7 +40,11 @@ export async function GET(request: NextRequest) {
     // Exchange code for tokens (trim to prevent newline issues)
     const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim()
     const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim()
-    const redirectUri = (process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback').trim()
+    // Get the correct redirect URI based on environment
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://herit.vercel.app' 
+      : 'http://localhost:3000'
+    const redirectUri = (process.env.GOOGLE_REDIRECT_URI || `${baseUrl}/api/auth/google/callback`).trim()
     
     if (!googleClientId || !googleClientSecret) {
       return NextResponse.redirect(new URL('/login?error=oauth_config', request.url))
