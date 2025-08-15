@@ -39,6 +39,7 @@ export interface AuthUser {
   email: string
   firstName?: string | null
   lastName?: string | null
+  profilePhotoUrl?: string | null
   onboardingStatus?: string | null
   onboardingCurrentStep?: string | null
   onboarding_completed?: boolean
@@ -296,6 +297,7 @@ export async function getSession(): Promise<SessionResult> {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            profilePhotoUrl: user.profilePhotoUrl,
             onboardingStatus: user.onboardingStatus,
             onboardingCurrentStep: user.onboardingCurrentStep,
             onboarding_completed,
@@ -317,6 +319,7 @@ export async function getSession(): Promise<SessionResult> {
         email: payload.email,
         firstName: null,
         lastName: null,
+        profilePhotoUrl: null,
         onboardingStatus: 'not_started', // Always not_started for new OAuth users
         onboardingCurrentStep: 'personal_info',
         onboarding_completed: false,
@@ -439,6 +442,7 @@ export async function refreshTokenRotation(currentRefreshToken: string): Promise
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        profilePhotoUrl: user.profilePhotoUrl,
         onboardingStatus: user.onboardingStatus,
         onboardingCurrentStep: user.onboardingCurrentStep,
         onboarding_completed,

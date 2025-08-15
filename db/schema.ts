@@ -23,6 +23,7 @@ export const users = pgTable('users', {
   lastName: varchar('last_name', { length: 100 }),
   phoneNumber: varchar('phone_number', { length: 50 }),
   dateOfBirth: varchar('date_of_birth', { length: 50 }),
+  profilePhotoUrl: varchar('profile_photo_url', { length: 500 }),
   
   // Address
   addressLine1: varchar('address_line_1', { length: 255 }),

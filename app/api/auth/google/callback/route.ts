@@ -96,15 +96,35 @@ export async function GET(request: NextRequest) {
         // User exists - update auth provider info if needed
         userId = existingUser.id
         
-        // Update auth provider info if not already set
+        // Prepare update fields - only update if not already set
+        const updateFields: any = {
+          updatedAt: new Date(),
+        }
+        
+        // Update auth provider if not set
         if (!existingUser.authProvider || existingUser.authProvider !== 'google') {
+          updateFields.authProvider = 'google'
+          updateFields.authProviderId = googleUser.id
+        }
+        
+        // Update profile photo if not set
+        if (!existingUser.profilePhotoUrl && googleUser.picture) {
+          updateFields.profilePhotoUrl = googleUser.picture
+        }
+        
+        // Update first/last name if not set
+        if (!existingUser.firstName && googleUser.given_name) {
+          updateFields.firstName = googleUser.given_name
+        }
+        if (!existingUser.lastName && googleUser.family_name) {
+          updateFields.lastName = googleUser.family_name
+        }
+        
+        // Only update if there are fields to update
+        if (Object.keys(updateFields).length > 1) { // > 1 because updatedAt is always there
           await db
             .update(users)
-            .set({
-              authProvider: 'google',
-              authProviderId: googleUser.id,
-              updatedAt: new Date(),
-            })
+            .set(updateFields)
             .where(eq(users.id, existingUser.id))
         }
         
@@ -117,13 +137,14 @@ export async function GET(request: NextRequest) {
           existingUser.onboardingCompletedAt
         )
       } else {
-        // Create new user
+        // Create new user with all available Google data
         const [newUser] = await db
           .insert(users)
           .values({
             email: googleUser.email,
             firstName: googleUser.given_name || null,
             lastName: googleUser.family_name || null,
+            profilePhotoUrl: googleUser.picture || null,
             authProvider: 'google',
             authProviderId: googleUser.id,
             onboardingStatus: 'not_started',

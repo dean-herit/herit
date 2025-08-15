@@ -47,6 +47,7 @@ export const NavbarUserMenu = () => {
         <button className="mt-1 h-8 w-8 transition-transform">
           <Avatar
             size="sm"
+            src={user.profilePhotoUrl || undefined}
             name={getUserInitials(user)}
             className="text-tiny"
           />
