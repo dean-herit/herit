@@ -1,16 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button, Input, Select, SelectItem } from '@heroui/react';
-import { PersonalInfo } from '@/types/onboarding';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react'
+import { Button, Input, Select, SelectItem } from '@heroui/react'
+import { PersonalInfo } from '@/types/onboarding'
+import { cn } from '@/lib/utils'
+import { useMutation } from '@tanstack/react-query'
 
 interface PersonalInfoStepProps {
-  initialData: PersonalInfo;
-  onChange: (data: PersonalInfo) => void;
-  onComplete: (data: PersonalInfo) => void;
-  onBack?: () => void;
-  loading: boolean;
+  initialData: PersonalInfo
+  onChange: (data: PersonalInfo) => void
+  onComplete: () => void
+  onBack?: () => void
+  loading?: boolean
 }
 
 const IRISH_COUNTIES = [
@@ -28,8 +29,41 @@ export function PersonalInfoStep({
   onBack, 
   loading 
 }: PersonalInfoStepProps) {
-  const [formData, setFormData] = useState<PersonalInfo>(initialData);
-  const [errors, setErrors] = useState<Partial<PersonalInfo>>({});
+  const [formData, setFormData] = useState<PersonalInfo>(initialData)
+  const [errors, setErrors] = useState<Partial<PersonalInfo>>({})
+
+  // API mutation for saving personal info
+  const savePersonalInfoMutation = useMutation({
+    mutationFn: async (data: PersonalInfo) => {
+      const response = await fetch('/api/onboarding/personal-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: data.first_name,
+          lastName: data.last_name,
+          phoneNumber: data.phone_number,
+          dateOfBirth: data.date_of_birth,
+          addressLine1: data.address_line_1,
+          addressLine2: data.address_line_2,
+          city: data.city,
+          county: data.county,
+          eircode: data.eircode,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save personal information')
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      onComplete()
+    },
+  })
 
   useEffect(() => {
     onChange(formData);
@@ -88,11 +122,13 @@ export function PersonalInfoStep({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (validateForm()) {
-      onComplete(formData);
+      savePersonalInfoMutation.mutate(formData)
     }
-  };
+  }
+
+  const isLoading = loading || savePersonalInfoMutation.isPending
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -122,17 +158,6 @@ export function PersonalInfoStep({
             isRequired
           />
 
-          <Input
-            type="email"
-            label="Email Address"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
-            isInvalid={!!errors.email}
-            errorMessage={errors.email}
-            variant="bordered"
-            isRequired
-          />
 
           <Input
             type="date"
@@ -234,7 +259,7 @@ export function PersonalInfoStep({
           <Button
             variant="bordered"
             onPress={onBack}
-            isDisabled={loading}
+            isDisabled={isLoading}
           >
             Back
           </Button>
@@ -245,12 +270,19 @@ export function PersonalInfoStep({
         <Button
           type="submit"
           color="primary"
-          isLoading={loading}
-          isDisabled={loading}
+          isLoading={isLoading}
+          isDisabled={isLoading}
         >
           Continue
         </Button>
       </div>
+
+      {/* Error Display */}
+      {savePersonalInfoMutation.error && (
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {savePersonalInfoMutation.error.message}
+        </div>
+      )}
     </form>
-  );
+  )
 }

@@ -4,8 +4,8 @@ import { Button } from '@heroui/react';
 
 export function GoogleSignInButton() {
   const handleGoogleSignIn = () => {
-    // For now, show an alert - will be replaced with actual OAuth logic
-    alert('Google sign-in not yet implemented');
+    // Redirect to our Google OAuth endpoint
+    window.location.href = '/api/auth/google';
   };
 
   return (

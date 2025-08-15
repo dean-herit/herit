@@ -8,6 +8,11 @@
     "start": "next start",
     "lint": "eslint --fix",
     "typecheck": "tsc --noEmit --skipLibCheck",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "deploy": "./scripts/deploy.sh",
     "test:build": "npm run typecheck && npm run build"
   },
   "dependencies": {
@@ -29,7 +34,13 @@
     "@react-stately/utils": "^3.10.8",
     "@tanstack/react-query": "^5.85.3",
     "@tanstack/react-query-devtools": "^5.85.3",
+    "@types/pg": "^8.15.5",
+    "@vercel/blob": "^1.1.1",
+    "@vercel/postgres": "^0.10.0",
+    "argon2": "^0.44.0",
     "clsx": "2.1.1",
+    "drizzle-kit": "^0.31.4",
+    "drizzle-orm": "^0.44.4",
     "framer-motion": "11.18.2",
     "intl-messageformat": "10.7.16",
     "jose": "^6.0.12",
@@ -38,6 +49,7 @@
     "next-themes": "0.4.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.17"
   },

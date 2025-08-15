@@ -6,14 +6,20 @@ export async function GET(request: NextRequest) {
     const session = await getSession()
     
     if (!session.isAuthenticated) {
-      return NextResponse.json({ user: null }, { status: 200 })
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
     }
 
     return NextResponse.json({
       user: session.user,
-    }, { status: 200 })
+      onboardingStatus: session.user.onboardingStatus,
+      currentStep: session.user.onboardingCurrentStep,
+      isComplete: session.user.onboarding_completed,
+    })
   } catch (error) {
-    console.error('Session check error:', error)
+    console.error('Onboarding status error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
