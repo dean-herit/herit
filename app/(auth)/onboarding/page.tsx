@@ -211,7 +211,6 @@ export default function OnboardingPage() {
   const renderCurrentStep = () => {
     const commonProps = {
       loading,
-      onComplete: (data: any) => handleStepComplete(currentStep, data),
       onBack: currentStep > 0 ? () => setCurrentStep(currentStep - 1) : undefined,
     };
     
@@ -222,6 +221,7 @@ export default function OnboardingPage() {
             {...commonProps}
             initialData={personalInfo}
             onChange={setPersonalInfo}
+            onComplete={() => handleStepComplete(currentStep, personalInfo)}
           />
         );
       case 1:
