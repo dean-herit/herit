@@ -226,7 +226,7 @@ export async function setAuthCookies(userId: string, email: string): Promise<voi
   }
   
   // Set HTTP-only cookies
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   
   cookieStore.set('herit_access_token', accessToken, {
     httpOnly: true,
@@ -249,7 +249,7 @@ export async function setAuthCookies(userId: string, email: string): Promise<voi
  * Clear auth cookies
  */
 export async function clearAuthCookies(): Promise<void> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   
   cookieStore.delete('herit_access_token')
   cookieStore.delete('herit_refresh_token')
@@ -260,7 +260,7 @@ export async function clearAuthCookies(): Promise<void> {
  */
 export async function getSession(): Promise<SessionResult> {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const accessToken = cookieStore.get('herit_access_token')?.value
     
     if (!accessToken) {
