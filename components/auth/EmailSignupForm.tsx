@@ -8,8 +8,8 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 export function EmailSignupForm() {
   const { signup, isSigningUp } = useAuth();
   const [formData, setFormData] = useState({
-    given_name: '',
-    family_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -21,12 +21,12 @@ export function EmailSignupForm() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.given_name.trim()) {
-      newErrors.given_name = 'First name is required';
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
     }
     
-    if (!formData.family_name.trim()) {
-      newErrors.family_name = 'Last name is required';
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
     }
     
     if (!formData.email) {
@@ -68,10 +68,10 @@ export function EmailSignupForm() {
         <Input
           label="First Name"
           placeholder="First name"
-          value={formData.given_name}
-          onChange={(e) => handleChange('given_name', e.target.value)}
-          isInvalid={!!errors.given_name}
-          errorMessage={errors.given_name}
+          value={formData.firstName}
+          onChange={(e) => handleChange('firstName', e.target.value)}
+          isInvalid={!!errors.firstName}
+          errorMessage={errors.firstName}
           variant="bordered"
           isRequired
         />
@@ -79,10 +79,10 @@ export function EmailSignupForm() {
         <Input
           label="Last Name"
           placeholder="Last name"
-          value={formData.family_name}
-          onChange={(e) => handleChange('family_name', e.target.value)}
-          isInvalid={!!errors.family_name}
-          errorMessage={errors.family_name}
+          value={formData.lastName}
+          onChange={(e) => handleChange('lastName', e.target.value)}
+          isInvalid={!!errors.lastName}
+          errorMessage={errors.lastName}
           variant="bordered"
           isRequired
         />

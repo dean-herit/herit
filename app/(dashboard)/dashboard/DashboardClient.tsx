@@ -33,7 +33,7 @@ export function DashboardClient() {
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.given_name || 'User'}!
+          Welcome back, {user?.firstName || 'User'}!
         </h1>
         <p className="text-default-600 mt-2">
           Manage your estate planning and keep your legacy secure.

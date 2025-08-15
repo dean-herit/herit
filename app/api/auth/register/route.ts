@@ -6,10 +6,10 @@ import { hashPassword, setAuthCookies } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, given_name, family_name } = await request.json()
+    const { email, password, firstName, lastName } = await request.json()
     
     // Basic validation
-    if (!email || !password || !given_name || !family_name) {
+    if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
         { message: 'All fields are required' },
         { status: 400 }
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
       .values({
         email: email.toLowerCase(),
         passwordHash,
-        firstName: given_name,
-        lastName: family_name,
+        firstName: firstName,
+        lastName: lastName,
         onboardingStatus: 'not_started',
         onboardingCurrentStep: 'personal_info',
       })

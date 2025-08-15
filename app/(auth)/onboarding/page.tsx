@@ -125,8 +125,8 @@ export default function OnboardingPage() {
         if (data.user) {
           setPersonalInfo(prev => ({
             ...prev,
-            first_name: data.user.given_name || prev.first_name,
-            last_name: data.user.family_name || prev.last_name,
+            first_name: data.user.firstName || prev.first_name,
+            last_name: data.user.lastName || prev.last_name,
             email: data.user.email || prev.email,
           }));
         }
