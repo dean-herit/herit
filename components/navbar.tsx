@@ -15,6 +15,7 @@ import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { NavbarUserMenu } from "@/components/navbar-user-menu";
 import {
   TwitterIcon,
   GithubIcon,
@@ -68,14 +69,7 @@ export const Navbar = () => {
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
-          <Button
-            as={NextLink}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href="/login"
-            variant="flat"
-          >
-            Sign In
-          </Button>
+          <NavbarUserMenu />
         </NavbarItem>
       </NavbarContent>
 
