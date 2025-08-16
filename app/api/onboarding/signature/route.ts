@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json()
-    const { name, signatureType, signatureData } = data
+    const { name, signatureType, signatureData, font, className } = data
 
     // Basic validation
     if (!name || !signatureType || !signatureData) {
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
       signatureType,
       data: signatureData,
       hash,
+      fontName: font || null,
+      fontClassName: className || null,
       signatureMetadata: {
         createdAt: new Date().toISOString(),
         userAgent: request.headers.get('user-agent') || 'unknown',

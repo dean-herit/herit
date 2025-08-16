@@ -3,8 +3,9 @@ import { db } from '@/db/db'
 import { users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { verifyPassword, setAuthCookies } from '@/lib/auth'
+import { withRateLimit } from '@/lib/rate-limit'
 
-export async function POST(request: NextRequest) {
+async function loginHandler(request: NextRequest) {
   try {
     const { email, password } = await request.json()
     
@@ -71,5 +72,11 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Apply rate limiting: 5 attempts per minute per IP
+export const POST = withRateLimit(loginHandler, {
+  interval: 60000, // 1 minute
+  limit: 5 // 5 attempts
+})
 
 export const dynamic = 'force-dynamic'

@@ -5,18 +5,14 @@ import { redirect } from 'next/navigation'
 import { db } from '@/db/db'
 import { users, refreshTokens, type User } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
+import { env } from '@/lib/env'
 
 // JWT Configuration
 const ACCESS_TOKEN_EXPIRES_IN = '15m' // 15 minutes
 const REFRESH_TOKEN_EXPIRES_IN = '30d' // 30 days
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || 'fallback-dev-secret-32-characters'
-)
-
-const REFRESH_SECRET = new TextEncoder().encode(
-  process.env.REFRESH_SECRET || process.env.SESSION_SECRET || 'fallback-dev-refresh-32-chars'
-)
+const JWT_SECRET = new TextEncoder().encode(env.SESSION_SECRET)
+const REFRESH_SECRET = new TextEncoder().encode(env.REFRESH_SECRET || env.SESSION_SECRET)
 
 // JWT Token Types
 interface AccessTokenPayload {
@@ -247,13 +243,37 @@ export async function setAuthCookies(userId: string, email: string): Promise<voi
 }
 
 /**
- * Clear auth cookies
+ * Clear auth cookies and revoke refresh tokens
  */
 export async function clearAuthCookies(): Promise<void> {
   const cookieStore = await cookies()
   
+  // Get the current refresh token to identify the user before clearing
+  const refreshToken = cookieStore.get('herit_refresh_token')?.value
+  
+  // Clear HTTP cookies first
   cookieStore.delete('herit_access_token')
   cookieStore.delete('herit_refresh_token')
+  
+  // If we have a refresh token, revoke all refresh tokens for this user
+  if (refreshToken) {
+    try {
+      // Verify the refresh token to get the user ID
+      const { payload } = await jwtVerify(refreshToken, REFRESH_SECRET)
+      const refreshPayload = payload as unknown as RefreshTokenPayload
+      
+      // Revoke all refresh tokens for this user in the database
+      await db
+        .update(refreshTokens)
+        .set({ revoked: true })
+        .where(eq(refreshTokens.userId, refreshPayload.userId))
+        
+    } catch (dbError) {
+      // Log the error but don't fail logout - cookies are already cleared
+      console.error('Failed to revoke refresh tokens from database during logout:', dbError)
+      // In development, this might fail due to database issues, but logout should still work
+    }
+  }
 }
 
 /**

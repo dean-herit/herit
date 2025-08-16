@@ -3,8 +3,9 @@ import { db } from '@/db/db'
 import { users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { hashPassword, setAuthCookies } from '@/lib/auth'
+import { withRateLimit } from '@/lib/rate-limit'
 
-export async function POST(request: NextRequest) {
+async function registerHandler(request: NextRequest) {
   try {
     const { email, password, firstName, lastName } = await request.json()
     
@@ -86,5 +87,11 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Apply rate limiting: 3 registrations per hour per IP
+export const POST = withRateLimit(registerHandler, {
+  interval: 3600000, // 1 hour
+  limit: 3 // 3 attempts
+})
 
 export const dynamic = 'force-dynamic'

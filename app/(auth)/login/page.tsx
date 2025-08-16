@@ -1,28 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoginForm } from '@/components/auth/LoginForm';
+import { Button, Input, Checkbox, Link, Divider, Form, Spinner } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import { AcmeIcon } from '@/components/AcmeIcon';
 import { useAuth } from '@/hooks/useAuth';
-import { Spinner } from '@heroui/react';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { GithubSignInButton } from '@/components/auth/GithubSignInButton';
 
 export const dynamic = 'force-dynamic';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isAuthenticated, isSessionLoading } = useAuth();
+  const { isAuthenticated, isSessionLoading, login, isLoggingIn, loginError } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isOAuthRedirecting, setIsOAuthRedirecting] = useState(false);
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    login({ email, password });
+  };
 
   useEffect(() => {
-    if (!isSessionLoading) {
-      if (isAuthenticated) {
+    // Check if we're coming back from an OAuth error
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOAuthError = urlParams.has('error');
+    
+    if (!isSessionLoading && !isOAuthRedirecting) {
+      if (isAuthenticated && !hasOAuthError) {
         // User is authenticated, redirect to dashboard
         router.push('/dashboard');
       } else {
         setIsLoading(false);
       }
     }
-  }, [isAuthenticated, isSessionLoading, router]);
+  }, [isAuthenticated, isSessionLoading, router, isOAuthRedirecting]);
 
   if (isLoading || isSessionLoading) {
     return (
@@ -36,15 +54,121 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-content1/70 backdrop-blur-xl p-8 rounded-2xl border border-divider shadow-xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
-            <p className="text-default-600">Sign in to continue to your estate planning</p>
-          </div>
-          <LoginForm />
+    <div
+      className="bg-content1 flex min-h-screen w-full items-center justify-end overflow-hidden"
+      style={{
+        backgroundImage: "url(/login-background.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Brand Logo */}
+      <div className="absolute top-10 left-10">
+        <div className="flex items-center">
+          <AcmeIcon className="text-black" size={60} />
+          <p className="font-medium text-black ml-3 text-2xl">HERIT</p>
         </div>
+      </div>
+
+      {/* Testimonial */}
+      <div className="absolute bottom-10 left-10 hidden md:block">
+        <p className="max-w-xl text-white text-3xl font-light">
+          <span className="font-medium">"</span>
+          Peace of mind in what you leave behind
+          <span className="font-medium">"</span>
+        </p>
+      </div>
+
+      {/* Login Form */}
+      <div className="rounded-large bg-transparent backdrop-blur-sm border border-white/50 shadow-xl flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10 mr-8 my-8 text-white">
+        <p className="pb-2 text-xl font-medium text-white">Log In</p>
+        
+        {loginError && (
+          <div className="p-3 rounded-lg bg-danger-50 border border-danger-200">
+            <p className="text-sm text-danger-600">{loginError}</p>
+          </div>
+        )}
+        
+        <Form className="flex flex-col gap-3" validationBehavior="native" onSubmit={handleSubmit}>
+          <Input
+            isRequired
+            label="Email Address"
+            name="email"
+            placeholder="Enter your email"
+            type="email"
+            variant="bordered"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            classNames={{
+              label: "text-white",
+              input: "text-white placeholder:text-white/50",
+              inputWrapper: "border-white/50 hover:border-white/70 data-[focus=true]:border-white"
+            }}
+          />
+          <Input
+            isRequired
+            endContent={
+              <button type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-closed-linear"
+                  />
+                ) : (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-bold"
+                  />
+                )}
+              </button>
+            }
+            label="Password"
+            name="password"
+            placeholder="Enter your password"
+            type={isVisible ? "text" : "password"}
+            variant="bordered"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            classNames={{
+              label: "text-white",
+              input: "text-white placeholder:text-white/50",
+              inputWrapper: "border-white/50 hover:border-white/70 data-[focus=true]:border-white"
+            }}
+          />
+          <div className="flex w-full items-center justify-between px-1 py-2">
+            <Checkbox 
+              name="remember" 
+              size="sm" 
+              classNames={{
+                label: "text-white",
+                wrapper: "before:border-white/50"
+              }}
+            >
+              Remember me
+            </Checkbox>
+            <Link className="text-white" href="#" size="sm">
+              Forgot password?
+            </Link>
+          </div>
+          <Button className="w-full" color="primary" type="submit" isLoading={isLoggingIn}>
+            Log In
+          </Button>
+        </Form>
+        <div className="flex items-center gap-4 py-2">
+          <Divider className="flex-1 bg-white/30" />
+          <p className="text-tiny text-white shrink-0">OR</p>
+          <Divider className="flex-1 bg-white/30" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <GoogleSignInButton onSignInStart={() => setIsOAuthRedirecting(true)} />
+          <GithubSignInButton />
+        </div>
+        <p className="text-small text-center text-white">
+          Need to create an account?&nbsp;
+          <Link href="/onboarding" size="sm" className="text-white underline">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -12,8 +12,8 @@ import {
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
-// Users table - core user information
-export const users = pgTable('users', {
+// Custom users table - core user information (renamed to avoid Supabase auth conflict)
+export const users = pgTable('app_users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: varchar('email', { length: 255 }).unique().notNull(),
   passwordHash: text('password_hash'),
@@ -62,8 +62,8 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
 })
 
-// Refresh tokens for JWT authentication
-export const refreshTokens = pgTable('refresh_tokens', {
+// Refresh tokens for JWT authentication (renamed to avoid Supabase auth conflict)
+export const refreshTokens = pgTable('app_refresh_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   tokenHash: text('token_hash').notNull(),
@@ -164,6 +164,10 @@ export const signatures = pgTable('signatures', {
   signatureType: varchar('signature_type', { length: 50 }).notNull(),
   data: text('data').notNull(),
   hash: varchar('hash', { length: 255 }).notNull(),
+  
+  // Font Information (for template signatures)
+  fontName: varchar('font_name', { length: 100 }),
+  fontClassName: varchar('font_class_name', { length: 100 }),
   
   // Signature Metadata
   signatureMetadata: jsonb('signature_metadata'),

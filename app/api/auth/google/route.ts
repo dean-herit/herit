@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { clearAuthCookies } from '@/lib/auth'
+import { env } from '@/lib/env'
 
 export async function GET(request: NextRequest) {
   try {
-    // Trim whitespace to prevent newline issues
-    const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim()
+    // Clear any existing auth session before starting OAuth flow
+    // This ensures a clean OAuth flow without interference from existing sessions
+    await clearAuthCookies()
+    
+    // Use validated environment variables
+    const googleClientId = env.GOOGLE_CLIENT_ID?.trim()
     // Get the correct redirect URI based on environment
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = env.NODE_ENV === 'production' 
       ? 'https://herit.vercel.app' 
       : 'http://localhost:3000'
-    const redirectUri = (process.env.GOOGLE_REDIRECT_URI || `${baseUrl}/api/auth/google/callback`).trim()
+    const redirectUri = (env.GOOGLE_REDIRECT_URI || `${baseUrl}/api/auth/google/callback`).trim()
     
     if (!googleClientId) {
       return NextResponse.json(
@@ -27,13 +33,15 @@ export async function GET(request: NextRequest) {
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `response_type=code&` +
       `scope=${encodeURIComponent('openid email profile')}&` +
-      `state=${encodeURIComponent(state)}`
+      `state=${encodeURIComponent(state)}&` +
+      `prompt=consent&` +
+      `access_type=offline`
     )
     
     // Set state cookie
     response.cookies.set('oauth_state', state, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 600, // 10 minutes
       path: '/'

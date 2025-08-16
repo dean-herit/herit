@@ -85,6 +85,10 @@ export function useAuth() {
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
+      // Immediately clear the session cache before making the API call
+      queryClient.setQueryData(['auth', 'session'], { user: null })
+      queryClient.invalidateQueries({ queryKey: ['auth', 'session'] })
+      
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
       })
@@ -96,7 +100,8 @@ export function useAuth() {
       return response.json()
     },
     onSuccess: () => {
-      queryClient.setQueryData(['auth', 'session'], { user: null })
+      // Ensure cache is cleared and invalidated
+      queryClient.removeQueries({ queryKey: ['auth'] })
       router.push('/login')
     },
   })

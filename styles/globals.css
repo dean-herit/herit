@@ -10,6 +10,47 @@
   font-family: 'Dancing Script', cursive;
 }
 
+/* Signature font classes */
+.font-dancing-script {
+  font-family: var(--font-dancing-script), cursive;
+}
+
+.font-great-vibes {
+  font-family: var(--font-great-vibes), cursive;
+}
+
+.font-pacifico {
+  font-family: var(--font-pacifico), cursive;
+}
+
+.font-satisfy {
+  font-family: var(--font-satisfy), cursive;
+}
+
+.font-allura {
+  font-family: var(--font-allura), cursive;
+}
+
+.font-parisienne {
+  font-family: var(--font-parisienne), cursive;
+}
+
+.font-sacramento {
+  font-family: var(--font-sacramento), cursive;
+}
+
+.font-shadows-into-light {
+  font-family: var(--font-shadows-into-light), cursive;
+}
+
+.font-mr-dafoe {
+  font-family: var(--font-mr-dafoe), cursive;
+}
+
+.font-alex-brush {
+  font-family: var(--font-alex-brush), cursive;
+}
+
 /* Ensure proper scrolling behavior */
 html {
   scroll-behavior: smooth;

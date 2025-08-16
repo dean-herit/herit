@@ -44,13 +44,21 @@ export const NavbarUserMenu = () => {
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
-        <button className="mt-1 h-8 w-8 transition-transform">
-          <Avatar
-            size="sm"
-            src={user.profilePhotoUrl || undefined}
-            name={getUserInitials(user)}
-            className="text-tiny"
-          />
+        <button className="mt-1 transition-transform">
+          {user.profilePhotoUrl ? (
+            <Avatar
+              size="sm"
+              src={user.profilePhotoUrl}
+              className="h-8 w-8"
+            />
+          ) : (
+            <Avatar
+              size="sm"
+              name={getUserInitials(user)}
+              className="h-8 w-8"
+              showFallback
+            />
+          )}
         </button>
       </DropdownTrigger>
       <DropdownMenu aria-label="Profile Actions" variant="flat">
