@@ -46,11 +46,15 @@ export function SignatureStamp({
         />
       );
     } else {
-      // For drawn signatures (when implemented)
+      // For drawn signatures (when implemented) or template signatures without font
       return (
         <div
-          className="text-4xl text-black dark:text-white"
-          style={{ fontFamily: "cursive" }}
+          className={`text-4xl text-black dark:text-white ${signature.className || ""}`}
+          style={{
+            fontFamily: signature.font || "cursive",
+            transform: "scaleY(1.2)",
+            letterSpacing: "0.05em",
+          }}
         >
           {signature.data}
         </div>

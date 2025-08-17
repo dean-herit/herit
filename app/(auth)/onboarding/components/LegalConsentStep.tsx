@@ -239,7 +239,10 @@ export function LegalConsentStep({
             </div>
             <div className="text-right">
               <p className="text-xs text-default-600 mb-1">Your signature:</p>
-              <div className={signature.className || "font-cursive"}>
+              <div
+                className={signature.className || "font-cursive"}
+                style={signature.font ? { fontFamily: signature.font } : {}}
+              >
                 {signature.type === "uploaded" ? (
                   <img
                     alt="Your signature"
