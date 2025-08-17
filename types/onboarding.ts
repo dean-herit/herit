@@ -22,11 +22,18 @@ export interface Signature {
   createdAt: string;
 }
 
+export interface SignedConsent {
+  id: string;
+  timestamp: string;
+  signatureId: string;
+}
+
 export interface OnboardingProgress {
   currentStep: number;
   personalInfo: PersonalInfo | null;
   signature: Signature | null;
   consents: string[];
+  signedConsents?: SignedConsent[];
   completedSteps: number[];
 }
 

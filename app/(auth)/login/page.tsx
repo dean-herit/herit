@@ -16,7 +16,6 @@ import { Icon } from "@iconify/react";
 import { AcmeIcon } from "@/components/AcmeIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { GithubSignInButton } from "@/components/auth/GithubSignInButton";
 
 export const dynamic = "force-dynamic";
 
@@ -184,7 +183,6 @@ export default function LoginPage() {
           <GoogleSignInButton
             onSignInStart={() => setIsOAuthRedirecting(true)}
           />
-          <GithubSignInButton />
         </div>
         <p className="text-small text-center text-white">
           Need to create an account?&nbsp;

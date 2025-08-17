@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -13,7 +14,13 @@ import NextLink from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
 export const NavbarUserMenu = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isSessionLoading } = useAuth();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -29,6 +36,19 @@ export const NavbarUserMenu = () => {
 
     return "U";
   };
+
+  // Show loading state during hydration and session loading
+  if (!hasMounted || isSessionLoading) {
+    return (
+      <Button
+        disabled
+        className="text-sm font-normal text-default-600 bg-default-100"
+        variant="flat"
+      >
+        Loading...
+      </Button>
+    );
+  }
 
   if (!isAuthenticated || !user) {
     return (
