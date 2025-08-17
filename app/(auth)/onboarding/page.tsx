@@ -90,6 +90,7 @@ export default function OnboardingPage() {
       }
 
       if (user && user.onboarding_completed) {
+        console.log("User onboarding completed, redirecting to dashboard");
         router.push("/dashboard");
 
         return;
@@ -100,6 +101,7 @@ export default function OnboardingPage() {
   // Load progress from localStorage on mount
   useEffect(() => {
     const savedProgress = localStorage.getItem("onboarding-progress");
+    let hasLocalProgress = false;
 
     if (savedProgress) {
       try {
@@ -110,13 +112,14 @@ export default function OnboardingPage() {
         setSignature(progress.signature || null);
         setConsents(progress.consents || []);
         setCompletedSteps(progress.completedSteps || []);
+        hasLocalProgress = true;
       } catch (error) {
         console.error("Error loading onboarding progress:", error);
       }
     }
 
-    // Try to populate from user session
-    fetchUserData();
+    // Fetch user data and set appropriate step if no local progress
+    fetchUserData(!hasLocalProgress);
   }, []);
 
   // Save progress to localStorage whenever state changes
@@ -132,34 +135,66 @@ export default function OnboardingPage() {
     localStorage.setItem("onboarding-progress", JSON.stringify(progress));
   }, [currentStep, personalInfo, signature, consents, completedSteps]);
 
-  // Fetch user data from session
-  const fetchUserData = async () => {
+  // Determine current step based on completion status
+  const determineCurrentStep = (userData: any) => {
+    console.log("Determining current step with data:", userData);
+    if (!userData.personal_info_completed) return 0;
+    if (!userData.signature_completed) return 1;
+    if (!userData.legal_consent_completed) return 2;
+    if (!userData.verification_completed) return 3;
+
+    // All steps completed - should redirect to dashboard
+    console.log("All steps completed, should redirect to dashboard");
+
+    return 3;
+  };
+
+  // Fetch user data from session and database
+  const fetchUserData = async (shouldSetStep = false) => {
     try {
-      const response = await fetch("/api/auth/session");
+      // Fetch personal information and completion status from database
+      const personalInfoResponse = await fetch("/api/onboarding/personal-info");
 
-      if (response.ok) {
-        const data = await response.json();
+      if (personalInfoResponse.ok) {
+        const personalInfoData = await personalInfoResponse.json();
 
-        if (data.user) {
-          setPersonalInfo((prev) => ({
-            ...prev,
-            first_name: data.user.firstName || prev.first_name,
-            last_name: data.user.lastName || prev.last_name,
-            email: data.user.email || prev.email,
-          }));
+        if (personalInfoData.personalInfo) {
+          setPersonalInfo(personalInfoData.personalInfo);
+        }
+
+        // Set current step based on completion status if this is initial load without local progress
+        if (personalInfoData.completionStatus && shouldSetStep) {
+          const appropriateStep = determineCurrentStep(
+            personalInfoData.completionStatus,
+          );
+
+          setCurrentStep(appropriateStep);
         }
       }
 
-      // Also fetch existing signature if not in localStorage
-      if (!signature) {
-        const signatureResponse = await fetch("/api/onboarding/signature");
+      // Fetch existing signature from database
+      const signatureResponse = await fetch("/api/onboarding/signature");
 
-        if (signatureResponse.ok) {
-          const signatureData = await signatureResponse.json();
+      if (signatureResponse.ok) {
+        const signatureData = await signatureResponse.json();
 
-          if (signatureData.signature) {
-            setSignature(signatureData.signature);
-          }
+        if (signatureData.signature) {
+          setSignature(signatureData.signature);
+        }
+      }
+
+      // Fetch existing consents from database
+      const consentsResponse = await fetch("/api/onboarding/legal-consent");
+
+      if (consentsResponse.ok) {
+        const consentsData = await consentsResponse.json();
+
+        if (consentsData.consents) {
+          const consentIds = Object.keys(consentsData.consents).filter(
+            (id) => consentsData.consents[id]?.agreed,
+          );
+
+          setConsents(consentIds);
         }
       }
     } catch (error) {

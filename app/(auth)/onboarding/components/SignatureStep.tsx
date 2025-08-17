@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
 
 import { PersonalInfo, Signature } from "@/types/onboarding";
@@ -32,6 +32,27 @@ export function SignatureStep({
   const [showFontSelector, setShowFontSelector] = useState(false);
   const [uploadedSignatures, setUploadedSignatures] = useState<Signature[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Initialize from existing signature
+  useEffect(() => {
+    if (initialSignature) {
+      setSignature(initialSignature);
+
+      // If signature exists, set selected font and show selector
+      if (initialSignature.type === "template" && initialSignature.font) {
+        const matchingFont = signatureFonts.find(
+          (f) => f.name === initialSignature.font,
+        );
+
+        if (matchingFont) {
+          setSelectedFont(matchingFont);
+        }
+        setShowFontSelector(true);
+      } else if (initialSignature.type === "uploaded") {
+        setShowFontSelector(true);
+      }
+    }
+  }, [initialSignature]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     status: openCVStatus,
@@ -417,9 +438,24 @@ export function SignatureStep({
             >
               <CardBody className="p-6 flex items-center justify-center min-h-[100px]">
                 <div
-                  className={`text-3xl text-foreground ${fontData.className} text-center`}
+                  className={`text-3xl text-foreground ${
+                    signature?.type === "template" &&
+                    signature?.font === fontData.name
+                      ? signature.className || fontData.className
+                      : fontData.className
+                  } text-center`}
+                  style={
+                    signature?.type === "template" &&
+                    signature?.font === fontData.name &&
+                    signature.font
+                      ? { fontFamily: signature.font }
+                      : {}
+                  }
                 >
-                  {fullName}
+                  {signature?.type === "template" &&
+                  signature?.font === fontData.name
+                    ? signature.data
+                    : fullName}
                 </div>
               </CardBody>
             </Card>

@@ -66,8 +66,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check required consents
-    const requiredConsents = ["termsOfService", "privacyPolicy", "legalAdvice"];
+    // Check required consents (these should match the LegalConsentStep component)
+    const requiredConsents = [
+      "terms_of_service",
+      "privacy_policy",
+      "legal_disclaimer",
+      "data_processing",
+      "electronic_signature",
+    ];
     const missingConsents = requiredConsents.filter(
       (consent) => !consents[consent],
     );

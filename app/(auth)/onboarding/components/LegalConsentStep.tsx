@@ -72,6 +72,7 @@ export function LegalConsentStep({
   const [signedConsents, setSignedConsents] = useState<SignedConsent[]>([]);
   const [signingConsent, setSigningConsent] = useState<string | null>(null);
   const [loadingConsents, setLoadingConsents] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Load existing signed consents when component mounts
   useEffect(() => {
@@ -184,11 +185,56 @@ export function LegalConsentStep({
     (consent) => consent.required,
   ).every((consent) => isConsentSigned(consent.id));
 
-  const handleSubmit = () => {
-    if (allRequiredConsentsGiven) {
+  const handleSubmit = async () => {
+    if (allRequiredConsentsGiven && !submitting) {
+      setSubmitting(true);
       const consentIds = signedConsents.map((sc) => sc.id);
 
-      onComplete(consentIds);
+      try {
+        // Save completion status to database
+        const consentsData = signedConsents.reduce(
+          (acc, consent) => {
+            acc[consent.id] = {
+              agreed: true,
+              timestamp: consent.timestamp,
+              signatureId: consent.signatureId,
+            };
+
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
+
+        const response = await fetch("/api/onboarding/legal-consent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            consents: consentsData,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+
+          console.error("Failed to save legal consent completion:", errorData);
+          throw new Error(
+            errorData.error || "Failed to save legal consent completion",
+          );
+        }
+
+        console.log("Legal consent completion saved successfully");
+
+        // Call the parent completion handler
+        onComplete(consentIds);
+      } catch (error) {
+        console.error("Error saving legal consent completion:", error);
+        // Still call onComplete to allow UI progression, but log the error
+        onComplete(consentIds);
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -392,8 +438,8 @@ export function LegalConsentStep({
 
         <Button
           color="primary"
-          isDisabled={loading || !allRequiredConsentsGiven}
-          isLoading={loading}
+          isDisabled={loading || !allRequiredConsentsGiven || submitting}
+          isLoading={loading || submitting}
           onPress={handleSubmit}
         >
           Continue to Verification
