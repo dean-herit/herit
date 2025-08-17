@@ -125,29 +125,29 @@ export async function GET(request: NextRequest) {
 
         // Prepare update fields - only update if not already set
         const updateFields: any = {
-          updatedAt: new Date(),
+          updated_at: new Date(),
         };
 
         // Update auth provider if not set
         if (
-          !existingUser.authProvider ||
-          existingUser.authProvider !== "google"
+          !existingUser.auth_provider ||
+          existingUser.auth_provider !== "google"
         ) {
-          updateFields.authProvider = "google";
-          updateFields.authProviderId = googleUser.id;
+          updateFields.auth_provider = "google";
+          updateFields.auth_provider_id = googleUser.id;
         }
 
         // Update profile photo if not set
-        if (!existingUser.profilePhotoUrl && googleUser.picture) {
-          updateFields.profilePhotoUrl = googleUser.picture;
+        if (!existingUser.profile_photo_url && googleUser.picture) {
+          updateFields.profile_photo_url = googleUser.picture;
         }
 
         // Update first/last name if not set
-        if (!existingUser.firstName && googleUser.given_name) {
-          updateFields.firstName = googleUser.given_name;
+        if (!existingUser.first_name && googleUser.given_name) {
+          updateFields.first_name = googleUser.given_name;
         }
-        if (!existingUser.lastName && googleUser.family_name) {
-          updateFields.lastName = googleUser.family_name;
+        if (!existingUser.last_name && googleUser.family_name) {
+          updateFields.last_name = googleUser.family_name;
         }
 
         // Only update if there are fields to update
@@ -161,11 +161,11 @@ export async function GET(request: NextRequest) {
 
         // Check if onboarding is complete
         needsOnboarding = !(
-          existingUser.personalInfoCompleted &&
-          existingUser.signatureCompleted &&
-          existingUser.legalConsentCompleted &&
-          existingUser.verificationCompleted &&
-          existingUser.onboardingCompletedAt
+          existingUser.personal_info_completed &&
+          existingUser.signature_completed &&
+          existingUser.legal_consent_completed &&
+          existingUser.verification_completed &&
+          existingUser.onboarding_completed_at
         );
       } else {
         // Create new user with all available Google data
@@ -173,13 +173,13 @@ export async function GET(request: NextRequest) {
           .insert(users)
           .values({
             email: googleUser.email,
-            firstName: googleUser.given_name || null,
-            lastName: googleUser.family_name || null,
-            profilePhotoUrl: googleUser.picture || null,
-            authProvider: "google",
-            authProviderId: googleUser.id,
-            onboardingStatus: "not_started",
-            onboardingCurrentStep: "personal_info",
+            first_name: googleUser.given_name || null,
+            last_name: googleUser.family_name || null,
+            profile_photo_url: googleUser.picture || null,
+            auth_provider: "google",
+            auth_provider_id: googleUser.id,
+            onboarding_status: "not_started",
+            onboarding_current_step: "personal_info",
           })
           .returning();
 

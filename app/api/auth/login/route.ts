@@ -25,7 +25,7 @@ async function loginHandler(request: NextRequest) {
       .where(eq(users.email, email.toLowerCase()))
       .limit(1);
 
-    if (!user || !user.passwordHash) {
+    if (!user || !user.password_hash) {
       return NextResponse.json(
         { message: "Invalid email or password" },
         { status: 401 },
@@ -33,7 +33,7 @@ async function loginHandler(request: NextRequest) {
     }
 
     // Verify password
-    const isValidPassword = await verifyPassword(password, user.passwordHash);
+    const isValidPassword = await verifyPassword(password, user.password_hash);
 
     if (!isValidPassword) {
       return NextResponse.json(
@@ -47,11 +47,11 @@ async function loginHandler(request: NextRequest) {
 
     // Determine onboarding completion
     const onboarding_completed = !!(
-      user.personalInfoCompleted &&
-      user.signatureCompleted &&
-      user.legalConsentCompleted &&
-      user.verificationCompleted &&
-      user.onboardingCompletedAt
+      user.personal_info_completed &&
+      user.signature_completed &&
+      user.legal_consent_completed &&
+      user.verification_completed &&
+      user.onboarding_completed_at
     );
 
     return NextResponse.json({
@@ -59,10 +59,10 @@ async function loginHandler(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        onboardingStatus: user.onboardingStatus,
-        onboardingCurrentStep: user.onboardingCurrentStep,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        onboardingStatus: user.onboarding_status,
+        onboardingCurrentStep: user.onboarding_current_step,
         onboarding_completed,
       },
     });

@@ -15,54 +15,54 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("app_users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: varchar("email", { length: 255 }).unique().notNull(),
-  passwordHash: text("password_hash"),
+  password_hash: text("password_hash"),
 
   // Personal Information
-  firstName: varchar("first_name", { length: 100 }),
-  lastName: varchar("last_name", { length: 100 }),
-  phoneNumber: varchar("phone_number", { length: 50 }),
-  dateOfBirth: varchar("date_of_birth", { length: 50 }),
-  profilePhotoUrl: varchar("profile_photo_url", { length: 500 }),
+  first_name: varchar("first_name", { length: 100 }),
+  last_name: varchar("last_name", { length: 100 }),
+  phone_number: varchar("phone_number", { length: 50 }),
+  date_of_birth: varchar("date_of_birth", { length: 50 }),
+  profile_photo_url: varchar("profile_photo_url", { length: 500 }),
 
   // Address
-  addressLine1: varchar("address_line_1", { length: 255 }),
-  addressLine2: varchar("address_line_2", { length: 255 }),
+  address_line_1: varchar("address_line_1", { length: 255 }),
+  address_line_2: varchar("address_line_2", { length: 255 }),
   city: varchar("city", { length: 100 }),
   county: varchar("county", { length: 100 }),
   eircode: varchar("eircode", { length: 20 }),
 
   // Onboarding Status
-  onboardingStatus: varchar("onboarding_status", { length: 50 }).default(
+  onboarding_status: varchar("onboarding_status", { length: 50 }).default(
     "not_started",
   ),
-  onboardingCurrentStep: varchar("onboarding_current_step", {
+  onboarding_current_step: varchar("onboarding_current_step", {
     length: 50,
   }).default("personal_info"),
-  onboardingCompletedAt: timestamp("onboarding_completed_at"),
+  onboarding_completed_at: timestamp("onboarding_completed_at"),
 
   // Step Completion Tracking
-  personalInfoCompleted: boolean("personal_info_completed").default(false),
-  personalInfoCompletedAt: timestamp("personal_info_completed_at"),
+  personal_info_completed: boolean("personal_info_completed").default(false),
+  personal_info_completed_at: timestamp("personal_info_completed_at"),
 
-  signatureCompleted: boolean("signature_completed").default(false),
-  signatureCompletedAt: timestamp("signature_completed_at"),
+  signature_completed: boolean("signature_completed").default(false),
+  signature_completed_at: timestamp("signature_completed_at"),
 
-  legalConsentCompleted: boolean("legal_consent_completed").default(false),
-  legalConsentCompletedAt: timestamp("legal_consent_completed_at"),
-  legalConsents: jsonb("legal_consents"),
+  legal_consent_completed: boolean("legal_consent_completed").default(false),
+  legal_consent_completed_at: timestamp("legal_consent_completed_at"),
+  legal_consents: jsonb("legal_consents"),
 
-  verificationCompleted: boolean("verification_completed").default(false),
-  verificationCompletedAt: timestamp("verification_completed_at"),
-  verificationSessionId: varchar("verification_session_id", { length: 255 }),
-  verificationStatus: varchar("verification_status", { length: 50 }),
+  verification_completed: boolean("verification_completed").default(false),
+  verification_completed_at: timestamp("verification_completed_at"),
+  verification_session_id: varchar("verification_session_id", { length: 255 }),
+  verification_status: varchar("verification_status", { length: 50 }),
 
   // Auth Provider Info
-  authProvider: varchar("auth_provider", { length: 50 }),
-  authProviderId: varchar("auth_provider_id", { length: 255 }),
+  auth_provider: varchar("auth_provider", { length: 50 }),
+  auth_provider_id: varchar("auth_provider_id", { length: 255 }),
 
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
@@ -70,38 +70,36 @@ export const users = pgTable("app_users", {
 // Refresh tokens for JWT authentication (renamed to avoid Supabase auth conflict)
 export const refreshTokens = pgTable("app_refresh_tokens", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+  user_id: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  tokenHash: text("token_hash").notNull(),
+  token_hash: text("token_hash").notNull(),
   family: uuid("family").notNull(),
   revoked: boolean("revoked").default(false),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  expires_at: timestamp("expires_at").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Assets table
 export const assets = pgTable("assets", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
+  user_email: varchar("user_email", { length: 255 }).notNull(),
 
   // Asset Details
   name: varchar("name", { length: 255 }).notNull(),
-  assetType: varchar("asset_type", { length: 100 }).notNull(),
+  asset_type: varchar("asset_type", { length: 100 }).notNull(),
   value: real("value").notNull().default(0),
   description: text("description"),
 
   // Asset Metadata
-  accountNumber: varchar("account_number", { length: 255 }),
-  bankName: varchar("bank_name", { length: 255 }),
-  propertyAddress: text("property_address"),
+  account_number: varchar("account_number", { length: 255 }),
+  bank_name: varchar("bank_name", { length: 255 }),
+  property_address: text("property_address"),
 
   // Status and Timestamps
   status: varchar("status", { length: 50 }).default("active"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
@@ -109,19 +107,17 @@ export const assets = pgTable("assets", {
 // Beneficiaries table
 export const beneficiaries = pgTable("beneficiaries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
+  user_email: varchar("user_email", { length: 255 }).notNull(),
 
   // Beneficiary Details
   name: varchar("name", { length: 255 }).notNull(),
-  relationshipType: varchar("relationship_type", { length: 100 }).notNull(),
+  relationship_type: varchar("relationship_type", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }),
   phone: varchar("phone", { length: 50 }),
 
   // Address
-  addressLine1: varchar("address_line_1", { length: 255 }),
-  addressLine2: varchar("address_line_2", { length: 255 }),
+  address_line_1: varchar("address_line_1", { length: 255 }),
+  address_line_2: varchar("address_line_2", { length: 255 }),
   city: varchar("city", { length: 100 }),
   county: varchar("county", { length: 100 }),
   eircode: varchar("eircode", { length: 20 }),
@@ -129,13 +125,13 @@ export const beneficiaries = pgTable("beneficiaries", {
 
   // Inheritance Details
   percentage: real("percentage"),
-  specificAssets: jsonb("specific_assets"),
+  specific_assets: jsonb("specific_assets"),
   conditions: text("conditions"),
 
   // Status and Timestamps
   status: varchar("status", { length: 50 }).default("active"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
@@ -143,15 +139,13 @@ export const beneficiaries = pgTable("beneficiaries", {
 // Wills table
 export const wills = pgTable("wills", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
+  user_email: varchar("user_email", { length: 255 }).notNull(),
 
   // Will Metadata
   title: varchar("title", { length: 255 })
     .notNull()
     .default("Last Will and Testament"),
-  willType: varchar("will_type", { length: 100 }).default("simple"),
+  will_type: varchar("will_type", { length: 100 }).default("simple"),
 
   // Will Content
   content: text("content"),
@@ -159,87 +153,87 @@ export const wills = pgTable("wills", {
 
   // Legal Status
   status: varchar("status", { length: 50 }).default("draft"),
-  legalReviewStatus: varchar("legal_review_status", { length: 50 }),
-  legalReviewer: varchar("legal_reviewer", { length: 255 }),
+  legal_review_status: varchar("legal_review_status", { length: 50 }),
+  legal_reviewer: varchar("legal_reviewer", { length: 255 }),
 
   // Document Management
-  documentHash: varchar("document_hash", { length: 255 }),
-  documentUrl: varchar("document_url", { length: 500 }),
+  document_hash: varchar("document_hash", { length: 255 }),
+  document_url: varchar("document_url", { length: 500 }),
   version: integer("version").default(1),
 
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
-  finalizedAt: timestamp("finalized_at"),
+  finalized_at: timestamp("finalized_at"),
 });
 
 // Signatures table
 export const signatures = pgTable("signatures", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+  user_id: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
 
   // Signature Details
   name: varchar("name", { length: 255 }).notNull(),
-  signatureType: varchar("signature_type", { length: 50 }).notNull(),
+  signature_type: varchar("signature_type", { length: 50 }).notNull(),
   data: text("data").notNull(),
   hash: varchar("hash", { length: 255 }).notNull(),
 
   // Font Information (for template signatures)
-  fontName: varchar("font_name", { length: 100 }),
-  fontClassName: varchar("font_class_name", { length: 100 }),
+  font_name: varchar("font_name", { length: 100 }),
+  font_class_name: varchar("font_class_name", { length: 100 }),
 
   // Signature Metadata
-  signatureMetadata: jsonb("signature_metadata"),
+  signature_metadata: jsonb("signature_metadata"),
 
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at")
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
-  lastUsed: timestamp("last_used"),
+  last_used: timestamp("last_used"),
 });
 
 // Signature Usage table (audit trail)
 export const signatureUsage = pgTable("signature_usage", {
   id: uuid("id").primaryKey().defaultRandom(),
-  signatureId: uuid("signature_id")
+  signature_id: uuid("signature_id")
     .references(() => signatures.id, { onDelete: "cascade" })
     .notNull(),
-  userId: uuid("user_id")
+  user_id: uuid("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
 
   // Usage Context
-  documentType: varchar("document_type", { length: 100 }).notNull(),
-  documentId: varchar("document_id", { length: 255 }),
-  context: jsonb("context"),
+  document_type: varchar("document_type", { length: 100 }).notNull(),
+  document_id: varchar("document_id", { length: 255 }),
+  usage_metadata: jsonb("usage_metadata"),
 
   // Timestamps
-  usedAt: timestamp("used_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Audit Events table (comprehensive audit trail)
 export const auditEvents = pgTable("audit_events", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  user_email: varchar("user_email", { length: 255 }),
 
   // Event Details
-  eventType: varchar("event_type", { length: 100 }).notNull(),
-  eventAction: varchar("event_action", { length: 100 }).notNull(),
-  resourceType: varchar("resource_type", { length: 100 }),
-  resourceId: varchar("resource_id", { length: 255 }),
+  action: varchar("action", { length: 100 }).notNull(),
+  entity_type: varchar("entity_type", { length: 100 }),
+  entity_id: varchar("entity_id", { length: 255 }),
 
   // Event Metadata
-  eventData: jsonb("event_data"),
-  ipAddress: varchar("ip_address", { length: 45 }),
-  userAgent: text("user_agent"),
+  event_metadata: jsonb("event_metadata"),
+  ip_address: varchar("ip_address", { length: 45 }),
+  user_agent: text("user_agent"),
+  session_id: varchar("session_id", { length: 255 }),
 
   // Timestamps
-  eventTime: timestamp("event_time").defaultNow(),
+  timestamp: timestamp("timestamp").defaultNow(),
 });
 
 // Relations
@@ -255,35 +249,35 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
   user: one(users, {
-    fields: [refreshTokens.userId],
+    fields: [refreshTokens.user_id],
     references: [users.id],
   }),
 }));
 
 export const assetsRelations = relations(assets, ({ one }) => ({
   user: one(users, {
-    fields: [assets.userId],
-    references: [users.id],
+    fields: [assets.user_email],
+    references: [users.email],
   }),
 }));
 
 export const beneficiariesRelations = relations(beneficiaries, ({ one }) => ({
   user: one(users, {
-    fields: [beneficiaries.userId],
-    references: [users.id],
+    fields: [beneficiaries.user_email],
+    references: [users.email],
   }),
 }));
 
 export const willsRelations = relations(wills, ({ one }) => ({
   user: one(users, {
-    fields: [wills.userId],
-    references: [users.id],
+    fields: [wills.user_email],
+    references: [users.email],
   }),
 }));
 
 export const signaturesRelations = relations(signatures, ({ one, many }) => ({
   user: one(users, {
-    fields: [signatures.userId],
+    fields: [signatures.user_id],
     references: [users.id],
   }),
   usage: many(signatureUsage),
@@ -291,19 +285,19 @@ export const signaturesRelations = relations(signatures, ({ one, many }) => ({
 
 export const signatureUsageRelations = relations(signatureUsage, ({ one }) => ({
   signature: one(signatures, {
-    fields: [signatureUsage.signatureId],
+    fields: [signatureUsage.signature_id],
     references: [signatures.id],
   }),
   user: one(users, {
-    fields: [signatureUsage.userId],
+    fields: [signatureUsage.user_id],
     references: [users.id],
   }),
 }));
 
 export const auditEventsRelations = relations(auditEvents, ({ one }) => ({
   user: one(users, {
-    fields: [auditEvents.userId],
-    references: [users.id],
+    fields: [auditEvents.user_email],
+    references: [users.email],
   }),
 }));
 

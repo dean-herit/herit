@@ -41,19 +41,19 @@ export async function POST(request: NextRequest) {
     await db
       .update(users)
       .set({
-        firstName,
-        lastName,
-        phoneNumber,
-        dateOfBirth,
-        addressLine1: addressLine1 || null,
-        addressLine2: addressLine2 || null,
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        date_of_birth: dateOfBirth,
+        address_line_1: addressLine1 || null,
+        address_line_2: addressLine2 || null,
         city: city || null,
         county: county || null,
         eircode: eircode || null,
-        personalInfoCompleted: true,
-        personalInfoCompletedAt: new Date(),
-        onboardingCurrentStep: "signature",
-        updatedAt: new Date(),
+        personal_info_completed: true,
+        personal_info_completed_at: new Date(),
+        onboarding_current_step: "signature",
+        updated_at: new Date(),
       })
       .where(eq(users.id, session.user.id));
 

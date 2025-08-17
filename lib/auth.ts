@@ -9,7 +9,7 @@ import { users, refreshTokens } from "@/db/schema";
 import { env } from "@/lib/env";
 
 // JWT Configuration
-const ACCESS_TOKEN_EXPIRES_IN = "15m"; // 15 minutes
+const ACCESS_TOKEN_EXPIRES_IN = "24h"; // 24 hours (increased from 15m)
 const REFRESH_TOKEN_EXPIRES_IN = "30d"; // 30 days
 
 const JWT_SECRET = new TextEncoder().encode(env.SESSION_SECRET);
@@ -237,10 +237,10 @@ export async function setAuthCookies(
     expiresAt.setDate(expiresAt.getDate() + 30); // 30 days from now
 
     await db.insert(refreshTokens).values({
-      userId,
-      tokenHash: refreshTokenHash,
+      user_id: userId,
+      token_hash: refreshTokenHash,
       family,
-      expiresAt,
+      expires_at: expiresAt,
     });
   } catch (dbError) {
     console.warn(
@@ -256,7 +256,7 @@ export async function setAuthCookies(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 24 * 60 * 60, // 24 hours
     path: "/",
   });
 
@@ -293,7 +293,7 @@ export async function clearAuthCookies(): Promise<void> {
       await db
         .update(refreshTokens)
         .set({ revoked: true })
-        .where(eq(refreshTokens.userId, refreshPayload.userId));
+        .where(eq(refreshTokens.user_id, refreshPayload.userId));
     } catch (dbError) {
       // Log the error but don't fail logout - cookies are already cleared
       console.error(
@@ -334,22 +334,22 @@ export async function getSession(): Promise<SessionResult> {
       if (user) {
         // Determine onboarding completion based on all required steps
         const onboarding_completed = !!(
-          user.personalInfoCompleted &&
-          user.signatureCompleted &&
-          user.legalConsentCompleted &&
-          user.verificationCompleted &&
-          user.onboardingCompletedAt
+          user.personal_info_completed &&
+          user.signature_completed &&
+          user.legal_consent_completed &&
+          user.verification_completed &&
+          user.onboarding_completed_at
         );
 
         return {
           user: {
             id: user.id,
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            profilePhotoUrl: user.profilePhotoUrl,
-            onboardingStatus: user.onboardingStatus,
-            onboardingCurrentStep: user.onboardingCurrentStep,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            profilePhotoUrl: user.profile_photo_url,
+            onboardingStatus: user.onboarding_status,
+            onboardingCurrentStep: user.onboarding_current_step,
             onboarding_completed,
           },
           isAuthenticated: true,
@@ -423,14 +423,14 @@ export async function refreshTokenRotation(
       .from(refreshTokens)
       .where(
         and(
-          eq(refreshTokens.tokenHash, tokenHash),
+          eq(refreshTokens.token_hash, tokenHash),
           eq(refreshTokens.family, payload.family),
           eq(refreshTokens.revoked, false),
         ),
       )
       .limit(1);
 
-    if (!storedToken || storedToken.expiresAt < new Date()) {
+    if (!storedToken || storedToken.expires_at < new Date()) {
       return null;
     }
 
@@ -474,19 +474,19 @@ export async function refreshTokenRotation(
     expiresAt.setDate(expiresAt.getDate() + 30);
 
     await db.insert(refreshTokens).values({
-      userId: user.id,
-      tokenHash: newRefreshTokenHash,
+      user_id: user.id,
+      token_hash: newRefreshTokenHash,
       family: payload.family,
-      expiresAt,
+      expires_at: expiresAt,
     });
 
     // Determine onboarding completion
     const onboarding_completed = !!(
-      user.personalInfoCompleted &&
-      user.signatureCompleted &&
-      user.legalConsentCompleted &&
-      user.verificationCompleted &&
-      user.onboardingCompletedAt
+      user.personal_info_completed &&
+      user.signature_completed &&
+      user.legal_consent_completed &&
+      user.verification_completed &&
+      user.onboarding_completed_at
     );
 
     return {
@@ -495,11 +495,11 @@ export async function refreshTokenRotation(
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profilePhotoUrl: user.profilePhotoUrl,
-        onboardingStatus: user.onboardingStatus,
-        onboardingCurrentStep: user.onboardingCurrentStep,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        profilePhotoUrl: user.profile_photo_url,
+        onboardingStatus: user.onboarding_status,
+        onboardingCurrentStep: user.onboarding_current_step,
         onboarding_completed,
       },
     };

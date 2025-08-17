@@ -58,11 +58,11 @@ async function registerHandler(request: NextRequest) {
       .insert(users)
       .values({
         email: email.toLowerCase(),
-        passwordHash,
-        firstName: firstName,
-        lastName: lastName,
-        onboardingStatus: "not_started",
-        onboardingCurrentStep: "personal_info",
+        password_hash: passwordHash,
+        first_name: firstName,
+        last_name: lastName,
+        onboarding_status: "not_started",
+        onboarding_current_step: "personal_info",
       })
       .returning();
 
@@ -74,10 +74,10 @@ async function registerHandler(request: NextRequest) {
       user: {
         id: newUser.id,
         email: newUser.email,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        onboardingStatus: newUser.onboardingStatus,
-        onboardingCurrentStep: newUser.onboardingCurrentStep,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        onboardingStatus: newUser.onboarding_status,
+        onboardingCurrentStep: newUser.onboarding_current_step,
         onboarding_completed: false,
       },
     });
