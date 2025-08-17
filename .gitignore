@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+# development files
+/scripts/
+/public/test_signatures/
+
 # next.js
 /.next/
 /out/
