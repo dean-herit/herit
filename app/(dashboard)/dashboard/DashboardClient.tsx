@@ -1,38 +1,122 @@
 "use client";
 
-import { Button, Card, CardBody, CardHeader, Divider } from "@heroui/react";
+import { useState, useEffect } from "react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Link,
+} from "@heroui/react";
 import {
   UserIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
   UsersIcon,
+  PlusIcon,
+  ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
 import { useAuth } from "@/hooks/useAuth";
+import { formatCurrency } from "@/types/assets";
+
+interface DashboardStats {
+  totalAssets: number;
+  totalValue: number;
+  categoryBreakdown: Record<string, number>;
+  recentAssets: Array<{
+    id: string;
+    name: string;
+    value: number;
+    asset_type: string;
+    created_at: string;
+  }>;
+}
 
 export function DashboardClient() {
   const { user } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalAssets: 0,
+    totalValue: 0,
+    categoryBreakdown: {},
+    recentAssets: [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await fetch(
+        "/api/assets?limit=5&sort_by=created_at&sort_order=desc",
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        setStats({
+          totalAssets: data.data.summary.assetCount,
+          totalValue: data.data.summary.totalValue,
+          categoryBreakdown: data.data.summary.categoryBreakdown,
+          recentAssets: data.data.assets.slice(0, 3), // Show only 3 most recent
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const quickStats = [
     {
-      label: "Assets",
-      value: "0",
+      label: "Total Assets",
+      value: loading ? "..." : stats.totalAssets.toString(),
+      subValue: loading ? "" : formatCurrency(stats.totalValue),
       icon: CurrencyDollarIcon,
       href: "/assets",
+      color: "success",
     },
     {
       label: "Beneficiaries",
-      value: "0",
+      value: "0", // TODO: Add beneficiary API
       icon: UsersIcon,
       href: "/beneficiaries",
+      color: "primary",
     },
     {
       label: "Will Status",
       value: "Draft",
       icon: DocumentTextIcon,
       href: "/will",
+      color: "warning",
     },
   ];
+
+  const getAssetTypeDisplay = (assetType: string) => {
+    return assetType
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+
+    return `${Math.floor(diffInDays / 30)} months ago`;
+  };
 
   return (
     <div className="space-y-8">
@@ -52,27 +136,65 @@ export function DashboardClient() {
           const IconComponent = stat.icon;
 
           return (
-            <Card
-              key={stat.label}
-              className="hover:shadow-lg transition-shadow"
-            >
-              <CardBody className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary-100 rounded-full">
-                    <IconComponent className="h-6 w-6 text-primary" />
+            <Link key={stat.label} href={stat.href}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardBody className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 bg-${stat.color}-100 rounded-full`}>
+                      <IconComponent
+                        className={`h-6 w-6 text-${stat.color}-600`}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      {stat.subValue && (
+                        <p className="text-sm font-medium text-success-600">
+                          {stat.subValue}
+                        </p>
+                      )}
+                      <p className="text-sm text-default-600">{stat.label}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-default-600">{stat.label}</p>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
+                </CardBody>
+              </Card>
+            </Link>
           );
         })}
       </div>
+
+      {/* Asset Categories Overview */}
+      {!loading &&
+        stats.totalAssets > 0 &&
+        Object.keys(stats.categoryBreakdown).length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <ArrowTrendingUpIcon className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold">Asset Categories</h2>
+              </div>
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(stats.categoryBreakdown).map(
+                  ([category, count]) => (
+                    <div
+                      key={category}
+                      className="text-center p-3 bg-default-50 rounded-lg"
+                    >
+                      <p className="text-2xl font-bold text-primary">{count}</p>
+                      <p className="text-sm text-default-600 capitalize">
+                        {category.replace("_", " ")}
+                      </p>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CardBody>
+          </Card>
+        )}
 
       {/* Quick Actions */}
       <Card>
@@ -82,44 +204,56 @@ export function DashboardClient() {
         <Divider />
         <CardBody className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button
-              className="h-auto p-4 justify-start"
-              startContent={<CurrencyDollarIcon className="h-5 w-5" />}
-              variant="bordered"
-            >
-              <div className="text-left">
-                <div className="font-semibold">Add Assets</div>
-                <div className="text-sm text-default-600">
-                  Add your assets to your will
+            <Link href="/assets">
+              <Button
+                className="h-auto p-4 justify-start w-full"
+                startContent={<CurrencyDollarIcon className="h-5 w-5" />}
+                variant="bordered"
+              >
+                <div className="text-left">
+                  <div className="font-semibold">
+                    {stats.totalAssets === 0
+                      ? "Add Your First Asset"
+                      : "Manage Assets"}
+                  </div>
+                  <div className="text-sm text-default-600">
+                    {stats.totalAssets === 0
+                      ? "Start building your will by adding assets"
+                      : `View and manage your ${stats.totalAssets} assets`}
+                  </div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </Link>
 
-            <Button
-              className="h-auto p-4 justify-start"
-              startContent={<UsersIcon className="h-5 w-5" />}
-              variant="bordered"
-            >
-              <div className="text-left">
-                <div className="font-semibold">Add Beneficiaries</div>
-                <div className="text-sm text-default-600">
-                  Define who inherits your assets
+            <Link href="/beneficiaries">
+              <Button
+                className="h-auto p-4 justify-start w-full"
+                startContent={<UsersIcon className="h-5 w-5" />}
+                variant="bordered"
+              >
+                <div className="text-left">
+                  <div className="font-semibold">Add Beneficiaries</div>
+                  <div className="text-sm text-default-600">
+                    Define who inherits your assets
+                  </div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </Link>
 
-            <Button
-              className="h-auto p-4 justify-start"
-              startContent={<DocumentTextIcon className="h-5 w-5" />}
-              variant="bordered"
-            >
-              <div className="text-left">
-                <div className="font-semibold">Review Will</div>
-                <div className="text-sm text-default-600">
-                  Review and finalize your will
+            <Link href="/will">
+              <Button
+                className="h-auto p-4 justify-start w-full"
+                startContent={<DocumentTextIcon className="h-5 w-5" />}
+                variant="bordered"
+              >
+                <div className="text-left">
+                  <div className="font-semibold">Review Will</div>
+                  <div className="text-sm text-default-600">
+                    Review and finalize your will
+                  </div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </Link>
 
             <Button
               className="h-auto p-4 justify-start"
@@ -140,16 +274,71 @@ export function DashboardClient() {
       {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Recent Activity</h2>
+          <div className="flex items-center justify-between w-full">
+            <h2 className="text-xl font-semibold">Recent Activity</h2>
+            {stats.totalAssets > 0 && (
+              <Link href="/assets">
+                <Button size="sm" variant="light">
+                  View All
+                </Button>
+              </Link>
+            )}
+          </div>
         </CardHeader>
         <Divider />
         <CardBody>
-          <div className="text-center py-8 text-default-600">
-            <p>No recent activity to show.</p>
-            <p className="text-sm">
-              Start by adding your assets or beneficiaries.
-            </p>
-          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
+              <p className="mt-2 text-default-600">
+                Loading recent activity...
+              </p>
+            </div>
+          ) : stats.recentAssets.length === 0 ? (
+            <div className="text-center py-8 text-default-600">
+              <p>No recent activity to show.</p>
+              <p className="text-sm mt-1">
+                Start by adding your assets or beneficiaries.
+              </p>
+              <Link href="/assets">
+                <Button
+                  className="mt-4"
+                  color="primary"
+                  startContent={<PlusIcon className="h-4 w-4" />}
+                  variant="flat"
+                >
+                  Add Your First Asset
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {stats.recentAssets.map((asset) => (
+                <div
+                  key={asset.id}
+                  className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary-100 rounded-full">
+                      <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{asset.name}</p>
+                      <p className="text-sm text-default-600">
+                        {getAssetTypeDisplay(asset.asset_type)} •{" "}
+                        {getRelativeTime(asset.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-success-600">
+                      {formatCurrency(asset.value)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardBody>
       </Card>
     </div>
