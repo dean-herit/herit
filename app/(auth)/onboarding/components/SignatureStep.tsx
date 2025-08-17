@@ -53,7 +53,8 @@ export function SignatureStep({
     };
 
     setSignature(templateSignature);
-    onChange(templateSignature);
+    // Don't call onChange with template signatures - only when finalized
+    // onChange(templateSignature);
   };
 
   const handleFontSelect = (fontData: (typeof signatureFonts)[0]) => {
@@ -91,7 +92,10 @@ export function SignatureStep({
         throw new Error("Failed to save signature");
       }
 
-      onComplete(signature);
+      const result = await response.json();
+
+      // Use the signature returned from the API (with database ID)
+      onComplete(result.signature);
     } catch (error) {
       console.error("Error saving signature:", error);
       // You might want to show an error message to the user here
@@ -154,7 +158,8 @@ export function SignatureStep({
 
       // Auto-select this signature
       setSignature(uploadedSignature);
-      onChange(uploadedSignature);
+      // Don't call onChange with temporary signatures - only when finalized
+      // onChange(uploadedSignature);
       setShowFontSelector(true); // Show the selection interface
     } catch (error) {
       let errorMessage =
@@ -293,7 +298,8 @@ export function SignatureStep({
 
   const handleUploadedSignatureSelect = (uploadedSig: Signature) => {
     setSignature(uploadedSig);
-    onChange(uploadedSig);
+    // Don't call onChange with temporary signatures - only when finalized
+    // onChange(uploadedSig);
   };
 
   return (

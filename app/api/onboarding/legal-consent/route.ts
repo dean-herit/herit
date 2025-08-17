@@ -5,6 +5,45 @@ import { db } from "@/db/db";
 import { users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session.isAuthenticated) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    // Get user's legal consent data
+    const user = await db
+      .select({
+        legal_consents: users.legal_consents,
+        legal_consent_completed: users.legal_consent_completed,
+      })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    const userData = user[0];
+    const legalConsents = userData?.legal_consents || {};
+
+    return NextResponse.json({
+      success: true,
+      consents: legalConsents,
+      isCompleted: userData?.legal_consent_completed || false,
+    });
+  } catch (error) {
+    console.error("Legal consent fetch error:", error);
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
@@ -44,16 +83,16 @@ export async function POST(request: NextRequest) {
     await db
       .update(users)
       .set({
-        legalConsents: {
+        legal_consents: {
           ...consents,
           timestamp: new Date().toISOString(),
           ipAddress: request.headers.get("x-forwarded-for") || "unknown",
           userAgent: request.headers.get("user-agent") || "unknown",
         },
-        legalConsentCompleted: true,
-        legalConsentCompletedAt: new Date(),
-        onboardingCurrentStep: "verification",
-        updatedAt: new Date(),
+        legal_consent_completed: true,
+        legal_consent_completed_at: new Date(),
+        onboarding_current_step: "verification",
+        updated_at: new Date(),
       })
       .where(eq(users.id, session.user.id));
 

@@ -149,6 +149,19 @@ export default function OnboardingPage() {
           }));
         }
       }
+
+      // Also fetch existing signature if not in localStorage
+      if (!signature) {
+        const signatureResponse = await fetch("/api/onboarding/signature");
+
+        if (signatureResponse.ok) {
+          const signatureData = await signatureResponse.json();
+
+          if (signatureData.signature) {
+            setSignature(signatureData.signature);
+          }
+        }
+      }
     } catch (error) {
       console.error("Failed to fetch user data:", error);
     }
@@ -255,7 +268,9 @@ export default function OnboardingPage() {
             initialSignature={signature}
             personalInfo={personalInfo}
             onChange={setSignature}
-            onComplete={() => handleStepComplete(currentStep, signature)}
+            onComplete={(signature) =>
+              handleStepComplete(currentStep, signature)
+            }
           />
         );
       case 2:

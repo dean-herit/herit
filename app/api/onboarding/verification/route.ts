@@ -45,18 +45,18 @@ export async function POST(request: NextRequest) {
     await db
       .update(users)
       .set({
-        verificationSessionId,
-        verificationStatus,
-        verificationCompleted: verificationMethod === "skip", // Only mark complete if skipped for now
-        verificationCompletedAt:
+        verification_session_id: verificationSessionId,
+        verification_status: verificationStatus,
+        verification_completed: verificationMethod === "skip", // Only mark complete if skipped for now
+        verification_completed_at:
           verificationMethod === "skip" ? new Date() : null,
-        onboardingCurrentStep:
+        onboarding_current_step:
           verificationMethod === "skip" ? "completed" : "verification",
-        onboardingStatus:
+        onboarding_status:
           verificationMethod === "skip" ? "completed" : "in_progress",
-        onboardingCompletedAt:
+        onboarding_completed_at:
           verificationMethod === "skip" ? new Date() : null,
-        updatedAt: new Date(),
+        updated_at: new Date(),
       })
       .where(eq(users.id, session.user.id));
 
