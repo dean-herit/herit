@@ -1,23 +1,26 @@
-'use client';
+"use client";
 
-import { AuthUser } from '@/lib/auth';
-import { Card, CardBody, CardHeader, Button, Divider } from '@heroui/react';
-import { DocumentTextIcon, PlusIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { Card, CardBody, CardHeader, Button, Divider } from "@heroui/react";
+import {
+  DocumentTextIcon,
+  PlusIcon,
+  EyeIcon,
+} from "@heroicons/react/24/outline";
+
+import { AuthUser } from "@/lib/auth";
 
 interface WillClientProps {
   user: AuthUser;
 }
 
-export function WillClient({ user }: WillClientProps) {
+export function WillClient({}: WillClientProps) {
   const hasWill = false; // TODO: Check if user has a will
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Your Will
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground">Your Will</h1>
         <p className="text-default-600 mt-2">
           Create and manage your Last Will and Testament securely.
         </p>
@@ -33,15 +36,18 @@ export function WillClient({ user }: WillClientProps) {
               </div>
               <div>
                 <h3 className="text-xl font-semibold">Create Your Will</h3>
-                <p className="text-default-600">You haven't created your will yet</p>
+                <p className="text-default-600">
+                  You haven&apos;t created your will yet
+                </p>
               </div>
             </div>
           </CardHeader>
           <Divider className="my-4" />
           <CardBody className="pt-0">
             <p className="text-default-600 mb-6">
-              Create a legally binding will to ensure your assets are distributed according to your wishes. 
-              Our guided process makes it simple and secure.
+              Create a legally binding will to ensure your assets are
+              distributed according to your wishes. Our guided process makes it
+              simple and secure.
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm">
@@ -58,17 +64,17 @@ export function WillClient({ user }: WillClientProps) {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <Button 
-                color="primary" 
+              <Button
+                color="primary"
                 size="lg"
                 startContent={<PlusIcon className="w-5 h-5" />}
               >
                 Create Will
               </Button>
-              <Button 
-                variant="bordered" 
+              <Button
                 size="lg"
                 startContent={<EyeIcon className="w-5 h-5" />}
+                variant="bordered"
               >
                 View Sample
               </Button>
@@ -84,7 +90,9 @@ export function WillClient({ user }: WillClientProps) {
                   <DocumentTextIcon className="w-6 h-6 text-success" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Last Will and Testament</h3>
+                  <h3 className="text-xl font-semibold">
+                    Last Will and Testament
+                  </h3>
                   <p className="text-default-600">Created on [Date]</p>
                 </div>
               </div>
@@ -100,10 +108,10 @@ export function WillClient({ user }: WillClientProps) {
               <Button color="primary" size="lg">
                 View Will
               </Button>
-              <Button variant="bordered" size="lg">
+              <Button size="lg" variant="bordered">
                 Edit Will
               </Button>
-              <Button variant="light" size="lg">
+              <Button size="lg" variant="light">
                 Download PDF
               </Button>
             </div>
@@ -121,7 +129,9 @@ export function WillClient({ user }: WillClientProps) {
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold">Will Templates</h4>
-                <p className="text-sm text-default-600">Browse our library of will templates</p>
+                <p className="text-sm text-default-600">
+                  Browse our library of will templates
+                </p>
               </div>
             </div>
           </CardBody>
@@ -135,7 +145,9 @@ export function WillClient({ user }: WillClientProps) {
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold">Legal Review</h4>
-                <p className="text-sm text-default-600">Get your will reviewed by legal experts</p>
+                <p className="text-sm text-default-600">
+                  Get your will reviewed by legal experts
+                </p>
               </div>
             </div>
           </CardBody>

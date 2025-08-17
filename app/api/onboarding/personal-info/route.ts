@@ -1,21 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/db/db'
-import { users } from '@/db/schema'
-import { eq } from 'drizzle-orm'
-import { getSession } from '@/lib/auth'
+import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+
+import { db } from "@/db/db";
+import { users } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession()
-    
+    const session = await getSession();
+
     if (!session.isAuthenticated) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
-    const data = await request.json()
+    const data = await request.json();
     const {
       firstName,
       lastName,
@@ -26,14 +27,14 @@ export async function POST(request: NextRequest) {
       city,
       county,
       eircode,
-    } = data
+    } = data;
 
     // Basic validation
     if (!firstName || !lastName || !phoneNumber || !dateOfBirth) {
       return NextResponse.json(
-        { error: 'Required fields missing' },
-        { status: 400 }
-      )
+        { error: "Required fields missing" },
+        { status: 400 },
+      );
     }
 
     // Update user's personal information
@@ -51,22 +52,23 @@ export async function POST(request: NextRequest) {
         eircode: eircode || null,
         personalInfoCompleted: true,
         personalInfoCompletedAt: new Date(),
-        onboardingCurrentStep: 'signature',
+        onboardingCurrentStep: "signature",
         updatedAt: new Date(),
       })
-      .where(eq(users.id, session.user.id))
+      .where(eq(users.id, session.user.id));
 
     return NextResponse.json({
       success: true,
-      message: 'Personal information saved successfully',
-    })
+      message: "Personal information saved successfully",
+    });
   } catch (error) {
-    console.error('Personal info save error:', error)
+    console.error("Personal info save error:", error);
+
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";

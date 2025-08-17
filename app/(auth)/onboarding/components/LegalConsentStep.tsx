@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Checkbox, Card, CardBody, Divider } from '@heroui/react';
-import { Signature } from '@/types/onboarding';
+import { useState } from "react";
+import { Button, Checkbox, Card, CardBody } from "@heroui/react";
+
+import { Signature } from "@/types/onboarding";
 
 interface LegalConsentStepProps {
   signature: Signature;
@@ -15,59 +16,62 @@ interface LegalConsentStepProps {
 
 const REQUIRED_CONSENTS = [
   {
-    id: 'terms_of_service',
-    title: 'Terms of Service',
-    description: 'I agree to the Herit Terms of Service',
+    id: "terms_of_service",
+    title: "Terms of Service",
+    description: "I agree to the Herit Terms of Service",
     required: true,
   },
   {
-    id: 'privacy_policy',
-    title: 'Privacy Policy',
-    description: 'I agree to the Herit Privacy Policy',
+    id: "privacy_policy",
+    title: "Privacy Policy",
+    description: "I agree to the Herit Privacy Policy",
     required: true,
   },
   {
-    id: 'legal_disclaimer',
-    title: 'Legal Disclaimer',
-    description: 'I understand that this service provides tools for estate planning but does not constitute legal advice',
+    id: "legal_disclaimer",
+    title: "Legal Disclaimer",
+    description:
+      "I understand that this service provides tools for estate planning but does not constitute legal advice",
     required: true,
   },
   {
-    id: 'data_processing',
-    title: 'Data Processing',
-    description: 'I consent to the processing of my personal data for estate planning purposes',
+    id: "data_processing",
+    title: "Data Processing",
+    description:
+      "I consent to the processing of my personal data for estate planning purposes",
     required: true,
   },
   {
-    id: 'electronic_signature',
-    title: 'Electronic Signature Agreement',
-    description: 'I agree that my electronic signature has the same legal effect as a handwritten signature',
+    id: "electronic_signature",
+    title: "Electronic Signature Agreement",
+    description:
+      "I agree that my electronic signature has the same legal effect as a handwritten signature",
     required: true,
   },
 ];
 
-export function LegalConsentStep({ 
-  signature, 
-  initialConsents, 
-  onChange, 
-  onComplete, 
-  onBack, 
-  loading 
+export function LegalConsentStep({
+  signature,
+  initialConsents,
+  onChange,
+  onComplete,
+  onBack,
+  loading,
 }: LegalConsentStepProps) {
   const [consents, setConsents] = useState<string[]>(initialConsents);
 
   const handleConsentChange = (consentId: string, isChecked: boolean) => {
-    const newConsents = isChecked 
+    const newConsents = isChecked
       ? [...consents, consentId]
-      : consents.filter(id => id !== consentId);
-    
+      : consents.filter((id) => id !== consentId);
+
     setConsents(newConsents);
     onChange(newConsents);
   };
 
-  const allRequiredConsentsGiven = REQUIRED_CONSENTS
-    .filter(consent => consent.required)
-    .every(consent => consents.includes(consent.id));
+  const allRequiredConsentsGiven = REQUIRED_CONSENTS.filter(
+    (consent) => consent.required,
+  ).every((consent) => consents.includes(consent.id));
 
   const handleSubmit = () => {
     if (allRequiredConsentsGiven) {
@@ -96,7 +100,8 @@ export function LegalConsentStep({
             <div className="flex-1">
               <p className="text-sm font-medium">Digital Signature Ready</p>
               <p className="text-xs text-default-600">
-                Your signature "{signature.name}" will be used for these agreements
+                Your signature &quot;{signature.name}&quot; will be used for
+                these agreements
               </p>
             </div>
             <div className="text-lg font-cursive text-primary">
@@ -113,12 +118,16 @@ export function LegalConsentStep({
             <CardBody className="p-4">
               <Checkbox
                 isSelected={consents.includes(consent.id)}
-                onValueChange={(isChecked) => handleConsentChange(consent.id, isChecked)}
                 size="sm"
+                onValueChange={(isChecked) =>
+                  handleConsentChange(consent.id, isChecked)
+                }
               >
                 <div className="ml-2">
                   <p className="font-medium text-sm">{consent.title}</p>
-                  <p className="text-xs text-default-600 mt-1">{consent.description}</p>
+                  <p className="text-xs text-default-600 mt-1">
+                    {consent.description}
+                  </p>
                   {consent.required && (
                     <span className="text-xs text-danger-600">* Required</span>
                   )}
@@ -134,7 +143,8 @@ export function LegalConsentStep({
         <CardBody className="p-4">
           <div className="text-center">
             <p className="text-sm text-default-600 mb-2">
-              By clicking "Accept All Agreements", you are digitally signing these agreements with:
+              By clicking &quot;Accept All Agreements&quot;, you are digitally
+              signing these agreements with:
             </p>
             <div className="text-lg font-cursive text-primary border-b border-default-200 pb-2 inline-block">
               {signature.data}
@@ -149,11 +159,7 @@ export function LegalConsentStep({
       {/* Navigation */}
       <div className="flex justify-between pt-6">
         {onBack ? (
-          <Button
-            variant="bordered"
-            onPress={onBack}
-            isDisabled={loading}
-          >
+          <Button isDisabled={loading} variant="bordered" onPress={onBack}>
             Back
           </Button>
         ) : (
@@ -162,9 +168,9 @@ export function LegalConsentStep({
 
         <Button
           color="primary"
-          onPress={handleSubmit}
-          isLoading={loading}
           isDisabled={loading || !allRequiredConsentsGiven}
+          isLoading={loading}
+          onPress={handleSubmit}
         >
           Accept All Agreements
         </Button>

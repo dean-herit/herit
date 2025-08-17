@@ -5,8 +5,8 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
-import { 
-  fontSans, 
+import {
+  fontSans,
   dancingScript,
   greatVibes,
   pacifico,
@@ -16,7 +16,7 @@ import {
   sacramento,
   shadowsIntoLight,
   mrDafoe,
-  alexBrush
+  alexBrush,
 } from "@/config/fonts";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 
@@ -26,7 +26,13 @@ export const metadata: Metadata = {
     template: `%s - ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ['estate planning', 'will', 'inheritance', 'legal documents', 'Ireland'],
+  keywords: [
+    "estate planning",
+    "will",
+    "inheritance",
+    "legal documents",
+    "Ireland",
+  ],
   icons: {
     icon: "/favicon.ico",
   },
@@ -46,7 +52,23 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <script async src="https://docs.opencv.org/4.x/opencv.js" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.Module = {
+                onRuntimeInitialized() {
+                  console.log('OpenCV.js WASM loaded');
+                  if (window.cv) {
+                    window.cv.wasmReady = true;
+                  }
+                }
+              };
+            `,
+          }}
+        />
+      </head>
       <body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
@@ -64,9 +86,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <LayoutWrapper>
-            {children}
-          </LayoutWrapper>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>
     </html>

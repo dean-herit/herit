@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input } from '@heroui/react';
-import { useAuth } from '@/hooks/useAuth';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import { Button, Input } from "@heroui/react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+
+import { useAuth } from "@/hooks/useAuth";
 
 export function EmailSignupForm() {
   const { signup, isSigningUp } = useAuth();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -20,95 +21,90 @@ export function EmailSignupForm() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = "First name is required";
     }
-    
+
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = "Last name is required";
     }
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = "Passwords do not match";
     }
-    
+
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       const { confirmPassword, ...signupData } = formData;
+
       signup(signupData);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="grid grid-cols-2 gap-3">
         <Input
+          isRequired
+          errorMessage={errors.firstName}
+          isInvalid={!!errors.firstName}
           label="First Name"
           placeholder="First name"
           value={formData.firstName}
-          onChange={(e) => handleChange('firstName', e.target.value)}
-          isInvalid={!!errors.firstName}
-          errorMessage={errors.firstName}
           variant="bordered"
-          isRequired
+          onChange={(e) => handleChange("firstName", e.target.value)}
         />
-        
+
         <Input
+          isRequired
+          errorMessage={errors.lastName}
+          isInvalid={!!errors.lastName}
           label="Last Name"
           placeholder="Last name"
           value={formData.lastName}
-          onChange={(e) => handleChange('lastName', e.target.value)}
-          isInvalid={!!errors.lastName}
-          errorMessage={errors.lastName}
           variant="bordered"
-          isRequired
+          onChange={(e) => handleChange("lastName", e.target.value)}
         />
       </div>
-      
+
       <Input
-        type="email"
+        isRequired
+        errorMessage={errors.email}
+        isInvalid={!!errors.email}
         label="Email"
         placeholder="Enter your email"
+        type="email"
         value={formData.email}
-        onChange={(e) => handleChange('email', e.target.value)}
-        isInvalid={!!errors.email}
-        errorMessage={errors.email}
         variant="bordered"
-        isRequired
+        onChange={(e) => handleChange("email", e.target.value)}
       />
-      
+
       <Input
-        label="Password"
-        placeholder="Create a password"
-        value={formData.password}
-        onChange={(e) => handleChange('password', e.target.value)}
-        isInvalid={!!errors.password}
-        errorMessage={errors.password}
-        variant="bordered"
-        type={showPassword ? 'text' : 'password'}
+        isRequired
         endContent={
           <button
             className="focus:outline-none"
@@ -122,18 +118,18 @@ export function EmailSignupForm() {
             )}
           </button>
         }
-        isRequired
-      />
-      
-      <Input
-        label="Confirm Password"
-        placeholder="Confirm your password"
-        value={formData.confirmPassword}
-        onChange={(e) => handleChange('confirmPassword', e.target.value)}
-        isInvalid={!!errors.confirmPassword}
-        errorMessage={errors.confirmPassword}
+        errorMessage={errors.password}
+        isInvalid={!!errors.password}
+        label="Password"
+        placeholder="Create a password"
+        type={showPassword ? "text" : "password"}
+        value={formData.password}
         variant="bordered"
-        type={showConfirmPassword ? 'text' : 'password'}
+        onChange={(e) => handleChange("password", e.target.value)}
+      />
+
+      <Input
+        isRequired
         endContent={
           <button
             className="focus:outline-none"
@@ -147,16 +143,23 @@ export function EmailSignupForm() {
             )}
           </button>
         }
-        isRequired
+        errorMessage={errors.confirmPassword}
+        isInvalid={!!errors.confirmPassword}
+        label="Confirm Password"
+        placeholder="Confirm your password"
+        type={showConfirmPassword ? "text" : "password"}
+        value={formData.confirmPassword}
+        variant="bordered"
+        onChange={(e) => handleChange("confirmPassword", e.target.value)}
       />
-      
+
       <Button
-        type="submit"
-        color="primary"
         className="w-full"
-        size="lg"
-        isLoading={isSigningUp}
+        color="primary"
         isDisabled={isSigningUp}
+        isLoading={isSigningUp}
+        size="lg"
+        type="submit"
       >
         Create Account
       </Button>

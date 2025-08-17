@@ -1,19 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input, Card, CardBody, Divider } from '@heroui/react';
-import { GoogleSignInButton } from './GoogleSignInButton';
-import { AppleSignInButton } from './AppleSignInButton';
-import { EmailLoginForm } from './EmailLoginForm';
-import { EmailSignupForm } from './EmailSignupForm';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from "react";
+import { Button, Card, CardBody, Divider } from "@heroui/react";
+
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { AppleSignInButton } from "./AppleSignInButton";
+import { EmailLoginForm } from "./EmailLoginForm";
+import { EmailSignupForm } from "./EmailSignupForm";
+
+import { useAuth } from "@/hooks/useAuth";
 
 export function LoginForm() {
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [showEmailAuth, setShowEmailAuth] = useState(false);
   const { loginError, signupError } = useAuth();
 
-  const authError = authMode === 'login' ? loginError : signupError;
+  const authError = authMode === "login" ? loginError : signupError;
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
@@ -31,34 +33,34 @@ export function LoginForm() {
         <div className="space-y-6">
           <div className="flex border-b border-divider">
             <button
-              onClick={() => setAuthMode('login')}
               className={`flex-1 py-3 px-4 text-sm font-semibold border-b-2 transition-colors ${
-                authMode === 'login'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-default-600 hover:text-default-800'
+                authMode === "login"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-default-600 hover:text-default-800"
               }`}
+              onClick={() => setAuthMode("login")}
             >
               Sign In
             </button>
             <button
-              onClick={() => setAuthMode('signup')}
               className={`flex-1 py-3 px-4 text-sm font-semibold border-b-2 transition-colors ${
-                authMode === 'signup'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-default-600 hover:text-default-800'
+                authMode === "signup"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-default-600 hover:text-default-800"
               }`}
+              onClick={() => setAuthMode("signup")}
             >
               Sign Up
             </button>
           </div>
 
-          {authMode === 'login' ? <EmailLoginForm /> : <EmailSignupForm />}
+          {authMode === "login" ? <EmailLoginForm /> : <EmailSignupForm />}
 
           <div className="text-center">
             <Button
+              className="text-sm"
               variant="light"
               onPress={() => setShowEmailAuth(false)}
-              className="text-sm"
             >
               ← Back to other sign-in options
             </Button>
@@ -68,15 +70,15 @@ export function LoginForm() {
         <div className="space-y-6">
           {/* Email Authentication Button */}
           <Button
-            onPress={() => setShowEmailAuth(true)}
             className="w-full"
-            variant="bordered"
             size="lg"
             startContent={
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
               </svg>
             }
+            variant="bordered"
+            onPress={() => setShowEmailAuth(true)}
           >
             Continue with Email
           </Button>
@@ -101,12 +103,12 @@ export function LoginForm() {
 
       <div className="text-center text-xs text-default-500">
         <p>
-          By continuing, you agree to our{' '}
-          <a href="/terms" className="text-primary hover:underline">
+          By continuing, you agree to our{" "}
+          <a className="text-primary hover:underline" href="/terms">
             Terms of Service
-          </a>{' '}
-          and{' '}
-          <a href="/privacy" className="text-primary hover:underline">
+          </a>{" "}
+          and{" "}
+          <a className="text-primary hover:underline" href="/privacy">
             Privacy Policy
           </a>
         </p>

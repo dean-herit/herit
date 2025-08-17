@@ -1,46 +1,73 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button, Input, Select, SelectItem } from '@heroui/react'
-import { PersonalInfo } from '@/types/onboarding'
-import { cn } from '@/lib/utils'
-import { useMutation } from '@tanstack/react-query'
+import { useState, useEffect } from "react";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { useMutation } from "@tanstack/react-query";
+
+import { PersonalInfo } from "@/types/onboarding";
 
 interface PersonalInfoStepProps {
-  initialData: PersonalInfo
-  onChange: (data: PersonalInfo) => void
-  onComplete: () => void
-  onBack?: () => void
-  loading?: boolean
+  initialData: PersonalInfo;
+  onChange: (data: PersonalInfo) => void;
+  onComplete: () => void;
+  onBack?: () => void;
+  loading?: boolean;
 }
 
 const IRISH_COUNTIES = [
   // Republic of Ireland (26 counties)
-  'Carlow', 'Cavan', 'Clare', 'Cork', 'Donegal', 'Dublin', 'Galway', 'Kerry',
-  'Kildare', 'Kilkenny', 'Laois', 'Leitrim', 'Limerick', 'Longford', 'Louth',
-  'Mayo', 'Meath', 'Monaghan', 'Offaly', 'Roscommon', 'Sligo', 'Tipperary',
-  'Waterford', 'Westmeath', 'Wexford', 'Wicklow',
+  "Carlow",
+  "Cavan",
+  "Clare",
+  "Cork",
+  "Donegal",
+  "Dublin",
+  "Galway",
+  "Kerry",
+  "Kildare",
+  "Kilkenny",
+  "Laois",
+  "Leitrim",
+  "Limerick",
+  "Longford",
+  "Louth",
+  "Mayo",
+  "Meath",
+  "Monaghan",
+  "Offaly",
+  "Roscommon",
+  "Sligo",
+  "Tipperary",
+  "Waterford",
+  "Westmeath",
+  "Wexford",
+  "Wicklow",
   // Northern Ireland (6 counties)
-  'Antrim', 'Armagh', 'Down', 'Fermanagh', 'Londonderry', 'Tyrone'
+  "Antrim",
+  "Armagh",
+  "Down",
+  "Fermanagh",
+  "Londonderry",
+  "Tyrone",
 ];
 
-export function PersonalInfoStep({ 
-  initialData, 
-  onChange, 
-  onComplete, 
-  onBack, 
-  loading 
+export function PersonalInfoStep({
+  initialData,
+  onChange,
+  onComplete,
+  onBack,
+  loading,
 }: PersonalInfoStepProps) {
-  const [formData, setFormData] = useState<PersonalInfo>(initialData)
-  const [errors, setErrors] = useState<Partial<PersonalInfo>>({})
+  const [formData, setFormData] = useState<PersonalInfo>(initialData);
+  const [errors, setErrors] = useState<Partial<PersonalInfo>>({});
 
   // API mutation for saving personal info
   const savePersonalInfoMutation = useMutation({
     mutationFn: async (data: PersonalInfo) => {
-      const response = await fetch('/api/onboarding/personal-info', {
-        method: 'POST',
+      const response = await fetch("/api/onboarding/personal-info", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           firstName: data.first_name,
@@ -53,28 +80,29 @@ export function PersonalInfoStep({
           county: data.county,
           eircode: data.eircode,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to save personal information')
+        const error = await response.json();
+
+        throw new Error(error.error || "Failed to save personal information");
       }
 
-      return response.json()
+      return response.json();
     },
     onSuccess: () => {
-      onComplete()
+      onComplete();
     },
-  })
+  });
 
   useEffect(() => {
     onChange(formData);
   }, [formData, onChange]);
 
   const handleChange = (field: keyof PersonalInfo, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -82,106 +110,106 @@ export function PersonalInfoStep({
     const newErrors: Partial<PersonalInfo> = {};
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'First name is required';
+      newErrors.first_name = "First name is required";
     }
 
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'Last name is required';
+      newErrors.last_name = "Last name is required";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!formData.date_of_birth) {
-      newErrors.date_of_birth = 'Date of birth is required';
+      newErrors.date_of_birth = "Date of birth is required";
     }
 
     if (!formData.phone_number.trim()) {
-      newErrors.phone_number = 'Phone number is required';
+      newErrors.phone_number = "Phone number is required";
     }
 
     if (!formData.address_line_1.trim()) {
-      newErrors.address_line_1 = 'Address is required';
+      newErrors.address_line_1 = "Address is required";
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
+      newErrors.city = "City is required";
     }
 
     if (!formData.county.trim()) {
-      newErrors.county = 'County is required';
+      newErrors.county = "County is required";
     }
 
     if (!formData.eircode.trim()) {
-      newErrors.eircode = 'Eircode is required';
+      newErrors.eircode = "Eircode is required";
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (validateForm()) {
-      savePersonalInfoMutation.mutate(formData)
+      savePersonalInfoMutation.mutate(formData);
     }
-  }
+  };
 
-  const isLoading = loading || savePersonalInfoMutation.isPending
+  const isLoading = loading || savePersonalInfoMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       {/* Personal Details */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Personal Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
+            isRequired
+            errorMessage={errors.first_name}
+            isInvalid={!!errors.first_name}
             label="First Name"
             placeholder="Enter your first name"
             value={formData.first_name}
-            onChange={(e) => handleChange('first_name', e.target.value)}
-            isInvalid={!!errors.first_name}
-            errorMessage={errors.first_name}
             variant="bordered"
-            isRequired
+            onChange={(e) => handleChange("first_name", e.target.value)}
           />
 
           <Input
+            isRequired
+            errorMessage={errors.last_name}
+            isInvalid={!!errors.last_name}
             label="Last Name"
             placeholder="Enter your last name"
             value={formData.last_name}
-            onChange={(e) => handleChange('last_name', e.target.value)}
-            isInvalid={!!errors.last_name}
-            errorMessage={errors.last_name}
             variant="bordered"
-            isRequired
+            onChange={(e) => handleChange("last_name", e.target.value)}
           />
 
-
           <Input
-            type="date"
-            label="Date of Birth"
-            value={formData.date_of_birth}
-            onChange={(e) => handleChange('date_of_birth', e.target.value)}
-            isInvalid={!!errors.date_of_birth}
+            isRequired
             errorMessage={errors.date_of_birth}
+            isInvalid={!!errors.date_of_birth}
+            label="Date of Birth"
+            type="date"
+            value={formData.date_of_birth}
             variant="bordered"
-            isRequired
+            onChange={(e) => handleChange("date_of_birth", e.target.value)}
           />
 
           <Input
-            type="tel"
+            isRequired
+            errorMessage={errors.phone_number}
+            isInvalid={!!errors.phone_number}
             label="Phone Number"
             placeholder="Enter your phone number"
+            type="tel"
             value={formData.phone_number}
-            onChange={(e) => handleChange('phone_number', e.target.value)}
-            isInvalid={!!errors.phone_number}
-            errorMessage={errors.phone_number}
             variant="bordered"
-            isRequired
+            onChange={(e) => handleChange("phone_number", e.target.value)}
           />
         </div>
       </div>
@@ -191,65 +219,66 @@ export function PersonalInfoStep({
         <h3 className="text-lg font-semibold mb-4">Irish Address</h3>
         <div className="space-y-4">
           <Input
+            isRequired
+            errorMessage={errors.address_line_1}
+            isInvalid={!!errors.address_line_1}
             label="Address Line 1"
             placeholder="Enter your street address"
             value={formData.address_line_1}
-            onChange={(e) => handleChange('address_line_1', e.target.value)}
-            isInvalid={!!errors.address_line_1}
-            errorMessage={errors.address_line_1}
             variant="bordered"
-            isRequired
+            onChange={(e) => handleChange("address_line_1", e.target.value)}
           />
 
           <Input
             label="Address Line 2"
             placeholder="Apartment, suite, etc. (optional)"
-            value={formData.address_line_2 || ''}
-            onChange={(e) => handleChange('address_line_2', e.target.value)}
+            value={formData.address_line_2 || ""}
             variant="bordered"
+            onChange={(e) => handleChange("address_line_2", e.target.value)}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
+              isRequired
+              errorMessage={errors.city}
+              isInvalid={!!errors.city}
               label="City/Town"
               placeholder="Enter city or town"
               value={formData.city}
-              onChange={(e) => handleChange('city', e.target.value)}
-              isInvalid={!!errors.city}
-              errorMessage={errors.city}
               variant="bordered"
-              isRequired
+              onChange={(e) => handleChange("city", e.target.value)}
             />
 
             <Select
+              isRequired
+              errorMessage={errors.county}
+              isInvalid={!!errors.county}
               label="County"
               placeholder="Select county"
               selectedKeys={formData.county ? [formData.county] : []}
+              variant="bordered"
               onSelectionChange={(keys) => {
                 const county = Array.from(keys)[0] as string;
-                handleChange('county', county || '');
+
+                handleChange("county", county || "");
               }}
-              isInvalid={!!errors.county}
-              errorMessage={errors.county}
-              variant="bordered"
-              isRequired
             >
               {IRISH_COUNTIES.map((county) => (
-                <SelectItem key={county}>
-                  {county}
-                </SelectItem>
+                <SelectItem key={county}>{county}</SelectItem>
               ))}
             </Select>
 
             <Input
+              isRequired
+              errorMessage={errors.eircode}
+              isInvalid={!!errors.eircode}
               label="Eircode"
               placeholder="Enter eircode"
               value={formData.eircode}
-              onChange={(e) => handleChange('eircode', e.target.value.toUpperCase())}
-              isInvalid={!!errors.eircode}
-              errorMessage={errors.eircode}
               variant="bordered"
-              isRequired
+              onChange={(e) =>
+                handleChange("eircode", e.target.value.toUpperCase())
+              }
             />
           </div>
         </div>
@@ -258,11 +287,7 @@ export function PersonalInfoStep({
       {/* Navigation */}
       <div className="flex justify-between pt-6">
         {onBack ? (
-          <Button
-            variant="bordered"
-            onPress={onBack}
-            isDisabled={isLoading}
-          >
+          <Button isDisabled={isLoading} variant="bordered" onPress={onBack}>
             Back
           </Button>
         ) : (
@@ -270,10 +295,10 @@ export function PersonalInfoStep({
         )}
 
         <Button
-          type="submit"
           color="primary"
-          isLoading={isLoading}
           isDisabled={isLoading}
+          isLoading={isLoading}
+          type="submit"
         >
           Continue
         </Button>
@@ -286,5 +311,5 @@ export function PersonalInfoStep({
         </div>
       )}
     </form>
-  )
+  );
 }

@@ -1,67 +1,64 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Input } from '@heroui/react';
-import { useAuth } from '@/hooks/useAuth';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import { Button, Input } from "@heroui/react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+
+import { useAuth } from "@/hooks/useAuth";
 
 export function EmailLoginForm() {
   const { login, isLoggingIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
-    
+
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       login({ email, password });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <Input
-        type="email"
+        isRequired
+        errorMessage={errors.email}
+        isInvalid={!!errors.email}
         label="Email"
         placeholder="Enter your email"
+        type="email"
         value={email}
+        variant="bordered"
         onChange={(e) => setEmail(e.target.value)}
-        isInvalid={!!errors.email}
-        errorMessage={errors.email}
-        variant="bordered"
-        isRequired
       />
-      
+
       <Input
-        label="Password"
-        placeholder="Enter your password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        isInvalid={!!errors.password}
-        errorMessage={errors.password}
-        variant="bordered"
-        type={showPassword ? 'text' : 'password'}
+        isRequired
         endContent={
           <button
             className="focus:outline-none"
@@ -75,16 +72,23 @@ export function EmailLoginForm() {
             )}
           </button>
         }
-        isRequired
+        errorMessage={errors.password}
+        isInvalid={!!errors.password}
+        label="Password"
+        placeholder="Enter your password"
+        type={showPassword ? "text" : "password"}
+        value={password}
+        variant="bordered"
+        onChange={(e) => setPassword(e.target.value)}
       />
-      
+
       <Button
-        type="submit"
-        color="primary"
         className="w-full"
-        size="lg"
-        isLoading={isLoggingIn}
+        color="primary"
         isDisabled={isLoggingIn}
+        isLoading={isLoggingIn}
+        size="lg"
+        type="submit"
       >
         Sign In
       </Button>

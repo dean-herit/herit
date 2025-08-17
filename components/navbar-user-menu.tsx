@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Dropdown,
@@ -9,6 +9,7 @@ import {
 import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import NextLink from "next/link";
+
 import { useAuth } from "@/hooks/useAuth";
 
 export const NavbarUserMenu = () => {
@@ -25,7 +26,8 @@ export const NavbarUserMenu = () => {
     if (user?.email) {
       return user.email.substring(0, 2).toUpperCase();
     }
-    return 'U';
+
+    return "U";
   };
 
   if (!isAuthenticated || !user) {
@@ -46,17 +48,13 @@ export const NavbarUserMenu = () => {
       <DropdownTrigger>
         <button className="mt-1 transition-transform">
           {user.profilePhotoUrl ? (
-            <Avatar
-              size="sm"
-              src={user.profilePhotoUrl}
-              className="h-8 w-8"
-            />
+            <Avatar className="h-8 w-8" size="sm" src={user.profilePhotoUrl} />
           ) : (
             <Avatar
-              size="sm"
-              name={getUserInitials(user)}
-              className="h-8 w-8"
               showFallback
+              className="h-8 w-8"
+              name={getUserInitials(user)}
+              size="sm"
             />
           )}
         </button>
@@ -69,9 +67,7 @@ export const NavbarUserMenu = () => {
         <DropdownItem key="dashboard" as={NextLink} href="/dashboard">
           Dashboard
         </DropdownItem>
-        <DropdownItem key="settings">
-          Settings
-        </DropdownItem>
+        <DropdownItem key="settings">Settings</DropdownItem>
         <DropdownItem key="logout" color="danger" onPress={handleLogout}>
           Log Out
         </DropdownItem>

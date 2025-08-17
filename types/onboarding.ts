@@ -16,7 +16,7 @@ export interface Signature {
   id: string;
   name: string;
   data: string;
-  type: 'drawn' | 'uploaded' | 'template';
+  type: "drawn" | "uploaded" | "template";
   font?: string; // Font family name for template signatures
   className?: string; // CSS class for the font
   createdAt: string;

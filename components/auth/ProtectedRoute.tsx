@@ -1,38 +1,44 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { Spinner } from '@heroui/react';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Spinner } from "@heroui/react";
+
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireOnboarding?: boolean;
 }
 
-export function ProtectedRoute({ children, requireOnboarding = false }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requireOnboarding = false,
+}: ProtectedRouteProps) {
   const router = useRouter();
   const { user, isAuthenticated, isSessionLoading } = useAuth();
 
   useEffect(() => {
     if (!isSessionLoading) {
       if (!isAuthenticated) {
-        router.push('/login');
+        router.push("/login");
+
         return;
       }
 
       if (requireOnboarding && user && !user.onboarding_completed) {
-        router.push('/onboarding');
+        router.push("/onboarding");
+
         return;
       }
     }
   }, [isAuthenticated, isSessionLoading, user, requireOnboarding, router]);
 
-  if (isSessionLoading || (!isAuthenticated && typeof window !== 'undefined')) {
+  if (isSessionLoading || (!isAuthenticated && typeof window !== "undefined")) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" color="primary" />
+          <Spinner color="primary" size="lg" />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>

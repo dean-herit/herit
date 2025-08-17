@@ -1,8 +1,9 @@
-import { requireAuth } from '@/lib/auth'
-import { WillClient } from './WillClient'
+import { WillClient } from "./WillClient";
+
+import { requireAuth } from "@/lib/auth";
 
 export default async function WillPage() {
-  const user = await requireAuth()
+  const user = await requireAuth();
 
-  return <WillClient user={user} />
+  return <WillClient user={user} />;
 }

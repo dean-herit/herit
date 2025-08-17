@@ -1,22 +1,26 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { lazy, Suspense } from 'react';
+import { usePathname } from "next/navigation";
+import { lazy, Suspense } from "react";
 import { Link } from "@heroui/link";
 
 // Lazy load navbar for better performance
-const Navbar = lazy(() => import('@/components/navbar').then(mod => ({ default: mod.Navbar })));
+const Navbar = lazy(() =>
+  import("@/components/navbar").then((mod) => ({ default: mod.Navbar })),
+);
 
 // Loading component for navbar
 function NavbarSkeleton() {
-  return <div className="h-16 bg-content1 border-b border-default-200 animate-pulse" />;
+  return (
+    <div className="h-16 bg-content1 border-b border-default-200 animate-pulse" />
+  );
 }
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
+
   // Check if we're on the login page only
-  const isLoginPage = pathname?.startsWith('/login');
+  const isLoginPage = pathname?.startsWith("/login");
 
   if (isLoginPage) {
     // For login page, render children directly without container, navbar, or footer

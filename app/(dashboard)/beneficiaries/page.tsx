@@ -1,8 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button, Card, CardBody, CardHeader, Divider, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@heroui/react';
-import { PlusIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@heroui/react";
+import { PlusIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 export default function BeneficiariesPage() {
   const [beneficiaries] = useState([]);
@@ -17,10 +29,7 @@ export default function BeneficiariesPage() {
             Manage the people and organizations who will inherit your assets
           </p>
         </div>
-        <Button 
-          color="primary" 
-          startContent={<PlusIcon className="h-4 w-4" />}
-        >
+        <Button color="primary" startContent={<PlusIcon className="h-4 w-4" />}>
           Add Beneficiary
         </Button>
       </div>
@@ -40,12 +49,14 @@ export default function BeneficiariesPage() {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card>
           <CardBody className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-success-100 rounded-lg">
-                <span className="text-sm font-semibold text-success-600">👨‍👩‍👧‍👦</span>
+                <span className="text-sm font-semibold text-success-600">
+                  👨‍👩‍👧‍👦
+                </span>
               </div>
               <div>
                 <p className="text-sm text-default-600">Family Members</p>
@@ -54,12 +65,14 @@ export default function BeneficiariesPage() {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card>
           <CardBody className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-secondary-100 rounded-lg">
-                <span className="text-sm font-semibold text-secondary-600">🏢</span>
+                <span className="text-sm font-semibold text-secondary-600">
+                  🏢
+                </span>
               </div>
               <div>
                 <p className="text-sm text-default-600">Organizations</p>
@@ -82,12 +95,15 @@ export default function BeneficiariesPage() {
               <div className="w-16 h-16 bg-default-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <UsersIcon className="h-8 w-8 text-default-400" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No beneficiaries added yet</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No beneficiaries added yet
+              </h3>
               <p className="text-default-600 mb-6">
-                Add family members, friends, or organizations who will inherit your assets
+                Add family members, friends, or organizations who will inherit
+                your assets
               </p>
-              <Button 
-                color="primary" 
+              <Button
+                color="primary"
                 startContent={<PlusIcon className="h-4 w-4" />}
               >
                 Add Your First Beneficiary
@@ -110,7 +126,9 @@ export default function BeneficiariesPage() {
                     <TableCell>{beneficiary.contact}</TableCell>
                     <TableCell>{beneficiary.assetsCount || 0}</TableCell>
                     <TableCell>
-                      <Button size="sm" variant="light">Edit</Button>
+                      <Button size="sm" variant="light">
+                        Edit
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

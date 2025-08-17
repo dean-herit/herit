@@ -1,37 +1,44 @@
-import { createEnv } from '@t3-oss/env-nextjs'
-import { z } from 'zod'
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const env = createEnv({
   server: {
     // Database
-    POSTGRES_URL: z.string().url().min(1, 'Database URL is required'),
-    
+    POSTGRES_URL: z.string().url().min(1, "Database URL is required"),
+
     // Authentication
-    SESSION_SECRET: z.string().min(32, 'Session secret must be at least 32 characters'),
-    REFRESH_SECRET: z.string().min(32, 'Refresh secret must be at least 32 characters').optional(),
-    
+    SESSION_SECRET: z
+      .string()
+      .min(32, "Session secret must be at least 32 characters"),
+    REFRESH_SECRET: z
+      .string()
+      .min(32, "Refresh secret must be at least 32 characters")
+      .optional(),
+
     // OAuth - Google
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     GOOGLE_REDIRECT_URI: z.string().url().optional(),
-    
+
     // OAuth - GitHub
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
-    
+
     // Vercel (optional)
     BLOB_READ_WRITE_TOKEN: z.string().optional(),
     VERCEL_OIDC_TOKEN: z.string().optional(),
-    
+
     // Node Environment
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
   },
-  
+
   client: {
     // Public environment variables go here
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   },
-  
+
   // Runtime validation
   runtimeEnv: {
     // Server
@@ -46,14 +53,14 @@ export const env = createEnv({
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
     VERCEL_OIDC_TOKEN: process.env.VERCEL_OIDC_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
-    
+
     // Client
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
-  
+
   // Skip validation in certain environments if needed
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
-  
+
   // Make it clear when we're in production but missing vars
   emptyStringAsUndefined: true,
-})
+});

@@ -1,5 +1,5 @@
-import { 
-  Fira_Code as FontMono, 
+import {
+  Fira_Code as FontMono,
   Inter as FontSans,
   Dancing_Script,
   Great_Vibes,
@@ -10,7 +10,7 @@ import {
   Sacramento,
   Shadows_Into_Light,
   Mr_Dafoe,
-  Alex_Brush
+  Alex_Brush,
 } from "next/font/google";
 
 export const fontSans = FontSans({
@@ -84,14 +84,22 @@ export const alexBrush = Alex_Brush({
 });
 
 export const signatureFonts = [
-  { name: "Dancing Script", font: dancingScript, className: "font-dancing-script" },
+  {
+    name: "Dancing Script",
+    font: dancingScript,
+    className: "font-dancing-script",
+  },
   { name: "Great Vibes", font: greatVibes, className: "font-great-vibes" },
   { name: "Pacifico", font: pacifico, className: "font-pacifico" },
   { name: "Satisfy", font: satisfy, className: "font-satisfy" },
   { name: "Allura", font: allura, className: "font-allura" },
   { name: "Parisienne", font: parisienne, className: "font-parisienne" },
   { name: "Sacramento", font: sacramento, className: "font-sacramento" },
-  { name: "Shadows Into Light", font: shadowsIntoLight, className: "font-shadows-into-light" },
+  {
+    name: "Shadows Into Light",
+    font: shadowsIntoLight,
+    className: "font-shadows-into-light",
+  },
   { name: "Mr Dafoe", font: mrDafoe, className: "font-mr-dafoe" },
   { name: "Alex Brush", font: alexBrush, className: "font-alex-brush" },
 ];

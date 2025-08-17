@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Button } from '@heroui/react';
-import { CheckIcon } from '@heroicons/react/24/solid';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Button } from "@heroui/react";
+import { CheckIcon } from "@heroicons/react/24/solid";
+
+import { cn } from "@/lib/utils";
 
 export type VerticalStepProps = {
   className?: string;
@@ -52,7 +53,7 @@ export function VerticalSteps({
   className,
 }: VerticalStepsProps) {
   const [currentStep, setCurrentStep] = React.useState(
-    currentStepProp ?? defaultStep
+    currentStepProp ?? defaultStep,
   );
 
   React.useEffect(() => {
@@ -71,17 +72,21 @@ export function VerticalSteps({
       <ol className={cn("flex flex-col gap-y-3", className)}>
         {steps?.map((step, stepIdx) => {
           const status =
-            currentStep === stepIdx ? "active" : currentStep < stepIdx ? "inactive" : "complete";
+            currentStep === stepIdx
+              ? "active"
+              : currentStep < stepIdx
+                ? "inactive"
+                : "complete";
 
           return (
             <li key={stepIdx} className="relative">
               <div className="flex w-full max-w-full items-center">
                 <Button
-                  variant="light"
                   className={cn(
                     "group rounded-large flex w-full cursor-pointer items-center justify-start gap-4 px-3 py-2.5 h-auto",
                     stepClassName,
                   )}
+                  variant="light"
                   onPress={() => handleStepClick(stepIdx)}
                 >
                   <div className="flex h-full items-center">
@@ -90,10 +95,13 @@ export function VerticalSteps({
                         className={cn(
                           "relative flex h-[34px] w-[34px] items-center justify-center rounded-full font-semibold border-2 text-sm transition-all duration-200",
                           {
-                            "bg-primary border-primary text-white shadow-lg": status === "complete",
-                            "bg-transparent border-primary text-primary": status === "active", 
-                            "bg-transparent border-default-300 text-default-400": status === "inactive",
-                          }
+                            "bg-primary border-primary text-white shadow-lg":
+                              status === "complete",
+                            "bg-transparent border-primary text-primary":
+                              status === "active",
+                            "bg-transparent border-default-300 text-default-400":
+                              status === "inactive",
+                          },
                         )}
                         data-status={status}
                       >
@@ -113,7 +121,8 @@ export function VerticalSteps({
                         className={cn(
                           "font-medium transition-colors duration-200 text-sm",
                           {
-                            "text-foreground": status === "active" || status === "complete",
+                            "text-foreground":
+                              status === "active" || status === "complete",
                             "text-default-400": status === "inactive",
                           },
                         )}
@@ -124,7 +133,8 @@ export function VerticalSteps({
                         className={cn(
                           "text-xs transition-colors duration-200 mt-1",
                           {
-                            "text-default-600": status === "active" || status === "complete",
+                            "text-default-600":
+                              status === "active" || status === "complete",
                             "text-default-400": status === "inactive",
                           },
                         )}
@@ -146,7 +156,7 @@ export function VerticalSteps({
                       {
                         "bg-primary": stepIdx < currentStep,
                         "bg-default-300": stepIdx >= currentStep,
-                      }
+                      },
                     )}
                   />
                 </div>

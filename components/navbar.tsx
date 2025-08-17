@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Navbar as HeroUINavbar,
@@ -9,7 +9,6 @@ import {
   NavbarItem,
   NavbarMenuItem,
 } from "@heroui/navbar";
-import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
@@ -73,24 +72,25 @@ export const Navbar = () => {
 
       <NavbarMenu>
         <div className="mx-4 mt-2 flex flex-col gap-2">
-          {isOnboardingComplete && siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                as={NextLink}
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href={item.href}
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
+          {isOnboardingComplete &&
+            siteConfig.navMenuItems.map((item, index) => (
+              <NavbarMenuItem key={`${item}-${index}`}>
+                <Link
+                  as={NextLink}
+                  color={
+                    index === 2
+                      ? "primary"
+                      : index === siteConfig.navMenuItems.length - 1
+                        ? "danger"
+                        : "foreground"
+                  }
+                  href={item.href}
+                  size="lg"
+                >
+                  {item.label}
+                </Link>
+              </NavbarMenuItem>
+            ))}
         </div>
       </NavbarMenu>
     </HeroUINavbar>

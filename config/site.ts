@@ -2,7 +2,8 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Herit",
-  description: "Estate Planning Made Simple. Create and manage your will with professional estate planning tools. Secure, legal, and easy to use.",
+  description:
+    "Estate Planning Made Simple. Create and manage your will with professional estate planning tools. Secure, legal, and easy to use.",
   navItems: [
     {
       label: "Dashboard",

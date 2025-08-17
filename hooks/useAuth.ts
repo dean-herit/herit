@@ -1,12 +1,13 @@
-'use client'
+"use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
-import { User, Session, LoginCredentials, SignupCredentials } from '@/types/auth'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
+import { Session, LoginCredentials, SignupCredentials } from "@/types/auth";
 
 export function useAuth() {
-  const router = useRouter()
-  const queryClient = useQueryClient()
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Get current session
   const {
@@ -15,119 +16,123 @@ export function useAuth() {
     error: sessionError,
     refetch: refetchSession,
   } = useQuery<Session>({
-    queryKey: ['auth', 'session'],
+    queryKey: ["auth", "session"],
     queryFn: async () => {
-      const response = await fetch('/api/auth/session')
+      const response = await fetch("/api/auth/session");
+
       if (!response.ok) {
-        throw new Error('Failed to fetch session')
+        throw new Error("Failed to fetch session");
       }
-      const data = await response.json()
-      return { user: data.user }
+      const data = await response.json();
+
+      return { user: data.user };
     },
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
-  })
+  });
 
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(credentials),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Login failed')
+        const error = await response.json();
+
+        throw new Error(error.message || "Login failed");
       }
 
-      return response.json()
+      return response.json();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['auth', 'session'], { user: data.user })
-      
+      queryClient.setQueryData(["auth", "session"], { user: data.user });
+
       // Route based on onboarding status
       if (data.user?.onboarding_completed) {
-        router.push('/dashboard')
+        router.push("/dashboard");
       } else {
-        router.push('/onboarding')
+        router.push("/onboarding");
       }
     },
-  })
+  });
 
   // Signup mutation
   const signupMutation = useMutation({
     mutationFn: async (credentials: SignupCredentials) => {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(credentials),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Signup failed')
+        const error = await response.json();
+
+        throw new Error(error.message || "Signup failed");
       }
 
-      return response.json()
+      return response.json();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['auth', 'session'], { user: data.user })
-      router.push('/onboarding')
+      queryClient.setQueryData(["auth", "session"], { user: data.user });
+      router.push("/onboarding");
     },
-  })
+  });
 
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
       // Immediately clear the session cache before making the API call
-      queryClient.setQueryData(['auth', 'session'], { user: null })
-      queryClient.invalidateQueries({ queryKey: ['auth', 'session'] })
-      
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-      })
+      queryClient.setQueryData(["auth", "session"], { user: null });
+      queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
+
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
 
       if (!response.ok) {
-        throw new Error('Logout failed')
+        throw new Error("Logout failed");
       }
 
-      return response.json()
+      return response.json();
     },
     onSuccess: () => {
       // Ensure cache is cleared and invalidated
-      queryClient.removeQueries({ queryKey: ['auth'] })
-      router.push('/login')
+      queryClient.removeQueries({ queryKey: ["auth"] });
+      router.push("/login");
     },
-  })
+  });
 
   // Token refresh mutation (for automatic token refresh)
   const refreshMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-      })
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+      });
 
       if (!response.ok) {
-        throw new Error('Token refresh failed')
+        throw new Error("Token refresh failed");
       }
 
-      return response.json()
+      return response.json();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['auth', 'session'], { user: data.user })
+      queryClient.setQueryData(["auth", "session"], { user: data.user });
     },
     onError: () => {
       // If refresh fails, clear session and redirect to login
-      queryClient.setQueryData(['auth', 'session'], { user: null })
-      router.push('/login')
+      queryClient.setQueryData(["auth", "session"], { user: null });
+      router.push("/login");
     },
-  })
+  });
 
   return {
     // Session data
@@ -152,5 +157,5 @@ export function useAuth() {
     signupError: signupMutation.error?.message,
     logoutError: logoutMutation.error?.message,
     refreshError: refreshMutation.error?.message,
-  }
+  };
 }
