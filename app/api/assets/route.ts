@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { IrishAssetFormSchema, AssetCategory, AssetType } from "@/types/assets";
+import { AssetFormSchema } from "@/types/assets-v2";
 
 export async function GET(request: NextRequest) {
   try {
@@ -163,22 +164,96 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate input data
-    const validationResult = IrishAssetFormSchema.safeParse(body);
+    // Try V2 schema first (discriminated union)
+    const v2ValidationResult = AssetFormSchema.safeParse(body);
 
-    if (!validationResult.success) {
+    if (v2ValidationResult.success) {
+      // Handle V2 asset creation
+      const assetData = v2ValidationResult.data;
+
+      // Extract key fields from specific_fields for legacy database compatibility
+      const specificFields = assetData.specific_fields || {};
+
+      // Type-safe field extraction based on asset type
+      let accountNumber: string | null = null;
+      let bankName: string | null = null;
+      let propertyAddress: string | null = null;
+
+      // Extract fields based on specific asset type
+      if ("iban" in specificFields) {
+        accountNumber = specificFields.iban as string;
+      } else if ("account_number" in specificFields) {
+        accountNumber = specificFields.account_number as string;
+      }
+
+      if ("irish_bank_name" in specificFields) {
+        bankName = specificFields.irish_bank_name as string;
+      } else if ("company_name" in specificFields) {
+        bankName = specificFields.company_name as string;
+      } else if ("business_name" in specificFields) {
+        bankName = specificFields.business_name as string;
+      }
+
+      if ("eircode" in specificFields) {
+        const propertyType =
+          "property_type" in specificFields
+            ? (specificFields.property_type as string)
+            : "";
+
+        propertyAddress = `${specificFields.eircode as string}, ${propertyType}`;
+      } else if ("domain_name" in specificFields) {
+        propertyAddress = specificFields.domain_name as string;
+      }
+
+      const newAsset = await db
+        .insert(assets)
+        .values({
+          user_email: session.user.email,
+          name: assetData.name,
+          asset_type: assetData.asset_type,
+          value: assetData.value,
+          description: assetData.description,
+          account_number: accountNumber,
+          bank_name: bankName,
+          property_address: propertyAddress,
+          status: "active",
+        })
+        .returning();
+
+      console.log(
+        `V2 Asset created: ${newAsset[0].id} by user ${session.user.email}`,
+      );
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Asset created successfully (V2 Schema)",
+          data: newAsset[0],
+          schema_version: "v2",
+        },
+        { status: 201 },
+      );
+    }
+
+    // Fall back to V1 schema (legacy)
+    const v1ValidationResult = IrishAssetFormSchema.safeParse(body);
+
+    if (!v1ValidationResult.success) {
       return NextResponse.json(
         {
           error: "Validation failed",
-          details: validationResult.error.flatten().fieldErrors,
+          details: {
+            v2_errors: v2ValidationResult.error.flatten().fieldErrors,
+            v1_errors: v1ValidationResult.error.flatten().fieldErrors,
+          },
         },
         { status: 400 },
       );
     }
 
-    const assetData = validationResult.data;
+    const assetData = v1ValidationResult.data;
 
-    // Create asset in database
+    // Create asset in database (legacy V1 approach)
     const newAsset = await db
       .insert(assets)
       .values({
@@ -196,16 +271,16 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // Log asset creation for audit trail
     console.log(
-      `Asset created: ${newAsset[0].id} by user ${session.user.email}`,
+      `V1 Asset created: ${newAsset[0].id} by user ${session.user.email}`,
     );
 
     return NextResponse.json(
       {
         success: true,
-        message: "Asset created successfully",
+        message: "Asset created successfully (V1 Schema)",
         data: newAsset[0],
+        schema_version: "v1",
       },
       { status: 201 },
     );

@@ -259,12 +259,12 @@ export function AssetFormModal({
     switch (currentStep) {
       case 0: // Category Selection
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold mb-3">
+              <h3 className="text-lg font-semibold mb-4">
                 Select Asset Category
               </h3>
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {Object.entries(AssetCategoryDefinitions).map(
                   ([key, category]) => (
                     <Card
@@ -279,17 +279,21 @@ export function AssetFormModal({
                         handleFieldChange("category", key as AssetCategory)
                       }
                     >
-                      <CardBody className="p-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{category.icon}</span>
-                          <div>
-                            <h4 className="font-semibold">{category.name}</h4>
-                            <p className="text-sm text-default-600">
+                      <CardBody className="p-3">
+                        <div className="flex items-start gap-3">
+                          <span className="text-xl mt-0.5">
+                            {category.icon}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm">
+                              {category.name}
+                            </h4>
+                            <p className="text-xs text-default-600 mt-0.5 line-clamp-2">
                               {category.description}
                             </p>
                           </div>
                           {formData.category === key && (
-                            <CheckIcon className="h-5 w-5 text-primary ml-auto" />
+                            <CheckIcon className="h-4 w-4 text-primary flex-shrink-0" />
                           )}
                         </div>
                       </CardBody>

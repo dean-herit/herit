@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Card,
@@ -21,7 +22,6 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  useDisclosure,
 } from "@heroui/react";
 import {
   PlusIcon,
@@ -33,15 +33,14 @@ import {
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 
-import { AssetFormModal } from "@/components/assets/AssetFormModal";
 import {
   Asset,
-  AssetFormData,
   AssetCategoryDefinitions,
   formatCurrency,
 } from "@/types/assets";
 
 export default function AssetsPage() {
+  const router = useRouter();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState({
@@ -49,11 +48,6 @@ export default function AssetsPage() {
     assetCount: 0,
     categoryBreakdown: {} as Record<string, number>,
   });
-
-  // Form and modal states
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
-  const [formLoading, setFormLoading] = useState(false);
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,76 +87,6 @@ export default function AssetsPage() {
     }
   };
 
-  const handleCreateAsset = async (formData: AssetFormData) => {
-    try {
-      setFormLoading(true);
-      const response = await fetch("/api/assets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-
-        setAssets((prev) => [result.data, ...prev]);
-        setSummary((prev) => ({
-          ...prev,
-          totalValue: prev.totalValue + formData.value,
-          assetCount: prev.assetCount + 1,
-        }));
-        onClose();
-      } else {
-        const error = await response.json();
-
-        console.error("Failed to create asset:", error);
-      }
-    } catch (error) {
-      console.error("Error creating asset:", error);
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  const handleEditAsset = async (formData: AssetFormData) => {
-    if (!editingAsset) return;
-
-    try {
-      setFormLoading(true);
-      const response = await fetch(`/api/assets/${editingAsset.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-
-        setAssets((prev) =>
-          prev.map((asset) =>
-            asset.id === editingAsset.id ? result.data : asset,
-          ),
-        );
-        // Refresh summary
-        await fetchAssets();
-        onClose();
-        setEditingAsset(null);
-      } else {
-        const error = await response.json();
-
-        console.error("Failed to update asset:", error);
-      }
-    } catch (error) {
-      console.error("Error updating asset:", error);
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
   const handleDeleteAsset = async (assetId: string) => {
     if (!confirm("Are you sure you want to delete this asset?")) return;
 
@@ -183,14 +107,8 @@ export default function AssetsPage() {
     }
   };
 
-  const openEditModal = (asset: Asset) => {
-    setEditingAsset(asset);
-    onOpen();
-  };
-
-  const openCreateModal = () => {
-    setEditingAsset(null);
-    onOpen();
+  const handleAddAsset = () => {
+    router.push("/assets/add-v2");
   };
 
   const getAssetTypeDisplay = (assetType: string) => {
@@ -221,13 +139,23 @@ export default function AssetsPage() {
             Manage your assets that will be included in your will
           </p>
         </div>
-        <Button
-          color="primary"
-          startContent={<PlusIcon className="h-4 w-4" />}
-          onPress={openCreateModal}
-        >
-          Add Asset
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            color="primary"
+            startContent={<PlusIcon className="h-4 w-4" />}
+            onPress={handleAddAsset}
+          >
+            Add Asset
+          </Button>
+          <Button
+            color="default"
+            variant="bordered"
+            startContent={<PlusIcon className="h-4 w-4" />}
+            onPress={() => router.push("/assets/add")}
+          >
+            Add Asset (Legacy)
+          </Button>
+        </div>
       </div>
 
       {/* Assets Summary - Only show if user has assets */}
@@ -371,15 +299,25 @@ export default function AssetsPage() {
                   ? "Try adjusting your search or filters"
                   : "Start building your will by adding your assets"}
               </p>
-              <Button
-                color="primary"
-                startContent={<PlusIcon className="h-4 w-4" />}
-                onPress={openCreateModal}
-              >
-                {searchTerm || selectedCategory
-                  ? "Add Asset"
-                  : "Add Your First Asset"}
-              </Button>
+              <div className="flex gap-2 flex-wrap justify-center">
+                <Button
+                  color="primary"
+                  startContent={<PlusIcon className="h-4 w-4" />}
+                  onPress={handleAddAsset}
+                >
+                  {searchTerm || selectedCategory
+                    ? "Add Asset"
+                    : "Add Your First Asset"}
+                </Button>
+                <Button
+                  color="default"
+                  variant="bordered"
+                  startContent={<PlusIcon className="h-4 w-4" />}
+                  onPress={() => router.push("/assets/add")}
+                >
+                  Add Asset (Legacy)
+                </Button>
+              </div>
             </div>
           ) : (
             <Table
@@ -444,7 +382,9 @@ export default function AssetsPage() {
                           <DropdownItem
                             key="edit"
                             startContent={<PencilIcon className="h-4 w-4" />}
-                            onPress={() => openEditModal(asset)}
+                            onPress={() =>
+                              router.push(`/assets/${asset.id}/edit`)
+                            }
                           >
                             Edit
                           </DropdownItem>
@@ -467,18 +407,6 @@ export default function AssetsPage() {
           )}
         </CardBody>
       </Card>
-
-      {/* Asset Form Modal */}
-      <AssetFormModal
-        editingAsset={editingAsset}
-        isLoading={formLoading}
-        isOpen={isOpen}
-        onClose={() => {
-          onClose();
-          setEditingAsset(null);
-        }}
-        onSubmit={editingAsset ? handleEditAsset : handleCreateAsset}
-      />
     </div>
   );
 }
