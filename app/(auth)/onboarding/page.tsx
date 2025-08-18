@@ -98,15 +98,23 @@ export default function OnboardingPage() {
     }
   }, [isAuthenticated, isSessionLoading, user, router]);
 
-  // Load progress from localStorage on mount
+  // Load progress from localStorage and always fetch fresh data from database
   useEffect(() => {
     const savedProgress = localStorage.getItem("onboarding-progress");
     let hasLocalProgress = false;
+
+    console.log(
+      "Loading onboarding progress from localStorage:",
+      savedProgress,
+    );
 
     if (savedProgress) {
       try {
         const progress: OnboardingProgress = JSON.parse(savedProgress);
 
+        console.log("Parsed localStorage progress:", progress);
+
+        // Load localStorage data as a starting point
         setCurrentStep(progress.currentStep || 0);
         setPersonalInfo(progress.personalInfo || personalInfo);
         setSignature(progress.signature || null);
@@ -118,7 +126,8 @@ export default function OnboardingPage() {
       }
     }
 
-    // Fetch user data and set appropriate step if no local progress
+    // Always fetch fresh data from database to ensure consistency
+    // Database data will override localStorage if it's more complete/recent
     fetchUserData(!hasLocalProgress);
   }, []);
 
@@ -151,15 +160,20 @@ export default function OnboardingPage() {
 
   // Fetch user data from session and database
   const fetchUserData = async (shouldSetStep = false) => {
+    console.log("fetchUserData called, shouldSetStep:", shouldSetStep);
     try {
       // Fetch personal information and completion status from database
+      console.log("Fetching personal info...");
       const personalInfoResponse = await fetch("/api/onboarding/personal-info");
 
       if (personalInfoResponse.ok) {
         const personalInfoData = await personalInfoResponse.json();
 
+        console.log("Personal info data:", personalInfoData);
+
         if (personalInfoData.personalInfo) {
           setPersonalInfo(personalInfoData.personalInfo);
+          console.log("Personal info set:", personalInfoData.personalInfo);
         }
 
         // Set current step based on completion status if this is initial load without local progress
@@ -168,26 +182,46 @@ export default function OnboardingPage() {
             personalInfoData.completionStatus,
           );
 
+          console.log("Setting current step to:", appropriateStep);
           setCurrentStep(appropriateStep);
         }
+      } else {
+        console.error(
+          "Personal info fetch failed:",
+          personalInfoResponse.status,
+          await personalInfoResponse.text(),
+        );
       }
 
       // Fetch existing signature from database
+      console.log("Fetching signature...");
       const signatureResponse = await fetch("/api/onboarding/signature");
 
       if (signatureResponse.ok) {
         const signatureData = await signatureResponse.json();
 
+        console.log("Signature data:", signatureData);
+
         if (signatureData.signature) {
           setSignature(signatureData.signature);
+          console.log("Signature set:", signatureData.signature);
         }
+      } else {
+        console.error(
+          "Signature fetch failed:",
+          signatureResponse.status,
+          await signatureResponse.text(),
+        );
       }
 
       // Fetch existing consents from database
+      console.log("Fetching consents...");
       const consentsResponse = await fetch("/api/onboarding/legal-consent");
 
       if (consentsResponse.ok) {
         const consentsData = await consentsResponse.json();
+
+        console.log("Consents data:", consentsData);
 
         if (consentsData.consents) {
           const consentIds = Object.keys(consentsData.consents).filter(
@@ -195,10 +229,17 @@ export default function OnboardingPage() {
           );
 
           setConsents(consentIds);
+          console.log("Consents set:", consentIds);
         }
+      } else {
+        console.error(
+          "Consents fetch failed:",
+          consentsResponse.status,
+          await consentsResponse.text(),
+        );
       }
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.error("Error in fetchUserData:", error);
     }
   };
 
