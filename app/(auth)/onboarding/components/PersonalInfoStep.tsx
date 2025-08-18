@@ -93,6 +93,10 @@ export function PersonalInfoStep({
     onSuccess: () => {
       onComplete();
     },
+    onError: (error) => {
+      console.error("Personal info submission error:", error);
+      setErrors({ first_name: error.message });
+    },
   });
 
   useEffect(() => {

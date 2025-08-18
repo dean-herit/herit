@@ -100,7 +100,16 @@ export async function POST(request: NextRequest) {
     } = data;
 
     // Basic validation
-    if (!firstName || !lastName || !phoneNumber || !dateOfBirth) {
+    if (
+      !firstName ||
+      !lastName ||
+      !phoneNumber ||
+      !dateOfBirth ||
+      !addressLine1 ||
+      !city ||
+      !county ||
+      !eircode
+    ) {
       return NextResponse.json(
         { error: "Required fields missing" },
         { status: 400 },
