@@ -394,7 +394,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar with steps */}
@@ -429,7 +429,7 @@ export default function OnboardingPage() {
               )}
 
               {/* Step Header */}
-              <div className="mb-8">
+              <div className="mb-4">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
