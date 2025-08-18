@@ -26,12 +26,19 @@ export function SignatureStamp({
   const renderSignature = () => {
     // Always use the immutable properties stored with the signature
     // This ensures signatures appear exactly as they were when created
-    if (signature.type === "template" && signature.font) {
+    console.log("SignatureStamp rendering with:", {
+      type: signature.type,
+      font: signature.font,
+      className: signature.className,
+      data: signature.data,
+      fullSignatureObject: signature,
+    });
+
+    if (signature.type === "template" && signature.className) {
       return (
         <div
-          className={`text-4xl text-black dark:text-white ${signature.className || ""}`}
+          className={`text-4xl text-black dark:text-white ${signature.className}`}
           style={{
-            fontFamily: signature.font,
             transform: "scaleY(1.2)",
             letterSpacing: "0.05em",
           }}
@@ -49,12 +56,10 @@ export function SignatureStamp({
       );
     } else {
       // Fallback for legacy signatures or drawn signatures
-      // Use stored font if available, otherwise use a safe default
       return (
         <div
-          className={`text-4xl text-black dark:text-white ${signature.className || ""}`}
+          className={`text-4xl text-black dark:text-white ${signature.className || "font-cursive"}`}
           style={{
-            fontFamily: signature.font || "cursive",
             transform: "scaleY(1.2)",
             letterSpacing: "0.05em",
           }}

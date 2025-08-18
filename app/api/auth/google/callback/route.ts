@@ -203,7 +203,8 @@ export async function GET(request: NextRequest) {
       console.error("Database error during OAuth:", dbError);
 
       // Fallback: create temporary session without database (for development)
-      const userId = `google_${googleUser.id}`;
+      // Generate a proper UUID instead of using string concatenation
+      const userId = crypto.randomUUID();
 
       await setAuthCookies(userId, googleUser.email);
 

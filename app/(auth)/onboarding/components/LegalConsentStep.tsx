@@ -104,6 +104,24 @@ export function LegalConsentStep({
                   // Load stored signature snapshot if available
                   if (consentData.signatureSnapshot) {
                     snapshots[consentId] = consentData.signatureSnapshot;
+                    console.log(
+                      "Loaded signature snapshot for",
+                      consentId,
+                      ":",
+                      {
+                        type: consentData.signatureSnapshot.type,
+                        font: consentData.signatureSnapshot.font,
+                        className: consentData.signatureSnapshot.className,
+                        data: consentData.signatureSnapshot.data,
+                        fullSnapshot: consentData.signatureSnapshot,
+                      },
+                    );
+                  } else {
+                    console.log(
+                      "No signature snapshot for",
+                      consentId,
+                      "- will use current signature",
+                    );
                   }
                 }
               },
@@ -181,6 +199,7 @@ export function LegalConsentStep({
       setSignedConsents(updatedSignedConsents);
 
       // Store the signature snapshot for this consent
+      console.log("Storing signature snapshot for", consentId, signature);
       setSignatureSnapshots((prev) => ({
         ...prev,
         [consentId]: signature,
@@ -406,11 +425,28 @@ export function LegalConsentStep({
                         isLoading={signingConsent === consent.id}
                         isSigned={isSigned}
                         // Use stored signature snapshot if signed, otherwise current signature
-                        signature={
-                          isSigned && signatureSnapshots[consent.id]
-                            ? signatureSnapshots[consent.id]
-                            : signature
-                        }
+                        signature={(() => {
+                          const snapSig =
+                            isSigned && signatureSnapshots[consent.id];
+
+                          if (snapSig) {
+                            console.log(
+                              "Using snapshot signature for",
+                              consent.id,
+                              snapSig,
+                            );
+
+                            return snapSig;
+                          } else {
+                            console.log(
+                              "Using current signature for",
+                              consent.id,
+                              signature,
+                            );
+
+                            return signature;
+                          }
+                        })()}
                         timestamp={timestamp}
                         userName={
                           isSigned && signatureSnapshots[consent.id]
