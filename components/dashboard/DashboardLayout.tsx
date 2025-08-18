@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Card, CardBody } from "@heroui/react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,10 +8,9 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="py-8">
-      <Card className="w-full">
-        <CardBody className="p-8">{children}</CardBody>
-      </Card>
+    <div className="space-y-6">
+      {/* The children now include welcome message outside card and content inside card */}
+      {children}
     </div>
   );
 }

@@ -89,3 +89,24 @@ html {
 .step-complete {
   animation: step-complete 0.3s ease-in-out;
 }
+
+/* Remove outline from dashboard main card */
+main .w-full[data-focus-visible="true"] {
+  outline: none !important;
+}
+
+/* More specific targeting for dashboard cards without outline */
+.dashboard-main-card {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Remove outlines and shadows from all cards in dashboard */
+.dashboard-main-card .shadow-medium,
+.dashboard-main-card [class*="shadow-"],
+.dashboard-main-card .rounded-large {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}

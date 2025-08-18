@@ -18,7 +18,7 @@ import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { NavbarUserMenu } from "@/components/navbar-user-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { AcmeIcon } from "@/components/AcmeIcon";
+import { HeritLogo } from "@/components/HeritLogo";
 
 export const Navbar = () => {
   const { user, isSessionLoading } = useAuth();
@@ -26,15 +26,16 @@ export const Navbar = () => {
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
+      <NavbarContent className="basis-1/5 sm:basis-full justify-start items-center">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-3" href="/">
-            <AcmeIcon size={60} />
-            <p className="font-medium text-2xl">HERIT</p>
+          <NextLink className="flex justify-start items-center" href="/">
+            <div className="mt-4">
+              <HeritLogo size={144} />
+            </div>
           </NextLink>
         </NavbarBrand>
         {isOnboardingComplete && (
-          <ul className="hidden lg:flex gap-4 justify-start ml-2">
+          <ul className="hidden lg:flex gap-4 justify-start ml-2 mt-4">
             {siteConfig.navItems.map((item) => (
               <NavbarItem key={item.href}>
                 <NextLink
@@ -54,7 +55,7 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
+        className="hidden sm:flex basis-1/5 sm:basis-full mt-4"
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">

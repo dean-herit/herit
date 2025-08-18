@@ -394,66 +394,64 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar with steps */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
-                <VerticalSteps
-                  currentStep={currentStep}
-                  steps={STEPS}
-                  onStepChange={goToStep}
-                />
-              </div>
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar with steps */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <VerticalSteps
+                currentStep={currentStep}
+                steps={STEPS}
+                onStepChange={goToStep}
+              />
             </div>
+          </div>
 
-            {/* Main content */}
-            <div className="lg:col-span-3">
-              {/* Error Display */}
-              {errors.length > 0 && (
-                <Card className="mb-8 border-danger-200 bg-danger-50">
-                  <CardBody className="p-6">
-                    <div className="font-medium mb-2 text-danger-600">
-                      Please correct the following errors:
-                    </div>
-                    <ul className="space-y-1">
-                      {errors.map((error, index) => (
-                        <li key={index} className="text-sm text-danger-600">
-                          • {error}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardBody>
-                </Card>
-              )}
-
-              {/* Step Header */}
-              <div className="mb-4">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-semibold">
-                        {currentStep + 1}
-                      </span>
-                    </div>
+          {/* Main content */}
+          <div className="lg:col-span-3">
+            {/* Error Display */}
+            {errors.length > 0 && (
+              <Card className="mb-8 border-danger-200 bg-danger-50">
+                <CardBody className="p-6">
+                  <div className="font-medium mb-2 text-danger-600">
+                    Please correct the following errors:
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-semibold text-foreground">
-                      {STEPS[currentStep].title}
-                    </h1>
-                    <p className="text-sm text-default-600 mt-1">
-                      {STEPS[currentStep].description}
-                    </p>
+                  <ul className="space-y-1">
+                    {errors.map((error, index) => (
+                      <li key={index} className="text-sm text-danger-600">
+                        • {error}
+                      </li>
+                    ))}
+                  </ul>
+                </CardBody>
+              </Card>
+            )}
+
+            {/* Step Header */}
+            <div className="mb-2">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white font-semibold">
+                      {currentStep + 1}
+                    </span>
                   </div>
                 </div>
+                <div>
+                  <h1 className="text-2xl font-semibold text-foreground">
+                    {STEPS[currentStep].title}
+                  </h1>
+                  <p className="text-sm text-default-600 mt-1">
+                    {STEPS[currentStep].description}
+                  </p>
+                </div>
               </div>
-
-              {/* Step Content */}
-              <Card>
-                <CardBody className="p-8">{renderCurrentStep()}</CardBody>
-              </Card>
             </div>
+
+            {/* Step Content */}
+            <Card>
+              <CardBody className="p-8">{renderCurrentStep()}</CardBody>
+            </Card>
           </div>
         </div>
       </div>

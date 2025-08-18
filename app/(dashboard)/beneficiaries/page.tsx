@@ -34,54 +34,60 @@ export default function BeneficiariesPage() {
         </Button>
       </div>
 
-      {/* Beneficiaries Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary-100 rounded-lg">
-                <UsersIcon className="h-5 w-5 text-primary-600" />
+      {/* Beneficiaries Summary - Only show if user has beneficiaries */}
+      {beneficiaries.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardBody className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary-100 rounded-lg">
+                  <UsersIcon className="h-5 w-5 text-primary-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-default-600">
+                    Total Beneficiaries
+                  </p>
+                  <p className="text-xl font-semibold">
+                    {beneficiaries.length}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-default-600">Total Beneficiaries</p>
-                <p className="text-xl font-semibold">{beneficiaries.length}</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
 
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-success-100 rounded-lg">
-                <span className="text-sm font-semibold text-success-600">
-                  👨‍👩‍👧‍👦
-                </span>
+          <Card>
+            <CardBody className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-success-100 rounded-lg">
+                  <span className="text-sm font-semibold text-success-600">
+                    👨‍👩‍👧‍👦
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-default-600">Family Members</p>
+                  <p className="text-xl font-semibold">0</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-default-600">Family Members</p>
-                <p className="text-xl font-semibold">0</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
 
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-secondary-100 rounded-lg">
-                <span className="text-sm font-semibold text-secondary-600">
-                  🏢
-                </span>
+          <Card>
+            <CardBody className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-secondary-100 rounded-lg">
+                  <span className="text-sm font-semibold text-secondary-600">
+                    🏢
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm text-default-600">Organizations</p>
+                  <p className="text-xl font-semibold">0</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-default-600">Organizations</p>
-                <p className="text-xl font-semibold">0</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+            </CardBody>
+          </Card>
+        </div>
+      )}
 
       {/* Beneficiaries List */}
       <Card>

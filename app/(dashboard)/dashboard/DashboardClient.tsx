@@ -43,6 +43,8 @@ export function DashboardClient() {
     recentAssets: [],
   });
   const [loading, setLoading] = useState(true);
+  const [beneficiaryCount, setBeneficiaryCount] = useState(0);
+  const [hasWill, setHasWill] = useState(false);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -79,13 +81,15 @@ export function DashboardClient() {
       icon: CurrencyDollarIcon,
       href: "/assets",
       color: "success",
+      show: stats.totalAssets > 0,
     },
     {
       label: "Beneficiaries",
-      value: "0", // TODO: Add beneficiary API
+      value: beneficiaryCount.toString(),
       icon: UsersIcon,
       href: "/beneficiaries",
       color: "primary",
+      show: beneficiaryCount > 0,
     },
     {
       label: "Will Status",
@@ -93,8 +97,9 @@ export function DashboardClient() {
       icon: DocumentTextIcon,
       href: "/will",
       color: "warning",
+      show: hasWill,
     },
-  ];
+  ].filter((stat) => stat.show);
 
   const getAssetTypeDisplay = (assetType: string) => {
     return assetType
@@ -119,228 +124,246 @@ export function DashboardClient() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.firstName || "User"}!
+    <>
+      {/* Welcome Header - Outside the card */}
+      <div className="text-left mb-6 mt-12 ml-[2.5%]">
+        <h1 className="tracking-tight inline font-semibold text-4xl md:text-5xl text-foreground">
+          Welcome back,{" "}
+          <span className="from-[#FF1CF7] to-[#b249f8] bg-clip-text text-transparent bg-gradient-to-b">
+            {user?.firstName || "User"}
+          </span>
+          !
         </h1>
-        <p className="text-default-600 mt-2">
-          Manage your estate planning and keep your legacy secure.
-        </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {quickStats.map((stat) => {
-          const IconComponent = stat.icon;
+      {/* Main Dashboard Content */}
+      <Card className="w-full dashboard-main-card">
+        <CardBody className="p-8">
+          <div className="space-y-8">
+            {/* Quick Stats - Only show if user has any data */}
+            {quickStats.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {quickStats.map((stat) => {
+                  const IconComponent = stat.icon;
 
-          return (
-            <Link key={stat.label} href={stat.href}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardBody className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 bg-${stat.color}-100 rounded-full`}>
-                      <IconComponent
-                        className={`h-6 w-6 text-${stat.color}-600`}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">
-                        {stat.value}
-                      </p>
-                      {stat.subValue && (
-                        <p className="text-sm font-medium text-success-600">
-                          {stat.subValue}
-                        </p>
-                      )}
-                      <p className="text-sm text-default-600">{stat.label}</p>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Asset Categories Overview */}
-      {!loading &&
-        stats.totalAssets > 0 &&
-        Object.keys(stats.categoryBreakdown).length > 0 && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-primary" />
-                <h2 className="text-xl font-semibold">Asset Categories</h2>
+                  return (
+                    <Link key={stat.label} href={stat.href}>
+                      <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardBody className="p-6">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`p-3 bg-${stat.color}-100 rounded-full`}
+                            >
+                              <IconComponent
+                                className={`h-6 w-6 text-${stat.color}-600`}
+                              />
+                            </div>
+                            <div>
+                              <p className="text-2xl font-bold text-foreground">
+                                {stat.value}
+                              </p>
+                              {stat.subValue && (
+                                <p className="text-sm font-medium text-success-600">
+                                  {stat.subValue}
+                                </p>
+                              )}
+                              <p className="text-sm text-default-600">
+                                {stat.label}
+                              </p>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.entries(stats.categoryBreakdown).map(
-                  ([category, count]) => (
-                    <div
-                      key={category}
-                      className="text-center p-3 bg-default-50 rounded-lg"
-                    >
-                      <p className="text-2xl font-bold text-primary">{count}</p>
-                      <p className="text-sm text-default-600 capitalize">
-                        {category.replace("_", " ")}
-                      </p>
-                    </div>
-                  ),
-                )}
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-semibold">Quick Actions</h2>
-        </CardHeader>
-        <Divider />
-        <CardBody className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link href="/assets">
-              <Button
-                className="h-auto p-4 justify-start w-full"
-                startContent={<CurrencyDollarIcon className="h-5 w-5" />}
-                variant="bordered"
-              >
-                <div className="text-left">
-                  <div className="font-semibold">
-                    {stats.totalAssets === 0
-                      ? "Add Your First Asset"
-                      : "Manage Assets"}
-                  </div>
-                  <div className="text-sm text-default-600">
-                    {stats.totalAssets === 0
-                      ? "Start building your will by adding assets"
-                      : `View and manage your ${stats.totalAssets} assets`}
-                  </div>
-                </div>
-              </Button>
-            </Link>
-
-            <Link href="/beneficiaries">
-              <Button
-                className="h-auto p-4 justify-start w-full"
-                startContent={<UsersIcon className="h-5 w-5" />}
-                variant="bordered"
-              >
-                <div className="text-left">
-                  <div className="font-semibold">Add Beneficiaries</div>
-                  <div className="text-sm text-default-600">
-                    Define who inherits your assets
-                  </div>
-                </div>
-              </Button>
-            </Link>
-
-            <Link href="/will">
-              <Button
-                className="h-auto p-4 justify-start w-full"
-                startContent={<DocumentTextIcon className="h-5 w-5" />}
-                variant="bordered"
-              >
-                <div className="text-left">
-                  <div className="font-semibold">Review Will</div>
-                  <div className="text-sm text-default-600">
-                    Review and finalize your will
-                  </div>
-                </div>
-              </Button>
-            </Link>
-
-            <Button
-              className="h-auto p-4 justify-start"
-              startContent={<UserIcon className="h-5 w-5" />}
-              variant="bordered"
-            >
-              <div className="text-left">
-                <div className="font-semibold">Update Profile</div>
-                <div className="text-sm text-default-600">
-                  Keep your information current
-                </div>
-              </div>
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between w-full">
-            <h2 className="text-xl font-semibold">Recent Activity</h2>
-            {stats.totalAssets > 0 && (
-              <Link href="/assets">
-                <Button size="sm" variant="light">
-                  View All
-                </Button>
-              </Link>
             )}
-          </div>
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
-              <p className="mt-2 text-default-600">
-                Loading recent activity...
-              </p>
-            </div>
-          ) : stats.recentAssets.length === 0 ? (
-            <div className="text-center py-8 text-default-600">
-              <p>No recent activity to show.</p>
-              <p className="text-sm mt-1">
-                Start by adding your assets or beneficiaries.
-              </p>
-              <Link href="/assets">
-                <Button
-                  className="mt-4"
-                  color="primary"
-                  startContent={<PlusIcon className="h-4 w-4" />}
-                  variant="flat"
-                >
-                  Add Your First Asset
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {stats.recentAssets.map((asset) => (
-                <div
-                  key={asset.id}
-                  className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary-100 rounded-full">
-                      <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+
+            {/* Asset Categories Overview */}
+            {!loading &&
+              stats.totalAssets > 0 &&
+              Object.keys(stats.categoryBreakdown).length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <ArrowTrendingUpIcon className="h-5 w-5 text-primary" />
+                      <h2 className="text-xl font-semibold">
+                        Asset Categories
+                      </h2>
                     </div>
-                    <div>
-                      <p className="font-medium">{asset.name}</p>
-                      <p className="text-sm text-default-600">
-                        {getAssetTypeDisplay(asset.asset_type)} •{" "}
-                        {getRelativeTime(asset.created_at)}
-                      </p>
+                  </CardHeader>
+                  <Divider />
+                  <CardBody>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {Object.entries(stats.categoryBreakdown).map(
+                        ([category, count]) => (
+                          <div
+                            key={category}
+                            className="text-center p-3 bg-default-50 rounded-lg"
+                          >
+                            <p className="text-2xl font-bold text-primary">
+                              {count}
+                            </p>
+                            <p className="text-sm text-default-600 capitalize">
+                              {category.replace("_", " ")}
+                            </p>
+                          </div>
+                        ),
+                      )}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-success-600">
-                      {formatCurrency(asset.value)}
+                  </CardBody>
+                </Card>
+              )}
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-semibold">Quick Actions</h2>
+              </CardHeader>
+              <Divider />
+              <CardBody className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Link href="/assets">
+                    <Button
+                      className="h-auto p-4 justify-start w-full"
+                      startContent={<CurrencyDollarIcon className="h-5 w-5" />}
+                      variant="bordered"
+                    >
+                      <div className="text-left">
+                        <div className="font-semibold">
+                          {stats.totalAssets === 0
+                            ? "Add Your First Asset"
+                            : "Manage Assets"}
+                        </div>
+                        <div className="text-sm text-default-600">
+                          {stats.totalAssets === 0
+                            ? "Start building your will by adding assets"
+                            : `View and manage your ${stats.totalAssets} assets`}
+                        </div>
+                      </div>
+                    </Button>
+                  </Link>
+
+                  <Link href="/beneficiaries">
+                    <Button
+                      className="h-auto p-4 justify-start w-full"
+                      startContent={<UsersIcon className="h-5 w-5" />}
+                      variant="bordered"
+                    >
+                      <div className="text-left">
+                        <div className="font-semibold">Add Beneficiaries</div>
+                        <div className="text-sm text-default-600">
+                          Define who inherits your assets
+                        </div>
+                      </div>
+                    </Button>
+                  </Link>
+
+                  <Link href="/will">
+                    <Button
+                      className="h-auto p-4 justify-start w-full"
+                      startContent={<DocumentTextIcon className="h-5 w-5" />}
+                      variant="bordered"
+                    >
+                      <div className="text-left">
+                        <div className="font-semibold">Review Will</div>
+                        <div className="text-sm text-default-600">
+                          Review and finalize your will
+                        </div>
+                      </div>
+                    </Button>
+                  </Link>
+
+                  <Button
+                    className="h-auto p-4 justify-start"
+                    startContent={<UserIcon className="h-5 w-5" />}
+                    variant="bordered"
+                  >
+                    <div className="text-left">
+                      <div className="font-semibold">Update Profile</div>
+                      <div className="text-sm text-default-600">
+                        Keep your information current
+                      </div>
+                    </div>
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between w-full">
+                  <h2 className="text-xl font-semibold">Recent Activity</h2>
+                  {stats.totalAssets > 0 && (
+                    <Link href="/assets">
+                      <Button size="sm" variant="light">
+                        View All
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
+                    <p className="mt-2 text-default-600">
+                      Loading recent activity...
                     </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ) : stats.recentAssets.length === 0 ? (
+                  <div className="text-center py-8 text-default-600">
+                    <p>No recent activity to show.</p>
+                    <p className="text-sm mt-1">
+                      Start by adding your assets or beneficiaries.
+                    </p>
+                    <Link href="/assets">
+                      <Button
+                        className="mt-4"
+                        color="primary"
+                        startContent={<PlusIcon className="h-4 w-4" />}
+                        variant="flat"
+                      >
+                        Add Your First Asset
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {stats.recentAssets.map((asset) => (
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-primary-100 rounded-full">
+                            <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{asset.name}</p>
+                            <p className="text-sm text-default-600">
+                              {getAssetTypeDisplay(asset.asset_type)} •{" "}
+                              {getRelativeTime(asset.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-success-600">
+                            {formatCurrency(asset.value)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </div>
         </CardBody>
       </Card>
-    </div>
+    </>
   );
 }

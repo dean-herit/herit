@@ -230,111 +230,119 @@ export default function AssetsPage() {
         </Button>
       </div>
 
-      {/* Assets Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-success-100 rounded-lg">
-                <CurrencyDollarIcon className="h-5 w-5 text-success-600" />
-              </div>
-              <div>
-                <p className="text-sm text-default-600">Total Value</p>
-                <p className="text-xl font-semibold">
-                  {formatCurrency(summary.totalValue)}
-                </p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+      {/* Assets Summary - Only show if user has assets */}
+      {(assets.length > 0 || searchTerm || selectedCategory) && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-success-100 rounded-lg">
+                    <CurrencyDollarIcon className="h-5 w-5 text-success-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-default-600">Total Value</p>
+                    <p className="text-xl font-semibold">
+                      {formatCurrency(summary.totalValue)}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
 
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary-100 rounded-lg">
-                <span className="text-sm font-semibold text-primary-600">
-                  📊
-                </span>
-              </div>
-              <div>
-                <p className="text-sm text-default-600">Total Assets</p>
-                <p className="text-xl font-semibold">{summary.assetCount}</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary-100 rounded-lg">
+                    <span className="text-sm font-semibold text-primary-600">
+                      📊
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-default-600">Total Assets</p>
+                    <p className="text-xl font-semibold">
+                      {summary.assetCount}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
 
-        <Card>
-          <CardBody className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-warning-100 rounded-lg">
-                <span className="text-sm font-semibold text-warning-600">
-                  ⚠️
-                </span>
-              </div>
-              <div>
-                <p className="text-sm text-default-600">Categories</p>
-                <p className="text-xl font-semibold">
-                  {Object.keys(summary.categoryBreakdown).length}
-                </p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
-      <Card>
-        <CardBody className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Input
-              className="md:max-w-xs"
-              placeholder="Search assets..."
-              startContent={
-                <MagnifyingGlassIcon className="h-4 w-4 text-default-400" />
-              }
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
-
-            <Select
-              className="md:max-w-xs"
-              placeholder="All categories"
-              selectedKeys={selectedCategory ? [selectedCategory] : []}
-              startContent={<FunnelIcon className="h-4 w-4 text-default-400" />}
-              onSelectionChange={(keys) => {
-                const category = Array.from(keys)[0] as string;
-
-                setSelectedCategory(category || "");
-              }}
-            >
-              {Object.entries(AssetCategoryDefinitions).map(
-                ([key, category]) => (
-                  <SelectItem key={key}>
-                    {category.icon} {category.name}
-                  </SelectItem>
-                ),
-              )}
-            </Select>
-
-            <Select
-              className="md:max-w-xs"
-              placeholder="Sort by"
-              selectedKeys={[sortBy]}
-              onSelectionChange={(keys) => {
-                const sort = Array.from(keys)[0] as string;
-
-                setSortBy(sort);
-              }}
-            >
-              <SelectItem key="created_at">Date Created</SelectItem>
-              <SelectItem key="name">Name</SelectItem>
-              <SelectItem key="value">Value</SelectItem>
-              <SelectItem key="asset_type">Type</SelectItem>
-            </Select>
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-warning-100 rounded-lg">
+                    <span className="text-sm font-semibold text-warning-600">
+                      ⚠️
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-default-600">Categories</p>
+                    <p className="text-xl font-semibold">
+                      {Object.keys(summary.categoryBreakdown).length}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
           </div>
-        </CardBody>
-      </Card>
+
+          {/* Filters and Search */}
+          <Card>
+            <CardBody className="p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <Input
+                  className="md:max-w-xs"
+                  placeholder="Search assets..."
+                  startContent={
+                    <MagnifyingGlassIcon className="h-4 w-4 text-default-400" />
+                  }
+                  value={searchTerm}
+                  onValueChange={setSearchTerm}
+                />
+
+                <Select
+                  className="md:max-w-xs"
+                  placeholder="All categories"
+                  selectedKeys={selectedCategory ? [selectedCategory] : []}
+                  startContent={
+                    <FunnelIcon className="h-4 w-4 text-default-400" />
+                  }
+                  onSelectionChange={(keys) => {
+                    const category = Array.from(keys)[0] as string;
+
+                    setSelectedCategory(category || "");
+                  }}
+                >
+                  {Object.entries(AssetCategoryDefinitions).map(
+                    ([key, category]) => (
+                      <SelectItem key={key}>
+                        {category.icon} {category.name}
+                      </SelectItem>
+                    ),
+                  )}
+                </Select>
+
+                <Select
+                  className="md:max-w-xs"
+                  placeholder="Sort by"
+                  selectedKeys={[sortBy]}
+                  onSelectionChange={(keys) => {
+                    const sort = Array.from(keys)[0] as string;
+
+                    setSortBy(sort);
+                  }}
+                >
+                  <SelectItem key="created_at">Date Created</SelectItem>
+                  <SelectItem key="name">Name</SelectItem>
+                  <SelectItem key="value">Value</SelectItem>
+                  <SelectItem key="asset_type">Type</SelectItem>
+                </Select>
+              </div>
+            </CardBody>
+          </Card>
+        </>
+      )}
 
       {/* Assets List */}
       <Card>

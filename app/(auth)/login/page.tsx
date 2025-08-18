@@ -13,7 +13,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-import { AcmeIcon } from "@/components/AcmeIcon";
+import { HeritLogo } from "@/components/HeritLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
@@ -72,10 +72,9 @@ export default function LoginPage() {
       }}
     >
       {/* Brand Logo */}
-      <div className="absolute top-10 left-10">
+      <div className="absolute top-5 left-10">
         <div className="flex items-center">
-          <AcmeIcon className="text-black" size={60} />
-          <p className="font-medium text-black ml-3 text-2xl">HERIT</p>
+          <HeritLogo className="invert" size={144} />
         </div>
       </div>
 
