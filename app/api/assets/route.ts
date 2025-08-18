@@ -4,7 +4,7 @@ import { eq, desc, asc, like, and, or } from "drizzle-orm";
 import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { AssetFormSchema, AssetCategory, AssetType } from "@/types/assets";
+import { IrishAssetFormSchema, AssetCategory, AssetType } from "@/types/assets";
 
 export async function GET(request: NextRequest) {
   try {
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Validate input data
-    const validationResult = AssetFormSchema.safeParse(body);
+    const validationResult = IrishAssetFormSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -187,9 +187,11 @@ export async function POST(request: NextRequest) {
         asset_type: assetData.asset_type,
         value: assetData.value,
         description: assetData.description,
-        account_number: assetData.account_number,
-        bank_name: assetData.bank_name || assetData.institution_name,
-        property_address: assetData.property_address,
+        account_number: assetData.irish_fields?.iban || null,
+        bank_name: assetData.irish_fields?.irish_bank_name || null,
+        property_address: assetData.irish_fields?.eircode
+          ? `${assetData.irish_fields.eircode}, ${assetData.irish_fields.property_type || ""}`
+          : null,
         status: "active",
       })
       .returning();

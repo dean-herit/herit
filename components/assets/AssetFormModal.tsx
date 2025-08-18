@@ -25,12 +25,14 @@ import {
 
 import {
   AssetFormData,
-  AssetFormSchema,
+  IrishAssetFormSchema,
   AssetCategory,
   AssetType,
   AssetCategoryDefinitions,
-  AssetTypeDefinitions,
+  IrishAssetTypeDefinitions,
   CurrencyOptions,
+  CurrencyCode,
+  JurisdictionCode,
   formatCurrency,
   getAssetTypesByCategory,
 } from "@/types/assets";
@@ -53,8 +55,10 @@ export function AssetFormModal({
 }: AssetFormModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<AssetFormData>>({
-    currency: "EUR",
+    currency: CurrencyCode.EUR,
+    jurisdiction: JurisdictionCode.IE,
     value: 0,
+    irish_fields: {},
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<any>(null);
@@ -87,18 +91,25 @@ export function AssetFormModal({
         asset_type: editingAsset.asset_type as AssetType,
         category: getCategoryFromAssetType(editingAsset.asset_type),
         value: editingAsset.value,
-        currency: "EUR", // Default, could be stored in metadata
+        currency: CurrencyCode.EUR, // Default for Ireland
+        jurisdiction: JurisdictionCode.IE,
         description: editingAsset.description || "",
-        account_number: editingAsset.account_number || "",
-        bank_name: editingAsset.bank_name || "",
-        property_address: editingAsset.property_address || "",
+        irish_fields: {
+          iban: editingAsset.account_number || undefined,
+          irish_bank_name: (editingAsset.bank_name as any) || undefined,
+          eircode: editingAsset.property_address
+            ? editingAsset.property_address.split(",")[0]
+            : undefined,
+        },
       });
       setCurrentStep(2); // Skip category and type selection when editing
     } else {
       // Reset form for new asset
       setFormData({
-        currency: "EUR",
+        currency: CurrencyCode.EUR,
+        jurisdiction: JurisdictionCode.IE,
         value: 0,
+        irish_fields: {},
       });
       setCurrentStep(0);
     }
@@ -210,7 +221,7 @@ export function AssetFormModal({
   const handleSubmit = async () => {
     try {
       // Validate entire form
-      const validationResult = AssetFormSchema.safeParse(formData);
+      const validationResult = IrishAssetFormSchema.safeParse(formData);
 
       if (!validationResult.success) {
         const fieldErrors = validationResult.error.flatten().fieldErrors;
@@ -241,7 +252,7 @@ export function AssetFormModal({
   };
 
   const getTypeDefinition = (assetType: AssetType) => {
-    return AssetTypeDefinitions[assetType];
+    return IrishAssetTypeDefinitions[assetType];
   };
 
   const renderStepContent = () => {
@@ -377,37 +388,71 @@ export function AssetFormModal({
               onValueChange={(value) => handleFieldChange("description", value)}
             />
 
-            {/* Type-specific fields */}
+            {/* Type-specific fields - TODO: Implement Irish-specific fields */}
             {formData.category === AssetCategory.FINANCIAL && (
               <>
                 <Input
                   label="Bank/Institution Name"
                   placeholder="e.g., Bank of Ireland"
-                  value={formData.bank_name || ""}
-                  onValueChange={(value) =>
-                    handleFieldChange("bank_name", value)
-                  }
+                  value={formData.irish_fields?.irish_bank_name || ""}
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      irish_fields: {
+                        ...prev.irish_fields,
+                        irish_bank_name: value as any,
+                      },
+                    }));
+                  }}
                 />
                 <Input
-                  label="Account Number"
-                  placeholder="Account number or identifier"
-                  value={formData.account_number || ""}
-                  onValueChange={(value) =>
-                    handleFieldChange("account_number", value)
-                  }
+                  label="IBAN"
+                  placeholder="IE29 AIBK 9311 5212 3456 78"
+                  value={formData.irish_fields?.iban || ""}
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      irish_fields: {
+                        ...prev.irish_fields,
+                        iban: value,
+                      },
+                    }));
+                  }}
                 />
               </>
             )}
 
             {formData.category === AssetCategory.PROPERTY && (
-              <Textarea
-                label="Property Address"
-                placeholder="Full address of the property"
-                value={formData.property_address || ""}
-                onValueChange={(value) =>
-                  handleFieldChange("property_address", value)
-                }
-              />
+              <>
+                <Input
+                  label="Eircode"
+                  placeholder="D02 XY45"
+                  value={formData.irish_fields?.eircode || ""}
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      irish_fields: {
+                        ...prev.irish_fields,
+                        eircode: value,
+                      },
+                    }));
+                  }}
+                />
+                <Input
+                  label="Property Type"
+                  placeholder="Detached House, Apartment, etc."
+                  value={formData.irish_fields?.property_type || ""}
+                  onValueChange={(value) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      irish_fields: {
+                        ...prev.irish_fields,
+                        property_type: value as any,
+                      },
+                    }));
+                  }}
+                />
+              </>
             )}
           </div>
         );
@@ -456,7 +501,10 @@ export function AssetFormModal({
                 <p className="text-sm text-default-600">
                   Formatted value:{" "}
                   <span className="font-semibold">
-                    {formatCurrency(formData.value, formData.currency)}
+                    {formatCurrency(
+                      formData.value,
+                      formData.currency as CurrencyCode,
+                    )}
                   </span>
                 </p>
               </div>
@@ -494,7 +542,10 @@ export function AssetFormModal({
               <div className="flex justify-between">
                 <span className="text-default-600">Value:</span>
                 <span className="font-medium text-success-600">
-                  {formatCurrency(formData.value || 0, formData.currency)}
+                  {formatCurrency(
+                    formData.value || 0,
+                    formData.currency as CurrencyCode,
+                  )}
                 </span>
               </div>
 

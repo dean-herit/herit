@@ -4,7 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { AssetFormSchema } from "@/types/assets";
+import { IrishAssetFormSchema } from "@/types/assets";
 
 export async function GET(
   request: NextRequest,
@@ -67,7 +67,7 @@ export async function PUT(
     const body = await request.json();
 
     // Validate input data
-    const validationResult = AssetFormSchema.safeParse(body);
+    const validationResult = IrishAssetFormSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -102,9 +102,13 @@ export async function PUT(
         asset_type: assetData.asset_type,
         value: assetData.value,
         description: assetData.description,
-        account_number: assetData.account_number,
-        bank_name: assetData.bank_name || assetData.institution_name,
-        property_address: assetData.property_address,
+        account_number:
+          assetData.irish_fields?.iban || existingAsset[0].account_number,
+        bank_name:
+          assetData.irish_fields?.irish_bank_name || existingAsset[0].bank_name,
+        property_address: assetData.irish_fields?.eircode
+          ? `${assetData.irish_fields.eircode}, ${assetData.irish_fields.property_type || ""}`
+          : existingAsset[0].property_address,
         updated_at: new Date(),
       })
       .where(

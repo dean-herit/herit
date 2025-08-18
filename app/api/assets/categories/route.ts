@@ -5,7 +5,7 @@ import {
   AssetCategory,
   AssetType,
   AssetCategoryDefinitions,
-  AssetTypeDefinitions,
+  IrishAssetTypeDefinitions,
   CurrencyOptions,
 } from "@/types/assets";
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         categories: AssetCategoryDefinitions,
-        types: AssetTypeDefinitions,
+        types: IrishAssetTypeDefinitions,
         currencies: CurrencyOptions,
         enums: {
           AssetCategory,
