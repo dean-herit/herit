@@ -8,7 +8,7 @@ import { IrishAssetFormSchema } from "@/types/assets";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -20,7 +20,7 @@ export async function GET(
       );
     }
 
-    const assetId = params.id;
+    const { id: assetId } = await params;
 
     // Fetch the specific asset
     const asset = await db
@@ -51,7 +51,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -63,7 +63,7 @@ export async function PUT(
       );
     }
 
-    const assetId = params.id;
+    const { id: assetId } = await params;
     const body = await request.json();
 
     // Validate input data
@@ -136,7 +136,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -148,7 +148,7 @@ export async function DELETE(
       );
     }
 
-    const assetId = params.id;
+    const { id: assetId } = await params;
 
     // Check if asset exists and belongs to user
     const existingAsset = await db
