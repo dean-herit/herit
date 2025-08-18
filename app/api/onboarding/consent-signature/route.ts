@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { consentId, signatureId } = data;
+    const { consentId, signatureId, signatureData } = data;
 
     // Basic validation
     if (!consentId || !signatureId) {
@@ -58,12 +58,14 @@ export async function POST(request: NextRequest) {
 
     const currentConsents = user[0]?.legal_consents || {};
 
-    // Update the specific consent with signature info
+    // Update the specific consent with signature info including full signature snapshot
     const updatedConsents = {
       ...currentConsents,
       [consentId]: {
         agreed: true,
         signatureId,
+        // Store complete signature snapshot for immutability
+        signatureSnapshot: signatureData || null,
         timestamp: new Date().toISOString(),
         ipAddress: request.headers.get("x-forwarded-for") || "unknown",
         userAgent: request.headers.get("user-agent") || "unknown",

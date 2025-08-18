@@ -73,6 +73,10 @@ export function LegalConsentStep({
   const [signingConsent, setSigningConsent] = useState<string | null>(null);
   const [loadingConsents, setLoadingConsents] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  // Store signature snapshots for each signed consent
+  const [signatureSnapshots, setSignatureSnapshots] = useState<
+    Record<string, Signature>
+  >({});
 
   // Load existing signed consents when component mounts
   useEffect(() => {
@@ -85,6 +89,7 @@ export function LegalConsentStep({
 
           // Convert the consents data to SignedConsent format
           const existingConsents: SignedConsent[] = [];
+          const snapshots: Record<string, Signature> = {};
 
           if (data.consents) {
             Object.entries(data.consents).forEach(
@@ -95,12 +100,18 @@ export function LegalConsentStep({
                     timestamp: consentData.timestamp,
                     signatureId: consentData.signatureId,
                   });
+
+                  // Load stored signature snapshot if available
+                  if (consentData.signatureSnapshot) {
+                    snapshots[consentId] = consentData.signatureSnapshot;
+                  }
                 }
               },
             );
           }
 
           setSignedConsents(existingConsents);
+          setSignatureSnapshots(snapshots);
 
           // Update the consents array for backward compatibility
           const consentIds = existingConsents.map((sc) => sc.id);
@@ -131,6 +142,16 @@ export function LegalConsentStep({
         body: JSON.stringify({
           consentId,
           signatureId: signature.id,
+          // Send complete signature data for immutable storage
+          signatureData: {
+            id: signature.id,
+            name: signature.name,
+            data: signature.data,
+            type: signature.type,
+            font: signature.font,
+            className: signature.className,
+            createdAt: signature.createdAt,
+          },
         }),
       });
 
@@ -158,6 +179,12 @@ export function LegalConsentStep({
       const updatedSignedConsents = [...signedConsents, newSignedConsent];
 
       setSignedConsents(updatedSignedConsents);
+
+      // Store the signature snapshot for this consent
+      setSignatureSnapshots((prev) => ({
+        ...prev,
+        [consentId]: signature,
+      }));
 
       // Update the consents array for backward compatibility
       const consentIds = updatedSignedConsents.map((sc) => sc.id);
@@ -378,9 +405,18 @@ export function LegalConsentStep({
                         }
                         isLoading={signingConsent === consent.id}
                         isSigned={isSigned}
-                        signature={signature}
+                        // Use stored signature snapshot if signed, otherwise current signature
+                        signature={
+                          isSigned && signatureSnapshots[consent.id]
+                            ? signatureSnapshots[consent.id]
+                            : signature
+                        }
                         timestamp={timestamp}
-                        userName={signature.name}
+                        userName={
+                          isSigned && signatureSnapshots[consent.id]
+                            ? signatureSnapshots[consent.id].name
+                            : signature.name
+                        }
                         onClick={() => handleSignConsent(consent.id)}
                       />
                     </div>
