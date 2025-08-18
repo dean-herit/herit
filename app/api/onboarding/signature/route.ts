@@ -40,8 +40,13 @@ export async function GET(request: NextRequest) {
         name: signature.name,
         type: signature.signature_type,
         data: signature.data,
-        font: signature.font_name,
-        className: signature.font_class_name,
+        // Ensure font information is always provided for template signatures
+        font:
+          signature.font_name ||
+          (signature.signature_type === "template" ? "cursive" : null),
+        className:
+          signature.font_class_name ||
+          (signature.signature_type === "template" ? "font-cursive" : null),
         createdAt: signature.created_at?.toISOString(),
       },
     });
@@ -73,6 +78,14 @@ export async function POST(request: NextRequest) {
     if (!name || !signatureType || !signatureData) {
       return NextResponse.json(
         { error: "Required fields missing" },
+        { status: 400 },
+      );
+    }
+
+    // Ensure template signatures have font information for immutability
+    if (signatureType === "template" && (!font || !className)) {
+      return NextResponse.json(
+        { error: "Template signatures require font information" },
         { status: 400 },
       );
     }

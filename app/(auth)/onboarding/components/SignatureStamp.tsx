@@ -24,6 +24,8 @@ export function SignatureStamp({
   isLoading = false,
 }: SignatureStampProps) {
   const renderSignature = () => {
+    // Always use the immutable properties stored with the signature
+    // This ensures signatures appear exactly as they were when created
     if (signature.type === "template" && signature.font) {
       return (
         <div
@@ -46,7 +48,8 @@ export function SignatureStamp({
         />
       );
     } else {
-      // For drawn signatures (when implemented) or template signatures without font
+      // Fallback for legacy signatures or drawn signatures
+      // Use stored font if available, otherwise use a safe default
       return (
         <div
           className={`text-4xl text-black dark:text-white ${signature.className || ""}`}

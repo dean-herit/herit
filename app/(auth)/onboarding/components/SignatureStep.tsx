@@ -438,24 +438,10 @@ export function SignatureStep({
             >
               <CardBody className="p-6 flex items-center justify-center min-h-[100px]">
                 <div
-                  className={`text-3xl text-foreground ${
-                    signature?.type === "template" &&
-                    signature?.font === fontData.name
-                      ? signature.className || fontData.className
-                      : fontData.className
-                  } text-center`}
-                  style={
-                    signature?.type === "template" &&
-                    signature?.font === fontData.name &&
-                    signature.font
-                      ? { fontFamily: signature.font }
-                      : {}
-                  }
+                  className={`text-3xl text-foreground ${fontData.className} text-center`}
+                  style={{ fontFamily: fontData.name }}
                 >
-                  {signature?.type === "template" &&
-                  signature?.font === fontData.name
-                    ? signature.data
-                    : fullName}
+                  {fullName}
                 </div>
               </CardBody>
             </Card>
