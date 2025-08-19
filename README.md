@@ -16,6 +16,7 @@ HERIT is a full-stack estate planning platform that provides:
 ## 🏗️ Architecture
 
 ### Frontend
+
 - **Framework**: Next.js 15 with App Router
 - **UI Library**: HeroUI v2 with Tailwind CSS
 - **State Management**: TanStack Query for server state
@@ -23,6 +24,7 @@ HERIT is a full-stack estate planning platform that provides:
 - **Styling**: Tailwind CSS with custom design system
 
 ### Backend
+
 - **API Routes**: Next.js API routes with rate limiting
 - **Database**: PostgreSQL with Drizzle ORM
 - **Authentication**: JWT tokens with secure refresh rotation
@@ -30,6 +32,7 @@ HERIT is a full-stack estate planning platform that provides:
 - **Security**: Rate limiting, CSRF protection, environment validation
 
 ### Infrastructure
+
 - **Hosting**: Vercel with serverless functions
 - **Database**: PostgreSQL (production), local Postgres (development)
 - **Monitoring**: Structured logging with health checks
@@ -38,6 +41,7 @@ HERIT is a full-stack estate planning platform that provides:
 ## 🗄️ Database Schema
 
 ### Core Tables
+
 - **`app_users`**: User profiles, onboarding status, and authentication
 - **`app_refresh_tokens`**: JWT refresh token management with rotation
 - **`assets`**: Financial and physical asset tracking
@@ -48,6 +52,7 @@ HERIT is a full-stack estate planning platform that provides:
 - **`audit_events`**: Comprehensive system audit logging
 
 ### Key Features
+
 - UUID primary keys for security
 - Soft delete capabilities with audit trails
 - Comprehensive indexing for performance
@@ -56,6 +61,7 @@ HERIT is a full-stack estate planning platform that provides:
 ## 🔧 Technology Stack
 
 ### Core Dependencies
+
 ```json
 {
   "next": "^15.4.6",
@@ -64,11 +70,13 @@ HERIT is a full-stack estate planning platform that provides:
   "@heroui/react": "^2.8.2",
   "drizzle-orm": "^0.44.4",
   "postgres": "^3.4.7",
-  "@tanstack/react-query": "^5.85.3"
+  "@tanstack/react-query": "^5.85.3",
+  "@vercel/blob": "^1.1.1"
 }
 ```
 
 ### Development Tools
+
 - **TypeScript**: Strict type checking with modern module resolution
 - **ESLint**: Comprehensive linting with React and Next.js rules
 - **Prettier**: Code formatting with pre-commit hooks
@@ -76,6 +84,7 @@ HERIT is a full-stack estate planning platform that provides:
 - **Bundle Analyzer**: Performance monitoring and optimization
 
 ### Security & Monitoring
+
 - **Rate Limiting**: Custom in-memory rate limiting (Redis-ready)
 - **Environment Validation**: Runtime env validation with Zod
 - **Structured Logging**: JSON logging for production monitoring
@@ -84,7 +93,8 @@ HERIT is a full-stack estate planning platform that provides:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - PostgreSQL database
 - npm/yarn/pnpm package manager
 
@@ -119,6 +129,7 @@ NODE_ENV="development"
 ### Installation & Setup
 
 1. **Clone and install dependencies**:
+
 ```bash
 git clone <repository-url>
 cd HeroUIHerit
@@ -126,6 +137,7 @@ npm install
 ```
 
 2. **Database setup**:
+
 ```bash
 # Generate database schema
 npm run db:generate
@@ -138,6 +150,7 @@ npm run db:studio
 ```
 
 3. **Start development server**:
+
 ```bash
 npm run dev
 ```
@@ -206,12 +219,15 @@ db/
 ## 🔐 Authentication & Security
 
 ### Authentication Flow
+
 1. **Registration**: Email/password with secure hashing (Argon2)
-2. **Login**: JWT access tokens (15min) + refresh tokens (30 days)
+2. **Login**: JWT access tokens (24hr) + refresh tokens (30 days)
 3. **OAuth**: Google OAuth integration (GitHub ready)
 4. **Session Management**: Automatic token rotation and revocation
+5. **Document Storage**: Secure Vercel Blob integration with user-specific paths
 
 ### Security Features
+
 - **Rate Limiting**: 5 login attempts/minute, 3 registrations/hour
 - **Environment Validation**: Runtime validation of all secrets
 - **CSRF Protection**: Secure cookie handling
@@ -219,6 +235,7 @@ db/
 - **Data Encryption**: Secure password hashing and token management
 
 ### Onboarding Process
+
 1. **Personal Information**: Name, contact details, address
 2. **Digital Signature**: Custom signature creation and storage
 3. **Legal Consent**: Terms acceptance and privacy agreements
@@ -227,17 +244,20 @@ db/
 ## 🔄 Development Workflow
 
 ### Code Quality
+
 - **Pre-commit Hooks**: Automatic linting, formatting, and type checking
 - **TypeScript**: Strict mode with comprehensive type coverage
 - **ESLint**: Custom configuration with React and Next.js best practices
 - **Prettier**: Consistent code formatting across the codebase
 
 ### Testing Strategy
+
 - **Type Safety**: Comprehensive TypeScript coverage
 - **Build Verification**: Pre-deployment build testing
 - **Health Monitoring**: Runtime health checks and monitoring
 
 ### Git Workflow
+
 ```bash
 # Make changes to code
 git add .
@@ -251,17 +271,20 @@ git commit -m "feat: your feature description"
 ## 📊 Monitoring & Observability
 
 ### Health Checks
+
 - **Endpoint**: `GET /api/health`
 - **Database**: Connection and latency monitoring
 - **Authentication**: Secret validation and OAuth status
 - **System**: Uptime and service health
 
 ### Logging
+
 - **Development**: Pretty-printed console logs
 - **Production**: Structured JSON logging
 - **Features**: Request/response logging, error tracking, audit trails
 
 ### Performance
+
 - **Bundle Analysis**: `npm run analyze` for bundle size monitoring
 - **Database**: Connection pooling and query optimization
 - **Caching**: Strategic Next.js caching and optimization
@@ -269,11 +292,13 @@ git commit -m "feat: your feature description"
 ## 🚀 Deployment
 
 ### Vercel Deployment
+
 1. **Environment Variables**: Configure all required env vars in Vercel dashboard
 2. **Database**: Ensure PostgreSQL is accessible from Vercel
 3. **Build**: Automatic deployment on git push
 
 ### Production Checklist
+
 - [ ] All environment variables configured
 - [ ] Database migrations applied
 - [ ] Health check endpoint responding
@@ -285,6 +310,7 @@ git commit -m "feat: your feature description"
 ## 🤝 Contributing
 
 ### Development Setup
+
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Make changes with comprehensive testing
@@ -292,12 +318,14 @@ git commit -m "feat: your feature description"
 5. Submit a pull request
 
 ### Code Standards
+
 - **TypeScript**: All new code must be properly typed
 - **Testing**: Critical paths should have appropriate testing
 - **Documentation**: Update README for significant changes
 - **Security**: Follow security best practices for sensitive operations
 
 ### Pull Request Process
+
 1. **Code Review**: All PRs require review
 2. **Quality Checks**: Automated checks must pass
 3. **Documentation**: Update relevant documentation
@@ -306,19 +334,44 @@ git commit -m "feat: your feature description"
 ## 📝 API Documentation
 
 ### Authentication Endpoints
+
 - `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration  
+- `POST /api/auth/register` - User registration
 - `GET /api/auth/google` - Google OAuth initiation
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/session` - Current session info
+- `POST /api/auth/refresh` - Refresh access token
+
+### Asset Management Endpoints
+
+- `GET /api/assets` - List user assets with pagination/filtering
+- `POST /api/assets` - Create new asset
+- `PUT /api/assets/[id]` - Update asset
+- `DELETE /api/assets/[id]` - Delete asset
+- `POST /api/assets/[id]/documents` - Upload asset document
+
+### Document Management Endpoints
+
+- `GET /api/documents/[id]` - Get document metadata
+- `DELETE /api/documents/[id]` - Delete document
+- `GET /api/documents/requirements/[type]` - Get document requirements
+
+### Will Management Endpoints
+
+- `GET /api/will` - Get user's will information
+- `POST /api/will` - Create/update will
+- `DELETE /api/will/[id]` - Delete will
 
 ### Onboarding Endpoints
+
 - `POST /api/onboarding/personal-info` - Save personal information
 - `POST /api/onboarding/signature` - Store digital signature
 - `POST /api/onboarding/legal-consent` - Record legal consents
 - `POST /api/onboarding/verification` - Identity verification
+- `POST /api/onboarding/complete` - Complete onboarding process
 
 ### System Endpoints
+
 - `GET /api/health` - System health check
 
 ## 🐛 Troubleshooting
@@ -326,6 +379,7 @@ git commit -m "feat: your feature description"
 ### Common Issues
 
 **Environment Variables Not Loading**
+
 ```bash
 # Check environment validation
 npm run typecheck
@@ -333,6 +387,7 @@ npm run typecheck
 ```
 
 **Database Connection Issues**
+
 ```bash
 # Verify database is running and accessible
 npm run db:studio
@@ -340,6 +395,7 @@ npm run db:studio
 ```
 
 **Build Failures**
+
 ```bash
 # Run full verification
 npm run test:build
@@ -350,12 +406,14 @@ npm run typecheck
 ## 📈 Performance Optimization
 
 ### Implemented Optimizations
+
 - **Bundle Splitting**: Lazy loading of heavy components
 - **Database**: Optimized connection pooling (20 connections prod)
 - **Images**: Next.js Image optimization with WebP/AVIF
 - **Caching**: Strategic caching of static assets and API responses
 
 ### Monitoring Tools
+
 - **Bundle Analyzer**: Monitor JavaScript bundle sizes
 - **Health Checks**: Real-time system health monitoring
 - **Structured Logging**: Performance metrics and error tracking
@@ -367,6 +425,7 @@ Licensed under the [MIT License](LICENSE).
 ## 🆘 Support
 
 For development questions or issues:
+
 1. Check the troubleshooting section above
 2. Review the health check endpoint: `/api/health`
 3. Check application logs for detailed error information

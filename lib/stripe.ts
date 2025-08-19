@@ -28,15 +28,6 @@ export class StripeIdentityService {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        console.log(
-          `Attempting to create Stripe verification session (attempt ${attempt}/${retries})`,
-          {
-            userId,
-            returnUrl,
-            type: options?.type || "document",
-          },
-        );
-
         const session = await stripe.identity.verificationSessions.create({
           type: options?.type || "document",
           metadata: {
@@ -53,15 +44,6 @@ export class StripeIdentityService {
             },
           },
         });
-
-        console.log(
-          `Successfully created Stripe verification session on attempt ${attempt}`,
-          {
-            sessionId: session.id,
-            status: session.status,
-            hasUrl: !!session.url,
-          },
-        );
 
         return session;
       } catch (error) {
@@ -90,7 +72,6 @@ export class StripeIdentityService {
         if (attempt < retries) {
           const waitTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
 
-          console.log(`Waiting ${waitTime}ms before retry`);
           await new Promise((resolve) => setTimeout(resolve, waitTime));
         }
       }
@@ -112,23 +93,8 @@ export class StripeIdentityService {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        console.log(
-          `Attempting to retrieve Stripe session (attempt ${attempt}/${retries})`,
-          {
-            sessionId,
-          },
-        );
-
         const session =
           await stripe.identity.verificationSessions.retrieve(sessionId);
-
-        console.log(
-          `Successfully retrieved Stripe session on attempt ${attempt}`,
-          {
-            sessionId: session.id,
-            status: session.status,
-          },
-        );
 
         return session;
       } catch (error) {
@@ -146,7 +112,6 @@ export class StripeIdentityService {
 
         // Don't retry on client errors (4xx)
         if (error instanceof Error && error.message.includes("No such")) {
-          console.log("Session not found, not retrying");
           break;
         }
 
@@ -154,7 +119,6 @@ export class StripeIdentityService {
         if (attempt < retries) {
           const waitTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
 
-          console.log(`Waiting ${waitTime}ms before retry`);
           await new Promise((resolve) => setTimeout(resolve, waitTime));
         }
       }

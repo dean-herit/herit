@@ -6,6 +6,7 @@ import {
   PlusIcon,
   EyeIcon,
 } from "@heroicons/react/24/outline";
+import { useQuery } from "@tanstack/react-query";
 
 import { AuthUser } from "@/lib/auth";
 
@@ -13,8 +14,48 @@ interface WillClientProps {
   user: AuthUser;
 }
 
-export function WillClient({}: WillClientProps) {
-  const hasWill = false; // TODO: Check if user has a will
+export function WillClient({ user }: WillClientProps) {
+  // Check if user has a will
+  const {
+    data: willData,
+    isLoading: isLoadingWill,
+    error: willError,
+  } = useQuery({
+    queryKey: ["will", user.email],
+    queryFn: async () => {
+      const response = await fetch("/api/will");
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // No will found
+        }
+        throw new Error("Failed to fetch will");
+      }
+
+      return response.json();
+    },
+    retry: false,
+  });
+
+  const hasWill = !!willData;
+
+  if (isLoadingWill) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Your Will</h1>
+          <p className="text-default-600 mt-2">Loading will information...</p>
+        </div>
+        <Card className="max-w-2xl">
+          <CardBody className="p-6">
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -93,12 +134,31 @@ export function WillClient({}: WillClientProps) {
                   <h3 className="text-xl font-semibold">
                     Last Will and Testament
                   </h3>
-                  <p className="text-default-600">Created on [Date]</p>
+                  <p className="text-default-600">
+                    Created on{" "}
+                    {willData?.data?.will?.created_at
+                      ? new Date(
+                          willData.data.will.created_at,
+                        ).toLocaleDateString()
+                      : "Unknown"}
+                  </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-medium text-success">Active</div>
-                <div className="text-xs text-default-500">Version 1.0</div>
+                <div
+                  className={`text-sm font-medium ${
+                    willData?.data?.will?.status === "finalized"
+                      ? "text-success"
+                      : "text-warning"
+                  }`}
+                >
+                  {willData?.data?.will?.status === "finalized"
+                    ? "Active"
+                    : "Draft"}
+                </div>
+                <div className="text-xs text-default-500">
+                  Version {willData?.data?.will?.version || "1.0"}
+                </div>
               </div>
             </div>
           </CardHeader>

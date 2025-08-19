@@ -10,10 +10,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    console.log("=== Document upload POST request ===");
     const session = await getSession();
 
-    console.log("Session:", session?.user?.email);
     if (!session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -21,19 +19,12 @@ export async function POST(
     const resolvedParams = await params;
     const assetId = resolvedParams.id;
 
-    console.log("Asset ID:", assetId);
-
     const formData = await request.formData();
-
-    console.log("Form data keys:", Array.from(formData.keys()));
 
     // Get file from form data
     const file = formData.get("file") as File;
 
-    console.log("File:", file?.name, file?.size, file?.type);
     if (!file) {
-      console.log("No file provided");
-
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
@@ -46,8 +37,6 @@ export async function POST(
       issueDate: (formData.get("issueDate") as string) || undefined,
       expiryDate: (formData.get("expiryDate") as string) || undefined,
     };
-
-    console.log("Metadata:", metadata);
 
     // Validate required fields first
     if (!metadata.category) {
