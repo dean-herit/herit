@@ -1,17 +1,17 @@
 import { put, del } from "@vercel/blob";
-import { eq, and, count, sum, desc, max, ilike, or, isNotNull, sql as drizzleSql } from "drizzle-orm";
+import { eq, and, count, sum, desc, max, ilike } from "drizzle-orm";
+
 import { db } from "@/db/db";
-import { 
-  assetDocuments, 
-  documentAuditLog, 
+import {
+  assetDocuments,
+  documentAuditLog,
   documentRequirements,
   assets,
-  type AssetDocument,
   type NewAssetDocument,
-  type NewDocumentAuditLog
+  type NewDocumentAuditLog,
 } from "@/db/schema";
-import { 
-  DocumentMetadata, 
+import {
+  DocumentMetadata,
   DocumentUpload,
   DocumentFilter,
   DocumentStats,
@@ -21,7 +21,7 @@ import {
   validateFileType,
   validateFileSize,
   MAX_FILES_PER_ASSET,
-  MAX_TOTAL_STORAGE_PER_USER
+  MAX_TOTAL_STORAGE_PER_USER,
 } from "@/types/documents";
 import { getDocumentRequirements } from "@/data/irish-document-requirements";
 
@@ -29,11 +29,21 @@ export class DocumentStorageService {
   /**
    * Helper method to determine document priority based on asset type requirements
    */
-  private getDocumentPriority(assetType: string, documentType: string): DocumentPriority {
+  private getDocumentPriority(
+    assetType: string,
+    documentType: string,
+  ): DocumentPriority {
     try {
       const requirements = getDocumentRequirements(assetType);
-      const allRequirements = [...requirements.required, ...requirements.recommended, ...requirements.optional];
-      const requirement = allRequirements.find(req => req.documentType === documentType);
+      const allRequirements = [
+        ...requirements.required,
+        ...requirements.recommended,
+        ...requirements.optional,
+      ];
+      const requirement = allRequirements.find(
+        (req) => req.documentType === documentType,
+      );
+
       return requirement?.priority || DocumentPriority.OPTIONAL;
     } catch {
       return DocumentPriority.OPTIONAL;
@@ -47,12 +57,13 @@ export class DocumentStorageService {
     if (!expiryDate) {
       return DocumentStatus.UPLOADED;
     }
-    
+
     const now = new Date();
+
     if (expiryDate < now) {
       return DocumentStatus.EXPIRED;
     }
-    
+
     return DocumentStatus.UPLOADED;
   }
 
@@ -63,13 +74,13 @@ export class DocumentStorageService {
     file: File,
     assetId: string,
     userEmail: string,
-    metadata: DocumentUpload
+    metadata: DocumentUpload,
   ): Promise<DocumentMetadata> {
     // Validate file
     if (!validateFileType(file)) {
       throw new Error(`File type ${file.type} is not allowed`);
     }
-    
+
     if (!validateFileSize(file)) {
       throw new Error(`File size exceeds maximum allowed size`);
     }
@@ -92,9 +103,11 @@ export class DocumentStorageService {
       .select({ count: count() })
       .from(assetDocuments)
       .where(eq(assetDocuments.asset_id, assetId));
-    
+
     if (documentCount[0].count >= MAX_FILES_PER_ASSET) {
-      throw new Error(`Maximum number of documents (${MAX_FILES_PER_ASSET}) reached for this asset`);
+      throw new Error(
+        `Maximum number of documents (${MAX_FILES_PER_ASSET}) reached for this asset`,
+      );
     }
 
     // Check user storage quota
@@ -104,8 +117,11 @@ export class DocumentStorageService {
       .where(eq(assetDocuments.user_email, userEmail));
 
     const currentStorageUsed = Number(totalStorageResult[0].total_size) || 0;
+
     if (currentStorageUsed + file.size > MAX_TOTAL_STORAGE_PER_USER) {
-      throw new Error("Storage quota exceeded. Please delete some documents before uploading new ones.");
+      throw new Error(
+        "Storage quota exceeded. Please delete some documents before uploading new ones.",
+      );
     }
 
     // Generate unique pathname for blob storage
@@ -145,16 +161,14 @@ export class DocumentStorageService {
         .returning();
 
       // Log the upload action
-      await this.logDocumentAction(
-        result[0].id,
-        userEmail,
-        "upload"
-      );
+      await this.logDocumentAction(result[0].id, userEmail, "upload");
 
       // Map database result to TypeScript interface
       const dbDocument = result[0];
-      const expiryDate = dbDocument.expiry_date ? new Date(dbDocument.expiry_date) : undefined;
-      
+      const expiryDate = dbDocument.expiry_date
+        ? new Date(dbDocument.expiry_date)
+        : undefined;
+
       const documentMetadata: DocumentMetadata = {
         id: dbDocument.id,
         assetId: dbDocument.asset_id,
@@ -173,7 +187,9 @@ export class DocumentStorageService {
         status: this.getDocumentStatus(expiryDate),
         description: dbDocument.description || undefined,
         expiryDate: expiryDate,
-        issueDate: dbDocument.issue_date ? new Date(dbDocument.issue_date) : undefined,
+        issueDate: dbDocument.issue_date
+          ? new Date(dbDocument.issue_date)
+          : undefined,
         uploadedAt: new Date(dbDocument.uploaded_at!),
         createdAt: new Date(dbDocument.created_at!),
         updatedAt: new Date(dbDocument.updated_at!),
@@ -194,13 +210,13 @@ export class DocumentStorageService {
   /**
    * Delete a document from storage and database
    */
-  async deleteDocument(
-    documentId: string,
-    userEmail: string
-  ): Promise<void> {
+  async deleteDocument(documentId: string, userEmail: string): Promise<void> {
     // Get document details
     const documents = await db
-      .select({ blob_pathname: assetDocuments.blob_pathname, user_email: assetDocuments.user_email })
+      .select({
+        blob_pathname: assetDocuments.blob_pathname,
+        user_email: assetDocuments.user_email,
+      })
       .from(assetDocuments)
       .where(eq(assetDocuments.id, documentId))
       .limit(1);
@@ -220,9 +236,7 @@ export class DocumentStorageService {
       await del(pathname);
 
       // Delete from database (cascade will handle audit log)
-      await db
-        .delete(assetDocuments)
-        .where(eq(assetDocuments.id, documentId));
+      await db.delete(assetDocuments).where(eq(assetDocuments.id, documentId));
 
       // Log the deletion
       await this.logDocumentAction(documentId, userEmail, "delete");
@@ -238,7 +252,7 @@ export class DocumentStorageService {
   async getAssetDocuments(
     assetId: string,
     userEmail: string,
-    filter?: DocumentFilter
+    filter?: DocumentFilter,
   ): Promise<DocumentMetadata[]> {
     // Verify user owns the asset
     const assetCheck = await db
@@ -253,24 +267,24 @@ export class DocumentStorageService {
 
     // Build query with filters
     let whereClause = eq(assetDocuments.asset_id, assetId);
-    
+
     if (filter) {
       const conditions = [whereClause];
-      
+
       if (filter.category) {
         conditions.push(eq(assetDocuments.document_category, filter.category));
       }
-      
+
       if (filter.documentType) {
         conditions.push(eq(assetDocuments.document_type, filter.documentType));
       }
-      
+
       if (filter.searchTerm) {
         conditions.push(
-          ilike(assetDocuments.file_name, `%${filter.searchTerm}%`)
+          ilike(assetDocuments.file_name, `%${filter.searchTerm}%`),
         );
       }
-      
+
       if (conditions.length > 1) {
         whereClause = and(...conditions) as any;
       } else if (conditions.length === 1) {
@@ -308,11 +322,13 @@ export class DocumentStorageService {
       .innerJoin(assets, eq(assetDocuments.asset_id, assets.id))
       .where(whereClause)
       .orderBy(desc(assetDocuments.uploaded_at));
-    
+
     // Map database results to TypeScript interfaces
     return documents.map((dbRow): DocumentMetadata => {
-      const expiryDate = dbRow.expiry_date ? new Date(dbRow.expiry_date) : undefined;
-      
+      const expiryDate = dbRow.expiry_date
+        ? new Date(dbRow.expiry_date)
+        : undefined;
+
       return {
         id: dbRow.id,
         assetId: dbRow.asset_id,
@@ -327,7 +343,10 @@ export class DocumentStorageService {
         blobDownloadUrl: dbRow.blob_download_url || undefined,
         category: dbRow.document_category as DocumentCategory,
         documentType: dbRow.document_type,
-        priority: this.getDocumentPriority(dbRow.asset_type, dbRow.document_type),
+        priority: this.getDocumentPriority(
+          dbRow.asset_type,
+          dbRow.document_type,
+        ),
         status: this.getDocumentStatus(expiryDate),
         description: dbRow.description || undefined,
         expiryDate: expiryDate,
@@ -342,10 +361,7 @@ export class DocumentStorageService {
   /**
    * Get a signed URL for document download
    */
-  async getDocumentUrl(
-    documentId: string,
-    userEmail: string
-  ): Promise<string> {
+  async getDocumentUrl(documentId: string, userEmail: string): Promise<string> {
     const documents = await db
       .select({
         blob_url: assetDocuments.blob_url,
@@ -408,6 +424,7 @@ export class DocumentStorageService {
     // Populate category stats
     categoryStats.forEach((row) => {
       const category = row.category as DocumentCategory;
+
       stats.byCategory[category] = Number(row.count);
     });
 
@@ -420,16 +437,16 @@ export class DocumentStorageService {
   async copyDocuments(
     sourceAssetId: string,
     targetAssetId: string,
-    userEmail: string
+    userEmail: string,
   ): Promise<void> {
     const documents = await this.getAssetDocuments(sourceAssetId, userEmail);
-    
+
     for (const doc of documents) {
       // Get the blob data
       const response = await fetch(doc.blobUrl);
       const blob = await response.blob();
       const file = new File([blob], doc.originalName, { type: doc.mimeType });
-      
+
       // Upload to new asset
       await this.uploadDocument(file, targetAssetId, userEmail, {
         assetId: targetAssetId,
@@ -450,7 +467,7 @@ export class DocumentStorageService {
     userEmail: string,
     action: string,
     ipAddress?: string,
-    userAgent?: string
+    userAgent?: string,
   ): Promise<void> {
     try {
       const newLogEntry: NewDocumentAuditLog = {
@@ -461,9 +478,7 @@ export class DocumentStorageService {
         user_agent: userAgent || null,
       };
 
-      await db
-        .insert(documentAuditLog)
-        .values(newLogEntry);
+      await db.insert(documentAuditLog).values(newLogEntry);
     } catch (error) {
       // Log error but don't fail the main operation
       console.error("Failed to log document action:", error);
@@ -475,16 +490,18 @@ export class DocumentStorageService {
    */
   async hasDocumentType(
     assetId: string,
-    documentType: string
+    documentType: string,
   ): Promise<boolean> {
     const result = await db
       .select({ count: count() })
       .from(assetDocuments)
-      .where(and(
-        eq(assetDocuments.asset_id, assetId),
-        eq(assetDocuments.document_type, documentType)
-      ));
-    
+      .where(
+        and(
+          eq(assetDocuments.asset_id, assetId),
+          eq(assetDocuments.document_type, documentType),
+        ),
+      );
+
     return result[0].count > 0;
   }
 
@@ -493,7 +510,7 @@ export class DocumentStorageService {
    */
   async getDocumentCompleteness(
     assetId: string,
-    assetType: string
+    assetType: string,
   ): Promise<{
     percentage: number;
     required: number;
@@ -507,10 +524,12 @@ export class DocumentStorageService {
         display_name: documentRequirements.display_name,
       })
       .from(documentRequirements)
-      .where(and(
-        eq(documentRequirements.asset_type, assetType),
-        eq(documentRequirements.is_required, true)
-      ));
+      .where(
+        and(
+          eq(documentRequirements.asset_type, assetType),
+          eq(documentRequirements.is_required, true),
+        ),
+      );
 
     // Get uploaded documents for this asset
     const uploadedDocs = await db
@@ -520,14 +539,14 @@ export class DocumentStorageService {
       .from(assetDocuments)
       .where(eq(assetDocuments.asset_id, assetId));
 
-    const uploadedTypes = uploadedDocs.map(d => d.document_type);
+    const uploadedTypes = uploadedDocs.map((d) => d.document_type);
     const missing = requiredDocs
-      .filter(r => !uploadedTypes.includes(r.document_type))
-      .map(r => r.display_name);
+      .filter((r) => !uploadedTypes.includes(r.document_type))
+      .map((r) => r.display_name);
 
     const required = requiredDocs.length;
-    const uploaded = uploadedTypes.filter(t => 
-      requiredDocs.some(r => r.document_type === t)
+    const uploaded = uploadedTypes.filter((t) =>
+      requiredDocs.some((r) => r.document_type === t),
     ).length;
 
     return {

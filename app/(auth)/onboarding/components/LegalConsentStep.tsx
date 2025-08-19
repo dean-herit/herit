@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Check, FileText } from "lucide-react";
+import Image from "next/image";
 
 import { SignatureStamp } from "./SignatureStamp";
 
@@ -63,7 +64,7 @@ const REQUIRED_CONSENTS = [
 
 export function LegalConsentStep({
   signature,
-  initialConsents,
+  initialConsents: _initialConsents,
   onChange,
   onComplete,
   onBack,
@@ -104,24 +105,7 @@ export function LegalConsentStep({
                   // Load stored signature snapshot if available
                   if (consentData.signatureSnapshot) {
                     snapshots[consentId] = consentData.signatureSnapshot;
-                    console.log(
-                      "Loaded signature snapshot for",
-                      consentId,
-                      ":",
-                      {
-                        type: consentData.signatureSnapshot.type,
-                        font: consentData.signatureSnapshot.font,
-                        className: consentData.signatureSnapshot.className,
-                        data: consentData.signatureSnapshot.data,
-                        fullSnapshot: consentData.signatureSnapshot,
-                      },
-                    );
                   } else {
-                    console.log(
-                      "No signature snapshot for",
-                      consentId,
-                      "- will use current signature",
-                    );
                   }
                 }
               },
@@ -137,7 +121,6 @@ export function LegalConsentStep({
           onChange(consentIds);
         }
       } catch (error) {
-        console.error("Error loading existing consents:", error);
       } finally {
         setLoadingConsents(false);
       }
@@ -176,11 +159,6 @@ export function LegalConsentStep({
       if (!response.ok) {
         const errorText = await response.text();
 
-        console.error("API Error Response:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
         throw new Error(
           `Failed to save consent signature: ${response.status} ${errorText}`,
         );
@@ -199,7 +177,6 @@ export function LegalConsentStep({
       setSignedConsents(updatedSignedConsents);
 
       // Store the signature snapshot for this consent
-      console.log("Storing signature snapshot for", consentId, signature);
       setSignatureSnapshots((prev) => ({
         ...prev,
         [consentId]: signature,
@@ -210,7 +187,6 @@ export function LegalConsentStep({
 
       onChange(consentIds);
     } catch (error) {
-      console.error("Error saving consent signature:", error);
       // You might want to show an error message to the user here
     } finally {
       setSigningConsent(null);
@@ -264,18 +240,14 @@ export function LegalConsentStep({
         if (!response.ok) {
           const errorData = await response.json();
 
-          console.error("Failed to save legal consent completion:", errorData);
           throw new Error(
             errorData.error || "Failed to save legal consent completion",
           );
         }
 
-        console.log("Legal consent completion saved successfully");
-
         // Call the parent completion handler
         onComplete(consentIds);
       } catch (error) {
-        console.error("Error saving legal consent completion:", error);
         // Still call onComplete to allow UI progression, but log the error
         onComplete(consentIds);
       } finally {
@@ -336,10 +308,12 @@ export function LegalConsentStep({
                 style={signature.font ? { fontFamily: signature.font } : {}}
               >
                 {signature.type === "uploaded" ? (
-                  <img
+                  <Image
                     alt="Your signature"
                     className="h-8 inline-block"
+                    height={32}
                     src={signature.data}
+                    width={100}
                   />
                 ) : (
                   <span className="text-lg text-primary">{signature.data}</span>
@@ -430,20 +404,8 @@ export function LegalConsentStep({
                             isSigned && signatureSnapshots[consent.id];
 
                           if (snapSig) {
-                            console.log(
-                              "Using snapshot signature for",
-                              consent.id,
-                              snapSig,
-                            );
-
                             return snapSig;
                           } else {
-                            console.log(
-                              "Using current signature for",
-                              consent.id,
-                              signature,
-                            );
-
                             return signature;
                           }
                         })()}

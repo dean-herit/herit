@@ -18,20 +18,20 @@ export interface ComponentHighlight {
 
 // Category-specific highlight colors
 const CATEGORY_COLORS = {
-  'ui': '#3b82f6',           // Blue
-  'layout': '#10b981',       // Green  
-  'navigation': '#8b5cf6',   // Purple
-  'input': '#f59e0b',        // Amber
-  'feedback': '#ef4444',     // Red
-  'authentication': '#ec4899', // Pink
-  'business': '#06b6d4',     // Cyan
-  'data-display': '#84cc16'  // Lime
+  ui: "#3b82f6", // Blue
+  layout: "#10b981", // Green
+  navigation: "#8b5cf6", // Purple
+  input: "#f59e0b", // Amber
+  feedback: "#ef4444", // Red
+  authentication: "#ec4899", // Pink
+  business: "#06b6d4", // Cyan
+  "data-display": "#84cc16", // Lime
 } as const;
 
 class HighlightManager {
   private highlights = new Map<string, ComponentHighlight>();
   private activeHighlight: string | null = null;
-  private highlightRegistry?: CSS.HighlightRegistry;
+  private highlightRegistry?: any;
   private supportsCustomHighlight = false;
   private observer?: IntersectionObserver;
 
@@ -41,12 +41,12 @@ class HighlightManager {
 
   private initialize() {
     // Check for CSS Custom Highlight API support (2025 standard)
-    if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
+    if (typeof CSS !== "undefined" && "highlights" in CSS) {
       this.highlightRegistry = CSS.highlights;
       this.supportsCustomHighlight = true;
-      console.log('🎨 CSS Custom Highlight API: Supported');
+      console.log("🎨 CSS Custom Highlight API: Supported");
     } else {
-      console.log('⚠️ CSS Custom Highlight API: Not supported, using fallback');
+      console.log("⚠️ CSS Custom Highlight API: Not supported, using fallback");
     }
 
     this.setupIntersectionObserver();
@@ -57,21 +57,23 @@ class HighlightManager {
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const componentId = entry.target.getAttribute('data-component-id');
+          const componentId = entry.target.getAttribute("data-component-id");
+
           if (componentId && !entry.isIntersecting) {
             // Remove highlights for components not in view for performance
             this.removeHighlight(componentId);
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
   }
 
   private setupHighlightStyles() {
-    if (!document.getElementById('component-highlight-styles')) {
-      const style = document.createElement('style');
-      style.id = 'component-highlight-styles';
+    if (!document.getElementById("component-highlight-styles")) {
+      const style = document.createElement("style");
+
+      style.id = "component-highlight-styles";
       style.textContent = `
         /* CSS Custom Highlight API styles */
         ::highlight(component-highlight) {
@@ -166,33 +168,47 @@ class HighlightManager {
   }
 
   public highlightComponent(
-    componentId: string, 
-    element: Element, 
-    options: HighlightOptions = {}
+    componentId: string,
+    element: Element,
+    options: HighlightOptions = {},
   ): boolean {
     try {
       // Remove existing highlight
       this.removeHighlight(componentId);
 
-      const category = element.getAttribute('data-component-category') || options.category || 'ui';
+      const category =
+        element.getAttribute("data-component-category") ||
+        options.category ||
+        "ui";
       const highlightOptions: HighlightOptions = {
-        color: CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.ui,
+        color:
+          CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] ||
+          CATEGORY_COLORS.ui,
         opacity: 0.3,
         borderWidth: 2,
         category,
         animated: false,
-        ...options
+        ...options,
       };
 
       if (this.supportsCustomHighlight && this.highlightRegistry) {
         // Use CSS Custom Highlight API (preferred)
-        return this.highlightWithCustomAPI(componentId, element, highlightOptions);
+        return this.highlightWithCustomAPI(
+          componentId,
+          element,
+          highlightOptions,
+        );
       } else {
         // Fallback to CSS classes
-        return this.highlightWithFallback(componentId, element, highlightOptions);
+        return this.highlightWithFallback(
+          componentId,
+          element,
+          highlightOptions,
+        );
       }
     } catch (error) {
-      console.error('Failed to highlight component:', error);
+      console.error("Failed to highlight component:", error);
+
       return false;
     }
   }
@@ -200,20 +216,22 @@ class HighlightManager {
   private highlightWithCustomAPI(
     componentId: string,
     element: Element,
-    options: HighlightOptions
+    options: HighlightOptions,
   ): boolean {
     try {
       // Create a range that encompasses the entire element
       const range = document.createRange();
+
       range.selectNode(element);
 
       // Create highlight name based on category
-      const highlightName = options.animated 
+      const highlightName = options.animated
         ? `component-highlight-${options.category}-animated`
         : `component-highlight-${options.category}`;
 
       // Create and register the highlight
       const highlight = new Highlight(range);
+
       this.highlightRegistry!.set(highlightName, highlight);
 
       // Store highlight info
@@ -221,8 +239,9 @@ class HighlightManager {
         id: componentId,
         element,
         options,
-        range
+        range,
       };
+
       this.highlights.set(componentId, componentHighlight);
 
       // Set up intersection observer
@@ -235,7 +254,8 @@ class HighlightManager {
 
       return true;
     } catch (error) {
-      console.error('CSS Custom Highlight API error:', error);
+      console.error("CSS Custom Highlight API error:", error);
+
       return this.highlightWithFallback(componentId, element, options);
     }
   }
@@ -243,27 +263,29 @@ class HighlightManager {
   private highlightWithFallback(
     componentId: string,
     element: Element,
-    options: HighlightOptions
+    options: HighlightOptions,
   ): boolean {
     try {
       // Apply CSS class-based highlighting
-      element.classList.add('component-highlight-fallback');
-      
+      element.classList.add("component-highlight-fallback");
+
       if (options.animated) {
-        element.classList.add('component-highlight-animated');
+        element.classList.add("component-highlight-animated");
       }
 
       // Set CSS custom properties for colors
       const htmlElement = element as HTMLElement;
-      htmlElement.style.setProperty('--highlight-color', options.color!);
-      htmlElement.style.setProperty('--highlight-bg', `${options.color}1A`); // 10% opacity
+
+      htmlElement.style.setProperty("--highlight-color", options.color!);
+      htmlElement.style.setProperty("--highlight-bg", `${options.color}1A`); // 10% opacity
 
       // Store highlight info
       const componentHighlight: ComponentHighlight = {
         id: componentId,
         element,
-        options
+        options,
       };
+
       this.highlights.set(componentId, componentHighlight);
 
       // Set active highlight
@@ -271,29 +293,35 @@ class HighlightManager {
 
       return true;
     } catch (error) {
-      console.error('Fallback highlight error:', error);
+      console.error("Fallback highlight error:", error);
+
       return false;
     }
   }
 
   public removeHighlight(componentId: string): boolean {
     const highlight = this.highlights.get(componentId);
+
     if (!highlight) return false;
 
     try {
       if (this.supportsCustomHighlight && this.highlightRegistry) {
         // Remove from CSS Custom Highlight API
-        const highlightName = highlight.options.animated 
+        const highlightName = highlight.options.animated
           ? `component-highlight-${highlight.options.category}-animated`
           : `component-highlight-${highlight.options.category}`;
-        
+
         this.highlightRegistry.delete(highlightName);
       } else {
         // Remove fallback classes
-        highlight.element.classList.remove('component-highlight-fallback', 'component-highlight-animated');
+        highlight.element.classList.remove(
+          "component-highlight-fallback",
+          "component-highlight-animated",
+        );
         const htmlElement = highlight.element as HTMLElement;
-        htmlElement.style.removeProperty('--highlight-color');
-        htmlElement.style.removeProperty('--highlight-bg');
+
+        htmlElement.style.removeProperty("--highlight-color");
+        htmlElement.style.removeProperty("--highlight-bg");
       }
 
       // Remove from observer
@@ -310,7 +338,8 @@ class HighlightManager {
 
       return true;
     } catch (error) {
-      console.error('Failed to remove highlight:', error);
+      console.error("Failed to remove highlight:", error);
+
       return false;
     }
   }
@@ -333,24 +362,34 @@ class HighlightManager {
     return this.highlights.has(componentId);
   }
 
-  public updateHighlight(componentId: string, options: Partial<HighlightOptions>): boolean {
+  public updateHighlight(
+    componentId: string,
+    options: Partial<HighlightOptions>,
+  ): boolean {
     const highlight = this.highlights.get(componentId);
+
     if (!highlight) return false;
 
     const updatedOptions = { ...highlight.options, ...options };
-    return this.highlightComponent(componentId, highlight.element, updatedOptions);
+
+    return this.highlightComponent(
+      componentId,
+      highlight.element,
+      updatedOptions,
+    );
   }
 
   public dispose(): void {
     this.removeAllHighlights();
-    
+
     if (this.observer) {
       this.observer.disconnect();
       this.observer = undefined;
     }
 
     // Clean up styles
-    const styleElement = document.getElementById('component-highlight-styles');
+    const styleElement = document.getElementById("component-highlight-styles");
+
     if (styleElement) {
       styleElement.remove();
     }

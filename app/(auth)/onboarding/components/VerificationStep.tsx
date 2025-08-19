@@ -66,7 +66,6 @@ export function VerificationStep({
         setVerificationData(data.verification);
       }
     } catch (error) {
-      console.error("Error fetching verification status:", error);
     } finally {
       setCheckingStatus(false);
     }
@@ -103,7 +102,6 @@ export function VerificationStep({
         throw new Error("No verification URL received");
       }
     } catch (error) {
-      console.error("Error starting verification:", error);
       setError(
         error instanceof Error ? error.message : "Failed to start verification",
       );
@@ -129,8 +127,6 @@ export function VerificationStep({
         throw new Error("Failed to complete verification");
       }
 
-      console.log("Verification marked complete, now completing onboarding...");
-
       // Then call the completion endpoint
       const completionResponse = await fetch("/api/onboarding/complete", {
         method: "POST",
@@ -142,8 +138,6 @@ export function VerificationStep({
       if (completionResponse.ok) {
         const data = await completionResponse.json();
 
-        console.log("Onboarding completion response:", data);
-
         // Redirect to dashboard
         window.location.href = "/dashboard";
 
@@ -151,17 +145,13 @@ export function VerificationStep({
       } else {
         const errorData = await completionResponse.json();
 
-        console.error("Completion failed:", errorData);
-
         if (errorData.completionStatus) {
-          console.error("Missing steps:", errorData.completionStatus);
         }
 
         // Fallback to onboarding completion callback
         onComplete({ verificationCompleted: true });
       }
     } catch (error) {
-      console.error("Error completing onboarding:", error);
       onComplete({ verificationCompleted: true }); // Still proceed
     }
   };

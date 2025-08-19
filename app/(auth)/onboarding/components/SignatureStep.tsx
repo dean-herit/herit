@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
+import Image from "next/image";
 
 import { PersonalInfo, Signature } from "@/types/onboarding";
 import { signatureFonts } from "@/config/fonts";
@@ -56,7 +57,7 @@ export function SignatureStep({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
     status: openCVStatus,
-    error: openCVError,
+    error: _openCVError,
     isReady: isOpenCVReady,
   } = useOpenCV();
 
@@ -118,7 +119,6 @@ export function SignatureStep({
       // Use the signature returned from the API (with database ID)
       onComplete(result.signature);
     } catch (error) {
-      console.error("Error saving signature:", error);
       // You might want to show an error message to the user here
     }
   };
@@ -414,10 +414,12 @@ export function SignatureStep({
               onPress={() => handleUploadedSignatureSelect(uploadedSig)}
             >
               <CardBody className="p-6 flex items-center justify-center min-h-[100px]">
-                <img
+                <Image
                   alt="Uploaded signature"
                   className="max-w-full max-h-16 object-contain"
+                  height={64}
                   src={uploadedSig.data}
+                  width={200}
                 />
               </CardBody>
             </Card>

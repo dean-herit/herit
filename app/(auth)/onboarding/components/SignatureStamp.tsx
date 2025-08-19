@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 import { Signature } from "@/types/onboarding";
 
@@ -17,7 +18,7 @@ interface SignatureStampProps {
 export function SignatureStamp({
   signature,
   isSigned,
-  timestamp,
+  timestamp: _timestamp,
   onClick,
   disabled = false,
   userName,
@@ -26,13 +27,6 @@ export function SignatureStamp({
   const renderSignature = () => {
     // Always use the immutable properties stored with the signature
     // This ensures signatures appear exactly as they were when created
-    console.log("SignatureStamp rendering with:", {
-      type: signature.type,
-      font: signature.font,
-      className: signature.className,
-      data: signature.data,
-      fullSignatureObject: signature,
-    });
 
     if (signature.type === "template" && signature.className) {
       return (
@@ -48,10 +42,12 @@ export function SignatureStamp({
       );
     } else if (signature.type === "uploaded") {
       return (
-        <img
+        <Image
           alt="Signature"
           className="max-h-16 w-auto object-contain"
+          height={64}
           src={signature.data}
+          width={200}
         />
       );
     } else {
