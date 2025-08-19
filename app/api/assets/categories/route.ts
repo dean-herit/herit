@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import {
   AssetCategory,
-  AssetType,
+  getAllAssetTypes,
   AssetCategoryDefinitions,
   IrishAssetTypeDefinitions,
   CurrencyOptions,
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         currencies: CurrencyOptions,
         enums: {
           AssetCategory,
-          AssetType,
+          AssetType: getAllAssetTypes(),
         },
       },
     });

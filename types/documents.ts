@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { AssetType } from "./assets-v2";
+
+import { AssetType } from "./assets";
 
 // =====================================================
 // DOCUMENT ENUMS AND TYPES
@@ -45,21 +46,21 @@ export enum IrishFinancialDocumentType {
   SHARE_CERTIFICATE = "share_certificate",
   MEMBERSHIP_CERT = "membership_certificate",
   NOMINATION_FORM = "nomination_form",
-  
+
   // Investments
   SHARE_CERT = "share_certificate",
   PORTFOLIO_VALUATION = "portfolio_valuation",
   BROKER_STATEMENT = "broker_statement",
   DEALING_NOTE = "dealing_note",
   DIVIDEND_STATEMENT = "dividend_statement",
-  
+
   // Pensions
   BENEFIT_STATEMENT = "benefit_statement",
   SCHEME_MEMBERSHIP = "scheme_membership",
   EXPRESSION_OF_WISH = "expression_of_wish",
   TRANSFER_VALUE = "transfer_value",
   RETIREMENT_OPTIONS = "retirement_options",
-  
+
   // Insurance
   POLICY_DOCUMENT = "policy_document",
   PREMIUM_RECEIPT = "premium_receipt",
@@ -72,24 +73,24 @@ export enum IrishPropertyDocumentType {
   TITLE_DEEDS = "title_deeds",
   LAND_REGISTRY_FOLIO = "land_registry_folio",
   REGISTRY_OF_DEEDS = "registry_of_deeds",
-  
+
   // Property Details
   BER_CERTIFICATE = "ber_certificate",
   PLANNING_PERMISSION = "planning_permission",
   COMPLIANCE_CERT = "compliance_certificate",
   FIRE_SAFETY_CERT = "fire_safety_certificate",
-  
+
   // Financial
   MORTGAGE_DOCS = "mortgage_documents",
   LPT_RECEIPT = "lpt_receipt",
   COMMERCIAL_RATES = "commercial_rates",
   MANAGEMENT_FEES = "management_fees",
-  
+
   // Rental
   LEASE_AGREEMENT = "lease_agreement",
   RTB_REGISTRATION = "rtb_registration",
   RENT_ROLL = "rent_roll",
-  
+
   // Agricultural
   BASIC_PAYMENT_SCHEME = "basic_payment_scheme",
   ENTITLEMENTS = "entitlements",
@@ -104,13 +105,13 @@ export enum IrishBusinessDocumentType {
   ANNUAL_RETURN_B1 = "annual_return_b1",
   SHAREHOLDERS_AGREEMENT = "shareholders_agreement",
   COMPANY_CONSTITUTION = "company_constitution",
-  
+
   // Sole Trader/Partnership
   BUSINESS_REGISTRATION = "business_registration",
   TAX_REGISTRATION = "tax_registration",
   PARTNERSHIP_AGREEMENT = "partnership_agreement",
   VAT_REGISTRATION = "vat_registration",
-  
+
   // Financial
   FINANCIAL_STATEMENTS = "financial_statements",
   TAX_RETURNS = "tax_returns",
@@ -124,12 +125,12 @@ export enum IrishPersonalDocumentType {
   NCT_CERT = "nct_certificate",
   INSURANCE_DISC = "insurance_disc",
   PURCHASE_INVOICE = "purchase_invoice",
-  
+
   // Boats
   BOAT_REGISTRATION = "boat_registration",
   MARINE_SURVEY = "marine_survey",
   MOORING_AGREEMENT = "mooring_agreement",
-  
+
   // Valuables
   VALUATION_CERT = "valuation_certificate",
   PURCHASE_RECEIPT = "purchase_receipt",
@@ -153,30 +154,30 @@ export const DocumentMetadataSchema = z.object({
   id: z.string().uuid(),
   assetId: z.string().uuid(),
   userEmail: z.string().email(),
-  
+
   // File information
   fileName: z.string(),
   originalName: z.string(),
   fileType: z.string(),
   fileSize: z.number(),
   mimeType: z.string(),
-  
+
   // Storage
   blobUrl: z.string().url(),
   blobPathname: z.string(),
   blobDownloadUrl: z.string().url().optional(),
-  
+
   // Categorization
   category: z.nativeEnum(DocumentCategory),
   documentType: z.string(),
   priority: z.nativeEnum(DocumentPriority).optional(), // Derived from requirements, not stored in DB
   status: z.nativeEnum(DocumentStatus).optional(), // Derived/computed, not stored in DB
-  
+
   // Additional metadata
   description: z.string().optional(),
   expiryDate: z.date().optional(),
   issueDate: z.date().optional(),
-  
+
   // Timestamps
   uploadedAt: z.date(),
   createdAt: z.date(),
@@ -261,6 +262,7 @@ export function getDocumentCategoryDisplay(category: DocumentCategory): string {
     [DocumentCategory.COMPLIANCE]: "Compliance",
     [DocumentCategory.OTHER]: "Other",
   };
+
   return displays[category];
 }
 
@@ -270,6 +272,7 @@ export function getDocumentPriorityColor(priority: DocumentPriority): string {
     [DocumentPriority.RECOMMENDED]: "warning",
     [DocumentPriority.OPTIONAL]: "default",
   };
+
   return colors[priority];
 }
 
@@ -281,6 +284,7 @@ export function getDocumentStatusColor(status: DocumentStatus): string {
     [DocumentStatus.EXPIRED]: "danger",
     [DocumentStatus.REJECTED]: "danger",
   };
+
   return colors[status];
 }
 
@@ -289,13 +293,16 @@ export function getFileTypeIcon(mimeType: string): string {
   if (mimeType.includes("image")) return "🖼️";
   if (mimeType.includes("word") || mimeType.includes("document")) return "📝";
   if (mimeType.includes("sheet") || mimeType.includes("excel")) return "📊";
+
   return "📎";
 }
 
 export function formatFileSize(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB"];
+
   if (bytes === 0) return "0 Bytes";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
+
   return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -21,32 +21,56 @@ import {
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 
+// Import the new type-specific schemas
 import {
-  AssetFormData,
-  IrishAssetFormSchema,
+  AssetFormSchema,
   AssetCategory,
-  AssetType,
   AssetCategoryDefinitions,
-  IrishAssetTypeDefinitions,
+  getAssetTypesByCategory,
+  getAssetTypeDefinition,
   CurrencyOptions,
   CurrencyCode,
   JurisdictionCode,
   formatCurrency,
-  getAssetTypesByCategory,
+  // Import specific asset types
+  FinancialAssetType,
+  PropertyAssetType,
+  DigitalAssetType,
+  // Import specific enums
+  IrishBankName,
+  IrishAccountType,
+  IrishStockbroker,
+  IrishPropertyType,
+  CryptocurrencyType,
+  CryptoWalletType,
 } from "@/types/assets";
+import DocumentUploadZone from "@/components/documents/DocumentUploadZone";
 
-export default function AddAssetPage() {
+// Create a more flexible form state type
+type FormState = {
+  name?: string;
+  asset_type?: any;
+  category?: AssetCategory;
+  jurisdiction?: JurisdictionCode;
+  value?: number;
+  currency?: CurrencyCode;
+  description?: string;
+  specific_fields?: Record<string, any>;
+  notes?: string;
+};
+
+export default function AddAssetV2Page() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<Partial<AssetFormData>>({
-    currency: CurrencyCode.EUR,
+  const [formData, setFormData] = useState<FormState>({
     jurisdiction: JurisdictionCode.IE,
+    currency: CurrencyCode.EUR,
     value: 0,
-    irish_fields: {},
+    specific_fields: {},
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [categories, setCategories] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [createdAssetId, setCreatedAssetId] = useState<string | null>(null);
 
   // Steps in the form
   const steps = [
@@ -58,29 +82,15 @@ export default function AddAssetPage() {
     { id: "type", name: "Asset Type", description: "Select the specific type" },
     { id: "details", name: "Details", description: "Tell us about your asset" },
     { id: "value", name: "Value", description: "How much is it worth?" },
+    {
+      id: "documents",
+      name: "Documents",
+      description: "Upload supporting documents (optional)",
+    },
     { id: "review", name: "Review", description: "Review and confirm" },
   ];
 
-  // Load categories when component mounts
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/assets/categories");
-
-      if (response.ok) {
-        const data = await response.json();
-
-        setCategories(data.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-    }
-  };
-
-  const handleFieldChange = (field: keyof AssetFormData, value: any) => {
+  const handleFieldChange = (field: keyof FormState, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Clear error for this field
@@ -97,6 +107,16 @@ export default function AddAssetPage() {
         setCurrentStep(1);
       }, 300);
     }
+  };
+
+  const handleSpecificFieldChange = (field: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      specific_fields: {
+        ...prev.specific_fields,
+        [field]: value,
+      },
+    }));
   };
 
   const validateCurrentStep = (): boolean => {
@@ -136,24 +156,58 @@ export default function AddAssetPage() {
     return Object.keys(stepErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    console.log("handleNext called, currentStep:", currentStep);
+    console.log("validateCurrentStep result:", validateCurrentStep());
+
     if (validateCurrentStep()) {
-      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+      // If moving to documents step (step 4), create the asset first
+      if (currentStep === 3 && !createdAssetId) {
+        console.log("Moving to documents step, creating asset first...");
+        console.log("createdAssetId is:", createdAssetId);
+        try {
+          const assetId = await createAsset();
+
+          console.log("Asset created with ID:", assetId);
+          // Only move to next step if asset was created successfully
+          if (assetId) {
+            setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+          } else {
+            console.log("Asset ID was null, not advancing");
+          }
+        } catch (error) {
+          console.error("Failed to create asset before documents step:", error);
+
+          // Don't advance to next step if asset creation failed
+          return;
+        }
+      } else {
+        console.log("Moving to next step without creating asset");
+        setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+      }
+    } else {
+      console.log("Validation failed, not proceeding");
     }
   };
 
-  const handlePrevious = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleSubmit = async () => {
+  const createAsset = async () => {
+    console.log("createAsset called with formData:", formData);
     try {
       setIsLoading(true);
-      // Validate entire form
-      const validationResult = IrishAssetFormSchema.safeParse(formData);
+
+      // Validate using the discriminated union schema
+      const validationResult = AssetFormSchema.safeParse(formData);
 
       if (!validationResult.success) {
+        console.error("Validation failed!");
+        console.error("Validation errors:", validationResult.error.flatten());
+        console.error("Form data that failed:", formData);
+        console.error("Specific fields content:", formData.specific_fields);
+
         const fieldErrors = validationResult.error.flatten().fieldErrors;
+
+        console.error("Field errors specifically:", fieldErrors);
+
         const errorMap: Record<string, string> = {};
 
         Object.entries(fieldErrors).forEach(([field, messages]) => {
@@ -162,41 +216,371 @@ export default function AddAssetPage() {
           }
         });
 
+        console.error("Error map:", errorMap);
         setErrors(errorMap);
 
-        return;
+        // Show detailed error to user
+        const errorDetails =
+          Object.keys(errorMap).length > 0
+            ? Object.entries(errorMap)
+                .map(([field, error]) => `- ${field}: ${error}`)
+                .join("\n")
+            : "Unknown validation error - check console for details";
+
+        alert(`Validation failed. Please check:\n${errorDetails}`);
+
+        setIsLoading(false);
+
+        return null;
       }
 
+      console.log("✅ Validation successful!");
+      console.log("Validated form data:", validationResult.data);
+
+      // Send to API endpoint
+      console.log("Sending POST request to /api/assets...");
       const response = await fetch("/api/assets", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validationResult.data),
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (response.ok) {
-        router.push("/assets");
+        const result = await response.json();
+
+        console.log("✅ Asset created successfully:", result);
+        console.log("Result structure:", result);
+
+        // The API returns {data: {id: ...}} structure
+        const assetId = result.data?.id || result.id;
+
+        console.log("Asset ID:", assetId);
+        setCreatedAssetId(assetId);
+        setIsLoading(false);
+
+        return assetId;
       } else {
         const error = await response.json();
 
-        console.error("Failed to create asset:", error);
+        console.error("❌ Failed to create asset:", error);
+        alert(`Failed to create asset: ${error.message || "Unknown error"}`);
+        setIsLoading(false);
+
+        return null;
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("❌ Asset creation error:", error);
+      alert(`Error creating asset: ${error}`);
+      setIsLoading(false);
+
+      return null;
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = async () => {
+    console.log("=== handleSubmit called ===");
+    console.log("Current step:", currentStep);
+    console.log("Total steps:", steps.length);
+
+    try {
+      setIsLoading(true);
+
+      // If we haven't created the asset yet, create it now
+      if (!createdAssetId) {
+        await createAsset();
+      }
+
+      // Redirect to assets page
+      router.push("/assets");
+    } catch (error) {
+      console.error("❌ Final submission error:", error);
+      alert(`Error completing asset creation: ${error}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getAvailableTypes = () => {
-    if (!formData.category) return [];
+  const renderTypeSpecificFields = () => {
+    if (!formData.asset_type) return null;
 
-    return getAssetTypesByCategory(formData.category);
-  };
+    const specificFields = formData.specific_fields || {};
 
-  const getTypeDefinition = (assetType: AssetType) => {
-    return IrishAssetTypeDefinitions[assetType];
+    switch (formData.asset_type) {
+      case FinancialAssetType.IRISH_BANK_ACCOUNT:
+        return (
+          <div className="space-y-4">
+            <Select
+              isRequired
+              label="Bank Name"
+              selectedKeys={
+                specificFields.irish_bank_name
+                  ? [specificFields.irish_bank_name]
+                  : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("irish_bank_name", value);
+              }}
+            >
+              {Object.entries(IrishBankName).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+
+            <Input
+              isRequired
+              label="IBAN"
+              placeholder="IE29 AIBK 9311 5212 3456 78"
+              value={specificFields.iban || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("iban", value)
+              }
+            />
+
+            <Select
+              label="Account Type"
+              selectedKeys={
+                specificFields.irish_account_type
+                  ? [specificFields.irish_account_type]
+                  : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("irish_account_type", value);
+              }}
+            >
+              {Object.entries(IrishAccountType).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+          </div>
+        );
+
+      case FinancialAssetType.INDIVIDUAL_STOCK_HOLDING:
+        return (
+          <div className="space-y-4">
+            <Input
+              isRequired
+              label="Company Name"
+              placeholder="e.g., Apple Inc."
+              value={specificFields.company_name || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("company_name", value)
+              }
+            />
+
+            <Input
+              isRequired
+              label="Ticker Symbol"
+              placeholder="e.g., AAPL"
+              value={specificFields.ticker_symbol || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("ticker_symbol", value)
+              }
+            />
+
+            <Input
+              isRequired
+              label="Number of Shares"
+              type="number"
+              value={specificFields.number_of_shares?.toString() || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange(
+                  "number_of_shares",
+                  parseInt(value) || 0,
+                )
+              }
+            />
+
+            <Select
+              isRequired
+              label="Stockbroker"
+              selectedKeys={
+                specificFields.stockbroker ? [specificFields.stockbroker] : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("stockbroker", value);
+              }}
+            >
+              {Object.entries(IrishStockbroker).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+
+            <Input
+              label="ISIN Code (Optional)"
+              placeholder="IE00XXXXXXXXX"
+              value={specificFields.isin_code || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("isin_code", value)
+              }
+            />
+          </div>
+        );
+
+      case PropertyAssetType.IRISH_RESIDENTIAL_PROPERTY:
+        return (
+          <div className="space-y-4">
+            <Input
+              isRequired
+              label="Eircode"
+              placeholder="D02 XY45"
+              value={specificFields.eircode || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("eircode", value)
+              }
+            />
+
+            <Input
+              isRequired
+              label="Folio Number"
+              placeholder="Property folio number"
+              value={specificFields.folio_number || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("folio_number", value)
+              }
+            />
+
+            <Select
+              isRequired
+              label="Property Type"
+              selectedKeys={
+                specificFields.property_type
+                  ? [specificFields.property_type]
+                  : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("property_type", value);
+              }}
+            >
+              {Object.entries(IrishPropertyType).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+
+            <Input
+              isRequired
+              label="County"
+              placeholder="e.g., Dublin, Cork, Galway"
+              value={specificFields.county || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("county", value)
+              }
+            />
+
+            <Select
+              isRequired
+              label="Title Type"
+              selectedKeys={
+                specificFields.title_type ? [specificFields.title_type] : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("title_type", value);
+              }}
+            >
+              <SelectItem key="F">Freehold</SelectItem>
+              <SelectItem key="L">Leasehold</SelectItem>
+            </Select>
+
+            <Input
+              label="LPT Valuation (Optional)"
+              type="number"
+              value={specificFields.lpt_valuation?.toString() || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange(
+                  "lpt_valuation",
+                  parseFloat(value) || 0,
+                )
+              }
+            />
+          </div>
+        );
+
+      case DigitalAssetType.CRYPTOCURRENCY:
+        return (
+          <div className="space-y-4">
+            <Select
+              isRequired
+              label="Cryptocurrency Type"
+              selectedKeys={
+                specificFields.cryptocurrency_type
+                  ? [specificFields.cryptocurrency_type]
+                  : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("cryptocurrency_type", value);
+              }}
+            >
+              {Object.entries(CryptocurrencyType).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+
+            <Select
+              isRequired
+              label="Wallet Type"
+              selectedKeys={
+                specificFields.wallet_type ? [specificFields.wallet_type] : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+
+                handleSpecificFieldChange("wallet_type", value);
+              }}
+            >
+              {Object.entries(CryptoWalletType).map(([_key, value]) => (
+                <SelectItem key={value}>{value}</SelectItem>
+              ))}
+            </Select>
+
+            <Input
+              label="Wallet Address (Optional)"
+              placeholder="Wallet address or identifier"
+              value={specificFields.wallet_address || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("wallet_address", value)
+              }
+            />
+
+            <Input
+              label="Amount Held (Optional)"
+              step="0.00000001"
+              type="number"
+              value={specificFields.amount_held?.toString() || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("amount_held", parseFloat(value) || 0)
+              }
+            />
+          </div>
+        );
+
+      default:
+        return (
+          <div className="text-center py-6 text-default-600">
+            <p>Specific fields for {formData.asset_type} will be shown here.</p>
+            <p className="text-sm mt-2">
+              This asset type schema is not yet implemented in the UI.
+            </p>
+          </div>
+        );
+    }
   };
 
   const renderStepContent = () => {
@@ -205,9 +589,6 @@ export default function AddAssetPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-semibold mb-6">
-                Select Asset Category
-              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(AssetCategoryDefinitions).map(
                   ([key, category]) => (
@@ -251,59 +632,62 @@ export default function AddAssetPage() {
         );
 
       case 1: // Asset Type Selection
+        const availableTypes = formData.category
+          ? getAssetTypesByCategory(formData.category)
+          : [];
+
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-xl font-semibold mb-3">
-                Select{" "}
-                {formData.category &&
-                  AssetCategoryDefinitions[formData.category]?.name}{" "}
-                Type
-              </h3>
-              <p className="text-default-600 mb-6">
-                Choose the specific type of{" "}
-                {formData.category &&
-                  AssetCategoryDefinitions[
-                    formData.category
-                  ]?.name.toLowerCase()}{" "}
-                you want to add.
-              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {getAvailableTypes().map((assetType) => {
-                  const typeDef = getTypeDefinition(assetType);
+                {availableTypes
+                  .filter((assetType) => {
+                    // Only show asset types that have complete definitions
+                    const typeDef = getAssetTypeDefinition(assetType);
 
-                  return (
-                    <Card
-                      key={assetType}
-                      isPressable
-                      className={`cursor-pointer transition-all ${
-                        formData.asset_type === assetType
-                          ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                          : "hover:border-default-400"
-                      }`}
-                      onPress={() => handleFieldChange("asset_type", assetType)}
-                    >
-                      <CardBody className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-base">
-                            {typeDef?.name ||
-                              assetType
-                                .split("_")
-                                .map(
-                                  (word) =>
-                                    word.charAt(0).toUpperCase() +
-                                    word.slice(1),
-                                )
-                                .join(" ")}
-                          </span>
-                          {formData.asset_type === assetType && (
-                            <CheckIcon className="h-5 w-5 text-primary" />
+                    return typeDef && typeDef.name && typeDef.description;
+                  })
+                  .map((assetType) => {
+                    const typeDef = getAssetTypeDefinition(assetType);
+
+                    return (
+                      <Card
+                        key={assetType}
+                        isPressable
+                        className={`cursor-pointer transition-all ${
+                          formData.asset_type === assetType
+                            ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                            : "hover:border-default-400"
+                        }`}
+                        onPress={() => {
+                          handleFieldChange("asset_type", assetType);
+                          handleFieldChange(
+                            "category",
+                            typeDef?.category || AssetCategory.PERSONAL,
+                          );
+                        }}
+                      >
+                        <CardBody className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">{typeDef?.icon}</span>
+                              <span className="font-medium text-base">
+                                {typeDef?.name}
+                              </span>
+                            </div>
+                            {formData.asset_type === assetType && (
+                              <CheckIcon className="h-5 w-5 text-primary" />
+                            )}
+                          </div>
+                          {typeDef?.description && (
+                            <p className="text-xs text-default-600 mt-2">
+                              {typeDef.description}
+                            </p>
                           )}
-                        </div>
-                      </CardBody>
-                    </Card>
-                  );
-                })}
+                        </CardBody>
+                      </Card>
+                    );
+                  })}
               </div>
               {errors.asset_type && (
                 <p className="text-danger text-sm mt-4">{errors.asset_type}</p>
@@ -315,7 +699,6 @@ export default function AddAssetPage() {
       case 2: // Asset Details
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Asset Details</h3>
             <div className="space-y-4">
               <Input
                 isRequired
@@ -340,76 +723,8 @@ export default function AddAssetPage() {
                 }
               />
 
-              {/* Type-specific fields */}
-              {formData.category === AssetCategory.FINANCIAL && (
-                <div className="space-y-4">
-                  <Input
-                    label="Bank/Institution Name"
-                    placeholder="e.g., Bank of Ireland"
-                    size="lg"
-                    value={formData.irish_fields?.irish_bank_name || ""}
-                    onValueChange={(value) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        irish_fields: {
-                          ...prev.irish_fields,
-                          irish_bank_name: value as any,
-                        },
-                      }));
-                    }}
-                  />
-                  <Input
-                    label="IBAN"
-                    placeholder="IE29 AIBK 9311 5212 3456 78"
-                    size="lg"
-                    value={formData.irish_fields?.iban || ""}
-                    onValueChange={(value) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        irish_fields: {
-                          ...prev.irish_fields,
-                          iban: value,
-                        },
-                      }));
-                    }}
-                  />
-                </div>
-              )}
-
-              {formData.category === AssetCategory.PROPERTY && (
-                <div className="space-y-4">
-                  <Input
-                    label="Eircode"
-                    placeholder="D02 XY45"
-                    size="lg"
-                    value={formData.irish_fields?.eircode || ""}
-                    onValueChange={(value) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        irish_fields: {
-                          ...prev.irish_fields,
-                          eircode: value,
-                        },
-                      }));
-                    }}
-                  />
-                  <Input
-                    label="Property Type"
-                    placeholder="Detached House, Apartment, etc."
-                    size="lg"
-                    value={formData.irish_fields?.property_type || ""}
-                    onValueChange={(value) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        irish_fields: {
-                          ...prev.irish_fields,
-                          property_type: value as any,
-                        },
-                      }));
-                    }}
-                  />
-                </div>
-              )}
+              {/* Type-specific fields based on selected asset type */}
+              {renderTypeSpecificFields()}
             </div>
           </div>
         );
@@ -417,7 +732,6 @@ export default function AddAssetPage() {
       case 3: // Value
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Asset Value</h3>
             <div className="space-y-4">
               <div className="flex gap-4">
                 <Select
@@ -476,11 +790,54 @@ export default function AddAssetPage() {
           </div>
         );
 
-      case 4: // Review
+      case 4: // Documents
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Review Asset Details</h3>
+            {createdAssetId ? (
+              <div>
+                <div className="mb-4 p-4 bg-success-50 border border-success-200 rounded-lg">
+                  <p className="text-success-700">
+                    ✅ Asset created successfully! You can now upload supporting
+                    documents.
+                  </p>
+                </div>
+                <DocumentUploadZone
+                  assetId={createdAssetId}
+                  assetType={formData.asset_type || ""}
+                  maxFiles={10}
+                  onError={(error) => {
+                    console.error("Upload error:", error);
+                    alert(`Upload error: ${error}`);
+                  }}
+                  onUploadComplete={(documentId) => {
+                    console.log("Document uploaded:", documentId);
+                  }}
+                />
+                <div className="mt-4 p-4 bg-default-50 rounded-lg">
+                  <p className="text-sm text-default-600">
+                    📝 <strong>Tip:</strong> Uploading documents now will help
+                    with estate planning and probate processes later. You can
+                    always add more documents from the asset details page.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-8">
+                <div className="animate-pulse">
+                  <p className="text-default-600">Creating your asset...</p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
 
+      case 5: // Review
+        const typeDef = formData.asset_type
+          ? getAssetTypeDefinition(formData.asset_type)
+          : null;
+
+        return (
+          <div className="space-y-6">
             <Card>
               <CardBody className="p-6">
                 <div className="space-y-4">
@@ -496,10 +853,7 @@ export default function AddAssetPage() {
 
                   <div className="flex justify-between items-center">
                     <span className="text-default-600">Type:</span>
-                    <span className="font-medium">
-                      {formData.asset_type &&
-                        getTypeDefinition(formData.asset_type)?.name}
-                    </span>
+                    <span className="font-medium">{typeDef?.name}</span>
                   </div>
 
                   <Divider />
@@ -534,6 +888,30 @@ export default function AddAssetPage() {
                       </div>
                     </>
                   )}
+
+                  {formData.specific_fields &&
+                    Object.keys(formData.specific_fields).length > 0 && (
+                      <>
+                        <Divider />
+                        <div>
+                          <span className="text-default-600 block mb-2">
+                            Specific Details:
+                          </span>
+                          <div className="text-sm bg-default-100 dark:bg-default-800/50 p-3 rounded-lg space-y-1">
+                            {Object.entries(formData.specific_fields).map(
+                              ([key, value]) => (
+                                <div key={key} className="flex justify-between">
+                                  <span className="capitalize">
+                                    {key.replace(/_/g, " ")}:
+                                  </span>
+                                  <span>{value?.toString()}</span>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
                 </div>
               </CardBody>
             </Card>
@@ -555,7 +933,7 @@ export default function AddAssetPage() {
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Add New Asset (Legacy)</h1>
+          <h1 className="text-2xl font-bold text-foreground">Add New Asset</h1>
           <p className="text-default-600 mt-1">
             Step {currentStep + 1} of {steps.length}: {steps[currentStep]?.name}
           </p>
@@ -643,13 +1021,33 @@ export default function AddAssetPage() {
                 (currentStep === 1 && !formData.asset_type) ||
                 (currentStep === 2 && !formData.name) ||
                 (currentStep === 3 && (!formData.value || formData.value <= 0))
+                // Documents step (4) and review step (5) don't need validation
               }
               isLoading={isLoading}
-              onPress={
-                currentStep === steps.length - 1 ? handleSubmit : handleNext
-              }
+              onPress={() => {
+                console.log("=== BUTTON PRESSED (onPress) ===");
+                console.log("Current step:", currentStep);
+                console.log("Form data value:", formData.value);
+                console.log("Is loading:", isLoading);
+                console.log("Steps length:", steps.length);
+
+                try {
+                  if (currentStep === steps.length - 1) {
+                    console.log("On last step, calling handleSubmit...");
+                    handleSubmit();
+                  } else {
+                    console.log(
+                      `Not on last step (${currentStep} of ${steps.length - 1}), calling handleNext...`,
+                    );
+                    handleNext();
+                  }
+                } catch (error) {
+                  console.error("Error in button onPress:", error);
+                  alert(`Error: ${error}`);
+                }
+              }}
             >
-              {currentStep === steps.length - 1 ? "Create Asset" : "Next"}
+              {currentStep === steps.length - 1 ? "Complete" : "Next"}
             </Button>
           </div>
         </CardBody>

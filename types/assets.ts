@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // =====================================================
-// JURISDICTION SYSTEM
+// CORE ENUMS AND TYPES
 // =====================================================
 
 export enum JurisdictionCode {
@@ -20,10 +20,6 @@ export enum CurrencyCode {
   AUD = "AUD",
 }
 
-// =====================================================
-// ASSET CATEGORIES & TYPES (IRISH-FOCUSED)
-// =====================================================
-
 export enum AssetCategory {
   FINANCIAL = "financial",
   PROPERTY = "property",
@@ -32,54 +28,75 @@ export enum AssetCategory {
   DIGITAL = "digital",
 }
 
-// Irish-specific asset types
-export enum AssetType {
-  // Financial Assets - Irish Context
+// =====================================================
+// DETAILED ASSET TYPE ENUMS
+// =====================================================
+
+export enum FinancialAssetType {
+  // Bank Accounts
   IRISH_BANK_ACCOUNT = "irish_bank_account",
   IRISH_CREDIT_UNION = "irish_credit_union",
   IRISH_BUILDING_SOCIETY = "irish_building_society",
+
+  // Investment Accounts
   IRISH_INVESTMENT_ACCOUNT = "irish_investment_account",
   IRISH_SHARES_PORTFOLIO = "irish_shares_portfolio",
+  INDIVIDUAL_STOCK_HOLDING = "individual_stock_holding",
   IRISH_BONDS = "irish_bonds",
+  GOVERNMENT_BONDS = "government_bonds",
 
-  // Irish Pension Assets
+  // Pensions
   IRISH_PRSA = "irish_prsa",
   IRISH_OCCUPATIONAL_PENSION = "irish_occupational_pension",
   IRISH_ARF = "irish_arf",
   IRISH_AVC = "irish_avc",
   IRISH_PERSONAL_PENSION = "irish_personal_pension",
 
-  // Irish Property Assets
+  // Insurance
+  LIFE_INSURANCE = "life_insurance",
+  ENDOWMENT_POLICY = "endowment_policy",
+}
+
+export enum PropertyAssetType {
   IRISH_RESIDENTIAL_PROPERTY = "irish_residential_property",
   IRISH_COMMERCIAL_PROPERTY = "irish_commercial_property",
   IRISH_AGRICULTURAL_LAND = "irish_agricultural_land",
   IRISH_RENTAL_PROPERTY = "irish_rental_property",
+}
 
-  // Irish Vehicle Assets
-  IRISH_MOTOR_VEHICLE = "irish_motor_vehicle",
-  IRISH_COMMERCIAL_VEHICLE = "irish_commercial_vehicle",
-  IRISH_MOTORCYCLE = "irish_motorcycle",
-  IRISH_BOAT_VESSEL = "irish_boat_vessel",
-
-  // Irish Business Assets
+export enum BusinessAssetType {
   IRISH_LIMITED_COMPANY_SHARES = "irish_limited_company_shares",
   IRISH_SOLE_TRADER_BUSINESS = "irish_sole_trader_business",
   IRISH_PARTNERSHIP_INTEREST = "irish_partnership_interest",
   IRISH_INTELLECTUAL_PROPERTY = "irish_intellectual_property",
+}
 
-  // Personal Assets (Universal)
+export enum PersonalAssetType {
+  IRISH_MOTOR_VEHICLE = "irish_motor_vehicle",
+  IRISH_COMMERCIAL_VEHICLE = "irish_commercial_vehicle",
+  IRISH_MOTORCYCLE = "irish_motorcycle",
+  IRISH_BOAT_VESSEL = "irish_boat_vessel",
   JEWELRY = "jewelry",
   ART_COLLECTIBLES = "art_collectibles",
   FURNITURE_HOUSEHOLD = "furniture_household",
   ELECTRONICS = "electronics",
+}
 
-  // Digital Assets (Universal)
+export enum DigitalAssetType {
   CRYPTOCURRENCY = "cryptocurrency",
   DIGITAL_CURRENCY = "digital_currency",
   ONLINE_ACCOUNTS = "online_accounts",
   DIGITAL_FILES = "digital_files",
   DOMAIN_NAMES = "domain_names",
 }
+
+// Union of all asset types
+export type AssetType =
+  | FinancialAssetType
+  | PropertyAssetType
+  | BusinessAssetType
+  | PersonalAssetType
+  | DigitalAssetType;
 
 // =====================================================
 // IRISH-SPECIFIC ENUMS
@@ -95,17 +112,8 @@ export enum IrishBankName {
   AN_POST = "An Post Money",
   REVOLUT = "Revolut",
   N26 = "N26",
+  EBS = "EBS Building Society",
   OTHER = "Other",
-}
-
-export enum IrishCreditUnion {
-  // Major Irish Credit Unions
-  DUBLIN_CITY_CU = "Dublin City Credit Union",
-  CORK_TEACHERS_CU = "Cork Teachers Credit Union",
-  PROGRESSIVE_CU = "Progressive Credit Union",
-  COMHAR_LINN_CU = "Comhar Linn Credit Union",
-  ST_RAPHAELS_CU = "St. Raphael's Garda Credit Union",
-  OTHER_CU = "Other Credit Union",
 }
 
 export enum IrishAccountType {
@@ -116,6 +124,28 @@ export enum IrishAccountType {
   DEMAND_DEPOSIT = "Demand Deposit",
   FIXED_DEPOSIT = "Fixed Deposit",
   FOREIGN_CURRENCY = "Foreign Currency Account",
+}
+
+export enum IrishStockbroker {
+  DAVY = "Davy Stockbrokers",
+  GOODBODY = "Goodbody Stockbrokers",
+  CANTOR_FITZGERALD = "Cantor Fitzgerald Ireland",
+  KBC_STOCKBROKERS = "KBC Stockbrokers",
+  INVESTEC = "Investec",
+  INTERACTIVE_BROKERS = "Interactive Brokers",
+  DEGIRO = "DeGiro",
+  TRADING212 = "Trading 212",
+  REVOLUT_TRADING = "Revolut Trading",
+  OTHER = "Other Broker",
+}
+
+export enum StockExchange {
+  EURONEXT_DUBLIN = "Euronext Dublin",
+  LSE = "London Stock Exchange",
+  NYSE = "New York Stock Exchange",
+  NASDAQ = "NASDAQ",
+  FRANKFURT = "Frankfurt Stock Exchange",
+  OTHER = "Other Exchange",
 }
 
 export enum IrishPensionProvider {
@@ -143,19 +173,6 @@ export enum IrishPensionType {
   PUBLIC_SERVICE = "Public Service Pension",
 }
 
-export enum IrishStockbroker {
-  DAVY = "Davy Stockbrokers",
-  GOODBODY = "Goodbody Stockbrokers",
-  CANTOR_FITZGERALD = "Cantor Fitzgerald Ireland",
-  KBC_STOCKBROKERS = "KBC Stockbrokers",
-  INVESTEC = "Investec",
-  INTERACTIVE_BROKERS = "Interactive Brokers",
-  DEGIRO = "DeGiro",
-  TRADING212 = "Trading 212",
-  REVOLUT_TRADING = "Revolut Trading",
-  OTHER = "Other Broker",
-}
-
 export enum IrishPropertyType {
   DETACHED_HOUSE = "Detached House",
   SEMI_DETACHED_HOUSE = "Semi-Detached House",
@@ -173,703 +190,477 @@ export enum IrishPropertyType {
   FORESTRY = "Forestry",
 }
 
-// =====================================================
-// BASE INTERFACES
-// =====================================================
-
-// Base Asset Interface (matches current database schema)
-export interface Asset {
-  id: string;
-  user_email: string;
-  name: string;
-  asset_type: string;
-  value: number;
-  description: string | null;
-  account_number: string | null;
-  bank_name: string | null;
-  property_address: string | null;
-  status: string | null;
-  created_at: Date | null;
-  updated_at: Date | null;
+export enum CryptocurrencyType {
+  BITCOIN = "Bitcoin",
+  ETHEREUM = "Ethereum",
+  LITECOIN = "Litecoin",
+  CARDANO = "Cardano",
+  SOLANA = "Solana",
+  DOGECOIN = "Dogecoin",
+  OTHER = "Other Cryptocurrency",
 }
 
-// Extended Asset Interface with jurisdiction support
-export interface ExtendedAsset extends Asset {
-  jurisdiction: JurisdictionCode;
-  category: AssetCategory;
-  currency: CurrencyCode;
-  irish_fields?: IrishAssetFields;
-  uk_fields?: Record<string, any>; // Future UK expansion
-  us_fields?: Record<string, any>; // Future US expansion
-  documents?: AssetDocument[];
-  beneficiary_allocations?: BeneficiaryAllocation[];
+export enum CryptoWalletType {
+  HARDWARE_WALLET = "Hardware Wallet",
+  SOFTWARE_WALLET = "Software Wallet",
+  EXCHANGE_ACCOUNT = "Exchange Account",
+  PAPER_WALLET = "Paper Wallet",
+  MULTI_SIG_WALLET = "Multi-Signature Wallet",
+}
+
+export enum CryptoExchange {
+  COINBASE = "Coinbase",
+  BINANCE = "Binance",
+  KRAKEN = "Kraken",
+  BITFINEX = "Bitfinex",
+  GEMINI = "Gemini",
+  OTHER = "Other Exchange",
 }
 
 // =====================================================
-// IRISH-SPECIFIC FIELD INTERFACES
+// VALIDATION PATTERNS
 // =====================================================
 
-export interface IrishAssetFields {
-  // Bank Account Specific
-  iban?: string;
-  bic_swift?: string;
-  sort_code?: string;
-  irish_bank_name?: IrishBankName;
-  irish_account_type?: IrishAccountType;
-  branch_code?: string;
-  branch_name?: string;
-  joint_account?: boolean;
-  joint_account_holder?: string;
-  credit_union_name?: IrishCreditUnion;
-  membership_number?: string;
+// Irish IBAN format: IE + 2 check digits + 4 bank code + 6 branch code + 8 account number
+const irishIBANRegex = /^IE[0-9]{2}[A-Z]{4}[0-9]{14}$/;
 
-  // Investment/Shares Specific
-  stockbroker?: IrishStockbroker;
-  portfolio_id?: string;
-  stock_exchange?: string; // ISEQ, Euronext Dublin, LSE, etc.
-  company_name?: string;
-  ticker_symbol?: string;
-  isin_code?: string;
-  number_of_shares?: number;
-  share_class?: string;
-  certificate_numbers?: string;
+// Irish Eircode format: D02 XY45 (3 chars + space + 4 chars)
+const eircodeRegex = /^[A-Z0-9]{3}\s?[A-Z0-9]{4}$/;
 
-  // Pension Specific
-  pension_provider?: IrishPensionProvider;
-  pension_type?: IrishPensionType;
-  pension_number?: string;
-  membership_number_pension?: string;
-  employer_name?: string;
-  pensionable_service_years?: number;
-  defined_benefit?: boolean;
-  annual_contribution?: number;
-  employer_contribution?: number;
-  avc_fund_value?: number;
-  arf_provider?: string;
-  minimum_distribution_rate?: number;
-  death_in_service_benefit?: number;
-  spouse_pension_rights?: boolean;
-  beneficiary_nominations?: string[];
+// Irish CRO number format (various patterns)
+const croNumberRegex = /^[0-9]{4,6}[A-Z]?$/;
 
-  // Property Specific
-  eircode?: string;
-  folio_number?: string;
-  county_registration?: string;
-  title_type?: "F" | "L"; // Freehold or Leasehold
-  land_registry_registered?: boolean;
-  registry_map_reference?: string;
-  property_type?: IrishPropertyType;
-  mortgage_lender?: string;
-  mortgage_account_number?: string;
-  outstanding_mortgage?: number;
-  monthly_mortgage_payment?: number;
-  lpt_valuation?: number; // Local Property Tax
-  rental_income?: number;
-  property_management_company?: string;
-  ber_rating?: string; // Building Energy Rating
-  ber_certificate_number?: string;
+// Irish VRN format (various formats, typically digits-letters-digits)
+const irishVRNRegex = /^[0-9]{2,3}-[A-Z]{1,2}-[0-9]{1,6}$/;
 
-  // Vehicle Specific
-  vehicle_registration_number?: string; // Irish VRN
-  vin_number?: string;
-  engine_size?: string;
-  fuel_type?: string;
-  nct_expiry_date?: string; // National Car Test
-  motor_tax_expiry?: string;
-  insurance_company?: string;
-  insurance_policy_number?: string;
-  current_mileage?: number;
-  logbook_number?: string; // Vehicle Registration Certificate
+// ISIN format with IE prefix
+const irishISINRegex = /^IE[A-Z0-9]{9}[0-9]$/;
 
-  // Business Specific
-  cro_number?: string; // Companies Registration Office
-  business_address?: string;
-  registered_address?: string;
-  tax_number?: string;
-  vat_registration?: string;
-  share_class_business?: string;
-  number_of_shares_business?: number;
-  percentage_ownership?: number;
-  director_status?: boolean;
-  secretary_status?: boolean;
-  shareholder_agreement?: boolean;
-  articles_of_association?: boolean;
-
-  // Digital Asset Specific
-  wallet_address?: string;
-  private_key_location?: string;
-  exchange_platform?: string;
-  recovery_phrase_location?: string;
-  two_factor_auth?: boolean;
-  digital_legacy_contact?: string;
-}
+// Stock ticker format (1-5 uppercase letters/numbers)
+const stockTickerRegex = /^[A-Z0-9]{1,5}$/;
 
 // =====================================================
-// FORM DATA INTERFACES
+// BASE SCHEMAS
 // =====================================================
 
-export interface AssetFormData {
-  name: string;
-  asset_type: AssetType;
-  category: AssetCategory;
-  jurisdiction: JurisdictionCode;
-  value: number;
-  currency: CurrencyCode;
-  description?: string;
-
-  // Irish-specific fields (conditionally required based on asset type)
-  irish_fields?: Partial<IrishAssetFields>;
-
-  // Additional metadata
-  purchase_date?: string;
-  purchase_price?: number;
-  last_valuation_date?: string;
-  notes?: string;
-}
+const BaseAssetSchema = z.object({
+  name: z.string().min(1, "Asset name is required").max(255, "Name too long"),
+  category: z.nativeEnum(AssetCategory),
+  jurisdiction: z.nativeEnum(JurisdictionCode).default(JurisdictionCode.IE),
+  value: z
+    .number()
+    .min(0, "Value must be positive")
+    .max(999999999, "Value too large"),
+  currency: z.nativeEnum(CurrencyCode).default(CurrencyCode.EUR),
+  description: z.string().max(1000, "Description too long").optional(),
+  purchase_date: z.string().optional(),
+  purchase_price: z.number().min(0).optional(),
+  notes: z.string().max(2000).optional(),
+});
 
 // =====================================================
-// SUPPORTING INTERFACES
+// FINANCIAL ASSET SCHEMAS
 // =====================================================
 
-export interface AssetDocument {
-  id: string;
-  asset_id: string;
-  name: string;
-  type: string;
-  size: number;
-  url: string;
-  uploaded_at: string;
-}
+export const IrishBankAccountSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(FinancialAssetType.IRISH_BANK_ACCOUNT),
+  category: z.literal(AssetCategory.FINANCIAL),
+  specific_fields: z.object({
+    iban: z.string().regex(irishIBANRegex, "Invalid Irish IBAN format"),
+    bic_swift: z.string().min(8).max(11).optional(),
+    irish_bank_name: z.nativeEnum(IrishBankName),
+    irish_account_type: z.nativeEnum(IrishAccountType),
+    sort_code: z.string().length(6, "Sort code must be 6 digits").optional(),
+    account_number: z.string().min(6).max(12).optional(),
+    branch_name: z.string().max(100).optional(),
+    joint_account: z.boolean().default(false),
+    joint_account_holder: z.string().max(255).optional(),
+  }),
+});
 
-export interface BeneficiaryAllocation {
-  id: string;
-  asset_id: string;
-  beneficiary_id: string;
-  percentage: number;
-  specific_instructions?: string;
-  conditions?: string;
-}
+export const IndividualStockHoldingSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(FinancialAssetType.INDIVIDUAL_STOCK_HOLDING),
+  category: z.literal(AssetCategory.FINANCIAL),
+  specific_fields: z.object({
+    ticker_symbol: z
+      .string()
+      .regex(stockTickerRegex, "Invalid ticker symbol format"),
+    isin_code: z
+      .string()
+      .regex(irishISINRegex, "Invalid ISIN format")
+      .optional(),
+    company_name: z.string().min(1, "Company name is required").max(255),
+    number_of_shares: z.number().min(1, "Must own at least 1 share"),
+    share_class: z.string().max(50).optional(),
+    stockbroker: z.nativeEnum(IrishStockbroker),
+    stock_exchange: z.nativeEnum(StockExchange),
+    certificate_numbers: z.string().max(255).optional(),
+    dividend_yield: z.number().min(0).max(100).optional(),
+    cost_basis_per_share: z.number().min(0).optional(),
+  }),
+});
+
+export const CryptocurrencySchema = BaseAssetSchema.extend({
+  asset_type: z.literal(DigitalAssetType.CRYPTOCURRENCY),
+  category: z.literal(AssetCategory.DIGITAL),
+  specific_fields: z.object({
+    cryptocurrency_type: z.nativeEnum(CryptocurrencyType),
+    wallet_type: z.nativeEnum(CryptoWalletType),
+    wallet_address: z.string().max(255).optional(),
+    exchange_name: z.nativeEnum(CryptoExchange).optional(),
+    exchange_account_email: z.string().email().optional(),
+    private_key_location: z.string().max(500).optional(),
+    recovery_phrase_location: z.string().max(500).optional(),
+    amount_held: z.number().min(0).optional(),
+    cost_basis: z.number().min(0).optional(),
+  }),
+});
+
+export const IrishPRSASchema = BaseAssetSchema.extend({
+  asset_type: z.literal(FinancialAssetType.IRISH_PRSA),
+  category: z.literal(AssetCategory.FINANCIAL),
+  specific_fields: z.object({
+    pension_provider: z.nativeEnum(IrishPensionProvider),
+    pension_number: z.string().min(1, "Pension number is required").max(50),
+    annual_contribution: z.number().min(0).optional(),
+    employer_contribution: z.number().min(0).optional(),
+    fund_value: z.number().min(0).optional(),
+    retirement_age: z.number().min(50).max(75).optional(),
+    beneficiary_nominations: z.array(z.string()).optional(),
+  }),
+});
 
 // =====================================================
-// ASSET TYPE DEFINITIONS
+// PROPERTY ASSET SCHEMAS
 // =====================================================
 
-interface AssetTypeConfig {
-  name: string;
-  category: AssetCategory;
-  jurisdiction: JurisdictionCode;
-  icon: string;
-  description: string;
-  requiredFields: (keyof IrishAssetFields)[];
-  optionalFields: (keyof IrishAssetFields)[];
-  probateDocuments: string[];
-  taxImplications: string[];
-}
+export const IrishResidentialPropertySchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PropertyAssetType.IRISH_RESIDENTIAL_PROPERTY),
+  category: z.literal(AssetCategory.PROPERTY),
+  specific_fields: z.object({
+    eircode: z.string().regex(eircodeRegex, "Invalid Eircode format"),
+    folio_number: z.string().min(1, "Folio number is required").max(50),
+    property_type: z.nativeEnum(IrishPropertyType),
+    county: z.string().min(1).max(50),
+    title_type: z.enum(["F", "L"]), // F=Freehold, L=Leasehold
+    lpt_valuation: z
+      .number()
+      .min(0, "LPT valuation must be positive")
+      .optional(),
+    ber_rating: z.string().max(10).optional(),
+    ber_certificate_number: z.string().max(50).optional(),
+    mortgage_lender: z.string().max(100).optional(),
+    mortgage_account_number: z.string().max(50).optional(),
+    outstanding_mortgage: z.number().min(0).optional(),
+    monthly_mortgage_payment: z.number().min(0).optional(),
+    rental_income: z.number().min(0).optional(),
+    property_management_company: z.string().max(100).optional(),
+  }),
+});
 
-export const IrishAssetTypeDefinitions: Record<AssetType, AssetTypeConfig> = {
-  // Irish Financial Assets
-  [AssetType.IRISH_BANK_ACCOUNT]: {
-    name: "Irish Bank Account",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏦",
-    description:
-      "Current account, savings account, or deposit account with an Irish bank",
-    requiredFields: [
-      "iban",
-      "bic_swift",
-      "irish_bank_name",
-      "irish_account_type",
-    ],
-    optionalFields: [
-      "branch_code",
-      "branch_name",
-      "joint_account",
-      "joint_account_holder",
-    ],
-    probateDocuments: [
-      "Bank statements (12 months)",
-      "Account closure confirmation",
-      "Interest certificates",
-    ],
-    taxImplications: [
-      "DIRT tax on interest",
-      "Deposit Interest Retention Tax",
-      "Gift/inheritance tax implications",
-    ],
-  },
+export const IrishCommercialPropertySchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PropertyAssetType.IRISH_COMMERCIAL_PROPERTY),
+  category: z.literal(AssetCategory.PROPERTY),
+  specific_fields: z.object({
+    eircode: z.string().regex(eircodeRegex, "Invalid Eircode format"),
+    folio_number: z.string().min(1, "Folio number is required").max(50),
+    property_type: z.nativeEnum(IrishPropertyType),
+    county: z.string().min(1).max(50),
+    title_type: z.enum(["F", "L"]), // F=Freehold, L=Leasehold
+    annual_rental_income: z.number().min(0).optional(),
+    lease_expiry_date: z.string().optional(),
+    tenant_details: z.string().max(255).optional(),
+    property_management_company: z.string().max(100).optional(),
+    rates_valuation: z.number().min(0).optional(),
+    mortgage_lender: z.string().max(100).optional(),
+    outstanding_mortgage: z.number().min(0).optional(),
+  }),
+});
 
-  [AssetType.IRISH_CREDIT_UNION]: {
-    name: "Irish Credit Union Account",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🤝",
-    description: "Savings or loan account with an Irish credit union",
-    requiredFields: [
-      "credit_union_name",
-      "membership_number",
-      "irish_account_type",
-    ],
-    optionalFields: ["joint_account", "joint_account_holder"],
-    probateDocuments: [
-      "Membership records",
-      "Share statements",
-      "Loan statements (if applicable)",
-    ],
-    taxImplications: ["Dividend tax implications", "Death benefit coverage"],
-  },
+export const IrishAgriculturalLandSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PropertyAssetType.IRISH_AGRICULTURAL_LAND),
+  category: z.literal(AssetCategory.PROPERTY),
+  specific_fields: z.object({
+    eircode: z
+      .string()
+      .regex(eircodeRegex, "Invalid Eircode format")
+      .optional(),
+    folio_number: z.string().min(1, "Folio number is required").max(50),
+    county: z.string().min(1).max(50),
+    townland: z.string().max(100).optional(),
+    acreage: z.number().min(0, "Acreage must be positive"),
+    land_use: z.enum(["Tillage", "Pasture", "Forest", "Mixed", "Other"]),
+    soil_quality: z.enum(["Excellent", "Good", "Fair", "Poor"]).optional(),
+    drainage: z
+      .enum(["Well Drained", "Moderately Drained", "Poorly Drained"])
+      .optional(),
+    single_farm_payment_entitlements: z.boolean().default(false),
+    organic_certification: z.boolean().default(false),
+    turbary_rights: z.boolean().default(false),
+    commonage_rights: z.boolean().default(false),
+  }),
+});
 
-  [AssetType.IRISH_PRSA]: {
-    name: "Irish PRSA",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📈",
-    description: "Personal Retirement Savings Account",
-    requiredFields: [
-      "pension_provider",
-      "pension_number",
-      "annual_contribution",
-    ],
-    optionalFields: ["employer_contribution", "beneficiary_nominations"],
-    probateDocuments: [
-      "PRSA statements",
-      "Contribution certificates",
-      "Fund factsheets",
-    ],
-    taxImplications: [
-      "Tax relief on contributions",
-      "Death benefit tax treatment",
-      "ARF transfer options",
-    ],
-  },
+// =====================================================
+// BUSINESS ASSET SCHEMAS
+// =====================================================
 
-  [AssetType.IRISH_ARF]: {
-    name: "Irish ARF",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "💰",
-    description: "Approved Retirement Fund",
-    requiredFields: [
-      "arf_provider",
-      "pension_number",
-      "minimum_distribution_rate",
-    ],
-    optionalFields: ["beneficiary_nominations", "spouse_pension_rights"],
-    probateDocuments: [
-      "ARF statements",
-      "Distribution records",
-      "Investment portfolio details",
-    ],
-    taxImplications: [
-      "Annual distribution requirements",
-      "Spouse transfer benefits",
-      "Income tax on distributions",
-    ],
-  },
+export const IrishCompanySharesSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(BusinessAssetType.IRISH_LIMITED_COMPANY_SHARES),
+  category: z.literal(AssetCategory.BUSINESS),
+  specific_fields: z.object({
+    cro_number: z.string().regex(croNumberRegex, "Invalid CRO number format"),
+    company_name: z.string().min(1, "Company name is required").max(255),
+    share_class: z.string().max(50).default("Ordinary"),
+    number_of_shares: z.number().min(1, "Must own at least 1 share"),
+    percentage_ownership: z.number().min(0).max(100),
+    nominal_value_per_share: z.number().min(0).optional(),
+    voting_rights: z.boolean().default(true),
+    director_status: z.boolean().default(false),
+    secretary_status: z.boolean().default(false),
+    shareholder_agreement_exists: z.boolean().default(false),
+    dividend_rights: z.boolean().default(true),
+  }),
+});
 
-  [AssetType.IRISH_SHARES_PORTFOLIO]: {
-    name: "Irish Share Portfolio",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📊",
-    description: "Portfolio of shares and securities",
-    requiredFields: ["stockbroker", "portfolio_id"],
-    optionalFields: [
-      "company_name",
-      "ticker_symbol",
-      "isin_code",
-      "number_of_shares",
-      "share_class",
-    ],
-    probateDocuments: [
-      "Portfolio statements",
-      "Share certificates",
-      "Dividend records",
-      "Contract notes",
-    ],
-    taxImplications: [
-      "Capital gains tax",
-      "Dividend withholding tax",
-      "Inheritance tax implications",
-    ],
-  },
+export const IrishSoleTraderBusinessSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(BusinessAssetType.IRISH_SOLE_TRADER_BUSINESS),
+  category: z.literal(AssetCategory.BUSINESS),
+  specific_fields: z.object({
+    business_name: z.string().min(1, "Business name is required").max(255),
+    trading_name: z.string().max(255).optional(),
+    tax_reference_number: z.string().max(20).optional(),
+    vat_registration_number: z.string().max(20).optional(),
+    business_address: z.string().max(500).optional(),
+    industry_sector: z.string().max(100).optional(),
+    annual_turnover: z.number().min(0).optional(),
+    annual_profit: z.number().min(0).optional(),
+    business_assets_value: z.number().min(0).optional(),
+    business_liabilities: z.number().min(0).optional(),
+    employees_count: z.number().min(0).optional(),
+    lease_agreements: z.string().max(500).optional(),
+  }),
+});
 
-  // Irish Property Assets
-  [AssetType.IRISH_RESIDENTIAL_PROPERTY]: {
-    name: "Irish Residential Property",
-    category: AssetCategory.PROPERTY,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏠",
-    description: "Residential property in Ireland",
-    requiredFields: ["eircode", "property_type", "lpt_valuation"],
-    optionalFields: [
-      "folio_number",
-      "county_registration",
-      "title_type",
-      "land_registry_registered",
-      "mortgage_lender",
-      "mortgage_account_number",
-      "outstanding_mortgage",
-      "ber_rating",
-    ],
-    probateDocuments: [
-      "Title deeds/Folio",
-      "Property deeds",
-      "Mortgage statements",
-      "LPT certificates",
-      "BER certificate",
-    ],
-    taxImplications: [
-      "Capital gains tax",
-      "Local Property Tax",
-      "Inheritance tax",
-      "Principal residence relief",
-    ],
-  },
+export const IrishIntellectualPropertySchema = BaseAssetSchema.extend({
+  asset_type: z.literal(BusinessAssetType.IRISH_INTELLECTUAL_PROPERTY),
+  category: z.literal(AssetCategory.BUSINESS),
+  specific_fields: z.object({
+    ip_type: z.enum([
+      "Patent",
+      "Trademark",
+      "Copyright",
+      "Design",
+      "Trade Secret",
+    ]),
+    registration_number: z.string().max(50).optional(),
+    registration_authority: z.string().max(100).optional(),
+    registration_date: z.string().optional(),
+    expiry_date: z.string().optional(),
+    territorial_scope: z.string().max(255).optional(),
+    licensing_income: z.number().min(0).optional(),
+    renewal_required: z.boolean().default(false),
+    legal_representative: z.string().max(255).optional(),
+  }),
+});
 
-  [AssetType.IRISH_AGRICULTURAL_LAND]: {
-    name: "Irish Agricultural Land",
-    category: AssetCategory.PROPERTY,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🚜",
-    description: "Agricultural land and farming property",
-    requiredFields: ["eircode", "folio_number", "lpt_valuation"],
-    optionalFields: [
-      "county_registration",
-      "title_type",
-      "land_registry_registered",
-    ],
-    probateDocuments: [
-      "Folio and maps",
-      "Agricultural entitlements",
-      "Environmental compliance certificates",
-    ],
-    taxImplications: [
-      "Agricultural relief",
-      "Capital acquisitions tax relief",
-      "Single Payment Scheme entitlements",
-    ],
-  },
+// =====================================================
+// PERSONAL ASSET SCHEMAS
+// =====================================================
 
-  // Irish Vehicle Assets
-  [AssetType.IRISH_MOTOR_VEHICLE]: {
-    name: "Irish Motor Vehicle",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🚗",
-    description: "Car, van, or other motor vehicle registered in Ireland",
-    requiredFields: ["vehicle_registration_number", "vin_number"],
-    optionalFields: [
-      "engine_size",
-      "fuel_type",
-      "nct_expiry_date",
-      "motor_tax_expiry",
-      "insurance_company",
-      "insurance_policy_number",
-      "current_mileage",
-      "logbook_number",
-    ],
-    probateDocuments: [
-      "Vehicle Registration Certificate (Logbook)",
-      "NCT certificate",
-      "Insurance certificate",
-      "Motor tax disc",
-    ],
-    taxImplications: [
-      "Capital gains (if applicable)",
-      "Gift/inheritance tax valuation",
-    ],
-  },
+export const IrishMotorVehicleSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PersonalAssetType.IRISH_MOTOR_VEHICLE),
+  category: z.literal(AssetCategory.PERSONAL),
+  specific_fields: z.object({
+    vehicle_registration_number: z
+      .string()
+      .regex(irishVRNRegex, "Invalid Irish vehicle registration"),
+    vin_number: z.string().length(17, "VIN must be 17 characters").optional(),
+    make: z.string().min(1).max(50),
+    model: z.string().min(1).max(50),
+    year: z
+      .number()
+      .min(1900)
+      .max(new Date().getFullYear() + 1),
+    engine_size: z.string().max(20).optional(),
+    fuel_type: z
+      .enum(["Petrol", "Diesel", "Electric", "Hybrid", "Other"])
+      .optional(),
+    nct_expiry_date: z.string().optional(),
+    motor_tax_expiry: z.string().optional(),
+    insurance_company: z.string().max(100).optional(),
+    insurance_policy_number: z.string().max(50).optional(),
+    current_mileage: z.number().min(0).optional(),
+    logbook_number: z.string().max(50).optional(),
+  }),
+});
 
-  // Irish Business Assets
-  [AssetType.IRISH_LIMITED_COMPANY_SHARES]: {
-    name: "Irish Limited Company Shares",
-    category: AssetCategory.BUSINESS,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏢",
-    description: "Shares in an Irish private limited company",
-    requiredFields: [
-      "cro_number",
-      "number_of_shares_business",
-      "percentage_ownership",
-    ],
-    optionalFields: [
-      "share_class_business",
-      "director_status",
-      "secretary_status",
-      "shareholder_agreement",
-      "articles_of_association",
-    ],
-    probateDocuments: [
-      "Share certificates",
-      "Articles of Association",
-      "Shareholder agreements",
-      "Company accounts",
-      "CRO certificate",
-    ],
-    taxImplications: [
-      "Capital gains tax",
-      "Business relief",
-      "Inheritance tax",
-      "Dividend tax",
-    ],
-  },
+export const JewelrySchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PersonalAssetType.JEWELRY),
+  category: z.literal(AssetCategory.PERSONAL),
+  specific_fields: z.object({
+    item_type: z.enum([
+      "Ring",
+      "Necklace",
+      "Bracelet",
+      "Watch",
+      "Earrings",
+      "Other",
+    ]),
+    material: z.string().max(100).optional(),
+    gemstones: z.string().max(255).optional(),
+    brand: z.string().max(100).optional(),
+    model: z.string().max(100).optional(),
+    serial_number: z.string().max(100).optional(),
+    appraisal_date: z.string().optional(),
+    appraiser_name: z.string().max(255).optional(),
+    insurance_coverage: z.number().min(0).optional(),
+  }),
+});
 
-  // Placeholder entries for other asset types (these would be fully implemented)
-  [AssetType.IRISH_BUILDING_SOCIETY]: {
-    name: "Irish Building Society",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏛️",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_INVESTMENT_ACCOUNT]: {
-    name: "Irish Investment Account",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📈",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_BONDS]: {
-    name: "Irish Bonds",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📜",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_OCCUPATIONAL_PENSION]: {
-    name: "Irish Occupational Pension",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏭",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_AVC]: {
-    name: "Irish AVC",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "➕",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_PERSONAL_PENSION]: {
-    name: "Irish Personal Pension",
-    category: AssetCategory.FINANCIAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "👤",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_COMMERCIAL_PROPERTY]: {
-    name: "Irish Commercial Property",
-    category: AssetCategory.PROPERTY,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏢",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_RENTAL_PROPERTY]: {
-    name: "Irish Rental Property",
-    category: AssetCategory.PROPERTY,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏘️",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_COMMERCIAL_VEHICLE]: {
-    name: "Irish Commercial Vehicle",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🚛",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_MOTORCYCLE]: {
-    name: "Irish Motorcycle",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🏍️",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_BOAT_VESSEL]: {
-    name: "Irish Boat/Vessel",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "⛵",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_SOLE_TRADER_BUSINESS]: {
-    name: "Irish Sole Trader Business",
-    category: AssetCategory.BUSINESS,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "👨‍💼",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_PARTNERSHIP_INTEREST]: {
-    name: "Irish Partnership Interest",
-    category: AssetCategory.BUSINESS,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🤝",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.IRISH_INTELLECTUAL_PROPERTY]: {
-    name: "Irish Intellectual Property",
-    category: AssetCategory.BUSINESS,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "💡",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.JEWELRY]: {
-    name: "Jewelry",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "💍",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.ART_COLLECTIBLES]: {
-    name: "Art & Collectibles",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🎨",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.FURNITURE_HOUSEHOLD]: {
-    name: "Furniture & Household Items",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🪑",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.ELECTRONICS]: {
-    name: "Electronics",
-    category: AssetCategory.PERSONAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📱",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.CRYPTOCURRENCY]: {
-    name: "Cryptocurrency",
-    category: AssetCategory.DIGITAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "₿",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.DIGITAL_CURRENCY]: {
-    name: "Digital Currency",
-    category: AssetCategory.DIGITAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "💰",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.ONLINE_ACCOUNTS]: {
-    name: "Online Accounts",
-    category: AssetCategory.DIGITAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🌐",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.DIGITAL_FILES]: {
-    name: "Digital Files",
-    category: AssetCategory.DIGITAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "📁",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-  [AssetType.DOMAIN_NAMES]: {
-    name: "Domain Names",
-    category: AssetCategory.DIGITAL,
-    jurisdiction: JurisdictionCode.IE,
-    icon: "🌍",
-    description: "",
-    requiredFields: [],
-    optionalFields: [],
-    probateDocuments: [],
-    taxImplications: [],
-  },
-};
+export const ArtCollectiblesSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PersonalAssetType.ART_COLLECTIBLES),
+  category: z.literal(AssetCategory.PERSONAL),
+  specific_fields: z.object({
+    item_type: z.enum([
+      "Painting",
+      "Sculpture",
+      "Photograph",
+      "Print",
+      "Antique",
+      "Collectible",
+      "Other",
+    ]),
+    artist_creator: z.string().max(255).optional(),
+    title_name: z.string().max(255).optional(),
+    year_created: z.number().min(1000).max(new Date().getFullYear()).optional(),
+    medium_material: z.string().max(255).optional(),
+    dimensions: z.string().max(100).optional(),
+    provenance: z.string().max(1000).optional(),
+    authentication_certificate: z.boolean().default(false),
+    appraisal_date: z.string().optional(),
+    appraiser_name: z.string().max(255).optional(),
+    condition: z
+      .enum(["Excellent", "Very Good", "Good", "Fair", "Poor"])
+      .optional(),
+    insurance_coverage: z.number().min(0).optional(),
+  }),
+});
+
+export const ElectronicsSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(PersonalAssetType.ELECTRONICS),
+  category: z.literal(AssetCategory.PERSONAL),
+  specific_fields: z.object({
+    item_type: z.enum([
+      "Computer",
+      "Laptop",
+      "Smartphone",
+      "Tablet",
+      "TV",
+      "Audio Equipment",
+      "Camera",
+      "Gaming Console",
+      "Other",
+    ]),
+    brand: z.string().max(100).optional(),
+    model: z.string().max(100).optional(),
+    serial_number: z.string().max(100).optional(),
+    year_purchased: z
+      .number()
+      .min(1990)
+      .max(new Date().getFullYear())
+      .optional(),
+    warranty_expiry: z.string().optional(),
+    condition: z.enum(["New", "Excellent", "Good", "Fair", "Poor"]).optional(),
+    original_receipt: z.boolean().default(false),
+  }),
+});
+
+// =====================================================
+// ADDITIONAL DIGITAL ASSET SCHEMAS
+// =====================================================
+
+export const DomainNamesSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(DigitalAssetType.DOMAIN_NAMES),
+  category: z.literal(AssetCategory.DIGITAL),
+  specific_fields: z.object({
+    domain_name: z.string().min(1, "Domain name is required").max(255),
+    registrar: z.string().max(100).optional(),
+    registration_date: z.string().optional(),
+    expiry_date: z.string().optional(),
+    auto_renewal: z.boolean().default(false),
+    hosting_provider: z.string().max(100).optional(),
+    annual_revenue: z.number().min(0).optional(),
+    monthly_traffic: z.number().min(0).optional(),
+    monetization_method: z
+      .enum([
+        "Advertising",
+        "E-commerce",
+        "Affiliate",
+        "Subscription",
+        "None",
+        "Other",
+      ])
+      .optional(),
+  }),
+});
+
+export const OnlineAccountsSchema = BaseAssetSchema.extend({
+  asset_type: z.literal(DigitalAssetType.ONLINE_ACCOUNTS),
+  category: z.literal(AssetCategory.DIGITAL),
+  specific_fields: z.object({
+    platform_name: z.string().min(1, "Platform name is required").max(100),
+    account_type: z.enum([
+      "Social Media",
+      "E-commerce",
+      "Professional",
+      "Gaming",
+      "Content Creation",
+      "Other",
+    ]),
+    username_handle: z.string().max(100).optional(),
+    follower_count: z.number().min(0).optional(),
+    verified_account: z.boolean().default(false),
+    monetization_enabled: z.boolean().default(false),
+    estimated_monthly_earnings: z.number().min(0).optional(),
+    content_ownership_rights: z.boolean().default(false),
+    account_recovery_details: z.string().max(500).optional(),
+  }),
+});
+
+// =====================================================
+// DISCRIMINATED UNION SCHEMA
+// =====================================================
+
+export const AssetFormSchema = z.discriminatedUnion("asset_type", [
+  // Financial Assets
+  IrishBankAccountSchema,
+  IndividualStockHoldingSchema,
+  CryptocurrencySchema,
+  IrishPRSASchema,
+
+  // Property Assets
+  IrishResidentialPropertySchema,
+  IrishCommercialPropertySchema,
+  IrishAgriculturalLandSchema,
+
+  // Business Assets
+  IrishCompanySharesSchema,
+  IrishSoleTraderBusinessSchema,
+  IrishIntellectualPropertySchema,
+
+  // Personal Assets
+  IrishMotorVehicleSchema,
+  JewelrySchema,
+  ArtCollectiblesSchema,
+  ElectronicsSchema,
+
+  // Digital Assets
+  DomainNamesSchema,
+  OnlineAccountsSchema,
+]);
+
+export type AssetFormData = z.infer<typeof AssetFormSchema>;
 
 // =====================================================
 // CATEGORY DEFINITIONS
@@ -882,17 +673,21 @@ export const AssetCategoryDefinitions = {
       "Bank accounts, investments, pensions, and financial instruments",
     icon: "💰",
     types: [
-      AssetType.IRISH_BANK_ACCOUNT,
-      AssetType.IRISH_CREDIT_UNION,
-      AssetType.IRISH_BUILDING_SOCIETY,
-      AssetType.IRISH_INVESTMENT_ACCOUNT,
-      AssetType.IRISH_SHARES_PORTFOLIO,
-      AssetType.IRISH_BONDS,
-      AssetType.IRISH_PRSA,
-      AssetType.IRISH_OCCUPATIONAL_PENSION,
-      AssetType.IRISH_ARF,
-      AssetType.IRISH_AVC,
-      AssetType.IRISH_PERSONAL_PENSION,
+      FinancialAssetType.IRISH_BANK_ACCOUNT,
+      FinancialAssetType.IRISH_CREDIT_UNION,
+      FinancialAssetType.IRISH_BUILDING_SOCIETY,
+      FinancialAssetType.IRISH_INVESTMENT_ACCOUNT,
+      FinancialAssetType.IRISH_SHARES_PORTFOLIO,
+      FinancialAssetType.INDIVIDUAL_STOCK_HOLDING,
+      FinancialAssetType.IRISH_BONDS,
+      FinancialAssetType.GOVERNMENT_BONDS,
+      FinancialAssetType.IRISH_PRSA,
+      FinancialAssetType.IRISH_OCCUPATIONAL_PENSION,
+      FinancialAssetType.IRISH_ARF,
+      FinancialAssetType.IRISH_AVC,
+      FinancialAssetType.IRISH_PERSONAL_PENSION,
+      FinancialAssetType.LIFE_INSURANCE,
+      FinancialAssetType.ENDOWMENT_POLICY,
     ],
   },
   [AssetCategory.PROPERTY]: {
@@ -900,124 +695,308 @@ export const AssetCategoryDefinitions = {
     description: "Real estate, land, and property investments in Ireland",
     icon: "🏠",
     types: [
-      AssetType.IRISH_RESIDENTIAL_PROPERTY,
-      AssetType.IRISH_COMMERCIAL_PROPERTY,
-      AssetType.IRISH_AGRICULTURAL_LAND,
-      AssetType.IRISH_RENTAL_PROPERTY,
-    ],
-  },
-  [AssetCategory.PERSONAL]: {
-    name: "Personal Property",
-    description: "Vehicles, jewelry, art, and personal belongings",
-    icon: "🚗",
-    types: [
-      AssetType.IRISH_MOTOR_VEHICLE,
-      AssetType.IRISH_COMMERCIAL_VEHICLE,
-      AssetType.IRISH_MOTORCYCLE,
-      AssetType.IRISH_BOAT_VESSEL,
-      AssetType.JEWELRY,
-      AssetType.ART_COLLECTIBLES,
-      AssetType.FURNITURE_HOUSEHOLD,
-      AssetType.ELECTRONICS,
+      PropertyAssetType.IRISH_RESIDENTIAL_PROPERTY,
+      PropertyAssetType.IRISH_COMMERCIAL_PROPERTY,
+      PropertyAssetType.IRISH_AGRICULTURAL_LAND,
+      PropertyAssetType.IRISH_RENTAL_PROPERTY,
     ],
   },
   [AssetCategory.BUSINESS]: {
     name: "Business Assets",
     description:
-      "Business interests, company shares, and commercial investments",
+      "Company shares, business interests, and intellectual property",
     icon: "🏢",
     types: [
-      AssetType.IRISH_LIMITED_COMPANY_SHARES,
-      AssetType.IRISH_SOLE_TRADER_BUSINESS,
-      AssetType.IRISH_PARTNERSHIP_INTEREST,
-      AssetType.IRISH_INTELLECTUAL_PROPERTY,
+      BusinessAssetType.IRISH_LIMITED_COMPANY_SHARES,
+      BusinessAssetType.IRISH_SOLE_TRADER_BUSINESS,
+      BusinessAssetType.IRISH_PARTNERSHIP_INTEREST,
+      BusinessAssetType.IRISH_INTELLECTUAL_PROPERTY,
+    ],
+  },
+  [AssetCategory.PERSONAL]: {
+    name: "Personal Property",
+    description: "Vehicles, jewelry, art, and personal belongings",
+    icon: "💎",
+    types: [
+      PersonalAssetType.IRISH_MOTOR_VEHICLE,
+      PersonalAssetType.IRISH_COMMERCIAL_VEHICLE,
+      PersonalAssetType.IRISH_MOTORCYCLE,
+      PersonalAssetType.IRISH_BOAT_VESSEL,
+      PersonalAssetType.JEWELRY,
+      PersonalAssetType.ART_COLLECTIBLES,
+      PersonalAssetType.FURNITURE_HOUSEHOLD,
+      PersonalAssetType.ELECTRONICS,
     ],
   },
   [AssetCategory.DIGITAL]: {
     name: "Digital Assets",
-    description: "Cryptocurrency, online accounts, and digital property",
+    description: "Cryptocurrency, digital files, and online assets",
     icon: "💻",
     types: [
-      AssetType.CRYPTOCURRENCY,
-      AssetType.DIGITAL_CURRENCY,
-      AssetType.ONLINE_ACCOUNTS,
-      AssetType.DIGITAL_FILES,
-      AssetType.DOMAIN_NAMES,
+      DigitalAssetType.CRYPTOCURRENCY,
+      DigitalAssetType.DIGITAL_CURRENCY,
+      DigitalAssetType.ONLINE_ACCOUNTS,
+      DigitalAssetType.DIGITAL_FILES,
+      DigitalAssetType.DOMAIN_NAMES,
     ],
   },
 };
 
 // =====================================================
-// VALIDATION SCHEMAS
+// TYPE DEFINITIONS WITH DESCRIPTIONS
 // =====================================================
 
-// IBAN validation for Ireland (IE + 2 check digits + 4 bank code + 6 sort code + 8 account number = 22 chars)
-const irishIBANRegex = /^IE[0-9]{2}[A-Z]{4}[0-9]{14}$/;
+export const AssetTypeDefinitions = {
+  // Financial Assets
+  [FinancialAssetType.IRISH_BANK_ACCOUNT]: {
+    name: "Bank Account",
+    category: AssetCategory.FINANCIAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🏦",
+    description:
+      "Current accounts, savings accounts, and deposits with Irish banks",
+    requiredFields: ["iban", "irish_bank_name", "irish_account_type"],
+    optionalFields: ["bic_swift", "sort_code", "branch_name"],
+  },
+  [FinancialAssetType.INDIVIDUAL_STOCK_HOLDING]: {
+    name: "Individual Stock Holding",
+    category: AssetCategory.FINANCIAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "📈",
+    description: "Individual shares in publicly traded companies",
+    requiredFields: [
+      "ticker_symbol",
+      "company_name",
+      "number_of_shares",
+      "stockbroker",
+    ],
+    optionalFields: ["isin_code", "share_class", "certificate_numbers"],
+  },
+  [FinancialAssetType.IRISH_PRSA]: {
+    name: "PRSA (Personal Retirement Savings Account)",
+    category: AssetCategory.FINANCIAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🏛️",
+    description:
+      "Personal retirement savings accounts with Irish pension providers",
+    requiredFields: ["pension_provider", "pension_number"],
+    optionalFields: [
+      "annual_contribution",
+      "fund_value",
+      "beneficiary_nominations",
+    ],
+  },
 
-// Irish Eircode validation (7 characters: 3 letters/digits + space + 4 characters)
-const eircodeRegex = /^[A-Z0-9]{3}\s?[A-Z0-9]{4}$/i;
+  // Property Assets
+  [PropertyAssetType.IRISH_RESIDENTIAL_PROPERTY]: {
+    name: "Residential Property",
+    category: AssetCategory.PROPERTY,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🏠",
+    description: "Houses, apartments, and residential real estate in Ireland",
+    requiredFields: ["eircode", "folio_number", "property_type"],
+    optionalFields: ["lpt_valuation", "ber_rating", "mortgage_lender"],
+  },
+  [PropertyAssetType.IRISH_COMMERCIAL_PROPERTY]: {
+    name: "Commercial Property",
+    category: AssetCategory.PROPERTY,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🏢",
+    description: "Office buildings, retail units, and commercial real estate",
+    requiredFields: ["eircode", "folio_number", "property_type"],
+    optionalFields: [
+      "annual_rental_income",
+      "tenant_details",
+      "rates_valuation",
+    ],
+  },
+  [PropertyAssetType.IRISH_AGRICULTURAL_LAND]: {
+    name: "Agricultural Land",
+    category: AssetCategory.PROPERTY,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🚜",
+    description: "Farmland, pasture, and agricultural property",
+    requiredFields: ["folio_number", "county", "acreage", "land_use"],
+    optionalFields: [
+      "eircode",
+      "soil_quality",
+      "single_farm_payment_entitlements",
+    ],
+  },
 
-// Irish VRN validation (various formats, but typically 3 digits + 1-2 letters + 1-4 digits)
-const irishVRNRegex = /^[0-9]{2,3}-[A-Z]{1,2}-[0-9]{1,6}$/;
+  // Business Assets
+  [BusinessAssetType.IRISH_LIMITED_COMPANY_SHARES]: {
+    name: "Company Shares",
+    category: AssetCategory.BUSINESS,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "📊",
+    description: "Shares in Irish limited companies",
+    requiredFields: ["cro_number", "company_name", "number_of_shares"],
+    optionalFields: ["share_class", "voting_rights", "director_status"],
+  },
+  [BusinessAssetType.IRISH_SOLE_TRADER_BUSINESS]: {
+    name: "Sole Trader Business",
+    category: AssetCategory.BUSINESS,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "👤",
+    description: "Individual trading businesses and sole proprietorships",
+    requiredFields: ["business_name"],
+    optionalFields: [
+      "tax_reference_number",
+      "annual_turnover",
+      "employees_count",
+    ],
+  },
+  [BusinessAssetType.IRISH_INTELLECTUAL_PROPERTY]: {
+    name: "Intellectual Property",
+    category: AssetCategory.BUSINESS,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "💡",
+    description:
+      "Patents, trademarks, copyrights, and intellectual property rights",
+    requiredFields: ["ip_type"],
+    optionalFields: ["registration_number", "expiry_date", "licensing_income"],
+  },
 
-export const IrishAssetFormSchema = z.object({
-  name: z.string().min(1, "Asset name is required").max(255, "Name too long"),
-  asset_type: z.nativeEnum(AssetType),
-  category: z.nativeEnum(AssetCategory),
-  jurisdiction: z.nativeEnum(JurisdictionCode),
-  value: z
-    .number()
-    .min(0, "Value must be positive")
-    .max(999999999, "Value too large"),
-  currency: z.nativeEnum(CurrencyCode).default(CurrencyCode.EUR),
-  description: z.string().max(1000, "Description too long").optional(),
+  // Personal Assets
+  [PersonalAssetType.IRISH_MOTOR_VEHICLE]: {
+    name: "Motor Vehicle",
+    category: AssetCategory.PERSONAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🚗",
+    description: "Cars, motorcycles, and other motor vehicles",
+    requiredFields: ["vehicle_registration_number", "make", "model", "year"],
+    optionalFields: ["vin_number", "engine_size", "nct_expiry_date"],
+  },
+  [PersonalAssetType.JEWELRY]: {
+    name: "Jewelry",
+    category: AssetCategory.PERSONAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "💎",
+    description: "Rings, watches, necklaces, and precious jewelry",
+    requiredFields: ["item_type"],
+    optionalFields: ["material", "brand", "serial_number", "appraisal_date"],
+  },
+  [PersonalAssetType.ART_COLLECTIBLES]: {
+    name: "Art & Collectibles",
+    category: AssetCategory.PERSONAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🎨",
+    description: "Paintings, sculptures, antiques, and valuable collectibles",
+    requiredFields: ["item_type"],
+    optionalFields: [
+      "artist_creator",
+      "year_created",
+      "authentication_certificate",
+    ],
+  },
+  [PersonalAssetType.ELECTRONICS]: {
+    name: "Electronics",
+    category: AssetCategory.PERSONAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "📱",
+    description: "Computers, smartphones, and electronic devices",
+    requiredFields: ["item_type"],
+    optionalFields: ["brand", "model", "serial_number", "warranty_expiry"],
+  },
 
-  irish_fields: z
-    .object({
-      // Bank account fields
-      iban: z
-        .string()
-        .regex(irishIBANRegex, "Invalid Irish IBAN format")
-        .optional(),
-      bic_swift: z.string().min(8).max(11).optional(),
-      irish_bank_name: z.nativeEnum(IrishBankName).optional(),
-      irish_account_type: z.nativeEnum(IrishAccountType).optional(),
-      joint_account: z.boolean().optional(),
+  // Digital Assets
+  [DigitalAssetType.CRYPTOCURRENCY]: {
+    name: "Cryptocurrency",
+    category: AssetCategory.DIGITAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "₿",
+    description: "Bitcoin, Ethereum, and other digital currencies",
+    requiredFields: ["cryptocurrency_type", "wallet_type"],
+    optionalFields: ["wallet_address", "exchange_name", "amount_held"],
+  },
+  [DigitalAssetType.DOMAIN_NAMES]: {
+    name: "Domain Names",
+    category: AssetCategory.DIGITAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "🌐",
+    description: "Website domains and online properties",
+    requiredFields: ["domain_name"],
+    optionalFields: ["registrar", "expiry_date", "annual_revenue"],
+  },
+  [DigitalAssetType.ONLINE_ACCOUNTS]: {
+    name: "Online Accounts",
+    category: AssetCategory.DIGITAL,
+    jurisdiction: JurisdictionCode.IE,
+    icon: "💻",
+    description:
+      "Social media accounts, content platforms, and digital businesses",
+    requiredFields: ["platform_name", "account_type"],
+    optionalFields: [
+      "follower_count",
+      "monetization_enabled",
+      "estimated_monthly_earnings",
+    ],
+  },
+};
 
-      // Property fields
-      eircode: z
-        .string()
-        .regex(eircodeRegex, "Invalid Eircode format")
-        .optional(),
-      folio_number: z.string().max(50).optional(),
-      property_type: z.nativeEnum(IrishPropertyType).optional(),
-      lpt_valuation: z.number().min(0).optional(),
+// =====================================================
+// HELPER FUNCTIONS
+// =====================================================
 
-      // Pension fields
-      pension_provider: z.nativeEnum(IrishPensionProvider).optional(),
-      pension_type: z.nativeEnum(IrishPensionType).optional(),
-      annual_contribution: z.number().min(0).optional(),
+export const getAssetTypesByCategory = (
+  category: AssetCategory,
+): AssetType[] => {
+  return AssetCategoryDefinitions[category]?.types || [];
+};
 
-      // Vehicle fields
-      vehicle_registration_number: z
-        .string()
-        .regex(irishVRNRegex, "Invalid Irish vehicle registration")
-        .optional(),
-      vin_number: z.string().length(17, "VIN must be 17 characters").optional(),
+export const getAssetTypeDefinition = (assetType: AssetType) => {
+  return AssetTypeDefinitions[assetType as keyof typeof AssetTypeDefinitions];
+};
 
-      // Business fields
-      cro_number: z.string().max(20).optional(),
-      percentage_ownership: z.number().min(0).max(100).optional(),
+export const getSchemaForAssetType = (assetType: AssetType) => {
+  switch (assetType) {
+    // Financial Assets
+    case FinancialAssetType.IRISH_BANK_ACCOUNT:
+      return IrishBankAccountSchema;
+    case FinancialAssetType.INDIVIDUAL_STOCK_HOLDING:
+      return IndividualStockHoldingSchema;
+    case FinancialAssetType.IRISH_PRSA:
+      return IrishPRSASchema;
 
-      // Other common fields
-      purchase_date: z.string().optional(),
-      purchase_price: z.number().min(0).optional(),
-    })
-    .optional(),
+    // Property Assets
+    case PropertyAssetType.IRISH_RESIDENTIAL_PROPERTY:
+      return IrishResidentialPropertySchema;
+    case PropertyAssetType.IRISH_COMMERCIAL_PROPERTY:
+      return IrishCommercialPropertySchema;
+    case PropertyAssetType.IRISH_AGRICULTURAL_LAND:
+      return IrishAgriculturalLandSchema;
 
-  // Additional metadata
-  notes: z.string().max(2000).optional(),
-});
+    // Business Assets
+    case BusinessAssetType.IRISH_LIMITED_COMPANY_SHARES:
+      return IrishCompanySharesSchema;
+    case BusinessAssetType.IRISH_SOLE_TRADER_BUSINESS:
+      return IrishSoleTraderBusinessSchema;
+    case BusinessAssetType.IRISH_INTELLECTUAL_PROPERTY:
+      return IrishIntellectualPropertySchema;
+
+    // Personal Assets
+    case PersonalAssetType.IRISH_MOTOR_VEHICLE:
+      return IrishMotorVehicleSchema;
+    case PersonalAssetType.JEWELRY:
+      return JewelrySchema;
+    case PersonalAssetType.ART_COLLECTIBLES:
+      return ArtCollectiblesSchema;
+    case PersonalAssetType.ELECTRONICS:
+      return ElectronicsSchema;
+
+    // Digital Assets
+    case DigitalAssetType.CRYPTOCURRENCY:
+      return CryptocurrencySchema;
+    case DigitalAssetType.DOMAIN_NAMES:
+      return DomainNamesSchema;
+    case DigitalAssetType.ONLINE_ACCOUNTS:
+      return OnlineAccountsSchema;
+
+    default:
+      throw new Error(`No schema defined for asset type: ${assetType}`);
+  }
+};
 
 // =====================================================
 // CURRENCY & FORMATTING
@@ -1036,8 +1015,6 @@ export const formatCurrency = (
   amount: number,
   currency: CurrencyCode = CurrencyCode.EUR,
 ): string => {
-  const currencyOption = CurrencyOptions.find((c) => c.value === currency);
-
   return new Intl.NumberFormat("en-IE", {
     style: "currency",
     currency: currency,
@@ -1047,43 +1024,92 @@ export const formatCurrency = (
 };
 
 // =====================================================
-// HELPER FUNCTIONS
+// LEGACY COMPATIBILITY
 // =====================================================
 
-export const getAssetCategoryFromType = (
-  assetType: AssetType,
-): AssetCategory => {
-  const typeDefinition = IrishAssetTypeDefinitions[assetType];
+// For backward compatibility with existing database schema
+export interface Asset {
+  id: string;
+  user_email: string;
+  name: string;
+  asset_type: string;
+  value: number;
+  description: string | null;
+  account_number: string | null;
+  bank_name: string | null;
+  property_address: string | null;
+  status: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+}
 
-  return typeDefinition?.category || AssetCategory.PERSONAL;
-};
+// Legacy interface for irish_fields compatibility
+export interface IrishAssetFields {
+  iban?: string;
+  bic_swift?: string;
+  irish_bank_name?: IrishBankName;
+  irish_account_type?: IrishAccountType;
+  eircode?: string;
+  property_type?: IrishPropertyType;
+  // Add other fields as needed for backward compatibility
+}
 
-export const getAssetTypesByCategory = (
-  category: AssetCategory,
-): AssetType[] => {
-  return AssetCategoryDefinitions[category]?.types || [];
-};
+// Legacy form data type for existing components
+export interface LegacyAssetFormData {
+  name: string;
+  asset_type: AssetType;
+  category: AssetCategory;
+  jurisdiction: JurisdictionCode;
+  value: number;
+  currency: CurrencyCode;
+  description?: string;
+  irish_fields?: IrishAssetFields;
+  notes?: string;
+}
 
-export const getAssetTypesByJurisdiction = (
-  jurisdiction: JurisdictionCode,
-): AssetType[] => {
-  return Object.entries(IrishAssetTypeDefinitions)
-    .filter(([_, config]) => config.jurisdiction === jurisdiction)
-    .map(([type, _]) => type as AssetType);
-};
-
-export const isIrishAssetType = (assetType: AssetType): boolean => {
-  return (
-    IrishAssetTypeDefinitions[assetType]?.jurisdiction === JurisdictionCode.IE
-  );
-};
-
-// =====================================================
-// TYPE EXPORTS
-// =====================================================
+// Legacy alias - will be deprecated
+export const IrishAssetFormSchema = z.object({
+  name: z.string().min(1, "Asset name is required").max(255, "Name too long"),
+  asset_type: z.union([
+    z.nativeEnum(FinancialAssetType),
+    z.nativeEnum(PropertyAssetType),
+    z.nativeEnum(BusinessAssetType),
+    z.nativeEnum(PersonalAssetType),
+    z.nativeEnum(DigitalAssetType),
+  ]),
+  category: z.nativeEnum(AssetCategory),
+  jurisdiction: z.nativeEnum(JurisdictionCode).default(JurisdictionCode.IE),
+  value: z
+    .number()
+    .min(0, "Value must be positive")
+    .max(999999999, "Value too large"),
+  currency: z.nativeEnum(CurrencyCode).default(CurrencyCode.EUR),
+  description: z.string().max(1000, "Description too long").optional(),
+  irish_fields: z
+    .object({
+      iban: z.string().optional(),
+      bic_swift: z.string().optional(),
+      irish_bank_name: z.nativeEnum(IrishBankName).optional(),
+      irish_account_type: z.nativeEnum(IrishAccountType).optional(),
+      eircode: z.string().optional(),
+      property_type: z.nativeEnum(IrishPropertyType).optional(),
+    })
+    .optional(),
+  notes: z.string().max(2000).optional(),
+});
 
 export type AssetFormDataType = z.infer<typeof IrishAssetFormSchema>;
-export type NewAsset = Omit<Asset, "id" | "created_at" | "updated_at">;
-export type AssetUpdate = Partial<
-  Omit<Asset, "id" | "user_email" | "created_at" | "updated_at">
->;
+
+// Alias for backward compatibility
+export const IrishAssetTypeDefinitions = AssetTypeDefinitions;
+
+// Helper to get all asset type values
+export const getAllAssetTypes = (): AssetType[] => {
+  return [
+    ...Object.values(FinancialAssetType),
+    ...Object.values(PropertyAssetType),
+    ...Object.values(BusinessAssetType),
+    ...Object.values(PersonalAssetType),
+    ...Object.values(DigitalAssetType),
+  ];
+};

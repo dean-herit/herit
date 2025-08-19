@@ -108,7 +108,7 @@ export default function AssetsPage() {
   };
 
   const handleAddAsset = () => {
-    router.push("/assets/add-v2");
+    router.push("/assets/add");
   };
 
   const getAssetTypeDisplay = (assetType: string) => {
@@ -146,14 +146,6 @@ export default function AssetsPage() {
             onPress={handleAddAsset}
           >
             Add Asset
-          </Button>
-          <Button
-            color="default"
-            variant="bordered"
-            startContent={<PlusIcon className="h-4 w-4" />}
-            onPress={() => router.push("/assets/add")}
-          >
-            Add Asset (Legacy)
           </Button>
         </div>
       </div>
@@ -308,14 +300,6 @@ export default function AssetsPage() {
                   {searchTerm || selectedCategory
                     ? "Add Asset"
                     : "Add Your First Asset"}
-                </Button>
-                <Button
-                  color="default"
-                  variant="bordered"
-                  startContent={<PlusIcon className="h-4 w-4" />}
-                  onPress={() => router.push("/assets/add")}
-                >
-                  Add Asset (Legacy)
                 </Button>
               </div>
             </div>

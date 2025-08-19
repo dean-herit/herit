@@ -4,8 +4,11 @@ import { eq, desc, asc, like, and, or } from "drizzle-orm";
 import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
-import { IrishAssetFormSchema, AssetCategory, AssetType } from "@/types/assets";
-import { AssetFormSchema } from "@/types/assets-v2";
+import {
+  AssetFormSchema,
+  AssetCategory,
+  getAllAssetTypes,
+} from "@/types/assets";
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
 
     // Add category filter (derived from asset_type)
     if (category) {
-      const categoryTypes = Object.values(AssetType).filter((type) => {
+      const categoryTypes = getAllAssetTypes().filter((type) => {
         // This would need to be enhanced with proper category mapping
         return type.includes(category.toLowerCase());
       });
@@ -243,54 +246,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fall back to V1 schema (legacy)
-    const v1ValidationResult = IrishAssetFormSchema.safeParse(body);
-
-    if (!v1ValidationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          details: {
-            v2_errors: v2ValidationResult.error.flatten().fieldErrors,
-            v1_errors: v1ValidationResult.error.flatten().fieldErrors,
-          },
-        },
-        { status: 400 },
-      );
-    }
-
-    const assetData = v1ValidationResult.data;
-
-    // Create asset in database (legacy V1 approach)
-    const newAsset = await db
-      .insert(assets)
-      .values({
-        user_email: session.user.email,
-        name: assetData.name,
-        asset_type: assetData.asset_type,
-        value: assetData.value,
-        description: assetData.description,
-        account_number: assetData.irish_fields?.iban || null,
-        bank_name: assetData.irish_fields?.irish_bank_name || null,
-        property_address: assetData.irish_fields?.eircode
-          ? `${assetData.irish_fields.eircode}, ${assetData.irish_fields.property_type || ""}`
-          : null,
-        status: "active",
-      })
-      .returning();
-
-    console.log(
-      `V1 Asset created: ${newAsset[0].id} by user ${session.user.email}`,
-    );
-
+    // Fallback error response
     return NextResponse.json(
       {
-        success: true,
-        message: "Asset created successfully (V1 Schema)",
-        data: newAsset[0],
-        schema_version: "v1",
+        error: "Validation failed",
+        details: v2ValidationResult.error.flatten().fieldErrors,
       },
-      { status: 201 },
+      { status: 400 },
     );
   } catch (error) {
     console.error("Asset creation error:", error);
