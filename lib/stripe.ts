@@ -22,30 +22,83 @@ export class StripeIdentityService {
       type?: "document" | "id_number";
       metadata?: Record<string, string>;
     },
+    retries: number = 3,
   ): Promise<Stripe.Identity.VerificationSession> {
-    try {
-      const session = await stripe.identity.verificationSessions.create({
-        type: options?.type || "document",
-        metadata: {
-          user_id: userId,
-          ...options?.metadata,
-        },
-        return_url: returnUrl,
-        options: {
-          document: {
-            allowed_types: ["driving_license", "passport", "id_card"],
-            require_id_number: true,
-            require_live_capture: true,
-            require_matching_selfie: true,
-          },
-        },
-      });
+    let lastError: Error | null = null;
 
-      return session;
-    } catch (error) {
-      console.error("Error creating Stripe verification session:", error);
-      throw new Error("Failed to create verification session");
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(
+          `Attempting to create Stripe verification session (attempt ${attempt}/${retries})`,
+          {
+            userId,
+            returnUrl,
+            type: options?.type || "document",
+          },
+        );
+
+        const session = await stripe.identity.verificationSessions.create({
+          type: options?.type || "document",
+          metadata: {
+            user_id: userId,
+            ...options?.metadata,
+          },
+          return_url: returnUrl,
+          options: {
+            document: {
+              allowed_types: ["driving_license", "passport", "id_card"],
+              require_id_number: true,
+              require_live_capture: true,
+              require_matching_selfie: true,
+            },
+          },
+        });
+
+        console.log(
+          `Successfully created Stripe verification session on attempt ${attempt}`,
+          {
+            sessionId: session.id,
+            status: session.status,
+            hasUrl: !!session.url,
+          },
+        );
+
+        return session;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error("Unknown error");
+        console.error(
+          `Error creating verification session (attempt ${attempt}/${retries}):`,
+          error,
+          {
+            userId,
+            errorType: error instanceof Error ? error.name : "Unknown",
+            errorMessage:
+              error instanceof Error ? error.message : "Unknown error",
+          },
+        );
+
+        // Don't retry on client errors that are permanent
+        if (
+          error instanceof Error &&
+          error.message.includes("rate_limit") === false &&
+          error.message.includes("temporary") === false
+        ) {
+          // For non-retryable errors, still wait and retry as they might be transient
+        }
+
+        // Wait before retrying (exponential backoff)
+        if (attempt < retries) {
+          const waitTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
+
+          console.log(`Waiting ${waitTime}ms before retry`);
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
     }
+
+    throw new Error(
+      `Failed to create verification session after ${retries} attempts: ${lastError?.message}`,
+    );
   }
 
   /**
@@ -53,16 +106,63 @@ export class StripeIdentityService {
    */
   static async getVerificationSession(
     sessionId: string,
+    retries: number = 3,
   ): Promise<Stripe.Identity.VerificationSession> {
-    try {
-      const session =
-        await stripe.identity.verificationSessions.retrieve(sessionId);
+    let lastError: Error | null = null;
 
-      return session;
-    } catch (error) {
-      console.error("Error retrieving verification session:", error);
-      throw new Error("Failed to retrieve verification session");
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(
+          `Attempting to retrieve Stripe session (attempt ${attempt}/${retries})`,
+          {
+            sessionId,
+          },
+        );
+
+        const session =
+          await stripe.identity.verificationSessions.retrieve(sessionId);
+
+        console.log(
+          `Successfully retrieved Stripe session on attempt ${attempt}`,
+          {
+            sessionId: session.id,
+            status: session.status,
+          },
+        );
+
+        return session;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error("Unknown error");
+        console.error(
+          `Error retrieving verification session (attempt ${attempt}/${retries}):`,
+          error,
+          {
+            sessionId,
+            errorType: error instanceof Error ? error.name : "Unknown",
+            errorMessage:
+              error instanceof Error ? error.message : "Unknown error",
+          },
+        );
+
+        // Don't retry on client errors (4xx)
+        if (error instanceof Error && error.message.includes("No such")) {
+          console.log("Session not found, not retrying");
+          break;
+        }
+
+        // Wait before retrying (exponential backoff)
+        if (attempt < retries) {
+          const waitTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
+
+          console.log(`Waiting ${waitTime}ms before retry`);
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
     }
+
+    throw new Error(
+      `Failed to retrieve verification session after ${retries} attempts: ${lastError?.message}`,
+    );
   }
 
   /**

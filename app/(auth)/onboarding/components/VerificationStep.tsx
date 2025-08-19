@@ -56,16 +56,39 @@ export function VerificationStep({
   }, []);
 
   const fetchVerificationStatus = async () => {
+    console.log("VerificationStep.fetchVerificationStatus - Fetching status");
     setCheckingStatus(true);
+
     try {
       const response = await fetch("/api/onboarding/verification");
 
       if (response.ok) {
         const data = await response.json();
 
+        console.log(
+          "VerificationStep.fetchVerificationStatus - Status fetched",
+          {
+            verification: data.verification,
+            completed: data.verification?.completed,
+            status: data.verification?.status,
+            stripeStatus: data.verification?.stripeStatus?.status,
+          },
+        );
+
         setVerificationData(data.verification);
+      } else {
+        const errorData = await response.json();
+
+        console.error(
+          "VerificationStep.fetchVerificationStatus - API error",
+          errorData,
+        );
       }
     } catch (error) {
+      console.error(
+        "VerificationStep.fetchVerificationStatus - Network error",
+        error,
+      );
     } finally {
       setCheckingStatus(false);
     }
@@ -111,23 +134,13 @@ export function VerificationStep({
   };
 
   const handleComplete = async () => {
+    console.log(
+      "VerificationStep.handleComplete - Starting completion process",
+    );
+
     try {
-      // First ensure verification is marked complete
-      const verificationResponse = await fetch("/api/onboarding/verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          verificationMethod: "complete",
-        }),
-      });
-
-      if (!verificationResponse.ok) {
-        throw new Error("Failed to complete verification");
-      }
-
-      // Then call the completion endpoint
+      // Call the completion endpoint directly
+      // The verification should already be marked as complete by webhook or status polling
       const completionResponse = await fetch("/api/onboarding/complete", {
         method: "POST",
         headers: {
@@ -138,6 +151,11 @@ export function VerificationStep({
       if (completionResponse.ok) {
         const data = await completionResponse.json();
 
+        console.log(
+          "VerificationStep.handleComplete - Completion successful",
+          data,
+        );
+
         // Redirect to dashboard
         window.location.href = "/dashboard";
 
@@ -145,14 +163,21 @@ export function VerificationStep({
       } else {
         const errorData = await completionResponse.json();
 
-        if (errorData.completionStatus) {
-        }
+        console.error(
+          "VerificationStep.handleComplete - Completion failed",
+          errorData,
+        );
 
         // Fallback to onboarding completion callback
         onComplete({ verificationCompleted: true });
       }
     } catch (error) {
-      onComplete({ verificationCompleted: true }); // Still proceed
+      console.error(
+        "VerificationStep.handleComplete - Error during completion",
+        error,
+      );
+      // Still proceed to avoid blocking user
+      onComplete({ verificationCompleted: true });
     }
   };
 

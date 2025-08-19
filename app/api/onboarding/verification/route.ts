@@ -11,11 +11,18 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
 
     if (!session.isAuthenticated) {
+      console.log("GET /api/onboarding/verification - Authentication required");
+
       return NextResponse.json(
         { error: "Authentication required" },
         { status: 401 },
       );
     }
+
+    console.log("GET /api/onboarding/verification - Fetching status for user", {
+      userId: session.user.id,
+      userEmail: session.user.email,
+    });
 
     // Get user's verification status
     const user = await db
@@ -30,10 +37,22 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (user.length === 0) {
+      console.error("GET /api/onboarding/verification - User not found", {
+        userId: session.user.id,
+      });
+
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const userData = user[0];
+
+    console.log("GET /api/onboarding/verification - User verification data", {
+      userId: session.user.id,
+      sessionId: userData.verification_session_id,
+      status: userData.verification_status,
+      completed: userData.verification_completed,
+      completedAt: userData.verification_completed_at,
+    });
 
     // If there's a Stripe session, check its current status
     let stripeStatus = null;
@@ -42,6 +61,13 @@ export async function GET(request: NextRequest) {
       userData.verification_session_id &&
       userData.verification_session_id.startsWith("vs_")
     ) {
+      console.log(
+        "GET /api/onboarding/verification - Fetching Stripe session status",
+        {
+          sessionId: userData.verification_session_id,
+        },
+      );
+
       try {
         const stripeSession =
           await StripeIdentityService.getVerificationSession(
@@ -54,8 +80,21 @@ export async function GET(request: NextRequest) {
           url: stripeSession.url,
           lastError: stripeSession.last_error,
         };
+
+        console.log(
+          "GET /api/onboarding/verification - Stripe session fetched",
+          {
+            sessionId: stripeSession.id,
+            status: stripeSession.status,
+            hasError: !!stripeSession.last_error,
+            errorType: stripeSession.last_error?.code,
+          },
+        );
       } catch (error) {
-        console.error("Error fetching Stripe verification session:", error);
+        console.error("Error fetching Stripe verification session:", error, {
+          sessionId: userData.verification_session_id,
+          userId: session.user.id,
+        });
       }
     }
 
@@ -108,15 +147,33 @@ export async function POST(request: NextRequest) {
     // Handle different verification methods
     if (verificationMethod === "stripe_identity") {
       try {
+        // Construct production-safe return URL
+        const baseUrl =
+          process.env.NEXTAUTH_URL || process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : "http://localhost:3000";
+
+        const safeReturnUrl =
+          returnUrl || `${baseUrl}/onboarding?step=3&verification=complete`;
+
+        console.log("Creating Stripe verification session", {
+          userId: session.user.id,
+          userEmail: session.user.email,
+          returnUrl: safeReturnUrl,
+          baseUrl,
+          vercelUrl: process.env.VERCEL_URL,
+          nextAuthUrl: process.env.NEXTAUTH_URL,
+        });
+
         // Create real Stripe Identity verification session
         const stripeSession =
           await StripeIdentityService.createVerificationSession(
             session.user.id,
-            returnUrl ||
-              `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/onboarding?step=3&verification=complete`,
+            safeReturnUrl,
             {
               metadata: {
                 user_email: session.user.email,
+                user_id: session.user.id, // Ensure user_id is in metadata
                 created_via: "onboarding",
               },
             },
@@ -125,11 +182,27 @@ export async function POST(request: NextRequest) {
         verificationSessionId = stripeSession.id;
         verificationStatus = stripeSession.status;
         verificationUrl = stripeSession.url;
+
+        console.log("Stripe verification session created successfully", {
+          sessionId: stripeSession.id,
+          status: stripeSession.status,
+          hasUrl: !!stripeSession.url,
+          userId: session.user.id,
+        });
       } catch (error) {
-        console.error("Stripe verification session creation failed:", error);
+        console.error("Stripe verification session creation failed:", error, {
+          userId: session.user.id,
+          userEmail: session.user.email,
+          returnUrl: returnUrl,
+          errorMessage:
+            error instanceof Error ? error.message : "Unknown error",
+        });
 
         return NextResponse.json(
-          { error: "Failed to create verification session" },
+          {
+            error: "Failed to create verification session",
+            details: error instanceof Error ? error.message : "Unknown error",
+          },
           { status: 500 },
         );
       }
