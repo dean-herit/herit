@@ -13,6 +13,8 @@ import {
   SelectItem,
   Divider,
   Progress,
+  Tabs,
+  Tab,
 } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeftIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
@@ -30,6 +32,7 @@ import {
   formatCurrency,
 } from "@/types/assets";
 import { Asset } from "@/db/schema";
+import DocumentManager from "@/components/documents/DocumentManager";
 
 export default function EditAssetPage() {
   const router = useRouter();
@@ -48,6 +51,7 @@ export default function EditAssetPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [asset, setAsset] = useState<Asset | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("details");
 
   // Steps in the form
   const steps = [
@@ -481,7 +485,7 @@ export default function EditAssetPage() {
         <div className="text-center py-12">
           <h3 className="text-lg font-semibold mb-2">Asset not found</h3>
           <p className="text-default-600 mb-6">
-            The asset you're looking for doesn't exist or you don't have
+            The asset you&apos;re looking for doesn&apos;t exist or you don&apos;t have
             permission to edit it.
           </p>
           <Button color="primary" onPress={() => router.push("/assets")}>
@@ -615,6 +619,25 @@ export default function EditAssetPage() {
           </div>
         </CardBody>
       </Card>
+
+      {/* Documents Section */}
+      {asset && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-lg font-semibold">Documents</h3>
+            <p className="text-sm text-default-600">
+              Manage supporting documents for this asset
+            </p>
+          </CardHeader>
+          <Divider />
+          <CardBody>
+            <DocumentManager
+              assetId={assetId}
+              assetType={asset.asset_type || ""}
+            />
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 }

@@ -106,13 +106,21 @@ export async function GET(request: NextRequest) {
     const totalCount = totalCountResult.length;
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Calculate summary statistics
-    const totalValue = userAssets.reduce(
+    // Calculate summary statistics from ALL user assets (not just paginated results)
+    const allUserAssets = await db
+      .select({
+        value: assets.value,
+        asset_type: assets.asset_type,
+      })
+      .from(assets)
+      .where(eq(assets.user_email, session.user.email));
+
+    const totalValue = allUserAssets.reduce(
       (sum, asset) => sum + (asset.value || 0),
       0,
     );
-    const assetCount = userAssets.length;
-    const categoryBreakdown = userAssets.reduce(
+    const assetCount = allUserAssets.length;
+    const categoryBreakdown = allUserAssets.reduce(
       (acc, asset) => {
         const category = getCategoryFromAssetType(asset.asset_type);
 

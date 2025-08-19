@@ -331,6 +331,7 @@ export async function getSession(): Promise<SessionResult> {
         .where(eq(users.id, payload.userId))
         .limit(1);
 
+
       if (user) {
         // Determine onboarding completion based on all required steps
         const onboarding_completed = !!(
@@ -356,7 +357,7 @@ export async function getSession(): Promise<SessionResult> {
         };
       }
     } catch (dbError) {
-      console.warn("Database error in getSession, using fallback:", dbError);
+      console.error("Database error in getSession:", dbError);
     }
 
     // Fallback: return user data from JWT payload for OAuth users or development

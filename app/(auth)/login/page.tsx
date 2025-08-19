@@ -185,7 +185,7 @@ export default function LoginPage() {
         </div>
         <p className="text-small text-center text-white">
           Need to create an account?&nbsp;
-          <Link className="text-white underline" href="/onboarding" size="sm">
+          <Link className="text-white underline" href="/signup" size="sm">
             Sign Up
           </Link>
         </p>

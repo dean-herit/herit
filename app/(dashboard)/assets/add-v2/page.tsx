@@ -45,6 +45,8 @@ import {
   CryptoWalletType,
 } from "@/types/assets-v2";
 
+import DocumentUploadZone from "@/components/documents/DocumentUploadZone";
+
 // Create a more flexible form state type
 type FormState = {
   name?: string;
@@ -69,6 +71,7 @@ export default function AddAssetV2Page() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [createdAssetId, setCreatedAssetId] = useState<string | null>(null);
 
   // Steps in the form
   const steps = [
@@ -80,6 +83,7 @@ export default function AddAssetV2Page() {
     { id: "type", name: "Asset Type", description: "Select the specific type" },
     { id: "details", name: "Details", description: "Tell us about your asset" },
     { id: "value", name: "Value", description: "How much is it worth?" },
+    { id: "documents", name: "Documents", description: "Upload supporting documents (optional)" },
     { id: "review", name: "Review", description: "Review and confirm" },
   ];
 
@@ -149,17 +153,40 @@ export default function AddAssetV2Page() {
     return Object.keys(stepErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    console.log("handleNext called, currentStep:", currentStep);
+    console.log("validateCurrentStep result:", validateCurrentStep());
+    
     if (validateCurrentStep()) {
-      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+      // If moving to documents step (step 4), create the asset first
+      if (currentStep === 3 && !createdAssetId) {
+        console.log("Moving to documents step, creating asset first...");
+        console.log("createdAssetId is:", createdAssetId);
+        try {
+          const assetId = await createAsset();
+          console.log("Asset created with ID:", assetId);
+          // Only move to next step if asset was created successfully
+          if (assetId) {
+            setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+          } else {
+            console.log("Asset ID was null, not advancing");
+          }
+        } catch (error) {
+          console.error("Failed to create asset before documents step:", error);
+          // Don't advance to next step if asset creation failed
+          return;
+        }
+      } else {
+        console.log("Moving to next step without creating asset");
+        setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+      }
+    } else {
+      console.log("Validation failed, not proceeding");
     }
   };
 
-  const handlePrevious = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleSubmit = async () => {
+  const createAsset = async () => {
+    console.log("createAsset called with formData:", formData);
     try {
       setIsLoading(true);
 
@@ -167,7 +194,14 @@ export default function AddAssetV2Page() {
       const validationResult = AssetFormSchema.safeParse(formData);
 
       if (!validationResult.success) {
+        console.error("Validation failed!");
+        console.error("Validation errors:", validationResult.error.flatten());
+        console.error("Form data that failed:", formData);
+        console.error("Specific fields content:", formData.specific_fields);
+        
         const fieldErrors = validationResult.error.flatten().fieldErrors;
+        console.error("Field errors specifically:", fieldErrors);
+        
         const errorMap: Record<string, string> = {};
 
         Object.entries(fieldErrors).forEach(([field, messages]) => {
@@ -176,48 +210,81 @@ export default function AddAssetV2Page() {
           }
         });
 
+        console.error("Error map:", errorMap);
         setErrors(errorMap);
-
-        return;
+        
+        // Show detailed error to user
+        const errorDetails = Object.keys(errorMap).length > 0 
+          ? Object.entries(errorMap).map(([field, error]) => `- ${field}: ${error}`).join('\n')
+          : "Unknown validation error - check console for details";
+        alert(`Validation failed. Please check:\n${errorDetails}`);
+        
+        setIsLoading(false);
+        return null;
       }
 
+      console.log("✅ Validation successful!");
       console.log("Validated form data:", validationResult.data);
 
       // Send to API endpoint
+      console.log("Sending POST request to /api/assets...");
       const response = await fetch("/api/assets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validationResult.data),
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (response.ok) {
         const result = await response.json();
-
-        console.log("Asset created successfully:", result);
-        router.push("/assets");
+        console.log("✅ Asset created successfully:", result);
+        console.log("Result structure:", result);
+        
+        // The API returns {data: {id: ...}} structure
+        const assetId = result.data?.id || result.id;
+        console.log("Asset ID:", assetId);
+        setCreatedAssetId(assetId);
+        setIsLoading(false);
+        return assetId;
       } else {
         const error = await response.json();
-
-        console.error("Failed to create asset:", error);
-
-        // Extract validation errors if present
-        if (error.details) {
-          const errorMap: Record<string, string> = {};
-
-          // Check both V2 and V1 error details
-          const errorDetails = error.details.v2_errors || error.details;
-
-          Object.entries(errorDetails).forEach(([field, messages]) => {
-            if (messages && Array.isArray(messages) && messages.length > 0) {
-              errorMap[field] = messages[0];
-            }
-          });
-
-          setErrors(errorMap);
-        }
+        console.error("❌ Failed to create asset:", error);
+        alert(`Failed to create asset: ${error.message || 'Unknown error'}`);
+        setIsLoading(false);
+        return null;
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("❌ Asset creation error:", error);
+      alert(`Error creating asset: ${error}`);
+      setIsLoading(false);
+      return null;
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = async () => {
+    console.log("=== handleSubmit called ===");
+    console.log("Current step:", currentStep);
+    console.log("Total steps:", steps.length);
+    
+    try {
+      setIsLoading(true);
+
+      // If we haven't created the asset yet, create it now
+      if (!createdAssetId) {
+        await createAsset();
+      }
+
+      // Redirect to assets page
+      router.push("/assets");
+    } catch (error) {
+      console.error("❌ Final submission error:", error);
+      alert(`Error completing asset creation: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -246,7 +313,7 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("irish_bank_name", value);
               }}
             >
-              {Object.entries(IrishBankName).map(([key, value]) => (
+              {Object.entries(IrishBankName).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
@@ -274,7 +341,7 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("irish_account_type", value);
               }}
             >
-              {Object.entries(IrishAccountType).map(([key, value]) => (
+              {Object.entries(IrishAccountType).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
@@ -329,7 +396,7 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("stockbroker", value);
               }}
             >
-              {Object.entries(IrishStockbroker).map(([key, value]) => (
+              {Object.entries(IrishStockbroker).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
@@ -382,9 +449,34 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("property_type", value);
               }}
             >
-              {Object.entries(IrishPropertyType).map(([key, value]) => (
+              {Object.entries(IrishPropertyType).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
+            </Select>
+
+            <Input
+              isRequired
+              label="County"
+              placeholder="e.g., Dublin, Cork, Galway"
+              value={specificFields.county || ""}
+              onValueChange={(value) =>
+                handleSpecificFieldChange("county", value)
+              }
+            />
+
+            <Select
+              isRequired
+              label="Title Type"
+              selectedKeys={
+                specificFields.title_type ? [specificFields.title_type] : []
+              }
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0] as string;
+                handleSpecificFieldChange("title_type", value);
+              }}
+            >
+              <SelectItem key="F">Freehold</SelectItem>
+              <SelectItem key="L">Leasehold</SelectItem>
             </Select>
 
             <Input
@@ -418,7 +510,7 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("cryptocurrency_type", value);
               }}
             >
-              {Object.entries(CryptocurrencyType).map(([key, value]) => (
+              {Object.entries(CryptocurrencyType).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
@@ -435,7 +527,7 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("wallet_type", value);
               }}
             >
-              {Object.entries(CryptoWalletType).map(([key, value]) => (
+              {Object.entries(CryptoWalletType).map(([_key, value]) => (
                 <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
@@ -679,7 +771,45 @@ export default function AddAssetV2Page() {
           </div>
         );
 
-      case 4: // Review
+      case 4: // Documents
+        return (
+          <div className="space-y-6">
+            {createdAssetId ? (
+              <div>
+                <div className="mb-4 p-4 bg-success-50 border border-success-200 rounded-lg">
+                  <p className="text-success-700">
+                    ✅ Asset created successfully! You can now upload supporting documents.
+                  </p>
+                </div>
+                <DocumentUploadZone
+                  assetId={createdAssetId}
+                  assetType={formData.asset_type || ""}
+                  onUploadComplete={(documentId) => {
+                    console.log("Document uploaded:", documentId);
+                  }}
+                  onError={(error) => {
+                    console.error("Upload error:", error);
+                    alert(`Upload error: ${error}`);
+                  }}
+                  maxFiles={10}
+                />
+                <div className="mt-4 p-4 bg-default-50 rounded-lg">
+                  <p className="text-sm text-default-600">
+                    📝 <strong>Tip:</strong> Uploading documents now will help with estate planning and probate processes later. You can always add more documents from the asset details page.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-8">
+                <div className="animate-pulse">
+                  <p className="text-default-600">Creating your asset...</p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 5: // Review
         const typeDef = formData.asset_type
           ? getAssetTypeDefinition(formData.asset_type)
           : null;
@@ -871,13 +1001,31 @@ export default function AddAssetV2Page() {
                 (currentStep === 1 && !formData.asset_type) ||
                 (currentStep === 2 && !formData.name) ||
                 (currentStep === 3 && (!formData.value || formData.value <= 0))
+                // Documents step (4) and review step (5) don't need validation
               }
               isLoading={isLoading}
-              onPress={
-                currentStep === steps.length - 1 ? handleSubmit : handleNext
-              }
+              onPress={() => {
+                console.log("=== BUTTON PRESSED (onPress) ===");
+                console.log("Current step:", currentStep);
+                console.log("Form data value:", formData.value);
+                console.log("Is loading:", isLoading);
+                console.log("Steps length:", steps.length);
+                
+                try {
+                  if (currentStep === steps.length - 1) {
+                    console.log("On last step, calling handleSubmit...");
+                    handleSubmit();
+                  } else {
+                    console.log(`Not on last step (${currentStep} of ${steps.length - 1}), calling handleNext...`);
+                    handleNext();
+                  }
+                } catch (error) {
+                  console.error("Error in button onPress:", error);
+                  alert(`Error: ${error}`);
+                }
+              }}
             >
-              {currentStep === steps.length - 1 ? "Create Asset" : "Next"}
+              {currentStep === steps.length - 1 ? "Complete" : "Next"}
             </Button>
           </div>
         </CardBody>

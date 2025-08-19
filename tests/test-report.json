@@ -1,0 +1,116 @@
+{
+  "timestamp": "2025-08-19T15:36:37.205Z",
+  "summary": {
+    "total": 7,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 7
+  },
+  "details": [
+    {
+      "componentId": "dashboard-client",
+      "category": "business",
+      "priority": "high",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"dashboard-client\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:35:32.403Z",
+      "endTime": "2025-08-19T15:35:41.007Z",
+      "duration": 8604
+    },
+    {
+      "componentId": "nav-bar",
+      "category": "navigation",
+      "priority": "high",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"nav-bar\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:35:41.007Z",
+      "endTime": "2025-08-19T15:35:48.709Z",
+      "duration": 7702
+    },
+    {
+      "componentId": "asset-form",
+      "category": "input",
+      "priority": "high",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"asset-form\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:35:48.709Z",
+      "endTime": "2025-08-19T15:35:58.183Z",
+      "duration": 9474
+    },
+    {
+      "componentId": "asset-card",
+      "category": "data-display",
+      "priority": "medium",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"asset-card\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:35:58.183Z",
+      "endTime": "2025-08-19T15:36:07.264Z",
+      "duration": 9081
+    },
+    {
+      "componentId": "beneficiary-form",
+      "category": "input",
+      "priority": "medium",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"beneficiary-form\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:36:07.264Z",
+      "endTime": "2025-08-19T15:36:14.264Z",
+      "duration": 7000
+    },
+    {
+      "componentId": "step-indicator",
+      "category": "ui",
+      "priority": "medium",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"step-indicator\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:36:14.264Z",
+      "endTime": "2025-08-19T15:36:22.015Z",
+      "duration": 7751
+    },
+    {
+      "componentId": "logo-component",
+      "category": "ui",
+      "priority": "low",
+      "tests": [
+        {
+          "test": "existence",
+          "passed": false,
+          "error": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-component-id=\"logo-component\"]') to be visible\u001b[22m\n"
+        }
+      ],
+      "startTime": "2025-08-19T15:36:22.015Z",
+      "endTime": "2025-08-19T15:36:29.690Z",
+      "duration": 7675
+    }
+  ]
+}

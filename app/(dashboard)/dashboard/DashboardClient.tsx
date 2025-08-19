@@ -20,6 +20,10 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/types/assets";
+import { ComponentWrapper } from "@/components/dev/withComponentMetadata";
+import { COMPONENT_REGISTRY } from "@/lib/component-registry";
+import { createSimpleMetadata } from "@/components/dev/createSimpleMetadata";
+import { ComponentCategory } from "@/types/component-registry";
 
 interface DashboardStats {
   totalAssets: number;
@@ -101,6 +105,20 @@ export function DashboardClient() {
     },
   ].filter((stat) => stat.show);
 
+  const categoryStats = !loading && stats.totalAssets > 0 && Object.keys(stats.categoryBreakdown).length > 0 
+    ? Object.entries(stats.categoryBreakdown).map(([category, count]) => ({
+        label: category.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase()),
+        value: count.toString(),
+        subValue: undefined,
+        icon: ArrowTrendingUpIcon,
+        href: "/assets",
+        color: "primary",
+        show: true,
+      }))
+    : [];
+
+  const allStats = [...quickStats, ...categoryStats];
+
   const getAssetTypeDisplay = (assetType: string) => {
     return assetType
       .split("_")
@@ -124,7 +142,10 @@ export function DashboardClient() {
   };
 
   return (
-    <>
+    <ComponentWrapper
+      componentId="dashboard-client"
+      metadata={COMPONENT_REGISTRY['dashboard-client']}
+    >
       {/* Welcome Header - Outside the card */}
       <div className="text-left mb-6 mt-12 ml-[2.5%]">
         <h1 className="tracking-tight inline font-semibold text-4xl md:text-5xl text-foreground">
@@ -140,28 +161,47 @@ export function DashboardClient() {
       <Card className="w-full dashboard-main-card">
         <CardBody className="p-8">
           <div className="space-y-8">
-            {/* Quick Stats - Only show if user has any data */}
-            {quickStats.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {quickStats.map((stat) => {
-                  const IconComponent = stat.icon;
+            {/* Dashboard Stats - Show all stats including asset categories as individual cards */}
+            {allStats.length > 0 && (
+              <ComponentWrapper
+                componentId="dashboard-stats-section"
+                metadata={createSimpleMetadata(
+                  "dashboard-stats-section",
+                  "Dashboard Stats Section",
+                  ComponentCategory.LAYOUT,
+                  "/app/(dashboard)/dashboard/DashboardClient.tsx"
+                )}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {allStats.map((stat) => {
+                    const IconComponent = stat.icon;
 
-                  return (
-                    <Link key={stat.label} href={stat.href}>
-                      <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                        <CardBody className="p-6">
-                          <div className="flex items-center gap-4">
-                            <div
-                              className={`p-3 bg-${stat.color}-100 rounded-full`}
-                            >
-                              <IconComponent
-                                className={`h-6 w-6 text-${stat.color}-600`}
-                              />
-                            </div>
-                            <div>
-                              <p className="text-2xl font-bold text-foreground">
-                                {stat.value}
-                              </p>
+                    return (
+                      <ComponentWrapper
+                        key={stat.label}
+                        componentId={`stat-card-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}
+                        metadata={createSimpleMetadata(
+                          `stat-card-${stat.label.toLowerCase().replace(/\s+/g, '-')}`,
+                          `${stat.label} Card`,
+                          ComponentCategory.UI,
+                          "/app/(dashboard)/dashboard/DashboardClient.tsx"
+                        )}
+                      >
+                        <Link href={stat.href}>
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                            <CardBody className="p-6">
+                              <div className="flex items-center gap-4">
+                                <div
+                                  className={`p-3 bg-${stat.color}-100 rounded-full`}
+                                >
+                                  <IconComponent
+                                    className={`h-6 w-6 text-${stat.color}-600`}
+                                  />
+                                </div>
+                                <div>
+                                  <p className="text-2xl font-bold text-foreground">
+                                    {stat.value}
+                                  </p>
                               {stat.subValue && (
                                 <p className="text-sm font-medium text-success-600">
                                   {stat.subValue}
@@ -175,49 +215,25 @@ export function DashboardClient() {
                         </CardBody>
                       </Card>
                     </Link>
-                  );
-                })}
-              </div>
+                      </ComponentWrapper>
+                    );
+                  })}
+                </div>
+              </ComponentWrapper>
             )}
 
-            {/* Asset Categories Overview */}
-            {!loading &&
-              stats.totalAssets > 0 &&
-              Object.keys(stats.categoryBreakdown).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <ArrowTrendingUpIcon className="h-5 w-5 text-primary" />
-                      <h2 className="text-xl font-semibold">
-                        Asset Categories
-                      </h2>
-                    </div>
-                  </CardHeader>
-                  <Divider />
-                  <CardBody>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {Object.entries(stats.categoryBreakdown).map(
-                        ([category, count]) => (
-                          <div
-                            key={category}
-                            className="text-center p-3 bg-default-50 rounded-lg"
-                          >
-                            <p className="text-2xl font-bold text-primary">
-                              {count}
-                            </p>
-                            <p className="text-sm text-default-600 capitalize">
-                              {category.replace("_", " ")}
-                            </p>
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </CardBody>
-                </Card>
-              )}
 
             {/* Quick Actions */}
-            <Card>
+            <ComponentWrapper
+              componentId="quick-actions-section"
+              metadata={createSimpleMetadata(
+                "quick-actions-section",
+                "Quick Actions Section",
+                ComponentCategory.LAYOUT,
+                "/app/(dashboard)/dashboard/DashboardClient.tsx"
+              )}
+            >
+              <Card>
               <CardHeader>
                 <h2 className="text-xl font-semibold">Quick Actions</h2>
               </CardHeader>
@@ -361,9 +377,10 @@ export function DashboardClient() {
                 )}
               </CardBody>
             </Card>
+            </ComponentWrapper>
           </div>
         </CardBody>
       </Card>
-    </>
+    </ComponentWrapper>
   );
 }

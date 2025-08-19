@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "playwright-visual-testing": {
+      "command": "node",
+      "args": ["src/index.js"],
+      "env": {
+        "BASE_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

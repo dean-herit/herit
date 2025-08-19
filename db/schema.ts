@@ -8,6 +8,7 @@ import {
   jsonb,
   uuid,
   varchar,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -236,6 +237,74 @@ export const auditEvents = pgTable("audit_events", {
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
+// Document Storage Tables
+export const assetDocuments = pgTable("asset_documents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  asset_id: uuid("asset_id")
+    .references(() => assets.id, { onDelete: "cascade" })
+    .notNull(),
+  user_email: varchar("user_email", { length: 255 }).notNull(),
+
+  // File metadata
+  file_name: varchar("file_name", { length: 255 }).notNull(),
+  original_name: varchar("original_name", { length: 255 }).notNull(),
+  file_type: varchar("file_type", { length: 100 }).notNull(),
+  file_size: integer("file_size").notNull(),
+  mime_type: varchar("mime_type", { length: 100 }).notNull(),
+
+  // Storage information
+  blob_url: text("blob_url").notNull(),
+  blob_pathname: text("blob_pathname").notNull(),
+  blob_download_url: text("blob_download_url"),
+
+  // Categorization
+  document_category: varchar("document_category", { length: 100 }).notNull(),
+  document_type: varchar("document_type", { length: 100 }).notNull(),
+  is_required: boolean("is_required").default(false),
+
+  // Additional metadata
+  description: text("description"),
+  expiry_date: date("expiry_date"),
+  issue_date: date("issue_date"),
+
+  // Timestamps
+  uploaded_at: timestamp("uploaded_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const documentRequirements = pgTable("document_requirements", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  asset_type: varchar("asset_type", { length: 100 }).notNull(),
+  document_type: varchar("document_type", { length: 100 }).notNull(),
+  display_name: varchar("display_name", { length: 255 }).notNull(),
+  description: text("description"),
+  is_required: boolean("is_required").default(false),
+  category: varchar("category", { length: 100 }).notNull(),
+  help_text: text("help_text"),
+  example_formats: text("example_formats"),
+  sort_order: integer("sort_order").default(0),
+
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const documentAuditLog = pgTable("document_audit_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  document_id: uuid("document_id")
+    .references(() => assetDocuments.id, { onDelete: "cascade" })
+    .notNull(),
+  user_email: varchar("user_email", { length: 255 }).notNull(),
+  action: varchar("action", { length: 50 }).notNull(), // 'upload', 'view', 'download', 'delete'
+  ip_address: varchar("ip_address", { length: 45 }),
+  user_agent: text("user_agent"),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   refreshTokens: many(refreshTokens),
@@ -254,11 +323,12 @@ export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
   }),
 }));
 
-export const assetsRelations = relations(assets, ({ one }) => ({
+export const assetsRelations = relations(assets, ({ one, many }) => ({
   user: one(users, {
     fields: [assets.user_email],
     references: [users.email],
   }),
+  documents: many(assetDocuments),
 }));
 
 export const beneficiariesRelations = relations(beneficiaries, ({ one }) => ({
@@ -301,6 +371,33 @@ export const auditEventsRelations = relations(auditEvents, ({ one }) => ({
   }),
 }));
 
+export const assetDocumentsRelations = relations(assetDocuments, ({ one, many }) => ({
+  asset: one(assets, {
+    fields: [assetDocuments.asset_id],
+    references: [assets.id],
+  }),
+  user: one(users, {
+    fields: [assetDocuments.user_email],
+    references: [users.email],
+  }),
+  auditLogs: many(documentAuditLog),
+}));
+
+export const documentRequirementsRelations = relations(documentRequirements, ({ one }) => ({
+  // No direct relations needed for this reference table
+}));
+
+export const documentAuditLogRelations = relations(documentAuditLog, ({ one }) => ({
+  document: one(assetDocuments, {
+    fields: [documentAuditLog.document_id],
+    references: [assetDocuments.id],
+  }),
+  user: one(users, {
+    fields: [documentAuditLog.user_email],
+    references: [users.email],
+  }),
+}));
+
 // Export types for TypeScript inference
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -325,3 +422,12 @@ export type NewSignatureUsage = typeof signatureUsage.$inferInsert;
 
 export type AuditEvent = typeof auditEvents.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+
+export type AssetDocument = typeof assetDocuments.$inferSelect;
+export type NewAssetDocument = typeof assetDocuments.$inferInsert;
+
+export type DocumentRequirement = typeof documentRequirements.$inferSelect;
+export type NewDocumentRequirement = typeof documentRequirements.$inferInsert;
+
+export type DocumentAuditLog = typeof documentAuditLog.$inferSelect;
+export type NewDocumentAuditLog = typeof documentAuditLog.$inferInsert;

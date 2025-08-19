@@ -1,5 +1,6 @@
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { VisualDevModePanel } from "@/components/dev/VisualDevMode";
 
 export default function DashboardLayoutWrapper({
   children,
@@ -9,6 +10,7 @@ export default function DashboardLayoutWrapper({
   return (
     <ProtectedRoute requireOnboarding={true}>
       <DashboardLayout>{children}</DashboardLayout>
+      <VisualDevModePanel />
     </ProtectedRoute>
   );
 }
