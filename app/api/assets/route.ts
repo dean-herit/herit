@@ -34,6 +34,13 @@ export async function GET(request: NextRequest) {
     // Build where conditions
     const whereConditions = [eq(assets.user_email, session.user.email)];
 
+    // Add status filter - default to active only
+    if (status) {
+      whereConditions.push(eq(assets.status, status));
+    } else {
+      whereConditions.push(eq(assets.status, "active")); // Only show active assets by default
+    }
+
     // Add search filter
     if (search) {
       whereConditions.push(
@@ -63,11 +70,6 @@ export async function GET(request: NextRequest) {
     // Add asset type filter
     if (assetType) {
       whereConditions.push(eq(assets.asset_type, assetType));
-    }
-
-    // Add status filter
-    if (status) {
-      whereConditions.push(eq(assets.status, status));
     }
 
     // Calculate offset for pagination
@@ -109,14 +111,19 @@ export async function GET(request: NextRequest) {
     const totalCount = totalCountResult.length;
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Calculate summary statistics from ALL user assets (not just paginated results)
+    // Calculate summary statistics from ALL active user assets (not just paginated results)
     const allUserAssets = await db
       .select({
         value: assets.value,
         asset_type: assets.asset_type,
       })
       .from(assets)
-      .where(eq(assets.user_email, session.user.email));
+      .where(
+        and(
+          eq(assets.user_email, session.user.email),
+          eq(assets.status, "active"),
+        ),
+      );
 
     const totalValue = allUserAssets.reduce(
       (sum, asset) => sum + (asset.value || 0),
