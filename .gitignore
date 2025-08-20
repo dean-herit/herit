@@ -66,3 +66,29 @@ Thumbs.db
 # Temporary files
 /tmp/
 .temp/
+
+# Test artifacts and reports
+/tests/reports/
+/tests/debug-reports/
+/tests/debug-screenshots/
+/tests/debug-videos/
+/tests/screenshots/automation/
+/tests/screenshots/*-test-*.png
+/tests/screenshots/auth-*.png
+/tests/screenshots/direct-test-*.png
+/tests/screenshots/*verification*.png
+/tests/screenshots/home-page-test.png
+/tests/screenshots/signup-test.png
+*.webm
+test-report.json
+junit.xml
+test-results.html
+test-results.json
+
+# MCP test files (temporary debugging scripts)
+test-mcp-*.js
+MCP_PLAYWRIGHT_TEST_REPORT.md
+
+# Test automation artifacts
+/tests/automation/
+/tests/debug-automation/

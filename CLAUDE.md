@@ -18,6 +18,10 @@ HeroUI Heritage - Estate planning and asset management platform built with Next.
 
 The Playwright MCP server provides visual testing and component interaction capabilities.
 
+### Context7 MCP Server
+
+Context7 provides up-to-date documentation for LLMs and AI code editors, pulling current official documentation for rapidly evolving frameworks directly into prompts.
+
 #### Available MCP Tools
 
 1. **`navigate`** - Navigate to any page in the application
@@ -75,6 +79,43 @@ await visual_mode({ enabled: true });
 - Dev panel accessible via floating button (🛠️)
 - 126 components registered across 8 categories
 
+#### Context7 Usage Patterns
+
+Context7 is particularly valuable for this project's rapidly evolving tech stack. Use "use context7" in prompts when working with:
+
+**Core Frameworks & Libraries:**
+
+- **Next.js 15**: App Router patterns, Server Actions, latest routing features
+- **Drizzle ORM**: Schema definitions, query patterns, migrations, relations
+- **TanStack Query v5**: Caching strategies, mutations, optimistic updates
+- **HeroUI Components**: Latest component APIs, props, and styling patterns
+- **Zod**: Schema validation patterns, type inference
+
+**Usage Examples:**
+
+```javascript
+// Database schema with Context7 - get latest Drizzle patterns
+"Create a Drizzle schema for Irish estate planning with proper relations between users, assets, and beneficiaries. Include Irish-specific fields like Eircode and IBAN validation. use context7";
+
+// Component development with Context7 - get current HeroUI APIs
+"Create a HeroUI card component for displaying asset information with proper TypeScript props and responsive design. use context7";
+
+// API routes with Context7 - get latest Next.js patterns
+"Create a Next.js 15 API route for asset management with proper error handling and TypeScript. use context7";
+
+// Query patterns with Context7 - get current TanStack Query v5 syntax
+"Implement TanStack Query mutations for estate planning asset updates with optimistic updates and error handling. use context7";
+```
+
+**When to Use Context7:**
+
+- Creating new database schemas or migrations
+- Implementing new UI components with latest APIs
+- Setting up API routes with current best practices
+- Configuring query caching and mutations
+- Working with form validation using Zod
+- Implementing authentication flows with latest patterns
+
 ### Component Registry Usage
 
 - **Total Components**: 124 across 8 categories
@@ -100,6 +141,21 @@ npm run db:studio     # Open Drizzle Studio
 npm run typecheck     # TypeScript validation
 npm run lint          # ESLint validation
 ```
+
+### MCP Development Workflow
+
+**Combined MCP Usage:**
+
+- **Playwright MCP**: Use for visual testing, component interaction, and screenshot capture
+- **Context7 MCP**: Use for getting latest framework documentation when implementing features
+- **Workflow**: Often combine both - use Context7 for implementation guidance, then Playwright MCP for testing
+
+**Example Combined Workflow:**
+
+1. "Create an asset management component with proper HeroUI patterns. use context7"
+2. Implement the component based on current documentation
+3. Use Playwright MCP tools to test the component visually and capture screenshots
+4. Iterate based on visual feedback and component behavior
 
 ### Key File Locations
 
@@ -251,6 +307,98 @@ npm run lint          # ESLint validation
 - **SQL Injection**: Drizzle ORM prevents injection attacks
 - **File Upload Security**: Type validation and size limits
 
+## Project Cleanup & .gitignore Management
+
+### **Comprehensive Git Ignore Patterns**
+
+The project maintains a comprehensive `.gitignore` to prevent tracking of temporary files, test artifacts, and debugging outputs:
+
+**Test Artifacts & Reports:**
+
+```gitignore
+# Test artifacts and reports
+/tests/reports/                    # Jest/test runner reports
+/tests/debug-reports/              # Debug test execution reports
+/tests/debug-screenshots/          # Automated debug screenshots
+/tests/debug-videos/               # Video recordings of test runs
+/tests/screenshots/automation/     # Automation test screenshots
+/tests/screenshots/*-test-*.png    # Temporary test screenshots
+/tests/screenshots/auth-*.png      # Auth flow test artifacts
+/tests/screenshots/direct-test-*.png # Direct test artifacts
+/tests/screenshots/*verification*.png # Verification test artifacts
+/tests/screenshots/home-page-test.png # Page test screenshots
+/tests/screenshots/signup-test.png # Signup test artifacts
+*.webm                            # Video files from test recordings
+test-report.json                  # JSON test reports
+junit.xml                         # JUnit test output
+test-results.html                 # HTML test reports
+test-results.json                 # JSON test results
+```
+
+**MCP & Debugging Files:**
+
+```gitignore
+# MCP test files (temporary debugging scripts)
+test-mcp-*.js                     # MCP debugging scripts
+MCP_PLAYWRIGHT_TEST_REPORT.md     # MCP test reports
+
+# Test automation artifacts
+/tests/automation/                # Automated test suites
+/tests/debug-automation/          # Debug automation scripts
+```
+
+### **File Preservation Strategy**
+
+**✅ Preserved Files:**
+
+- `tests/screenshots/final-*.png` - Production-ready screenshots for documentation
+- `tests/demo-tests/` - Core demonstration test suites
+- `tests/integration-tests/` - Integration test files
+- Core component test files and legitimate project assets
+
+**🗑️ Ignored Files:**
+
+- Temporary test artifacts and reports
+- Debug screenshots and videos from development
+- MCP debugging scripts (temporary tools)
+- Automation test outputs and reports
+- Build artifacts and temporary files
+
+### **Cleanup Workflow**
+
+**During Development:**
+
+1. Test artifacts are automatically generated in ignored directories
+2. Temporary MCP scripts can be created without git tracking
+3. Debug outputs accumulate in ignored paths
+
+**Periodic Cleanup:**
+
+```bash
+# Remove all ignored test artifacts (safe - won't delete tracked files)
+git clean -fdX tests/
+
+# Remove temporary MCP files
+rm -f test-mcp-*.js MCP_PLAYWRIGHT_TEST_REPORT.md
+
+# Verify clean status
+git status --porcelain
+```
+
+**Pre-Deployment:**
+
+- Ensure only production screenshots are committed
+- Remove debugging scripts and temporary artifacts
+- Maintain clean git history without development clutter
+
+### **Git Ignore Best Practices**
+
+1. **Pattern Specificity**: Use specific patterns like `/tests/screenshots/*-test-*.png` instead of broad wildcards
+2. **Directory Structure**: Align ignore patterns with actual directory structure
+3. **Preservation Safety**: Ensure production assets aren't accidentally ignored
+4. **Development Efficiency**: Allow temporary files during development without git noise
+5. **Documentation**: Document why patterns exist for future maintenance
+
 ## Important Notes
 
 - NEVER commit without running typecheck and lint
@@ -260,3 +408,4 @@ npm run lint          # ESLint validation
 - Run `npm run db:push` for schema changes in development
 - Use `npm run db:migrate` for production deployments
 - Monitor Stripe webhook events for verification status updates
+- Clean up test artifacts regularly to maintain repository hygiene
