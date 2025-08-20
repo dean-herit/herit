@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
   Button,
   Card,
@@ -20,6 +19,11 @@ import {
 
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/types/assets";
+import {
+  useDashboardStats,
+  useBeneficiaryCount,
+  useWillStatus,
+} from "@/hooks/useDashboard";
 import { ComponentWrapper } from "@/components/dev/withComponentMetadata";
 import { COMPONENT_REGISTRY } from "@/lib/component-registry";
 import { createSimpleMetadata } from "@/components/dev/createSimpleMetadata";
@@ -40,56 +44,34 @@ interface DashboardStats {
 
 export function DashboardClient() {
   const { user } = useAuth();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalAssets: 0,
-    totalValue: 0,
-    categoryBreakdown: {},
-    recentAssets: [],
-  });
-  const [loading, setLoading] = useState(true);
-  const [beneficiaryCount, setBeneficiaryCount] = useState(0);
-  const [hasWill, setHasWill] = useState(false);
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+  // Use TanStack Query hooks
+  const {
+    data: stats,
+    isLoading: loading,
+    error: statsError,
+  } = useDashboardStats();
 
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await fetch(
-        "/api/assets?limit=5&sort_by=created_at&sort_order=desc",
-      );
+  const { data: beneficiaryCount = 0, isLoading: beneficiaryLoading } =
+    useBeneficiaryCount();
 
-      if (response.ok) {
-        const data = await response.json();
+  const { data: willStatus, isLoading: willLoading } = useWillStatus();
 
-        setStats({
-          totalAssets: data.data.summary.assetCount,
-          totalValue: data.data.summary.totalValue,
-          categoryBreakdown: data.data.summary.categoryBreakdown,
-          recentAssets: data.data.assets.slice(0, 3), // Show only 3 most recent
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hasWill = willStatus?.hasWill || false;
 
   const quickStats = [
     {
       label: "Total Assets",
-      value: loading ? "..." : stats.totalAssets.toString(),
-      subValue: loading ? "" : formatCurrency(stats.totalValue),
+      value: loading ? "..." : (stats?.totalAssets || 0).toString(),
+      subValue: loading ? "" : formatCurrency(stats?.totalValue || 0),
       icon: CurrencyDollarIcon,
       href: "/assets",
       color: "success",
-      show: stats.totalAssets > 0,
+      show: (stats?.totalAssets || 0) > 0,
     },
     {
       label: "Beneficiaries",
-      value: beneficiaryCount.toString(),
+      value: beneficiaryLoading ? "..." : beneficiaryCount.toString(),
       icon: UsersIcon,
       href: "/beneficiaries",
       color: "primary",
@@ -97,7 +79,7 @@ export function DashboardClient() {
     },
     {
       label: "Will Status",
-      value: "Draft",
+      value: willLoading ? "..." : willStatus?.status || "Draft",
       icon: DocumentTextIcon,
       href: "/will",
       color: "warning",
@@ -105,17 +87,23 @@ export function DashboardClient() {
     },
   ].filter((stat) => stat.show);
 
-  const categoryStats = !loading && stats.totalAssets > 0 && Object.keys(stats.categoryBreakdown).length > 0 
-    ? Object.entries(stats.categoryBreakdown).map(([category, count]) => ({
-        label: category.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase()),
-        value: count.toString(),
-        subValue: undefined,
-        icon: ArrowTrendingUpIcon,
-        href: "/assets",
-        color: "primary",
-        show: true,
-      }))
-    : [];
+  const categoryStats =
+    !loading &&
+    stats &&
+    stats.totalAssets > 0 &&
+    Object.keys(stats.categoryBreakdown).length > 0
+      ? Object.entries(stats.categoryBreakdown).map(([category, count]) => ({
+          label: category
+            .replace("_", " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase()),
+          value: count.toString(),
+          subValue: undefined,
+          icon: ArrowTrendingUpIcon,
+          href: "/assets",
+          color: "primary",
+          show: true,
+        }))
+      : [];
 
   const allStats = [...quickStats, ...categoryStats];
 
@@ -141,10 +129,31 @@ export function DashboardClient() {
     return `${Math.floor(diffInDays / 30)} months ago`;
   };
 
+  // Error handling
+  if (statsError) {
+    return (
+      <ComponentWrapper
+        componentId="dashboard-client"
+        metadata={COMPONENT_REGISTRY["dashboard-client"]}
+      >
+        <Card className="w-full">
+          <CardBody className="p-6 text-center">
+            <p className="text-red-600 mb-4">
+              Failed to load dashboard data. Please try again.
+            </p>
+            <Button color="primary" onPress={() => window.location.reload()}>
+              Retry
+            </Button>
+          </CardBody>
+        </Card>
+      </ComponentWrapper>
+    );
+  }
+
   return (
     <ComponentWrapper
       componentId="dashboard-client"
-      metadata={COMPONENT_REGISTRY['dashboard-client']}
+      metadata={COMPONENT_REGISTRY["dashboard-client"]}
     >
       {/* Welcome Header - Outside the card */}
       <div className="text-left mb-6 mt-12 ml-[2.5%]">
@@ -169,7 +178,7 @@ export function DashboardClient() {
                   "dashboard-stats-section",
                   "Dashboard Stats Section",
                   ComponentCategory.LAYOUT,
-                  "/app/(dashboard)/dashboard/DashboardClient.tsx"
+                  "/app/(dashboard)/dashboard/DashboardClient.tsx",
                 )}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -179,12 +188,12 @@ export function DashboardClient() {
                     return (
                       <ComponentWrapper
                         key={stat.label}
-                        componentId={`stat-card-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}
+                        componentId={`stat-card-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}
                         metadata={createSimpleMetadata(
-                          `stat-card-${stat.label.toLowerCase().replace(/\s+/g, '-')}`,
+                          `stat-card-${stat.label.toLowerCase().replace(/\s+/g, "-")}`,
                           `${stat.label} Card`,
                           ComponentCategory.UI,
-                          "/app/(dashboard)/dashboard/DashboardClient.tsx"
+                          "/app/(dashboard)/dashboard/DashboardClient.tsx",
                         )}
                       >
                         <Link href={stat.href}>
@@ -202,26 +211,25 @@ export function DashboardClient() {
                                   <p className="text-2xl font-bold text-foreground">
                                     {stat.value}
                                   </p>
-                              {stat.subValue && (
-                                <p className="text-sm font-medium text-success-600">
-                                  {stat.subValue}
-                                </p>
-                              )}
-                              <p className="text-sm text-default-600">
-                                {stat.label}
-                              </p>
-                            </div>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    </Link>
+                                  {stat.subValue && (
+                                    <p className="text-sm font-medium text-success-600">
+                                      {stat.subValue}
+                                    </p>
+                                  )}
+                                  <p className="text-sm text-default-600">
+                                    {stat.label}
+                                  </p>
+                                </div>
+                              </div>
+                            </CardBody>
+                          </Card>
+                        </Link>
                       </ComponentWrapper>
                     );
                   })}
                 </div>
               </ComponentWrapper>
             )}
-
 
             {/* Quick Actions */}
             <ComponentWrapper
@@ -230,153 +238,161 @@ export function DashboardClient() {
                 "quick-actions-section",
                 "Quick Actions Section",
                 ComponentCategory.LAYOUT,
-                "/app/(dashboard)/dashboard/DashboardClient.tsx"
+                "/app/(dashboard)/dashboard/DashboardClient.tsx",
               )}
             >
               <Card>
-              <CardHeader>
-                <h2 className="text-xl font-semibold">Quick Actions</h2>
-              </CardHeader>
-              <Divider />
-              <CardBody className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Link href="/assets">
-                    <Button
-                      className="h-auto p-4 justify-start w-full"
-                      startContent={<CurrencyDollarIcon className="h-5 w-5" />}
-                      variant="bordered"
-                    >
-                      <div className="text-left">
-                        <div className="font-semibold">
-                          {stats.totalAssets === 0
-                            ? "Add Your First Asset"
-                            : "Manage Assets"}
-                        </div>
-                        <div className="text-sm text-default-600">
-                          {stats.totalAssets === 0
-                            ? "Start building your will by adding assets"
-                            : `View and manage your ${stats.totalAssets} assets`}
-                        </div>
-                      </div>
-                    </Button>
-                  </Link>
-
-                  <Link href="/beneficiaries">
-                    <Button
-                      className="h-auto p-4 justify-start w-full"
-                      startContent={<UsersIcon className="h-5 w-5" />}
-                      variant="bordered"
-                    >
-                      <div className="text-left">
-                        <div className="font-semibold">Add Beneficiaries</div>
-                        <div className="text-sm text-default-600">
-                          Define who inherits your assets
-                        </div>
-                      </div>
-                    </Button>
-                  </Link>
-
-                  <Link href="/will">
-                    <Button
-                      className="h-auto p-4 justify-start w-full"
-                      startContent={<DocumentTextIcon className="h-5 w-5" />}
-                      variant="bordered"
-                    >
-                      <div className="text-left">
-                        <div className="font-semibold">Review Will</div>
-                        <div className="text-sm text-default-600">
-                          Review and finalize your will
-                        </div>
-                      </div>
-                    </Button>
-                  </Link>
-
-                  <Button
-                    className="h-auto p-4 justify-start"
-                    startContent={<UserIcon className="h-5 w-5" />}
-                    variant="bordered"
-                  >
-                    <div className="text-left">
-                      <div className="font-semibold">Update Profile</div>
-                      <div className="text-sm text-default-600">
-                        Keep your information current
-                      </div>
-                    </div>
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between w-full">
-                  <h2 className="text-xl font-semibold">Recent Activity</h2>
-                  {stats.totalAssets > 0 && (
-                    <Link href="/assets">
-                      <Button size="sm" variant="light">
-                        View All
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </CardHeader>
-              <Divider />
-              <CardBody>
-                {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
-                    <p className="mt-2 text-default-600">
-                      Loading recent activity...
-                    </p>
-                  </div>
-                ) : stats.recentAssets.length === 0 ? (
-                  <div className="text-center py-8 text-default-600">
-                    <p>No recent activity to show.</p>
-                    <p className="text-sm mt-1">
-                      Start by adding your assets or beneficiaries.
-                    </p>
+                <CardHeader>
+                  <h2 className="text-xl font-semibold">Quick Actions</h2>
+                </CardHeader>
+                <Divider />
+                <CardBody className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Link href="/assets">
                       <Button
-                        className="mt-4"
-                        color="primary"
-                        startContent={<PlusIcon className="h-4 w-4" />}
-                        variant="flat"
+                        className="h-auto p-4 justify-start w-full"
+                        startContent={
+                          <CurrencyDollarIcon className="h-5 w-5" />
+                        }
+                        variant="bordered"
                       >
-                        Add Your First Asset
+                        <div className="text-left">
+                          <div className="font-semibold">
+                            {(stats?.totalAssets || 0) === 0
+                              ? "Add Your First Asset"
+                              : "Manage Assets"}
+                          </div>
+                          <div className="text-sm text-default-600">
+                            {(stats?.totalAssets || 0) === 0
+                              ? "Start building your will by adding assets"
+                              : `View and manage your ${stats?.totalAssets || 0} assets`}
+                          </div>
+                        </div>
                       </Button>
                     </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {stats.recentAssets.map((asset) => (
-                      <div
-                        key={asset.id}
-                        className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
+
+                    <Link href="/beneficiaries">
+                      <Button
+                        className="h-auto p-4 justify-start w-full"
+                        startContent={<UsersIcon className="h-5 w-5" />}
+                        variant="bordered"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-primary-100 rounded-full">
-                            <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+                        <div className="text-left">
+                          <div className="font-semibold">Add Beneficiaries</div>
+                          <div className="text-sm text-default-600">
+                            Define who inherits your assets
                           </div>
-                          <div>
-                            <p className="font-medium">{asset.name}</p>
-                            <p className="text-sm text-default-600">
-                              {getAssetTypeDisplay(asset.asset_type)} •{" "}
-                              {getRelativeTime(asset.created_at)}
+                        </div>
+                      </Button>
+                    </Link>
+
+                    <Link href="/will">
+                      <Button
+                        className="h-auto p-4 justify-start w-full"
+                        startContent={<DocumentTextIcon className="h-5 w-5" />}
+                        variant="bordered"
+                      >
+                        <div className="text-left">
+                          <div className="font-semibold">Review Will</div>
+                          <div className="text-sm text-default-600">
+                            Review and finalize your will
+                          </div>
+                        </div>
+                      </Button>
+                    </Link>
+
+                    <Button
+                      className="h-auto p-4 justify-start"
+                      startContent={<UserIcon className="h-5 w-5" />}
+                      variant="bordered"
+                    >
+                      <div className="text-left">
+                        <div className="font-semibold">Update Profile</div>
+                        <div className="text-sm text-default-600">
+                          Keep your information current
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Recent Activity */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between w-full">
+                    <h2 className="text-xl font-semibold">Recent Activity</h2>
+                    {(stats?.totalAssets || 0) > 0 && (
+                      <Link href="/assets">
+                        <Button size="sm" variant="light">
+                          View All
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+                </CardHeader>
+                <Divider />
+                <CardBody>
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
+                      <p className="mt-2 text-default-600">
+                        Loading recent activity...
+                      </p>
+                    </div>
+                  ) : (stats?.recentAssets || []).length === 0 ? (
+                    <div className="text-center py-8 text-default-600">
+                      <p>No recent activity to show.</p>
+                      <p className="text-sm mt-1">
+                        Start by adding your assets or beneficiaries.
+                      </p>
+                      <Link href="/assets">
+                        <Button
+                          className="mt-4"
+                          color="primary"
+                          startContent={<PlusIcon className="h-4 w-4" />}
+                          variant="flat"
+                        >
+                          Add Your First Asset
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {(stats?.recentAssets || []).map((asset) => (
+                        <div
+                          key={asset.id}
+                          className="flex items-center justify-between p-3 bg-default-50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary-100 rounded-full">
+                              <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{asset.name}</p>
+                              <p className="text-sm text-default-600">
+                                {getAssetTypeDisplay(asset.asset_type)} •{" "}
+                                {asset.created_at
+                                  ? getRelativeTime(
+                                      typeof asset.created_at === "string"
+                                        ? asset.created_at
+                                        : asset.created_at.toISOString(),
+                                    )
+                                  : "Unknown date"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-success-600">
+                              {formatCurrency(asset.value)}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium text-success-600">
-                            {formatCurrency(asset.value)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardBody>
-            </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
             </ComponentWrapper>
           </div>
         </CardBody>

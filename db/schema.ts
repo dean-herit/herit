@@ -9,101 +9,187 @@ import {
   uuid,
   varchar,
   date,
+  pgEnum,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+// Enums for better type safety and database constraints
+export const onboardingStatusEnum = pgEnum("onboarding_status", [
+  "not_started",
+  "in_progress",
+  "personal_info",
+  "signature",
+  "legal_consent",
+  "verification",
+  "completed",
+]);
+
+export const onboardingStepEnum = pgEnum("onboarding_step", [
+  "personal_info",
+  "signature",
+  "legal_consent",
+  "verification",
+  "completed",
+]);
+
+export const verificationStatusEnum = pgEnum("verification_status", [
+  "not_started",
+  "pending",
+  "requires_input",
+  "processing",
+  "verified",
+  "failed",
+]);
+
+export const assetTypeEnum = pgEnum("asset_type", [
+  "property",
+  "financial",
+  "personal",
+  "business",
+  "digital",
+]);
+
+export const authProviderEnum = pgEnum("auth_provider", [
+  "email",
+  "google",
+  "apple",
+]);
+
 // Custom users table - core user information (renamed to avoid Supabase auth conflict)
-export const users = pgTable("app_users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  email: varchar("email", { length: 255 }).unique().notNull(),
-  password_hash: text("password_hash"),
+export const users = pgTable(
+  "app_users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: varchar("email", { length: 255 }).unique().notNull(),
+    password_hash: text("password_hash"),
 
-  // Personal Information
-  first_name: varchar("first_name", { length: 100 }),
-  last_name: varchar("last_name", { length: 100 }),
-  phone_number: varchar("phone_number", { length: 50 }),
-  date_of_birth: varchar("date_of_birth", { length: 50 }),
-  profile_photo_url: varchar("profile_photo_url", { length: 500 }),
+    // Personal Information
+    first_name: varchar("first_name", { length: 100 }),
+    last_name: varchar("last_name", { length: 100 }),
+    phone_number: varchar("phone_number", { length: 50 }),
+    date_of_birth: varchar("date_of_birth", { length: 50 }),
+    profile_photo_url: varchar("profile_photo_url", { length: 500 }),
 
-  // Address
-  address_line_1: varchar("address_line_1", { length: 255 }),
-  address_line_2: varchar("address_line_2", { length: 255 }),
-  city: varchar("city", { length: 100 }),
-  county: varchar("county", { length: 100 }),
-  eircode: varchar("eircode", { length: 20 }),
+    // Address
+    address_line_1: varchar("address_line_1", { length: 255 }),
+    address_line_2: varchar("address_line_2", { length: 255 }),
+    city: varchar("city", { length: 100 }),
+    county: varchar("county", { length: 100 }),
+    eircode: varchar("eircode", { length: 20 }),
 
-  // Onboarding Status
-  onboarding_status: varchar("onboarding_status", { length: 50 }).default(
-    "not_started",
-  ),
-  onboarding_current_step: varchar("onboarding_current_step", {
-    length: 50,
-  }).default("personal_info"),
-  onboarding_completed_at: timestamp("onboarding_completed_at"),
+    // Onboarding Status
+    onboarding_status:
+      onboardingStatusEnum("onboarding_status").default("not_started"),
+    onboarding_current_step: onboardingStepEnum(
+      "onboarding_current_step",
+    ).default("personal_info"),
+    onboarding_completed_at: timestamp("onboarding_completed_at"),
 
-  // Step Completion Tracking
-  personal_info_completed: boolean("personal_info_completed").default(false),
-  personal_info_completed_at: timestamp("personal_info_completed_at"),
+    // Step Completion Tracking
+    personal_info_completed: boolean("personal_info_completed").default(false),
+    personal_info_completed_at: timestamp("personal_info_completed_at"),
 
-  signature_completed: boolean("signature_completed").default(false),
-  signature_completed_at: timestamp("signature_completed_at"),
+    signature_completed: boolean("signature_completed").default(false),
+    signature_completed_at: timestamp("signature_completed_at"),
 
-  legal_consent_completed: boolean("legal_consent_completed").default(false),
-  legal_consent_completed_at: timestamp("legal_consent_completed_at"),
-  legal_consents: jsonb("legal_consents"),
+    legal_consent_completed: boolean("legal_consent_completed").default(false),
+    legal_consent_completed_at: timestamp("legal_consent_completed_at"),
+    legal_consents: jsonb("legal_consents"),
 
-  verification_completed: boolean("verification_completed").default(false),
-  verification_completed_at: timestamp("verification_completed_at"),
-  verification_session_id: varchar("verification_session_id", { length: 255 }),
-  verification_status: varchar("verification_status", { length: 50 }),
+    verification_completed: boolean("verification_completed").default(false),
+    verification_completed_at: timestamp("verification_completed_at"),
+    verification_session_id: varchar("verification_session_id", {
+      length: 255,
+    }),
+    verification_status: verificationStatusEnum("verification_status"),
 
-  // Auth Provider Info
-  auth_provider: varchar("auth_provider", { length: 50 }),
-  auth_provider_id: varchar("auth_provider_id", { length: 255 }),
+    // Auth Provider Info
+    auth_provider: authProviderEnum("auth_provider"),
+    auth_provider_id: varchar("auth_provider_id", { length: 255 }),
 
-  // Timestamps
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
+    // Timestamps
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    // Indexes for performance optimization
+    emailIndex: uniqueIndex("users_email_idx").on(table.email),
+    onboardingStatusIndex: index("users_onboarding_status_idx").on(
+      table.onboarding_status,
+    ),
+    verificationStatusIndex: index("users_verification_status_idx").on(
+      table.verification_status,
+    ),
+    authProviderIndex: index("users_auth_provider_idx").on(table.auth_provider),
+    createdAtIndex: index("users_created_at_idx").on(table.created_at),
+  }),
+);
 
 // Refresh tokens for JWT authentication (renamed to avoid Supabase auth conflict)
-export const refreshTokens = pgTable("app_refresh_tokens", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  user_id: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  token_hash: text("token_hash").notNull(),
-  family: uuid("family").notNull(),
-  revoked: boolean("revoked").default(false),
-  expires_at: timestamp("expires_at").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
-});
+export const refreshTokens = pgTable(
+  "app_refresh_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    user_id: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    token_hash: text("token_hash").notNull(),
+    family: uuid("family").notNull(),
+    revoked: boolean("revoked").default(false),
+    expires_at: timestamp("expires_at").notNull(),
+    created_at: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    // Indexes for refresh token queries
+    userIdIndex: index("refresh_tokens_user_id_idx").on(table.user_id),
+    familyIndex: index("refresh_tokens_family_idx").on(table.family),
+    expiresAtIndex: index("refresh_tokens_expires_at_idx").on(table.expires_at),
+    tokenHashIndex: index("refresh_tokens_token_hash_idx").on(table.token_hash),
+  }),
+);
 
 // Assets table
-export const assets = pgTable("assets", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  user_email: varchar("user_email", { length: 255 }).notNull(),
+export const assets = pgTable(
+  "assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    user_email: varchar("user_email", { length: 255 }).notNull(),
 
-  // Asset Details
-  name: varchar("name", { length: 255 }).notNull(),
-  asset_type: varchar("asset_type", { length: 100 }).notNull(),
-  value: real("value").notNull().default(0),
-  description: text("description"),
+    // Asset Details
+    name: varchar("name", { length: 255 }).notNull(),
+    asset_type: assetTypeEnum("asset_type").notNull(),
+    value: real("value").notNull().default(0),
+    description: text("description"),
 
-  // Asset Metadata
-  account_number: varchar("account_number", { length: 255 }),
-  bank_name: varchar("bank_name", { length: 255 }),
-  property_address: text("property_address"),
+    // Asset Metadata
+    account_number: varchar("account_number", { length: 255 }),
+    bank_name: varchar("bank_name", { length: 255 }),
+    property_address: text("property_address"),
 
-  // Status and Timestamps
-  status: varchar("status", { length: 50 }).default("active"),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
+    // Status and Timestamps
+    status: varchar("status", { length: 50 }).default("active"),
+    created_at: timestamp("created_at").defaultNow(),
+    updated_at: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => ({
+    // Indexes for asset queries
+    userEmailIndex: index("assets_user_email_idx").on(table.user_email),
+    assetTypeIndex: index("assets_type_idx").on(table.asset_type),
+    valueIndex: index("assets_value_idx").on(table.value),
+    createdAtIndex: index("assets_created_at_idx").on(table.created_at),
+    // Composite index for common queries
+    userTypeIndex: index("assets_user_type_idx").on(
+      table.user_email,
+      table.asset_type,
+    ),
+  }),
+);
 
 // Beneficiaries table
 export const beneficiaries = pgTable("beneficiaries", {
@@ -371,32 +457,41 @@ export const auditEventsRelations = relations(auditEvents, ({ one }) => ({
   }),
 }));
 
-export const assetDocumentsRelations = relations(assetDocuments, ({ one, many }) => ({
-  asset: one(assets, {
-    fields: [assetDocuments.asset_id],
-    references: [assets.id],
+export const assetDocumentsRelations = relations(
+  assetDocuments,
+  ({ one, many }) => ({
+    asset: one(assets, {
+      fields: [assetDocuments.asset_id],
+      references: [assets.id],
+    }),
+    user: one(users, {
+      fields: [assetDocuments.user_email],
+      references: [users.email],
+    }),
+    auditLogs: many(documentAuditLog),
   }),
-  user: one(users, {
-    fields: [assetDocuments.user_email],
-    references: [users.email],
-  }),
-  auditLogs: many(documentAuditLog),
-}));
+);
 
-export const documentRequirementsRelations = relations(documentRequirements, ({ one }) => ({
-  // No direct relations needed for this reference table
-}));
+export const documentRequirementsRelations = relations(
+  documentRequirements,
+  ({ one }) => ({
+    // No direct relations needed for this reference table
+  }),
+);
 
-export const documentAuditLogRelations = relations(documentAuditLog, ({ one }) => ({
-  document: one(assetDocuments, {
-    fields: [documentAuditLog.document_id],
-    references: [assetDocuments.id],
+export const documentAuditLogRelations = relations(
+  documentAuditLog,
+  ({ one }) => ({
+    document: one(assetDocuments, {
+      fields: [documentAuditLog.document_id],
+      references: [assetDocuments.id],
+    }),
+    user: one(users, {
+      fields: [documentAuditLog.user_email],
+      references: [users.email],
+    }),
   }),
-  user: one(users, {
-    fields: [documentAuditLog.user_email],
-    references: [users.email],
-  }),
-}));
+);
 
 // Export types for TypeScript inference
 export type User = typeof users.$inferSelect;

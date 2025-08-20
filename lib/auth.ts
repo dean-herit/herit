@@ -331,7 +331,6 @@ export async function getSession(): Promise<SessionResult> {
         .where(eq(users.id, payload.userId))
         .limit(1);
 
-
       if (user) {
         // Determine onboarding completion based on all required steps
         const onboarding_completed = !!(

@@ -1,13 +1,16 @@
-import { ComponentMetadata, ComponentCategory } from '@/types/component-registry';
+import {
+  ComponentMetadata,
+  ComponentCategory,
+} from "@/types/component-registry";
 
 /**
  * Creates a minimal ComponentMetadata object for simple component wrapping
  */
 export function createSimpleMetadata(
-  id: string, 
-  name: string, 
-  category: ComponentCategory | string = 'ui',
-  filePath: string = '/app/dashboard'
+  id: string,
+  name: string,
+  category: ComponentCategory | string = "ui",
+  filePath: string = "/app/dashboard",
 ): ComponentMetadata {
   return {
     id,
@@ -23,12 +26,12 @@ export function createSimpleMetadata(
       violations: 0,
       hasAriaLabels: true,
       hasKeyboardSupport: true,
-      screenReaderFriendly: true
+      screenReaderFriendly: true,
     },
     performance: {
-      complexity: 'low' as const
+      complexity: "low" as const,
     },
     lastUpdated: new Date().toISOString(),
-    exports: [name]
+    exports: [name],
   };
 }

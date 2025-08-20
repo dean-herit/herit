@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Final Visual Development System Demo - Complete Flow
-const { ComponentTestFramework } = require("./playwright-setup");
+const { ComponentTestFramework } = require("../playwright-setup");
 
 const TEST_USER = {
   firstName: "Claude",

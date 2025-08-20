@@ -4,11 +4,11 @@ import { eq, desc, asc, like, and, or } from "drizzle-orm";
 import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
+import { AssetFormSchema, AssetType } from "@/types/assets";
 import {
-  AssetFormSchema,
-  AssetCategory,
-  getAllAssetTypes,
-} from "@/types/assets";
+  mapAssetTypeToCategory,
+  isValidAssetCategory,
+} from "@/lib/asset-type-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,22 +54,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Add category filter (derived from asset_type)
-    if (category) {
-      const categoryTypes = getAllAssetTypes().filter((type) => {
-        // This would need to be enhanced with proper category mapping
-        return type.includes(category.toLowerCase());
-      });
-
-      if (categoryTypes.length > 0) {
-        whereConditions.push(
-          or(...categoryTypes.map((type) => eq(assets.asset_type, type)))!,
-        );
-      }
+    if (category && isValidAssetCategory(category)) {
+      whereConditions.push(eq(assets.asset_type, category));
     }
 
-    // Add asset type filter
+    // Add asset type filter - if it's a detailed type, map to category
     if (assetType) {
-      whereConditions.push(eq(assets.asset_type, assetType));
+      const categoryType = isValidAssetCategory(assetType)
+        ? assetType
+        : mapAssetTypeToCategory(assetType as any);
+
+      whereConditions.push(eq(assets.asset_type, categoryType));
     }
 
     // Calculate offset for pagination
@@ -132,7 +127,7 @@ export async function GET(request: NextRequest) {
     const assetCount = allUserAssets.length;
     const categoryBreakdown = allUserAssets.reduce(
       (acc, asset) => {
-        const category = getCategoryFromAssetType(asset.asset_type);
+        const category = mapAssetTypeToCategory(asset.asset_type as AssetType);
 
         acc[category] = (acc[category] || 0) + 1;
 
@@ -223,12 +218,15 @@ export async function POST(request: NextRequest) {
         propertyAddress = specificFields.domain_name as string;
       }
 
+      // Map detailed asset type to category for database storage
+      const assetCategory = mapAssetTypeToCategory(assetData.asset_type);
+
       const newAsset = await db
         .insert(assets)
         .values({
           user_email: session.user.email,
           name: assetData.name,
-          asset_type: assetData.asset_type,
+          asset_type: assetCategory,
           value: assetData.value,
           description: assetData.description,
           account_number: accountNumber,
@@ -238,9 +236,7 @@ export async function POST(request: NextRequest) {
         })
         .returning();
 
-      console.log(
-        `V2 Asset created: ${newAsset[0].id} by user ${session.user.email}`,
-      );
+      // Asset created successfully
 
       return NextResponse.json(
         {
@@ -262,59 +258,13 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   } catch (error) {
-    console.error("Asset creation error:", error);
+    // Log error internally
 
     return NextResponse.json(
       { error: "Failed to create asset" },
       { status: 500 },
     );
   }
-}
-
-// Helper function to map asset types to categories
-function getCategoryFromAssetType(assetType: string): string {
-  const financialTypes = [
-    "bank_account",
-    "savings_account",
-    "investment_account",
-    "pension",
-    "shares",
-    "bonds",
-    "cryptocurrency",
-  ];
-  const propertyTypes = [
-    "residential_property",
-    "commercial_property",
-    "land",
-    "rental_property",
-  ];
-  const personalTypes = [
-    "vehicle",
-    "jewelry",
-    "art",
-    "collectibles",
-    "furniture",
-    "electronics",
-  ];
-  const businessTypes = [
-    "business_shares",
-    "intellectual_property",
-    "business_equipment",
-  ];
-  const digitalTypes = [
-    "digital_currency",
-    "online_accounts",
-    "digital_files",
-    "domain_names",
-  ];
-
-  if (financialTypes.includes(assetType)) return AssetCategory.FINANCIAL;
-  if (propertyTypes.includes(assetType)) return AssetCategory.PROPERTY;
-  if (personalTypes.includes(assetType)) return AssetCategory.PERSONAL;
-  if (businessTypes.includes(assetType)) return AssetCategory.BUSINESS;
-  if (digitalTypes.includes(assetType)) return AssetCategory.DIGITAL;
-
-  return AssetCategory.PERSONAL; // Default fallback
 }
 
 export const dynamic = "force-dynamic";

@@ -120,7 +120,8 @@ export function LegalConsentStep({
 
           onChange(consentIds);
         }
-      } catch (error) {
+      } catch {
+        // Error loading existing consents
       } finally {
         setLoadingConsents(false);
       }
@@ -186,8 +187,8 @@ export function LegalConsentStep({
       const consentIds = updatedSignedConsents.map((sc) => sc.id);
 
       onChange(consentIds);
-    } catch (error) {
-      // You might want to show an error message to the user here
+    } catch {
+      // Error handling consent signature
     } finally {
       setSigningConsent(null);
     }
@@ -247,8 +248,8 @@ export function LegalConsentStep({
 
         // Call the parent completion handler
         onComplete(consentIds);
-      } catch (error) {
-        // Still call onComplete to allow UI progression, but log the error
+      } catch {
+        // Still call onComplete to allow UI progression
         onComplete(consentIds);
       } finally {
         setSubmitting(false);

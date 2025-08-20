@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { lazy, Suspense } from "react";
 import { Link } from "@heroui/link";
 
+import { VisualDevModePanel } from "@/components/dev/VisualDevMode";
+
 // Lazy load navbar for better performance
 const Navbar = lazy(() =>
   import("@/components/navbar").then((mod) => ({ default: mod.Navbar })),
@@ -47,6 +49,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           <p className="text-primary">HeroUI</p>
         </Link>
       </footer>
+      {/* Visual Development Mode Panel */}
+      <VisualDevModePanel />
     </div>
   );
 }

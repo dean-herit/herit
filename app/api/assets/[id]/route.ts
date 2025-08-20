@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { assets } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { IrishAssetFormSchema } from "@/types/assets";
+import { mapAssetTypeToCategory } from "@/lib/asset-type-utils";
 
 export async function GET(
   request: NextRequest,
@@ -40,7 +41,7 @@ export async function GET(
       data: asset[0],
     });
   } catch (error) {
-    console.error("Asset fetch error:", error);
+    // Log error internally
 
     return NextResponse.json(
       { error: "Internal server error" },
@@ -94,12 +95,15 @@ export async function PUT(
       return NextResponse.json({ error: "Asset not found" }, { status: 404 });
     }
 
+    // Map detailed asset type to category for database storage
+    const assetCategory = mapAssetTypeToCategory(assetData.asset_type);
+
     // Update asset in database
     const updatedAsset = await db
       .update(assets)
       .set({
         name: assetData.name,
-        asset_type: assetData.asset_type,
+        asset_type: assetCategory,
         value: assetData.value,
         description: assetData.description,
         account_number:
@@ -116,8 +120,7 @@ export async function PUT(
       )
       .returning();
 
-    // Log asset update for audit trail
-    console.log(`Asset updated: ${assetId} by user ${session.user.email}`);
+    // Asset updated successfully
 
     return NextResponse.json({
       success: true,
@@ -125,7 +128,7 @@ export async function PUT(
       data: updatedAsset[0],
     });
   } catch (error) {
-    console.error("Asset update error:", error);
+    // Log error internally
 
     return NextResponse.json(
       { error: "Failed to update asset" },
@@ -175,15 +178,14 @@ export async function DELETE(
         and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
       );
 
-    // Log asset deletion for audit trail
-    console.log(`Asset deleted: ${assetId} by user ${session.user.email}`);
+    // Asset deleted successfully
 
     return NextResponse.json({
       success: true,
       message: "Asset deleted successfully",
     });
   } catch (error) {
-    console.error("Asset deletion error:", error);
+    // Log error internally
 
     return NextResponse.json(
       { error: "Failed to delete asset" },

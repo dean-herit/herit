@@ -8,9 +8,8 @@ import {
   NavbarBrand,
   NavbarItem,
   NavbarMenuItem,
-} from "@heroui/navbar";
-import { Link } from "@heroui/link";
-import { link as linkStyles } from "@heroui/theme";
+  Link,
+} from "@heroui/react";
 import NextLink from "next/link";
 import clsx from "clsx";
 
@@ -40,7 +39,7 @@ export const Navbar = () => {
               <NavbarItem key={item.href}>
                 <NextLink
                   className={clsx(
-                    linkStyles({ color: "foreground" }),
+                    "text-foreground hover:text-primary transition-colors",
                     "data-[active=true]:text-primary data-[active=true]:font-medium",
                   )}
                   color="foreground"

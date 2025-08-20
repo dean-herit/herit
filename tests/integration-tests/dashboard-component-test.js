@@ -3,7 +3,7 @@
 // Dashboard Component Test Suite
 // Demonstrates MCP-driven testing with component registry integration
 
-const { ComponentTestFramework } = require("./playwright-setup");
+const { ComponentTestFramework } = require("../playwright-setup");
 
 async function runDashboardTests() {
   const testFramework = new ComponentTestFramework();

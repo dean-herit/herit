@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         process.env.STRIPE_WEBHOOK_SECRET,
       );
     } catch (error) {
-      console.error("Webhook signature verification failed:", error);
+      // Webhook signature verification failed
 
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
         await handleVerificationSessionEvent(event);
         break;
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+      // Unhandled event type
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("Webhook error:", error);
+    // Webhook error
 
     return NextResponse.json(
       { error: "Internal server error" },
@@ -78,14 +78,23 @@ async function handleVerificationSessionEvent(event: Stripe.Event) {
 
     // Determine completion status
     const isCompleted = status === "verified";
-    const verificationStatus =
+    // Map Stripe status to our enum values
+    const verificationStatus:
+      | "not_started"
+      | "pending"
+      | "requires_input"
+      | "processing"
+      | "verified"
+      | "failed" =
       status === "verified"
         ? "verified"
         : status === "requires_input"
           ? "requires_input"
           : status === "canceled"
-            ? "canceled"
-            : status;
+            ? "failed"
+            : status === "processing"
+              ? "processing"
+              : "pending";
 
     // Update user verification status in database
     await db
@@ -101,11 +110,9 @@ async function handleVerificationSessionEvent(event: Stripe.Event) {
       })
       .where(eq(users.id, userId));
 
-    console.log(
-      `Updated verification status for user ${userId}: ${verificationStatus}`,
-    );
+    // Updated verification status for user
   } catch (error) {
-    console.error("Error handling verification session event:", error);
+    // Error handling verification session event
     throw error;
   }
 }

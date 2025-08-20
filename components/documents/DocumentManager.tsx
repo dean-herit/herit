@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardBody,
-  CardHeader,
   Button,
   Chip,
   Modal,
@@ -16,9 +15,6 @@ import {
   Input,
   Select,
   SelectItem,
-  Divider,
-  Tabs,
-  Tab,
   Progress,
   Tooltip,
 } from "@heroui/react";
@@ -27,22 +23,26 @@ import {
   EyeIcon,
   TrashIcon,
   PlusIcon,
-  FunnelIcon,
   MagnifyingGlassIcon,
   CloudArrowDownIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+
 import DocumentUploadZone from "./DocumentUploadZone";
+
 import {
   DocumentMetadata,
   DocumentCategory,
-  DocumentFilter,
   getDocumentCategoryDisplay,
   formatFileSize,
   getFileTypeIcon,
-  getDocumentStatusColor,
-  getDocumentPriorityColor,
 } from "@/types/documents";
+import {
+  useDocuments,
+  useDeleteDocument,
+  useDocumentPreview,
+  useDocumentDownload,
+} from "@/hooks/useDocuments";
 
 interface DocumentManagerProps {
   assetId: string;
@@ -55,46 +55,38 @@ export default function DocumentManager({
   assetType,
   className = "",
 }: DocumentManagerProps) {
-  const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
-  const [filteredDocuments, setFilteredDocuments] = useState<DocumentMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [completeness, setCompleteness] = useState<any>(null);
-  const [filter, setFilter] = useState<DocumentFilter>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  
-  const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
-  const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onClose: onPreviewClose } = useDisclosure();
-  const [previewDocument, setPreviewDocument] = useState<DocumentMetadata | null>(null);
 
-  // Load documents
-  const loadDocuments = async () => {
-    try {
-      setIsLoading(true);
-      const searchParams = new URLSearchParams({
-        assetType,
-        ...(filter.category && { category: filter.category }),
-        ...(filter.searchTerm && { search: filter.searchTerm }),
-      });
+  // Create filter object for the hook
+  const filter = useMemo(
+    () => ({
+      category:
+        selectedCategory !== "all"
+          ? (selectedCategory as DocumentCategory)
+          : undefined,
+      searchTerm: searchTerm || undefined,
+    }),
+    [selectedCategory, searchTerm],
+  );
 
-      const response = await fetch(`/api/assets/${assetId}/documents?${searchParams}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDocuments(data.documents);
-        setCompleteness(data.completeness);
-      } else {
-        console.error("Failed to load documents");
-      }
-    } catch (error) {
-      console.error("Error loading documents:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Use TanStack Query hooks
+  const {
+    data: documentsResponse,
+    isLoading,
+    error,
+  } = useDocuments(assetId, assetType, filter);
 
-  // Filter documents
-  useEffect(() => {
+  const deleteDocumentMutation = useDeleteDocument();
+  const previewDocumentMutation = useDocumentPreview();
+  const downloadDocumentMutation = useDocumentDownload();
+
+  const documents = documentsResponse?.documents || [];
+  const completeness = documentsResponse?.completeness;
+
+  // Filter documents locally for immediate feedback
+  const filteredDocuments = useMemo(() => {
     let filtered = documents;
 
     if (selectedCategory !== "all") {
@@ -106,74 +98,90 @@ export default function DocumentManager({
         (doc) =>
           doc.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          doc.documentType.toLowerCase().includes(searchTerm.toLowerCase())
+          doc.documentType.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
-    setFilteredDocuments(filtered);
+    return filtered;
   }, [documents, selectedCategory, searchTerm]);
 
-  // Load documents on mount
-  useEffect(() => {
-    loadDocuments();
-  }, [assetId, assetType]);
+  const {
+    isOpen: isUploadOpen,
+    onOpen: onUploadOpen,
+    onClose: onUploadClose,
+  } = useDisclosure();
+  const {
+    isOpen: isPreviewOpen,
+    onOpen: onPreviewOpen,
+    onClose: onPreviewClose,
+  } = useDisclosure();
+  const [previewDocument, setPreviewDocument] =
+    useState<DocumentMetadata | null>(null);
 
   const handleDocumentUpload = (documentId: string) => {
     console.log("Document uploaded:", documentId);
-    loadDocuments(); // Reload documents
+    // Documents will auto-refresh via query invalidation
   };
 
-  const handleDeleteDocument = async (documentId: string) => {
+  const handleDeleteDocument = (documentId: string) => {
     if (confirm("Are you sure you want to delete this document?")) {
-      try {
-        const response = await fetch(`/api/documents/${documentId}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
-          loadDocuments(); // Reload documents
-        } else {
-          alert("Failed to delete document");
-        }
-      } catch (error) {
-        console.error("Error deleting document:", error);
-        alert("Error deleting document");
-      }
+      deleteDocumentMutation.mutate(documentId, {
+        onError: (error) => {
+          console.error("Error deleting document:", error);
+          alert("Failed to delete document. Please try again.");
+        },
+      });
     }
   };
 
-  const handlePreviewDocument = async (doc: DocumentMetadata) => {
-    try {
-      const response = await fetch(`/api/documents/${doc.id}`);
-      if (response.ok) {
-        const data = await response.json();
+  const handlePreviewDocument = (doc: DocumentMetadata) => {
+    previewDocumentMutation.mutate(doc.id, {
+      onSuccess: (data) => {
         setPreviewDocument({ ...doc, blobUrl: data.url });
         onPreviewOpen();
-      } else {
-        alert("Failed to load document");
-      }
-    } catch (error) {
-      console.error("Error loading document:", error);
-      alert("Error loading document");
-    }
+      },
+      onError: (error) => {
+        console.error("Error previewing document:", error);
+        alert("Failed to load document preview. Please try again.");
+      },
+    });
   };
 
-  const handleDownloadDocument = async (doc: DocumentMetadata) => {
-    try {
-      const response = await fetch(`/api/documents/${doc.id}`);
-      if (response.ok) {
-        const data = await response.json();
+  const handleDownloadDocument = (doc: DocumentMetadata) => {
+    downloadDocumentMutation.mutate(doc.id, {
+      onSuccess: (blob) => {
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = data.url;
+
+        link.href = url;
         link.download = doc.originalName;
         link.click();
-      } else {
-        alert("Failed to download document");
-      }
-    } catch (error) {
-      console.error("Error downloading document:", error);
-      alert("Error downloading document");
-    }
+        window.URL.revokeObjectURL(url);
+      },
+      onError: (error) => {
+        console.error("Error downloading document:", error);
+        alert("Failed to download document. Please try again.");
+      },
+    });
   };
+
+  // Error state
+  if (error) {
+    return (
+      <div className={className}>
+        <Card>
+          <CardBody className="p-6 text-center">
+            <p className="text-red-600 mb-4">
+              Failed to load documents. Please try again.
+            </p>
+            <Button color="primary" onPress={() => window.location.reload()}>
+              Retry
+            </Button>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
@@ -188,10 +196,10 @@ export default function DocumentManager({
               </span>
             </div>
             <Progress
+              className="w-full"
+              color={completeness.percentage >= 100 ? "success" : "warning"}
               size="sm"
               value={completeness.percentage}
-              color={completeness.percentage >= 100 ? "success" : "warning"}
-              className="w-full"
             />
             {completeness.missing.length > 0 && (
               <div className="mt-2">
@@ -221,22 +229,22 @@ export default function DocumentManager({
 
             <div className="flex gap-2 flex-1">
               <Input
+                className="max-w-sm"
                 placeholder="Search documents..."
                 startContent={<MagnifyingGlassIcon className="w-4 h-4" />}
                 value={searchTerm}
                 onValueChange={setSearchTerm}
-                className="max-w-sm"
               />
-              
+
               <Select
+                className="max-w-xs"
                 placeholder="Filter by category"
                 selectedKeys={[selectedCategory]}
-                onSelectionChange={(keys) => setSelectedCategory(Array.from(keys)[0] as string)}
-                className="max-w-xs"
+                onSelectionChange={(keys) =>
+                  setSelectedCategory(Array.from(keys)[0] as string)
+                }
               >
-                <SelectItem key="all">
-                  All Categories
-                </SelectItem>
+                <SelectItem key="all">All Categories</SelectItem>
                 <SelectItem key={DocumentCategory.LEGAL}>
                   {getDocumentCategoryDisplay(DocumentCategory.LEGAL)}
                 </SelectItem>
@@ -344,7 +352,7 @@ export default function DocumentManager({
                         <EyeIcon className="w-4 h-4" />
                       </Button>
                     </Tooltip>
-                    
+
                     <Tooltip content="Download">
                       <Button
                         isIconOnly
@@ -359,9 +367,9 @@ export default function DocumentManager({
                     <Tooltip content="Delete">
                       <Button
                         isIconOnly
+                        color="danger"
                         size="sm"
                         variant="light"
-                        color="danger"
                         onPress={() => handleDeleteDocument(doc.id)}
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -376,19 +384,19 @@ export default function DocumentManager({
       )}
 
       {/* Upload Modal */}
-      <Modal isOpen={isUploadOpen} onClose={onUploadClose} size="lg">
+      <Modal isOpen={isUploadOpen} size="lg" onClose={onUploadClose}>
         <ModalContent>
           <ModalHeader>Upload Documents</ModalHeader>
           <ModalBody>
             <DocumentUploadZone
               assetId={assetId}
               assetType={assetType}
-              onUploadComplete={handleDocumentUpload}
+              maxFiles={5}
               onError={(error) => {
                 console.error("Upload error:", error);
                 alert(`Upload error: ${error}`);
               }}
-              maxFiles={5}
+              onUploadComplete={handleDocumentUpload}
             />
           </ModalBody>
           <ModalFooter>
@@ -400,24 +408,22 @@ export default function DocumentManager({
       </Modal>
 
       {/* Preview Modal */}
-      <Modal isOpen={isPreviewOpen} onClose={onPreviewClose} size="3xl">
+      <Modal isOpen={isPreviewOpen} size="3xl" onClose={onPreviewClose}>
         <ModalContent>
-          <ModalHeader>
-            {previewDocument?.originalName}
-          </ModalHeader>
+          <ModalHeader>{previewDocument?.originalName}</ModalHeader>
           <ModalBody>
             {previewDocument && (
               <div className="min-h-96">
                 {previewDocument.mimeType.startsWith("image/") ? (
                   <img
-                    src={previewDocument.blobUrl}
                     alt={previewDocument.originalName}
                     className="max-w-full h-auto"
+                    src={previewDocument.blobUrl}
                   />
                 ) : previewDocument.mimeType === "application/pdf" ? (
                   <iframe
-                    src={previewDocument.blobUrl}
                     className="w-full h-96"
+                    src={previewDocument.blobUrl}
                     title={previewDocument.originalName}
                   />
                 ) : (

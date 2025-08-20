@@ -40,6 +40,9 @@ class HighlightManager {
   }
 
   private initialize() {
+    // Only initialize in browser environment
+    if (typeof window === "undefined") return;
+
     // Check for CSS Custom Highlight API support (2025 standard)
     if (typeof CSS !== "undefined" && "highlights" in CSS) {
       this.highlightRegistry = CSS.highlights;
@@ -54,6 +57,13 @@ class HighlightManager {
   }
 
   private setupIntersectionObserver() {
+    // Only create IntersectionObserver in browser
+    if (
+      typeof window === "undefined" ||
+      typeof IntersectionObserver === "undefined"
+    )
+      return;
+
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

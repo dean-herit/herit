@@ -55,11 +55,7 @@ export function SignatureStep({
     }
   }, [initialSignature]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const {
-    status: openCVStatus,
-    error: _openCVError,
-    isReady: isOpenCVReady,
-  } = useOpenCV();
+  const { status: openCVStatus, isReady: isOpenCVReady } = useOpenCV();
 
   const fullName = `${personalInfo.first_name} ${personalInfo.last_name}`;
 
@@ -118,8 +114,8 @@ export function SignatureStep({
 
       // Use the signature returned from the API (with database ID)
       onComplete(result.signature);
-    } catch (error) {
-      // You might want to show an error message to the user here
+    } catch {
+      // Error handling signature save
     }
   };
 

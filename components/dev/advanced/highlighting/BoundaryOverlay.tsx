@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { highlightManager } from './HighlightManager';
+import React, { useEffect, useState, useCallback } from "react";
 
 interface ComponentBounds {
   id: string;
@@ -20,21 +19,21 @@ interface BoundaryOverlayProps {
 }
 
 const CATEGORY_COLORS = {
-  'ui': '#3b82f6',           // Blue
-  'layout': '#10b981',       // Green  
-  'navigation': '#8b5cf6',   // Purple
-  'input': '#f59e0b',        // Amber
-  'feedback': '#ef4444',     // Red
-  'authentication': '#ec4899', // Pink
-  'business': '#06b6d4',     // Cyan
-  'data-display': '#84cc16'  // Lime
+  ui: "#3b82f6", // Blue
+  layout: "#10b981", // Green
+  navigation: "#8b5cf6", // Purple
+  input: "#f59e0b", // Amber
+  feedback: "#ef4444", // Red
+  authentication: "#ec4899", // Pink
+  business: "#06b6d4", // Cyan
+  "data-display": "#84cc16", // Lime
 } as const;
 
 export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
   enabled = true,
   showLabels = true,
   showDimensions = false,
-  opacity = 0.3
+  opacity = 0.3,
 }) => {
   const [componentBounds, setComponentBounds] = useState<ComponentBounds[]>([]);
   const [isVisible, setIsVisible] = useState(false);
@@ -42,28 +41,35 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
   const updateComponentBounds = useCallback(() => {
     if (!enabled) {
       setComponentBounds([]);
+
       return;
     }
 
-    const components = document.querySelectorAll('[data-component-id]');
+    const components = document.querySelectorAll("[data-component-id]");
     const bounds: ComponentBounds[] = [];
 
     components.forEach((element, index) => {
-      const componentId = element.getAttribute('data-component-id');
-      const componentCategory = element.getAttribute('data-component-category') || 'ui';
-      
+      const componentId = element.getAttribute("data-component-id");
+      const componentCategory =
+        element.getAttribute("data-component-category") || "ui";
+
       if (!componentId) return;
 
       const rect = element.getBoundingClientRect();
-      
+
       // Only include visible components
-      if (rect.width > 0 && rect.height > 0 && 
-          rect.top < window.innerHeight && rect.bottom > 0 &&
-          rect.left < window.innerWidth && rect.right > 0) {
-        
+      if (
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.top < window.innerHeight &&
+        rect.bottom > 0 &&
+        rect.left < window.innerWidth &&
+        rect.right > 0
+      ) {
         // Get component name from registry or element
         let componentName = componentId;
-        const nameAttr = element.getAttribute('data-component-name');
+        const nameAttr = element.getAttribute("data-component-name");
+
         if (nameAttr) {
           componentName = nameAttr;
         }
@@ -73,8 +79,11 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
           name: componentName,
           category: componentCategory,
           rect: rect,
-          color: CATEGORY_COLORS[componentCategory as keyof typeof CATEGORY_COLORS] || CATEGORY_COLORS.ui,
-          zIndex: 10000 - index // Ensure proper stacking order
+          color:
+            CATEGORY_COLORS[
+              componentCategory as keyof typeof CATEGORY_COLORS
+            ] || CATEGORY_COLORS.ui,
+          zIndex: 10000 - index, // Ensure proper stacking order
         });
       }
     });
@@ -83,6 +92,7 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
     bounds.sort((a, b) => {
       const areaA = a.rect.width * a.rect.height;
       const areaB = b.rect.width * b.rect.height;
+
       return areaB - areaA;
     });
 
@@ -90,7 +100,7 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
   }, [enabled]);
 
   const toggleVisibility = useCallback(() => {
-    setIsVisible(prev => !prev);
+    setIsVisible((prev) => !prev);
   }, []);
 
   useEffect(() => {
@@ -106,13 +116,13 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
 
     const handleKeydown = (event: KeyboardEvent) => {
       // Toggle with Ctrl+B
-      if (event.ctrlKey && event.key === 'b') {
+      if (event.ctrlKey && event.key === "b") {
         event.preventDefault();
         toggleVisibility();
       }
-      
+
       // Update bounds when components might have changed
-      if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
+      if (event.key === "F5" || (event.ctrlKey && event.key === "r")) {
         setTimeout(updateComponentBounds, 100);
       }
     };
@@ -127,13 +137,13 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['data-component-id', 'style', 'class']
+      attributeFilter: ["data-component-id", "style", "class"],
     });
 
     // Listen for events
-    window.addEventListener('scroll', handleUpdate, { passive: true });
-    window.addEventListener('resize', handleUpdate);
-    document.addEventListener('keydown', handleKeydown);
+    window.addEventListener("scroll", handleUpdate, { passive: true });
+    window.addEventListener("resize", handleUpdate);
+    document.addEventListener("keydown", handleKeydown);
 
     // Update periodically for dynamic content
     const interval = setInterval(updateComponentBounds, 2000);
@@ -141,9 +151,9 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
     return () => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
-      window.removeEventListener('scroll', handleUpdate);
-      window.removeEventListener('resize', handleUpdate);
-      document.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener("scroll", handleUpdate);
+      window.removeEventListener("resize", handleUpdate);
+      document.removeEventListener("keydown", handleKeydown);
       clearInterval(interval);
     };
   }, [enabled, updateComponentBounds, toggleVisibility]);
@@ -164,8 +174,10 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
             width: component.rect.width,
             height: component.rect.height,
             borderColor: component.color,
-            backgroundColor: `${component.color}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`,
-            zIndex: component.zIndex
+            backgroundColor: `${component.color}${Math.floor(opacity * 255)
+              .toString(16)
+              .padStart(2, "0")}`,
+            zIndex: component.zIndex,
           }}
         >
           {/* Component label */}
@@ -175,9 +187,9 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
               style={{
                 backgroundColor: component.color,
                 maxWidth: component.rect.width,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             >
               {component.name}
@@ -189,10 +201,11 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
             <div
               className="absolute bottom-0 right-0 px-1 py-0.5 text-xs font-mono text-white bg-black bg-opacity-75 rounded-tl"
               style={{
-                fontSize: '10px'
+                fontSize: "10px",
               }}
             >
-              {Math.round(component.rect.width)} × {Math.round(component.rect.height)}
+              {Math.round(component.rect.width)} ×{" "}
+              {Math.round(component.rect.height)}
             </div>
           )}
 
@@ -200,7 +213,7 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
           <div
             className="absolute top-0 right-0 w-3 h-3 rounded-bl"
             style={{
-              backgroundColor: component.color
+              backgroundColor: component.color,
             }}
             title={`Category: ${component.category}`}
           />
@@ -213,10 +226,10 @@ export const BoundaryOverlay: React.FC<BoundaryOverlayProps> = ({
         <div className="space-y-1">
           <div>Components: {componentBounds.length}</div>
           <div>Ctrl+B: Toggle visibility</div>
-          <div>Labels: {showLabels ? '✓' : '✗'}</div>
-          <div>Dimensions: {showDimensions ? '✓' : '✗'}</div>
+          <div>Labels: {showLabels ? "✓" : "✗"}</div>
+          <div>Dimensions: {showDimensions ? "✓" : "✗"}</div>
         </div>
-        
+
         {/* Legend */}
         <div className="mt-2 pt-2 border-t border-gray-600">
           <div className="text-xs font-semibold mb-1">Categories:</div>

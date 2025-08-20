@@ -6,6 +6,10 @@
       "env": {
         "BASE_URL": "http://localhost:3000"
       }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "--node-options=--experimental-fetch", "@upstash/context7-mcp"]
     }
   }
 }

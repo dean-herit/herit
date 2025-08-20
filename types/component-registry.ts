@@ -1,13 +1,13 @@
 // Component Registry Types and Interfaces
 export enum ComponentCategory {
-  LAYOUT = 'layout',
-  NAVIGATION = 'navigation', 
-  DATA_DISPLAY = 'data-display',
-  INPUT = 'input',
-  FEEDBACK = 'feedback',
-  AUTHENTICATION = 'authentication',
-  BUSINESS = 'business',
-  UI = 'ui'
+  LAYOUT = "layout",
+  NAVIGATION = "navigation",
+  DATA_DISPLAY = "data-display",
+  INPUT = "input",
+  FEEDBACK = "feedback",
+  AUTHENTICATION = "authentication",
+  BUSINESS = "business",
+  UI = "ui",
 }
 
 export interface ComponentVariant {
@@ -20,7 +20,7 @@ export interface ComponentVariant {
 export interface PerformanceInfo {
   bundleSize?: number;
   renderTime?: number;
-  complexity?: 'low' | 'medium' | 'high';
+  complexity?: "low" | "medium" | "high";
 }
 
 export interface A11yInfo {

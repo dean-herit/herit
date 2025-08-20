@@ -3,7 +3,7 @@
 // Comprehensive Component Test Suite
 // MCP-driven testing for all major components with visual feedback
 
-const { ComponentTestFramework } = require("./playwright-setup");
+const { ComponentTestFramework } = require("../playwright-setup");
 const { runDashboardTests } = require("./dashboard-component-test");
 
 // Component registry for testing priority

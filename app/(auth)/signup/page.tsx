@@ -2,14 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Button,
-  Input,
-  Link,
-  Divider,
-  Form,
-  Spinner,
-} from "@heroui/react";
+import { Button, Input, Link, Divider, Form, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import { HeritLogo } from "@/components/HeritLogo";
@@ -22,14 +15,19 @@ export const dynamic = "force-dynamic";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { isAuthenticated, isSessionLoading, signup, isSigningUp, signupError } =
-    useAuth();
+  const {
+    isAuthenticated,
+    isSessionLoading,
+    signup,
+    isSigningUp,
+    signupError,
+  } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
-    lastName: "", 
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -68,6 +66,7 @@ export default function SignupPage() {
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -75,7 +74,7 @@ export default function SignupPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -83,6 +82,7 @@ export default function SignupPage() {
     event.preventDefault();
     if (validateForm()) {
       const { confirmPassword, ...signupData } = formData;
+
       signup(signupData);
     }
   };
@@ -114,21 +114,28 @@ export default function SignupPage() {
   return (
     <ComponentWrapper
       componentId="signup-page"
-      metadata={COMPONENT_REGISTRY['signup-page'] || {
-        id: 'signup-page',
-        name: 'SignupPage',
-        category: 'authentication',
-        description: 'User registration page',
-        filePath: '/app/(auth)/signup/page.tsx',
-        startLine: 1,
-        endLine: 100,
-        dependencies: [],
-        variants: [],
-        accessibility: { violations: 0, hasAriaLabels: false, hasKeyboardSupport: false, screenReaderFriendly: false },
-        performance: { complexity: 'low' },
-        lastUpdated: new Date().toISOString(),
-        exports: []
-      }}
+      metadata={
+        COMPONENT_REGISTRY["signup-page"] || {
+          id: "signup-page",
+          name: "SignupPage",
+          category: "authentication",
+          description: "User registration page",
+          filePath: "/app/(auth)/signup/page.tsx",
+          startLine: 1,
+          endLine: 100,
+          dependencies: [],
+          variants: [],
+          accessibility: {
+            violations: 0,
+            hasAriaLabels: false,
+            hasKeyboardSupport: false,
+            screenReaderFriendly: false,
+          },
+          performance: { complexity: "low" },
+          lastUpdated: new Date().toISOString(),
+          exports: [],
+        }
+      }
     >
       <div
         className="bg-content1 flex min-h-screen w-full items-center justify-end overflow-hidden"
@@ -177,7 +184,7 @@ export default function SignupPage() {
                   input: "text-white placeholder:text-white/50",
                   inputWrapper:
                     "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                  errorMessage: "text-danger-300"
+                  errorMessage: "text-danger-300",
                 }}
                 errorMessage={errors.firstName}
                 isInvalid={!!errors.firstName}
@@ -195,7 +202,7 @@ export default function SignupPage() {
                   input: "text-white placeholder:text-white/50",
                   inputWrapper:
                     "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                  errorMessage: "text-danger-300"
+                  errorMessage: "text-danger-300",
                 }}
                 errorMessage={errors.lastName}
                 isInvalid={!!errors.lastName}
@@ -215,7 +222,7 @@ export default function SignupPage() {
                 input: "text-white placeholder:text-white/50",
                 inputWrapper:
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300"
+                errorMessage: "text-danger-300",
               }}
               errorMessage={errors.email}
               isInvalid={!!errors.email}
@@ -235,7 +242,7 @@ export default function SignupPage() {
                 input: "text-white placeholder:text-white/50",
                 inputWrapper:
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300"
+                errorMessage: "text-danger-300",
               }}
               endContent={
                 <button type="button" onClick={toggleVisibility}>
@@ -270,7 +277,7 @@ export default function SignupPage() {
                 input: "text-white placeholder:text-white/50",
                 inputWrapper:
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300"
+                errorMessage: "text-danger-300",
               }}
               endContent={
                 <button type="button" onClick={toggleConfirmVisibility}>

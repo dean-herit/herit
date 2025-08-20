@@ -3,33 +3,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
-import { Session, LoginCredentials, SignupCredentials } from "@/types/auth";
+import { LoginCredentials, SignupCredentials } from "@/types/auth";
+import { authQueryOptions } from "@/lib/query-options";
 
 export function useAuth() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Get current session
+  // Get current session using queryOptions factory
   const {
     data: session,
     isLoading: isSessionLoading,
     error: sessionError,
     refetch: refetchSession,
-  } = useQuery<Session>({
-    queryKey: ["auth", "session"],
-    queryFn: async () => {
-      const response = await fetch("/api/auth/session");
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch session");
-      }
-      const data = await response.json();
-
-      return { user: data.user };
-    },
-    retry: false,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  } = useQuery(authQueryOptions.session());
 
   // Login mutation
   const loginMutation = useMutation({

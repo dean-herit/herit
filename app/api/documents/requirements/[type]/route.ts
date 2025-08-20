@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getDocumentRequirements } from "@/data/irish-document-requirements";
 
 // GET /api/documents/requirements/[type] - Get document requirements for an asset type
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ type: string }> }
+  { params }: { params: Promise<{ type: string }> },
 ) {
   try {
     const resolvedParams = await params;
@@ -22,9 +23,10 @@ export async function GET(
     });
   } catch (error) {
     console.error("Get requirements error:", error);
+
     return NextResponse.json(
       { error: "Failed to get document requirements" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

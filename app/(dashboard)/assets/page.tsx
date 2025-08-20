@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -33,21 +33,11 @@ import {
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 
-import {
-  Asset,
-  AssetCategoryDefinitions,
-  formatCurrency,
-} from "@/types/assets";
+import { AssetCategoryDefinitions, formatCurrency } from "@/types/assets";
+import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
 
 export default function AssetsPage() {
   const router = useRouter();
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState({
-    totalValue: 0,
-    assetCount: 0,
-    categoryBreakdown: {} as Record<string, number>,
-  });
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,56 +45,37 @@ export default function AssetsPage() {
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  useEffect(() => {
-    fetchAssets();
-  }, [searchTerm, selectedCategory, sortBy, sortOrder]);
+  // Use TanStack Query hook for assets
+  const {
+    data: assetsResponse,
+    isLoading: loading,
+    error,
+  } = useAssets({
+    search: searchTerm,
+    category: selectedCategory,
+    sort_by: sortBy,
+    sort_order: sortOrder,
+    limit: "50",
+  });
 
-  const fetchAssets = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        search: searchTerm,
-        category: selectedCategory,
-        sort_by: sortBy,
-        sort_order: sortOrder,
-        limit: "50", // Fetch more for now
-      });
+  const deleteAssetMutation = useDeleteAsset();
 
-      const response = await fetch(`/api/assets?${params}`);
-
-      if (response.ok) {
-        const data = await response.json();
-
-        setAssets(data.data.assets);
-        setSummary(data.data.summary);
-      } else {
-        console.error("Failed to fetch assets");
-      }
-    } catch (error) {
-      console.error("Error fetching assets:", error);
-    } finally {
-      setLoading(false);
-    }
+  const assets = assetsResponse?.data.assets || [];
+  const summary = assetsResponse?.data.summary || {
+    totalValue: 0,
+    assetCount: 0,
+    categoryBreakdown: {} as Record<string, number>,
   };
 
-  const handleDeleteAsset = async (assetId: string) => {
+  const handleDeleteAsset = (assetId: string) => {
     if (!confirm("Are you sure you want to delete this asset?")) return;
 
-    try {
-      const response = await fetch(`/api/assets/${assetId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setAssets((prev) => prev.filter((asset) => asset.id !== assetId));
-        // Refresh summary
-        await fetchAssets();
-      } else {
-        console.error("Failed to delete asset");
-      }
-    } catch (error) {
-      console.error("Error deleting asset:", error);
-    }
+    deleteAssetMutation.mutate(assetId, {
+      onError: (error) => {
+        console.error("Error deleting asset:", error);
+        alert("Failed to delete asset. Please try again.");
+      },
+    });
   };
 
   const handleAddAsset = () => {
@@ -128,6 +99,32 @@ export default function AssetsPage() {
 
     return "default";
   };
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Your Assets</h1>
+            <p className="text-default-600 mt-1">
+              Manage and track your estate assets
+            </p>
+          </div>
+        </div>
+        <Card>
+          <CardBody className="p-6 text-center">
+            <p className="text-red-600 mb-4">
+              Failed to load assets. Please try again.
+            </p>
+            <Button color="primary" onPress={() => window.location.reload()}>
+              Retry
+            </Button>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

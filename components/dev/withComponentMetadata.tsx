@@ -1,60 +1,63 @@
 "use client";
 
-import React from 'react';
-import { ComponentOverlay } from './ComponentOverlay';
-import { ComponentMetadata } from '@/types/component-registry';
+import React from "react";
+
+import { ComponentOverlay } from "./ComponentOverlay";
+
+import { ComponentMetadata } from "@/types/component-registry";
 
 /**
  * Higher-Order Component for automatic component registration and identification
  */
 export const withComponentMetadata = <P extends object>(
   Component: React.ComponentType<P>,
-  metadata: ComponentMetadata
+  metadata: ComponentMetadata,
 ) => {
   const WrappedComponent = (props: P) => {
-    const isDev = process.env.NODE_ENV === 'development';
-    
+    const isDev = process.env.NODE_ENV === "development";
+
     return (
       <ComponentOverlay componentId={metadata.id} metadata={metadata}>
-        <div 
-          data-component-id={metadata.id}
+        <div
+          className={isDev ? "dev-component-boundary" : ""}
           data-component-category={metadata.category}
+          data-component-id={metadata.id}
           data-testid={metadata.id}
-          className={isDev ? 'dev-component-boundary' : ''}
         >
           <Component {...props} />
         </div>
       </ComponentOverlay>
     );
   };
-  
+
   WrappedComponent.displayName = `WithMetadata(${metadata.name})`;
+
   return WrappedComponent;
 };
 
 /**
  * Simple component wrapper for components that don't need HOC pattern
  */
-export const ComponentWrapper = ({ 
-  componentId, 
-  metadata, 
+export const ComponentWrapper = ({
+  componentId,
+  metadata,
   children,
-  className = ''
+  className = "",
 }: {
   componentId: string;
   metadata: ComponentMetadata;
   children: React.ReactNode;
   className?: string;
 }) => {
-  const isDev = process.env.NODE_ENV === 'development';
-  
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <ComponentOverlay componentId={componentId} metadata={metadata}>
-      <div 
-        data-component-id={componentId}
+      <div
+        className={`${className} ${isDev ? "dev-component-boundary" : ""}`.trim()}
         data-component-category={metadata.category}
+        data-component-id={componentId}
         data-testid={componentId}
-        className={`${className} ${isDev ? 'dev-component-boundary' : ''}`.trim()}
       >
         {children}
       </div>

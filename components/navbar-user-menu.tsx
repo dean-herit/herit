@@ -6,9 +6,9 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-} from "@heroui/dropdown";
-import { Avatar } from "@heroui/avatar";
-import { Button } from "@heroui/button";
+  Avatar,
+  Button,
+} from "@heroui/react";
 import NextLink from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
