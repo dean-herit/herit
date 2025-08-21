@@ -1,5 +1,40 @@
 # Claude Development Context
 
+## 🚀 WORKFLOW PRIORITIES - READ FIRST
+
+### Quick Decision Guide
+
+- **Need a screenshot?** → Use MCP `screenshot` tool directly (NOT Task agent, NOT custom scripts)
+- **Need to test UI?** → Use MCP `navigate` + `click` tools directly
+- **Need documentation?** → Use Context7 with "use context7" in prompt
+- **Multiple complex operations?** → Only then use Task agent
+
+### ✅ DO THIS (Direct MCP Tools)
+
+```javascript
+// Screenshot - THIS IS ALL YOU NEED:
+await screenshot({ filename: "mobile-test" });
+
+// Navigate and interact - DIRECT CALLS:
+await navigate({ path: "/signup" });
+await click({ selector: "signup-button", isComponentId: true });
+
+// Get component info - ONE CALL:
+await get_components({ visibleOnly: true });
+```
+
+### ❌ AVOID These Anti-patterns
+
+- Writing custom Playwright/Node.js scripts when MCP tools exist
+- Using Task agent for single screenshot captures
+- Creating temporary test files for one-off operations
+- Overcomplicating simple direct tool calls
+- Going through multiple agents when direct MCP tool works
+
+### 🎯 Speed Rule: Direct MCP Tools > Task Agent > Custom Scripts
+
+---
+
 ## Project Overview
 
 HeroUI Heritage - Estate planning and asset management platform built with Next.js, TypeScript, and Drizzle ORM.

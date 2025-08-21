@@ -146,9 +146,9 @@ export default function SignupPage() {
         }}
       >
         {/* Brand Logo */}
-        <div className="absolute top-5 left-10">
+        <div className="absolute top-5 left-5 md:left-10 z-10">
           <div className="flex items-center">
-            <HeritLogo className="invert" size={144} />
+            <HeritLogo className="invert" size={120} />
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export default function SignupPage() {
         </div>
 
         {/* Signup Form */}
-        <div className="rounded-large bg-transparent backdrop-blur-sm border border-white/50 shadow-xl flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10 mr-8 my-8 text-white">
+        <div className="rounded-large bg-transparent backdrop-blur-sm border border-white/50 shadow-xl flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10 mr-4 md:mr-8 mt-16 md:my-8 text-white">
           <p className="pb-2 text-xl font-medium text-white">Create Account</p>
 
           {signupError && (
