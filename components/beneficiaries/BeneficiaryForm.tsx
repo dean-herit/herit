@@ -128,16 +128,16 @@ export function BeneficiaryForm({
 
   return (
     <form
-      className="space-y-6"
+      className="space-y-6 max-w-full"
       data-component-id="beneficiary-form"
       onSubmit={handleSubmit}
     >
-      <Card>
-        <CardHeader>
+      <Card className="shadow-md">
+        <CardHeader className="pb-3">
           <h3 className="text-lg font-semibold">Personal Information</h3>
         </CardHeader>
         <Divider />
-        <CardBody className="space-y-4">
+        <CardBody className="gap-4 p-6">
           {formData.photo_url && (
             <div className="flex justify-center mb-4">
               <Avatar
@@ -232,12 +232,12 @@ export function BeneficiaryForm({
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-md">
+        <CardHeader className="pb-3">
           <h3 className="text-lg font-semibold">Address Information</h3>
         </CardHeader>
         <Divider />
-        <CardBody className="space-y-4">
+        <CardBody className="gap-4 p-6">
           <Input
             data-testid="beneficiary-address1"
             errorMessage={errors.address_line_1}
@@ -315,12 +315,12 @@ export function BeneficiaryForm({
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-md">
+        <CardHeader className="pb-3">
           <h3 className="text-lg font-semibold">Inheritance Details</h3>
         </CardHeader>
         <Divider />
-        <CardBody className="space-y-4">
+        <CardBody className="gap-4 p-6">
           <div>
             <label className="block text-sm font-medium mb-2">
               Inheritance Percentage: {formData.percentage || 0}%

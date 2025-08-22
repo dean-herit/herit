@@ -7,11 +7,6 @@ import {
   CardBody,
   CardHeader,
   Divider,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
   Tabs,
   Tab,
 } from "@heroui/react";
@@ -22,18 +17,11 @@ import { toast } from "sonner";
 
 import {
   useBeneficiaries,
-  useCreateBeneficiary,
-  useUpdateBeneficiary,
   useDeleteBeneficiary,
 } from "@/hooks/useBeneficiaries";
-import { BeneficiaryForm } from "@/components/beneficiaries/BeneficiaryForm";
 import { BeneficiaryList } from "@/components/beneficiaries/BeneficiaryList";
 import { BeneficiaryCard } from "@/components/beneficiaries/BeneficiaryCard";
-import {
-  BeneficiaryFormData,
-  BeneficiaryWithPhoto,
-  RelationshipTypes,
-} from "@/types/beneficiaries";
+import { BeneficiaryWithPhoto, RelationshipTypes } from "@/types/beneficiaries";
 
 export default function BeneficiariesPage() {
   const router = useRouter();
@@ -45,13 +33,7 @@ export default function BeneficiariesPage() {
     relationship_type: undefined as string | undefined,
   });
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [editingBeneficiary, setEditingBeneficiary] =
-    useState<BeneficiaryWithPhoto | null>(null);
-
   const { data, isLoading } = useBeneficiaries(searchParams as any);
-  const createMutation = useCreateBeneficiary();
-  const updateMutation = useUpdateBeneficiary(editingBeneficiary?.id || "");
   const deleteMutation = useDeleteBeneficiary();
 
   const beneficiaries = data?.beneficiaries || [];
@@ -73,13 +55,11 @@ export default function BeneficiariesPage() {
   ).length;
 
   const handleAddBeneficiary = () => {
-    setEditingBeneficiary(null);
-    onOpen();
+    router.push("/beneficiaries/add");
   };
 
   const handleEditBeneficiary = (beneficiary: BeneficiaryWithPhoto) => {
-    setEditingBeneficiary(beneficiary);
-    onOpen();
+    router.push(`/beneficiaries/${beneficiary.id}/edit`);
   };
 
   const handleViewBeneficiary = (beneficiary: BeneficiaryWithPhoto) => {
@@ -91,28 +71,9 @@ export default function BeneficiariesPage() {
       try {
         await deleteMutation.mutateAsync(beneficiary.id);
         toast.success("Beneficiary deleted successfully");
-      } catch (error) {
+      } catch {
         toast.error("Failed to delete beneficiary");
       }
-    }
-  };
-
-  const handleSubmit = async (data: BeneficiaryFormData) => {
-    try {
-      if (editingBeneficiary) {
-        await updateMutation.mutateAsync(data);
-        toast.success("Beneficiary updated successfully");
-      } else {
-        await createMutation.mutateAsync(data);
-        toast.success("Beneficiary added successfully");
-      }
-      onClose();
-    } catch (error) {
-      toast.error(
-        editingBeneficiary
-          ? "Failed to update beneficiary"
-          : "Failed to add beneficiary",
-      );
     }
   };
 
@@ -322,49 +283,6 @@ export default function BeneficiariesPage() {
           )}
         </CardBody>
       </Card>
-
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isOpen}
-        scrollBehavior="inside"
-        size="3xl"
-        onClose={onClose}
-      >
-        <ModalContent>
-          <ModalHeader>
-            {editingBeneficiary ? "Edit Beneficiary" : "Add New Beneficiary"}
-          </ModalHeader>
-          <ModalBody>
-            <BeneficiaryForm
-              initialData={
-                editingBeneficiary
-                  ? {
-                      ...editingBeneficiary,
-                      country: editingBeneficiary.country || "Ireland",
-                      email: editingBeneficiary.email || "",
-                      phone: editingBeneficiary.phone || "",
-                      pps_number: editingBeneficiary.pps_number || "",
-                      photo_url: editingBeneficiary.photo_url || "",
-                      address_line_1: editingBeneficiary.address_line_1 || "",
-                      address_line_2: editingBeneficiary.address_line_2 || "",
-                      city: editingBeneficiary.city || "",
-                      county: (editingBeneficiary.county || "") as any,
-                      eircode: editingBeneficiary.eircode || "",
-                      percentage: editingBeneficiary.percentage,
-                      specific_assets:
-                        (editingBeneficiary.specific_assets as string[]) || [],
-                      conditions: editingBeneficiary.conditions || "",
-                    }
-                  : undefined
-              }
-              loading={createMutation.isPending || updateMutation.isPending}
-              mode={editingBeneficiary ? "edit" : "create"}
-              onCancel={onClose}
-              onSubmit={handleSubmit}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </div>
   );
 }
