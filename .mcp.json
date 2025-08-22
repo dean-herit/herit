@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "playwright-visual-testing": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["mcp-playwright/src/index.js"],
+      "env": {
+        "BASE_URL": "http://localhost:3000"
+      }
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@upstash/context7-mcp"],
+      "env": {}
+    }
+  }
+}

@@ -201,6 +201,8 @@ export const beneficiaries = pgTable("beneficiaries", {
   relationship_type: varchar("relationship_type", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }),
   phone: varchar("phone", { length: 50 }),
+  pps_number: varchar("pps_number", { length: 20 }),
+  photo_url: text("photo_url"),
 
   // Address
   address_line_1: varchar("address_line_1", { length: 255 }),
