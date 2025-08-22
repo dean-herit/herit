@@ -320,7 +320,11 @@ export function SignatureStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      data-component-id="components-signature-step"
+      data-testid="signature-step"
+    >
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">
           Choose Your Signature Style
@@ -432,6 +436,7 @@ export function SignatureStep({
                   ? "border-primary-500 bg-primary-50 shadow-md"
                   : "border-default-200"
               }`}
+              data-testid={`signature-font-${fontData.name.toLowerCase().replace(/\s+/g, "-")}`}
               onPress={() => handleFontSelect(fontData)}
             >
               <CardBody className="p-6 flex items-center justify-center min-h-[100px]">
@@ -465,6 +470,7 @@ export function SignatureStep({
 
         <Button
           color="primary"
+          data-testid="signature-continue-button"
           isDisabled={loading || !signature}
           isLoading={loading}
           onPress={handleSubmit}

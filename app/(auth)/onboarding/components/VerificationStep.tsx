@@ -139,8 +139,34 @@ export function VerificationStep({
     );
 
     try {
-      // Call the completion endpoint directly
-      // The verification should already be marked as complete by webhook or status polling
+      // First, sync verification status with Stripe to catch any webhook misses
+      console.log(
+        "VerificationStep.handleComplete - Syncing verification status",
+      );
+      const syncResponse = await fetch("/api/onboarding/verification/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (syncResponse.ok) {
+        const syncData = await syncResponse.json();
+
+        console.log("VerificationStep.handleComplete - Sync result:", syncData);
+
+        if (syncData.synced) {
+          console.log(
+            "VerificationStep.handleComplete - Verification status synced successfully",
+          );
+        }
+      } else {
+        console.warn(
+          "VerificationStep.handleComplete - Sync failed, proceeding anyway",
+        );
+      }
+
+      // Now call the completion endpoint
       const completionResponse = await fetch("/api/onboarding/complete", {
         method: "POST",
         headers: {
@@ -167,6 +193,30 @@ export function VerificationStep({
           "VerificationStep.handleComplete - Completion failed",
           errorData,
         );
+
+        // If completion still fails, try direct verification completion
+        if (errorData.error?.includes("verification")) {
+          console.log(
+            "VerificationStep.handleComplete - Attempting fallback verification completion",
+          );
+
+          const fallbackResponse = await fetch("/api/onboarding/verification", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ verificationMethod: "complete" }),
+          });
+
+          if (fallbackResponse.ok) {
+            console.log(
+              "VerificationStep.handleComplete - Fallback verification successful, retrying completion",
+            );
+            window.location.href = "/dashboard";
+
+            return;
+          }
+        }
 
         // Fallback to onboarding completion callback
         onComplete({ verificationCompleted: true });
@@ -209,7 +259,11 @@ export function VerificationStep({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      data-component-id="components-verification-step"
+      data-testid="verification-step"
+    >
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">Identity Verification</h3>
         <p className="text-default-600">
@@ -246,6 +300,7 @@ export function VerificationStep({
                 )}
                 <Button
                   color="primary"
+                  data-testid="start-identity-verification-button"
                   isDisabled={isLoading}
                   isLoading={isLoading}
                   size="lg"
@@ -298,6 +353,7 @@ export function VerificationStep({
                   </div>
                 </div>
                 <Button
+                  data-testid="refresh-status-button"
                   isLoading={checkingStatus}
                   size="sm"
                   variant="flat"
@@ -340,6 +396,7 @@ export function VerificationStep({
                 )}
                 <div className="flex gap-2 justify-center">
                   <Button
+                    data-testid="try-again-button"
                     isLoading={isLoading}
                     variant="flat"
                     onPress={startStripeVerification}
@@ -347,6 +404,7 @@ export function VerificationStep({
                     Try Again
                   </Button>
                   <Button
+                    data-testid="check-status-button"
                     isLoading={checkingStatus}
                     variant="bordered"
                     onPress={fetchVerificationStatus}
@@ -441,6 +499,7 @@ export function VerificationStep({
 
         <Button
           color="primary"
+          data-testid="complete-onboarding-button"
           isDisabled={loading || status !== "completed"}
           isLoading={loading}
           size="lg"

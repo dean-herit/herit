@@ -165,13 +165,19 @@ export function PersonalInfoStep({
   const isLoading = loading || savePersonalInfoMutation.isPending;
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form
+      className="space-y-6"
+      data-component-id="components-personal-info-step"
+      data-testid="personal-info-form"
+      onSubmit={handleSubmit}
+    >
       {/* Personal Details */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Personal Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             isRequired
+            data-testid="first-name-input"
             errorMessage={errors.first_name}
             isInvalid={!!errors.first_name}
             label="First Name"
@@ -183,6 +189,7 @@ export function PersonalInfoStep({
 
           <Input
             isRequired
+            data-testid="last-name-input"
             errorMessage={errors.last_name}
             isInvalid={!!errors.last_name}
             label="Last Name"
@@ -194,6 +201,7 @@ export function PersonalInfoStep({
 
           <Input
             isRequired
+            data-testid="date-of-birth-input"
             errorMessage={errors.date_of_birth}
             isInvalid={!!errors.date_of_birth}
             label="Date of Birth"
@@ -205,6 +213,7 @@ export function PersonalInfoStep({
 
           <Input
             isRequired
+            data-testid="phone-number-input"
             errorMessage={errors.phone_number}
             isInvalid={!!errors.phone_number}
             label="Phone Number"
@@ -223,6 +232,7 @@ export function PersonalInfoStep({
         <div className="space-y-4">
           <Input
             isRequired
+            data-testid="address-line-1-input"
             errorMessage={errors.address_line_1}
             isInvalid={!!errors.address_line_1}
             label="Address Line 1"
@@ -233,6 +243,7 @@ export function PersonalInfoStep({
           />
 
           <Input
+            data-testid="address-line-2-input"
             label="Address Line 2"
             placeholder="Apartment, suite, etc. (optional)"
             value={formData.address_line_2 || ""}
@@ -243,6 +254,7 @@ export function PersonalInfoStep({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               isRequired
+              data-testid="city-input"
               errorMessage={errors.city}
               isInvalid={!!errors.city}
               label="City/Town"
@@ -254,6 +266,7 @@ export function PersonalInfoStep({
 
             <Select
               isRequired
+              data-testid="county-select"
               errorMessage={errors.county}
               isInvalid={!!errors.county}
               label="County"
@@ -273,6 +286,7 @@ export function PersonalInfoStep({
 
             <Input
               isRequired
+              data-testid="eircode-input"
               errorMessage={errors.eircode}
               isInvalid={!!errors.eircode}
               label="Eircode"
@@ -299,6 +313,7 @@ export function PersonalInfoStep({
 
         <Button
           color="primary"
+          data-testid="continue-button"
           isDisabled={isLoading}
           isLoading={isLoading}
           type="submit"

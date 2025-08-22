@@ -113,9 +113,10 @@ export default function EditBeneficiaryPage({
           city: beneficiary.city || "",
           county: (beneficiary.county || "") as any,
           eircode: beneficiary.eircode || "",
-          percentage: beneficiary.percentage,
-          specific_assets: (beneficiary.specific_assets as string[]) || [],
-          conditions: beneficiary.conditions || "",
+          specific_assets: Array.isArray(beneficiary.specific_assets)
+            ? beneficiary.specific_assets
+            : [],
+          conditions: beneficiary.conditions || undefined,
         }}
         loading={loading || updateMutation.isPending}
         mode="edit"

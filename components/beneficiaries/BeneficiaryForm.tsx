@@ -6,12 +6,10 @@ import {
   Input,
   Select,
   SelectItem,
-  Textarea,
   Card,
   CardBody,
   CardHeader,
   Divider,
-  Slider,
   Avatar,
 } from "@heroui/react";
 import { z } from "zod";
@@ -52,9 +50,6 @@ export function BeneficiaryForm({
     county: "",
     eircode: "",
     country: "Ireland",
-    percentage: null,
-    specific_assets: [],
-    conditions: "",
     ...initialData,
   });
 
@@ -128,234 +123,195 @@ export function BeneficiaryForm({
 
   return (
     <form
-      className="space-y-6 max-w-full"
+      className="space-y-6 max-w-6xl mx-auto"
       data-component-id="beneficiary-form"
       onSubmit={handleSubmit}
     >
-      <Card className="shadow-md">
-        <CardHeader className="pb-3">
-          <h3 className="text-lg font-semibold">Personal Information</h3>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4 p-6">
-          {formData.photo_url && (
-            <div className="flex justify-center mb-4">
-              <Avatar
-                className="w-24 h-24"
-                name={formData.name}
-                src={formData.photo_url}
-              />
-            </div>
-          )}
-
-          <Input
-            isRequired
-            data-testid="beneficiary-name"
-            errorMessage={errors.name}
-            isInvalid={!!errors.name}
-            label="Full Name"
-            placeholder="Enter beneficiary's full name"
-            value={formData.name || ""}
-            onBlur={() => handleFieldBlur("name")}
-            onChange={(e) => handleFieldChange("name", e.target.value)}
-          />
-
-          <Select
-            isRequired
-            data-testid="beneficiary-relationship"
-            errorMessage={errors.relationship_type}
-            isInvalid={!!errors.relationship_type}
-            label="Relationship"
-            placeholder="Select relationship type"
-            selectedKeys={
-              formData.relationship_type ? [formData.relationship_type] : []
-            }
-            onBlur={() => handleFieldBlur("relationship_type")}
-            onChange={(e) =>
-              handleFieldChange("relationship_type", e.target.value)
-            }
-          >
-            {Object.entries(relationshipTypeLabels).map(([value, label]) => (
-              <SelectItem key={value}>{label}</SelectItem>
-            ))}
-          </Select>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              data-testid="beneficiary-email"
-              errorMessage={errors.email}
-              isInvalid={!!errors.email}
-              label="Email Address"
-              placeholder="email@example.com"
-              type="email"
-              value={formData.email || ""}
-              onBlur={() => handleFieldBlur("email")}
-              onChange={(e) => handleFieldChange("email", e.target.value)}
-            />
+      {/* Responsive grid layout for better space utilization */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card className="shadow-md">
+          <CardHeader className="pb-3">
+            <h3 className="text-lg font-semibold">Personal Information</h3>
+          </CardHeader>
+          <Divider />
+          <CardBody className="gap-4 p-6">
+            {formData.photo_url && (
+              <div className="flex justify-center mb-4">
+                <Avatar
+                  className="w-24 h-24"
+                  name={formData.name}
+                  src={formData.photo_url}
+                />
+              </div>
+            )}
 
             <Input
-              data-testid="beneficiary-phone"
-              errorMessage={errors.phone}
-              isInvalid={!!errors.phone}
-              label="Phone Number"
-              placeholder="+353 XX XXX XXXX"
-              value={formData.phone || ""}
-              onBlur={() => handleFieldBlur("phone")}
-              onChange={(e) => handleFieldChange("phone", e.target.value)}
-            />
-          </div>
-
-          <Input
-            data-testid="beneficiary-pps"
-            errorMessage={errors.pps_number}
-            isInvalid={!!errors.pps_number}
-            label="PPS Number"
-            placeholder="1234567A"
-            value={formData.pps_number || ""}
-            onBlur={() => handleFieldBlur("pps_number")}
-            onChange={(e) =>
-              handleFieldChange("pps_number", e.target.value.toUpperCase())
-            }
-          />
-
-          <Input
-            data-testid="beneficiary-photo"
-            errorMessage={errors.photo_url}
-            isInvalid={!!errors.photo_url}
-            label="Photo URL"
-            placeholder="https://example.com/photo.jpg"
-            type="url"
-            value={formData.photo_url || ""}
-            onBlur={() => handleFieldBlur("photo_url")}
-            onChange={(e) => handleFieldChange("photo_url", e.target.value)}
-          />
-        </CardBody>
-      </Card>
-
-      <Card className="shadow-md">
-        <CardHeader className="pb-3">
-          <h3 className="text-lg font-semibold">Address Information</h3>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4 p-6">
-          <Input
-            data-testid="beneficiary-address1"
-            errorMessage={errors.address_line_1}
-            isInvalid={!!errors.address_line_1}
-            label="Address Line 1"
-            placeholder="Street address"
-            value={formData.address_line_1 || ""}
-            onBlur={() => handleFieldBlur("address_line_1")}
-            onChange={(e) =>
-              handleFieldChange("address_line_1", e.target.value)
-            }
-          />
-
-          <Input
-            data-testid="beneficiary-address2"
-            label="Address Line 2"
-            placeholder="Apartment, suite, etc."
-            value={formData.address_line_2 || ""}
-            onBlur={() => handleFieldBlur("address_line_2")}
-            onChange={(e) =>
-              handleFieldChange("address_line_2", e.target.value)
-            }
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              data-testid="beneficiary-city"
-              errorMessage={errors.city}
-              isInvalid={!!errors.city}
-              label="City/Town"
-              placeholder="City or town"
-              value={formData.city || ""}
-              onBlur={() => handleFieldBlur("city")}
-              onChange={(e) => handleFieldChange("city", e.target.value)}
+              isRequired
+              data-testid="beneficiary-name"
+              errorMessage={errors.name}
+              isInvalid={!!errors.name}
+              label="Full Name"
+              placeholder="Enter beneficiary's full name"
+              value={formData.name || ""}
+              onBlur={() => handleFieldBlur("name")}
+              onChange={(e) => handleFieldChange("name", e.target.value)}
             />
 
             <Select
-              data-testid="beneficiary-county"
-              errorMessage={errors.county}
-              isInvalid={!!errors.county}
-              label="County"
-              placeholder="Select county"
-              selectedKeys={formData.county ? [formData.county] : []}
-              onBlur={() => handleFieldBlur("county")}
-              onChange={(e) => handleFieldChange("county", e.target.value)}
+              isRequired
+              data-testid="beneficiary-relationship"
+              errorMessage={errors.relationship_type}
+              isInvalid={!!errors.relationship_type}
+              label="Relationship"
+              placeholder="Select relationship type"
+              selectedKeys={
+                formData.relationship_type ? [formData.relationship_type] : []
+              }
+              onBlur={() => handleFieldBlur("relationship_type")}
+              onChange={(e) =>
+                handleFieldChange("relationship_type", e.target.value)
+              }
             >
-              {IrishCounties.map((county) => (
-                <SelectItem key={county}>{county}</SelectItem>
+              {Object.entries(relationshipTypeLabels).map(([value, label]) => (
+                <SelectItem key={value}>{label}</SelectItem>
               ))}
             </Select>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                data-testid="beneficiary-email"
+                errorMessage={errors.email}
+                isInvalid={!!errors.email}
+                label="Email Address"
+                placeholder="email@example.com"
+                type="email"
+                value={formData.email || ""}
+                onBlur={() => handleFieldBlur("email")}
+                onChange={(e) => handleFieldChange("email", e.target.value)}
+              />
+
+              <Input
+                data-testid="beneficiary-phone"
+                errorMessage={errors.phone}
+                isInvalid={!!errors.phone}
+                label="Phone Number"
+                placeholder="+353 XX XXX XXXX"
+                value={formData.phone || ""}
+                onBlur={() => handleFieldBlur("phone")}
+                onChange={(e) => handleFieldChange("phone", e.target.value)}
+              />
+            </div>
+
             <Input
-              data-testid="beneficiary-eircode"
-              errorMessage={errors.eircode}
-              isInvalid={!!errors.eircode}
-              label="Eircode"
-              placeholder="D02 XY56"
-              value={formData.eircode || ""}
-              onBlur={() => handleFieldBlur("eircode")}
+              data-testid="beneficiary-pps"
+              errorMessage={errors.pps_number}
+              isInvalid={!!errors.pps_number}
+              label="PPS Number"
+              placeholder="1234567A"
+              value={formData.pps_number || ""}
+              onBlur={() => handleFieldBlur("pps_number")}
               onChange={(e) =>
-                handleFieldChange("eircode", e.target.value.toUpperCase())
+                handleFieldChange("pps_number", e.target.value.toUpperCase())
               }
             />
 
             <Input
-              data-testid="beneficiary-country"
-              label="Country"
-              value={formData.country || "Ireland"}
-              onBlur={() => handleFieldBlur("country")}
-              onChange={(e) => handleFieldChange("country", e.target.value)}
+              data-testid="beneficiary-photo"
+              errorMessage={errors.photo_url}
+              isInvalid={!!errors.photo_url}
+              label="Photo URL"
+              placeholder="https://example.com/photo.jpg"
+              type="url"
+              value={formData.photo_url || ""}
+              onBlur={() => handleFieldBlur("photo_url")}
+              onChange={(e) => handleFieldChange("photo_url", e.target.value)}
             />
-          </div>
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
 
-      <Card className="shadow-md">
-        <CardHeader className="pb-3">
-          <h3 className="text-lg font-semibold">Inheritance Details</h3>
-        </CardHeader>
-        <Divider />
-        <CardBody className="gap-4 p-6">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Inheritance Percentage: {formData.percentage || 0}%
-            </label>
-            <Slider
-              showTooltip
-              aria-label="Inheritance percentage"
-              className="max-w-md"
-              data-testid="beneficiary-percentage"
-              formatOptions={{
-                style: "percent",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              }}
-              maxValue={100}
-              minValue={0}
-              step={5}
-              value={formData.percentage || 0}
-              onChange={(value) => handleFieldChange("percentage", value)}
+        <Card className="shadow-md">
+          <CardHeader className="pb-3">
+            <h3 className="text-lg font-semibold">Address Information</h3>
+          </CardHeader>
+          <Divider />
+          <CardBody className="gap-4 p-6">
+            <Input
+              data-testid="beneficiary-address1"
+              errorMessage={errors.address_line_1}
+              isInvalid={!!errors.address_line_1}
+              label="Address Line 1"
+              placeholder="Street address"
+              value={formData.address_line_1 || ""}
+              onBlur={() => handleFieldBlur("address_line_1")}
+              onChange={(e) =>
+                handleFieldChange("address_line_1", e.target.value)
+              }
             />
-          </div>
 
-          <Textarea
-            data-testid="beneficiary-conditions"
-            errorMessage={errors.conditions}
-            isInvalid={!!errors.conditions}
-            label="Conditions"
-            minRows={3}
-            placeholder="Enter any specific conditions for this beneficiary's inheritance"
-            value={formData.conditions || ""}
-            onBlur={() => handleFieldBlur("conditions")}
-            onChange={(e) => handleFieldChange("conditions", e.target.value)}
-          />
-        </CardBody>
-      </Card>
+            <Input
+              data-testid="beneficiary-address2"
+              label="Address Line 2"
+              placeholder="Apartment, suite, etc."
+              value={formData.address_line_2 || ""}
+              onBlur={() => handleFieldBlur("address_line_2")}
+              onChange={(e) =>
+                handleFieldChange("address_line_2", e.target.value)
+              }
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                data-testid="beneficiary-city"
+                errorMessage={errors.city}
+                isInvalid={!!errors.city}
+                label="City/Town"
+                placeholder="City or town"
+                value={formData.city || ""}
+                onBlur={() => handleFieldBlur("city")}
+                onChange={(e) => handleFieldChange("city", e.target.value)}
+              />
+
+              <Select
+                data-testid="beneficiary-county"
+                errorMessage={errors.county}
+                isInvalid={!!errors.county}
+                label="County"
+                placeholder="Select county"
+                selectedKeys={formData.county ? [formData.county] : []}
+                onBlur={() => handleFieldBlur("county")}
+                onChange={(e) => handleFieldChange("county", e.target.value)}
+              >
+                {IrishCounties.map((county) => (
+                  <SelectItem key={county}>{county}</SelectItem>
+                ))}
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                data-testid="beneficiary-eircode"
+                errorMessage={errors.eircode}
+                isInvalid={!!errors.eircode}
+                label="Eircode"
+                placeholder="D02 XY56"
+                value={formData.eircode || ""}
+                onBlur={() => handleFieldBlur("eircode")}
+                onChange={(e) =>
+                  handleFieldChange("eircode", e.target.value.toUpperCase())
+                }
+              />
+
+              <Input
+                data-testid="beneficiary-country"
+                label="Country"
+                value={formData.country || "Ireland"}
+                onBlur={() => handleFieldBlur("country")}
+                onChange={(e) => handleFieldChange("country", e.target.value)}
+              />
+            </div>
+          </CardBody>
+        </Card>
+      </div>
 
       <div className="flex justify-end gap-3">
         {onCancel && (

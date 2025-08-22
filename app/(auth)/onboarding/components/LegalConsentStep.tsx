@@ -274,7 +274,11 @@ export function LegalConsentStep({
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      data-component-id="components-legal-consent-step"
+      data-testid="legal-consent-step"
+    >
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">Legal Agreements</h3>
         <p className="text-default-600">
@@ -394,10 +398,18 @@ export function LegalConsentStep({
                     {/* Signature Area */}
                     <div className="flex justify-center">
                       <SignatureStamp
+                        data-testid={`signature-stamp-${consent.id}`}
                         disabled={
                           isSigned || loading || signingConsent === consent.id
                         }
                         isLoading={signingConsent === consent.id}
+                        timestamp={timestamp}
+                        userName={
+                          isSigned && signatureSnapshots[consent.id]
+                            ? signatureSnapshots[consent.id].name
+                            : signature.name
+                        }
+                        onClick={() => handleSignConsent(consent.id)}
                         isSigned={isSigned}
                         // Use stored signature snapshot if signed, otherwise current signature
                         signature={(() => {
@@ -410,13 +422,6 @@ export function LegalConsentStep({
                             return signature;
                           }
                         })()}
-                        timestamp={timestamp}
-                        userName={
-                          isSigned && signatureSnapshots[consent.id]
-                            ? signatureSnapshots[consent.id].name
-                            : signature.name
-                        }
-                        onClick={() => handleSignConsent(consent.id)}
                       />
                     </div>
 
@@ -473,6 +478,7 @@ export function LegalConsentStep({
 
         <Button
           color="primary"
+          data-testid="legal-consent-continue-button"
           isDisabled={loading || !allRequiredConsentsGiven || submitting}
           isLoading={loading || submitting}
           onPress={handleSubmit}

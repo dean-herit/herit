@@ -105,6 +105,7 @@ export const beneficiaryFormSchema = z.object({
     .or(z.literal("")),
   country: z.string().max(100).default("Ireland"),
 
+  // Inheritance fields (deprecated - handled by wills)
   percentage: z
     .number()
     .min(0, "Percentage must be at least 0")

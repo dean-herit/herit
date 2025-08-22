@@ -55,13 +55,12 @@ export default function AddBeneficiaryPage() {
         <CardBody className="p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Form Progress</span>
-            <span className="text-sm text-default-500">Step 1 of 3</span>
+            <span className="text-sm text-default-500">Step 1 of 2</span>
           </div>
-          <Progress className="mb-2" color="primary" size="sm" value={33} />
+          <Progress className="mb-2" color="primary" size="sm" value={50} />
           <div className="flex justify-between text-xs text-default-500">
             <span>Personal Information</span>
-            <span>Address</span>
-            <span>Inheritance Details</span>
+            <span>Address Information</span>
           </div>
         </CardBody>
       </Card>

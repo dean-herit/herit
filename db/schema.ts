@@ -212,10 +212,10 @@ export const beneficiaries = pgTable("beneficiaries", {
   eircode: varchar("eircode", { length: 20 }),
   country: varchar("country", { length: 100 }).default("Ireland"),
 
-  // Inheritance Details
-  percentage: real("percentage"),
-  specific_assets: jsonb("specific_assets"),
-  conditions: text("conditions"),
+  // Inheritance Details (deprecated - handled by wills)
+  percentage: real("percentage"), // deprecated
+  specific_assets: jsonb("specific_assets"), // deprecated
+  conditions: text("conditions"), // deprecated
 
   // Status and Timestamps
   status: varchar("status", { length: 50 }).default("active"),
