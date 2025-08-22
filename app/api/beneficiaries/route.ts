@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, and, or, like, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { db } from "@/lib/db";
+import { db } from "@/db/db";
 import { beneficiaries } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { beneficiaryFormSchema } from "@/types/beneficiaries";

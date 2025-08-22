@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 
-import { db } from "@/lib/db";
+import { db } from "@/db/db";
 import { beneficiaries } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { beneficiaryFormSchema } from "@/types/beneficiaries";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -18,12 +18,14 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const beneficiary = await db
       .select()
       .from(beneficiaries)
       .where(
         and(
-          eq(beneficiaries.id, params.id),
+          eq(beneficiaries.id, id),
           eq(beneficiaries.user_email, session.user.email),
         ),
       )
@@ -49,7 +51,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -58,6 +60,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
 
     const validatedData = beneficiaryFormSchema.parse(body);
@@ -85,7 +88,7 @@ export async function PUT(
       })
       .where(
         and(
-          eq(beneficiaries.id, params.id),
+          eq(beneficiaries.id, id),
           eq(beneficiaries.user_email, session.user.email),
         ),
       )
@@ -118,7 +121,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getSession();
@@ -126,6 +129,8 @@ export async function DELETE(
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { id } = await params;
 
     const [deletedBeneficiary] = await db
       .update(beneficiaries)
@@ -135,7 +140,7 @@ export async function DELETE(
       })
       .where(
         and(
-          eq(beneficiaries.id, params.id),
+          eq(beneficiaries.id, id),
           eq(beneficiaries.user_email, session.user.email),
         ),
       )
