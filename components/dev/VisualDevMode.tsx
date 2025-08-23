@@ -28,9 +28,9 @@ export const VisualDevModePanel = () => {
 
     setVisualMode(isActive);
 
-    // Load highlighting setting separately - can be different from visual mode
+    // Load highlighting setting - should only be active when visual mode is also active
     const highlightingActive =
-      localStorage.getItem("highlightingEnabled") === "true" || isActive;
+      isActive && localStorage.getItem("highlightingEnabled") !== "false";
 
     setHighlightingEnabled(highlightingActive);
 
@@ -97,8 +97,8 @@ export const VisualDevModePanel = () => {
 
   return (
     <>
-      {/* Component Highlighter - Always rendered when visual mode is active */}
-      {visualMode && (
+      {/* Component Highlighter - Only rendered when both visual mode and highlighting are active */}
+      {visualMode && highlightingEnabled && (
         <ComponentHighlighter
           animateOnHover={animateOnHover}
           enabled={highlightingEnabled}
@@ -152,6 +152,8 @@ export const VisualDevModePanel = () => {
                 <Switch
                   checked={visualMode}
                   color="primary"
+                  data-component-category="ui"
+                  data-component-id="switch"
                   size="sm"
                   onChange={toggleVisualMode}
                 />
@@ -169,6 +171,8 @@ export const VisualDevModePanel = () => {
                     <Switch
                       checked={highlightingEnabled}
                       color="primary"
+                      data-component-category="ui"
+                      data-component-id="switch"
                       size="sm"
                       onChange={toggleHighlighting}
                     />
@@ -179,6 +183,8 @@ export const VisualDevModePanel = () => {
                     <Switch
                       checked={boundaryOverlay}
                       color="secondary"
+                      data-component-category="ui"
+                      data-component-id="switch"
                       size="sm"
                       onChange={toggleBoundaryOverlay}
                     />
@@ -189,6 +195,8 @@ export const VisualDevModePanel = () => {
                     <Switch
                       checked={showTooltips}
                       color="success"
+                      data-component-category="ui"
+                      data-component-id="switch"
                       size="sm"
                       onChange={toggleTooltips}
                     />
@@ -199,6 +207,8 @@ export const VisualDevModePanel = () => {
                     <Switch
                       checked={animateOnHover}
                       color="warning"
+                      data-component-category="ui"
+                      data-component-id="switch"
                       size="sm"
                       onChange={toggleAnimations}
                     />
