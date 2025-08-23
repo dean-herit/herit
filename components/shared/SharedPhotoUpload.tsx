@@ -38,7 +38,10 @@ export function SharedPhotoUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Different API endpoints based on mode
-  const uploadEndpoint = mode === "beneficiary" ? "/api/beneficiaries/photo" : "/api/onboarding/photo";
+  const uploadEndpoint =
+    mode === "beneficiary"
+      ? "/api/beneficiaries/photo"
+      : "/api/onboarding/photo";
 
   const validateFile = (file: File): boolean => {
     // Check file type
@@ -54,6 +57,7 @@ export function SharedPhotoUpload({
       toast.error(
         "Invalid file type. Only images (JPG, PNG, WebP, GIF) are allowed.",
       );
+
       return false;
     }
 
@@ -62,6 +66,7 @@ export function SharedPhotoUpload({
 
     if (file.size > maxSize) {
       toast.error("File too large. Maximum size is 5MB.");
+
       return false;
     }
 
@@ -76,6 +81,7 @@ export function SharedPhotoUpload({
 
     try {
       const formData = new FormData();
+
       formData.append("file", file);
 
       const response = await fetch(uploadEndpoint, {
@@ -85,6 +91,7 @@ export function SharedPhotoUpload({
 
       if (!response.ok) {
         const error = await response.json();
+
         throw new Error(error.error || "Upload failed");
       }
 
@@ -98,7 +105,9 @@ export function SharedPhotoUpload({
       // Fallback to URL input if upload fails
       setShowUrlInput(true);
       toast.error(
-        error instanceof Error ? error.message : "Failed to upload photo. You can enter a photo URL instead.",
+        error instanceof Error
+          ? error.message
+          : "Failed to upload photo. You can enter a photo URL instead.",
       );
     } finally {
       setIsUploading(false);
@@ -165,7 +174,8 @@ export function SharedPhotoUpload({
     if (url) {
       return "Click the X to remove or upload a new photo";
     }
-    return mode === "onboarding" 
+
+    return mode === "onboarding"
       ? "Upload your profile photo (optional)"
       : "Upload an image file";
   };
@@ -192,11 +202,11 @@ export function SharedPhotoUpload({
               isIconOnly
               className="absolute -top-2 -right-2 min-w-6 w-6 h-6"
               color="danger"
+              data-component-category="ui"
+              data-component-id="photo-clear-button"
               size="sm"
               variant="solid"
               onPress={clearPhoto}
-              data-component-category="ui"
-              data-component-id="photo-clear-button"
             >
               <XMarkIcon
                 className="w-3 h-3"
@@ -216,23 +226,23 @@ export function SharedPhotoUpload({
       {showUrlInput || mode === "onboarding" ? (
         <div className="space-y-2">
           <Input
-            value={url}
-            onChange={(e) => handleUrlChange(e.target.value)}
+            data-component-category="input"
+            data-component-id="photo-url-input"
+            errorMessage={errorMessage}
+            isInvalid={isInvalid}
             label="Photo URL"
             placeholder="https://example.com/photo.jpg"
             type="url"
-            errorMessage={errorMessage}
-            isInvalid={isInvalid}
-            data-component-category="input"
-            data-component-id="photo-url-input"
+            value={url}
+            onChange={(e) => handleUrlChange(e.target.value)}
           />
           {mode === "beneficiary" && (
             <Button
+              data-component-category="ui"
+              data-component-id="hide-url-input-button"
               size="sm"
               variant="light"
               onPress={() => setShowUrlInput(false)}
-              data-component-category="ui"
-              data-component-id="hide-url-input-button"
             >
               Hide URL Input
             </Button>
@@ -257,6 +267,7 @@ export function SharedPhotoUpload({
             </div>
           ) : (
             <div
+              aria-label="Click or drag to upload photo"
               className={`
                 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
                 ${
@@ -265,12 +276,20 @@ export function SharedPhotoUpload({
                     : "border-default-300 hover:border-default-400"
                 }
               `}
+              data-component-category="input"
+              data-component-id="photo-upload-zone"
+              role="button"
+              tabIndex={0}
               onClick={triggerFileSelect}
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              data-component-category="input"
-              data-component-id="photo-upload-zone"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  triggerFileSelect();
+                }
+              }}
             >
               <input
                 ref={fileInputRef}
@@ -308,11 +327,11 @@ export function SharedPhotoUpload({
           )}
           <div className="text-center">
             <Button
+              data-component-category="ui"
+              data-component-id="show-url-input-button"
               size="sm"
               variant="light"
               onPress={() => setShowUrlInput(true)}
-              data-component-category="ui"
-              data-component-id="show-url-input-button"
             >
               Or enter photo URL
             </Button>

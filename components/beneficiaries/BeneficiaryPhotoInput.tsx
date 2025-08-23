@@ -197,6 +197,7 @@ export function BeneficiaryPhotoInput({
         </div>
       ) : (
         <div
+          aria-label="Click or drag to upload photo"
           className={`
             border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
             ${
@@ -205,10 +206,18 @@ export function BeneficiaryPhotoInput({
                 : "border-default-300 hover:border-default-400"
             }
           `}
+          role="button"
+          tabIndex={0}
           onClick={triggerFileSelect}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              triggerFileSelect();
+            }
+          }}
         >
           <input
             ref={fileInputRef}
