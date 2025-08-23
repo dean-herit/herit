@@ -64,31 +64,74 @@ export const NavbarUserMenu = () => {
   }
 
   return (
-    <Dropdown placement="bottom-end">
-      <DropdownTrigger>
+    <Dropdown
+      data-component-category="navigation"
+      data-component-id="navbar-user-menu"
+      placement="bottom-end"
+    >
+      <DropdownTrigger
+        data-component-category="ui"
+        data-component-id="dropdown-trigger"
+      >
         <button className="mt-1 transition-transform">
           {user.profilePhotoUrl ? (
-            <Avatar className="h-8 w-8" size="sm" src={user.profilePhotoUrl} />
+            <Avatar
+              className="h-8 w-8"
+              data-component-category="ui"
+              data-component-id="avatar"
+              size="sm"
+              src={user.profilePhotoUrl}
+            />
           ) : (
             <Avatar
               showFallback
               className="h-8 w-8"
+              data-component-category="ui"
+              data-component-id="avatar"
               name={getUserInitials(user)}
               size="sm"
             />
           )}
         </button>
       </DropdownTrigger>
-      <DropdownMenu aria-label="Profile Actions" variant="flat">
-        <DropdownItem key="profile" className="h-14 gap-2">
+      <DropdownMenu
+        aria-label="Profile Actions"
+        data-component-category="ui"
+        data-component-id="dropdown-menu"
+        variant="flat"
+      >
+        <DropdownItem
+          key="profile"
+          className="h-14 gap-2"
+          data-component-category="ui"
+          data-component-id="dropdown-item"
+        >
           <p className="font-semibold">Signed in as</p>
           <p className="font-semibold">{user.email}</p>
         </DropdownItem>
-        <DropdownItem key="dashboard" as={NextLink} href="/dashboard">
+        <DropdownItem
+          key="dashboard"
+          as={NextLink}
+          data-component-category="ui"
+          data-component-id="dropdown-item"
+          href="/dashboard"
+        >
           Dashboard
         </DropdownItem>
-        <DropdownItem key="settings">Settings</DropdownItem>
-        <DropdownItem key="logout" color="danger" onPress={handleLogout}>
+        <DropdownItem
+          key="settings"
+          data-component-category="ui"
+          data-component-id="dropdown-item"
+        >
+          Settings
+        </DropdownItem>
+        <DropdownItem
+          key="logout"
+          color="danger"
+          data-component-category="ui"
+          data-component-id="dropdown-item"
+          onPress={handleLogout}
+        >
           Log Out
         </DropdownItem>
       </DropdownMenu>

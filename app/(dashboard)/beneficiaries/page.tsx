@@ -101,8 +101,16 @@ export default function BeneficiariesPage() {
         </div>
         <Button
           color="primary"
+          data-component-category="input"
+          data-component-id="add-beneficiary-button"
           data-testid="add-beneficiary-button"
-          startContent={<PlusIcon className="h-4 w-4" />}
+          startContent={
+            <PlusIcon
+              className="h-4 w-4"
+              data-component-category="ui"
+              data-component-id="plus-icon"
+            />
+          }
           onPress={handleAddBeneficiary}
         >
           Add Beneficiary
@@ -116,7 +124,11 @@ export default function BeneficiariesPage() {
             <CardBody className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary-100 rounded-lg">
-                  <IconUsers className="h-5 w-5 text-primary-600" />
+                  <IconUsers
+                    className="h-5 w-5 text-primary-600"
+                    data-component-category="ui"
+                    data-component-id="icon-users"
+                  />
                 </div>
                 <div>
                   <p className="text-sm text-default-600">
@@ -132,7 +144,11 @@ export default function BeneficiariesPage() {
             <CardBody className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-success-100 rounded-lg">
-                  <IconUserHeart className="h-5 w-5 text-success-600" />
+                  <IconUserHeart
+                    className="h-5 w-5 text-success-600"
+                    data-component-category="ui"
+                    data-component-id="icon-user-heart"
+                  />
                 </div>
                 <div>
                   <p className="text-sm text-default-600">Family Members</p>
@@ -146,7 +162,11 @@ export default function BeneficiariesPage() {
             <CardBody className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-secondary-100 rounded-lg">
-                  <IconBuilding className="h-5 w-5 text-secondary-600" />
+                  <IconBuilding
+                    className="h-5 w-5 text-secondary-600"
+                    data-component-category="ui"
+                    data-component-id="icon-building"
+                  />
                 </div>
                 <div>
                   <p className="text-sm text-default-600">Organizations</p>
@@ -159,28 +179,47 @@ export default function BeneficiariesPage() {
       )}
 
       {/* Beneficiaries Content */}
-      <Card>
+      <Card
+        data-component-category="data-display"
+        data-component-id="beneficiaries-card"
+      >
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center w-full">
             <h2 className="text-lg font-semibold">Your Beneficiaries</h2>
             {totalBeneficiaries > 0 && (
               <Tabs
+                data-component-category="ui"
+                data-component-id="tabs"
                 selectedKey={viewMode}
                 size="sm"
                 onSelectionChange={(key) => setViewMode(key as "grid" | "list")}
               >
-                <Tab key="grid" title="Grid" />
-                <Tab key="list" title="List" />
+                <Tab
+                  key="grid"
+                  data-component-category="ui"
+                  data-component-id="tab"
+                  title="Grid"
+                />
+                <Tab
+                  key="list"
+                  data-component-category="ui"
+                  data-component-id="tab"
+                  title="List"
+                />
               </Tabs>
             )}
           </div>
         </CardHeader>
-        <Divider />
+        <Divider data-component-category="ui" data-component-id="divider" />
         <CardBody>
           {totalBeneficiaries === 0 && !isLoading ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-default-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <UsersIcon className="h-8 w-8 text-default-400" />
+                <UsersIcon
+                  className="h-8 w-8 text-default-400"
+                  data-component-category="ui"
+                  data-component-id="users-icon"
+                />
               </div>
               <h3 className="text-lg font-semibold mb-2">
                 No beneficiaries added yet
@@ -191,7 +230,15 @@ export default function BeneficiariesPage() {
               </p>
               <Button
                 color="primary"
-                startContent={<PlusIcon className="h-4 w-4" />}
+                data-component-category="input"
+                data-component-id="add-first-beneficiary-button"
+                startContent={
+                  <PlusIcon
+                    className="h-4 w-4"
+                    data-component-category="ui"
+                    data-component-id="plus-icon"
+                  />
+                }
                 onPress={handleAddBeneficiary}
               >
                 Add Your First Beneficiary
@@ -200,6 +247,8 @@ export default function BeneficiariesPage() {
           ) : viewMode === "list" ? (
             <BeneficiaryList
               beneficiaries={beneficiaries}
+              data-component-category="ui"
+              data-component-id="beneficiary-list"
               loading={isLoading}
               page={searchParams.page}
               pageSize={searchParams.pageSize}
@@ -247,6 +296,8 @@ export default function BeneficiariesPage() {
                   <BeneficiaryCard
                     key={beneficiary.id}
                     beneficiary={beneficiary}
+                    data-component-category="ui"
+                    data-component-id="beneficiary-card"
                     onDelete={handleDeleteBeneficiary}
                     onEdit={handleEditBeneficiary}
                     onView={handleViewBeneficiary}

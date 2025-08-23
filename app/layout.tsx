@@ -85,7 +85,11 @@ export default function RootLayout({
           alexBrush.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers
+          data-component-category="ui"
+          data-component-id="providers"
+          themeProps={{ attribute: "class", defaultTheme: "dark" }}
+        >
           <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>

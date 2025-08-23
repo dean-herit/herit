@@ -18,7 +18,11 @@ export function LoginForm() {
   const authError = authMode === "login" ? loginError : signupError;
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-6">
+    <div
+      className="w-full max-w-md mx-auto space-y-6"
+      data-component-category="authentication"
+      data-component-id="login-form"
+    >
       {/* Error Display */}
       {authError && (
         <Card className="border-danger-200 bg-danger-50">
@@ -54,7 +58,17 @@ export function LoginForm() {
             </button>
           </div>
 
-          {authMode === "login" ? <EmailLoginForm /> : <EmailSignupForm />}
+          {authMode === "login" ? (
+            <EmailLoginForm
+              data-component-category="ui"
+              data-component-id="email-login-form"
+            />
+          ) : (
+            <EmailSignupForm
+              data-component-category="ui"
+              data-component-id="email-signup-form"
+            />
+          )}
 
           <div className="text-center">
             <Button
@@ -85,7 +99,7 @@ export function LoginForm() {
 
           {/* Divider */}
           <div className="relative">
-            <Divider />
+            <Divider data-component-id="divider" data-component-category="ui" />
             <div className="absolute inset-0 flex justify-center">
               <span className="px-4 bg-content1 text-sm text-default-600">
                 Or continue with
@@ -95,8 +109,14 @@ export function LoginForm() {
 
           {/* OAuth Providers */}
           <div className="space-y-3">
-            <GoogleSignInButton />
-            <AppleSignInButton />
+            <GoogleSignInButton
+              data-component-id="google-sign-in-button"
+              data-component-category="ui"
+            />
+            <AppleSignInButton
+              data-component-id="apple-sign-in-button"
+              data-component-category="ui"
+            />
           </div>
         </div>
       )}

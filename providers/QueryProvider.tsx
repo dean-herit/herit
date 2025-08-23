@@ -1,7 +1,6 @@
 "use client";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactNode, useState, useEffect } from "react";
 
 import { createQueryClient } from "@/lib/query-error-handling";
@@ -23,11 +22,13 @@ export function QueryProvider({ children }: QueryProviderProps) {
   }, [queryClient]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider
+      client={queryClient}
+      data-component-category="ui"
+      data-component-id="query-client-provider"
+    >
       {children}
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
+      {/* TanStack Query devtools disabled */}
     </QueryClientProvider>
   );
 }

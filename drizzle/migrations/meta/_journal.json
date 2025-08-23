@@ -29,6 +29,13 @@
       "when": 1755382110506,
       "tag": "0003_fuzzy_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755999999999,
+      "tag": "0004_add_beneficiary_columns",
+      "breakpoints": true
     }
   ]
 }

@@ -75,6 +75,7 @@ export const eircodeRegex = /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i;
 export const irishPhoneRegex = /^(\+353|0)[1-9]\d{7,9}$/;
 
 export const beneficiaryFormSchema = z.object({
+  id: z.string().optional(), // For updating existing beneficiaries
   name: z.string().min(1, "Name is required").max(255),
   relationship_type: z.enum(
     Object.values(RelationshipTypes) as [string, ...string[]],

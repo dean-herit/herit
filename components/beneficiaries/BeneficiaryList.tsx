@@ -103,28 +103,52 @@ export function BeneficiaryList({
   ];
 
   return (
-    <div className="space-y-4" data-component-id="beneficiary-list">
+    <div
+      className="space-y-4"
+      data-component-category="data-display"
+      data-component-id="beneficiary-list"
+    >
       <div className="flex flex-col sm:flex-row gap-4 items-end">
         <Input
           className="flex-1"
           data-testid="beneficiary-search"
           placeholder="Search beneficiaries..."
-          startContent={<IconSearch size={18} />}
+          startContent={
+            <IconSearch
+              data-component-category="ui"
+              data-component-id="icon-search"
+              size={18}
+            />
+          }
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
         />
 
         <Select
           className="w-full sm:w-48"
+          data-component-category="ui"
+          data-component-id="select"
           data-testid="beneficiary-filter"
           placeholder="All relationships"
           selectedKeys={selectedRelationship ? [selectedRelationship] : []}
           onChange={(e) => handleRelationshipFilter(e.target.value)}
         >
           {[
-            <SelectItem key="">All relationships</SelectItem>,
+            <SelectItem
+              key=""
+              data-component-category="ui"
+              data-component-id="select-item"
+            >
+              All relationships
+            </SelectItem>,
             ...Object.entries(relationshipTypeLabels).map(([value, label]) => (
-              <SelectItem key={value}>{label}</SelectItem>
+              <SelectItem
+                key={value}
+                data-component-category="ui"
+                data-component-id="select-item"
+              >
+                {label}
+              </SelectItem>
             )),
           ]}
         </Select>
@@ -140,6 +164,8 @@ export function BeneficiaryList({
                 showControls
                 showShadow
                 color="primary"
+                data-component-category="ui"
+                data-component-id="pagination"
                 page={page}
                 total={totalPages}
                 onChange={onPageChange}
@@ -147,28 +173,50 @@ export function BeneficiaryList({
             </div>
           )
         }
+        data-component-category="ui"
+        data-component-id="table"
       >
-        <TableHeader columns={columns}>
+        <TableHeader
+          columns={columns}
+          data-component-category="ui"
+          data-component-id="table-header"
+        >
           {(column) => (
             <TableColumn
               key={column.key}
               align={column.key === "actions" ? "center" : "start"}
+              data-component-category="ui"
+              data-component-id="table-column"
             >
               {column.label}
             </TableColumn>
           )}
         </TableHeader>
         <TableBody
+          data-component-category="ui"
+          data-component-id="table-body"
           emptyContent="No beneficiaries found"
           items={beneficiaries}
-          loadingContent={<Spinner />}
+          loadingContent={
+            <Spinner data-component-category="ui" data-component-id="spinner" />
+          }
           loadingState={loading ? "loading" : "idle"}
         >
           {(item) => (
-            <TableRow key={item.id} data-testid={`beneficiary-row-${item.id}`}>
-              <TableCell>
+            <TableRow
+              key={item.id}
+              data-component-category="ui"
+              data-component-id="table-row"
+              data-testid={`beneficiary-row-${item.id}`}
+            >
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
                 <div className="flex items-center gap-3">
                   <Avatar
+                    data-component-category="ui"
+                    data-component-id="avatar"
                     fallback={getInitials(item.name)}
                     name={item.name}
                     size="sm"
@@ -185,15 +233,27 @@ export function BeneficiaryList({
                 </div>
               </TableCell>
 
-              <TableCell>
-                <Chip color="primary" size="sm" variant="flat">
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
+                <Chip
+                  color="primary"
+                  data-component-category="ui"
+                  data-component-id="chip"
+                  size="sm"
+                  variant="flat"
+                >
                   {relationshipTypeLabels[
                     item.relationship_type as keyof typeof relationshipTypeLabels
                   ] || item.relationship_type}
                 </Chip>
               </TableCell>
 
-              <TableCell>
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
                 <div className="flex flex-col gap-1">
                   {item.email && <p className="text-sm">{item.email}</p>}
                   {item.phone && (
@@ -205,7 +265,10 @@ export function BeneficiaryList({
                 </div>
               </TableCell>
 
-              <TableCell>
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
                 <p className="text-sm">
                   {formatAddress(item) || (
                     <span className="text-default-400">No address</span>
@@ -213,7 +276,10 @@ export function BeneficiaryList({
                 </p>
               </TableCell>
 
-              <TableCell>
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
                 {item.percentage ? (
                   <div className="font-semibold">{item.percentage}%</div>
                 ) : (
@@ -221,29 +287,63 @@ export function BeneficiaryList({
                 )}
               </TableCell>
 
-              <TableCell>
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
+              <TableCell
+                data-component-category="ui"
+                data-component-id="table-cell"
+              >
+                <Dropdown
+                  data-component-category="ui"
+                  data-component-id="dropdown"
+                  placement="bottom-end"
+                >
+                  <DropdownTrigger
+                    data-component-category="ui"
+                    data-component-id="dropdown-trigger"
+                  >
                     <Button
                       isIconOnly
                       data-testid={`beneficiary-actions-${item.id}`}
                       size="sm"
                       variant="light"
                     >
-                      <IconDotsVertical size={18} />
+                      <IconDotsVertical
+                        data-component-category="ui"
+                        data-component-id="icon-dots-vertical"
+                        size={18}
+                      />
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu aria-label="Beneficiary actions">
+                  <DropdownMenu
+                    aria-label="Beneficiary actions"
+                    data-component-category="ui"
+                    data-component-id="dropdown-menu"
+                  >
                     <DropdownItem
                       key="view"
-                      startContent={<IconEye size={16} />}
+                      data-component-category="ui"
+                      data-component-id="dropdown-item"
+                      startContent={
+                        <IconEye
+                          data-component-category="ui"
+                          data-component-id="icon-eye"
+                          size={16}
+                        />
+                      }
                       onPress={() => onView?.(item)}
                     >
                       View
                     </DropdownItem>
                     <DropdownItem
                       key="edit"
-                      startContent={<IconEdit size={16} />}
+                      data-component-category="ui"
+                      data-component-id="dropdown-item"
+                      startContent={
+                        <IconEdit
+                          data-component-category="ui"
+                          data-component-id="icon-edit"
+                          size={16}
+                        />
+                      }
                       onPress={() => onEdit?.(item)}
                     >
                       Edit
@@ -252,7 +352,15 @@ export function BeneficiaryList({
                       key="delete"
                       className="text-danger"
                       color="danger"
-                      startContent={<IconTrash size={16} />}
+                      data-component-category="ui"
+                      data-component-id="dropdown-item"
+                      startContent={
+                        <IconTrash
+                          data-component-category="ui"
+                          data-component-id="icon-trash"
+                          size={16}
+                        />
+                      }
                       onPress={() => onDelete?.(item)}
                     >
                       Delete

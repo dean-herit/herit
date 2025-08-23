@@ -9,8 +9,16 @@ export default function DashboardLayoutWrapper({
 }) {
   return (
     <ProtectedRoute requireOnboarding={true}>
-      <DashboardLayout>{children}</DashboardLayout>
-      <VisualDevModePanel />
+      <DashboardLayout
+        data-component-category="ui"
+        data-component-id="dashboard-layout"
+      >
+        {children}
+      </DashboardLayout>
+      <VisualDevModePanel
+        data-component-category="ui"
+        data-component-id="visual-dev-mode-panel"
+      />
     </ProtectedRoute>
   );
 }

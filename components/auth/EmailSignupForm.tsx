@@ -66,7 +66,12 @@ export function EmailSignupForm() {
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form
+      className="space-y-4"
+      data-component-category="authentication"
+      data-component-id="email-signup-form"
+      onSubmit={handleSubmit}
+    >
       <div className="grid grid-cols-2 gap-3">
         <Input
           isRequired
@@ -112,9 +117,17 @@ export function EmailSignupForm() {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeSlashIcon className="h-4 w-4 text-default-400" />
+              <EyeSlashIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-slash-icon"
+              />
             ) : (
-              <EyeIcon className="h-4 w-4 text-default-400" />
+              <EyeIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-icon"
+              />
             )}
           </button>
         }
@@ -137,9 +150,17 @@ export function EmailSignupForm() {
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
             {showConfirmPassword ? (
-              <EyeSlashIcon className="h-4 w-4 text-default-400" />
+              <EyeSlashIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-slash-icon"
+              />
             ) : (
-              <EyeIcon className="h-4 w-4 text-default-400" />
+              <EyeIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-icon"
+              />
             )}
           </button>
         }

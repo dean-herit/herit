@@ -184,7 +184,11 @@ export default function DocumentManager({
   }
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      data-component-category="data-display"
+      data-component-id="document-manager"
+    >
       {/* Header with completeness indicator */}
       {completeness && (
         <Card className="mb-4">
@@ -198,13 +202,19 @@ export default function DocumentManager({
             <Progress
               className="w-full"
               color={completeness.percentage >= 100 ? "success" : "warning"}
+              data-component-category="ui"
+              data-component-id="progress"
               size="sm"
               value={completeness.percentage}
             />
             {completeness.missing.length > 0 && (
               <div className="mt-2">
                 <p className="text-sm text-warning-600">
-                  <ExclamationTriangleIcon className="w-4 h-4 inline mr-1" />
+                  <ExclamationTriangleIcon
+                    className="w-4 h-4 inline mr-1"
+                    data-component-category="ui"
+                    data-component-id="exclamation-triangle-icon"
+                  />
                   Missing: {completeness.missing.join(", ")}
                 </p>
               </div>
@@ -220,7 +230,13 @@ export default function DocumentManager({
             <div className="flex gap-2">
               <Button
                 color="primary"
-                startContent={<PlusIcon className="w-4 h-4" />}
+                startContent={
+                  <PlusIcon
+                    className="w-4 h-4"
+                    data-component-category="ui"
+                    data-component-id="plus-icon"
+                  />
+                }
                 onPress={onUploadOpen}
               >
                 Upload Documents
@@ -231,54 +247,116 @@ export default function DocumentManager({
               <Input
                 className="max-w-sm"
                 placeholder="Search documents..."
-                startContent={<MagnifyingGlassIcon className="w-4 h-4" />}
+                startContent={
+                  <MagnifyingGlassIcon
+                    className="w-4 h-4"
+                    data-component-category="ui"
+                    data-component-id="magnifying-glass-icon"
+                  />
+                }
                 value={searchTerm}
                 onValueChange={setSearchTerm}
               />
 
               <Select
                 className="max-w-xs"
+                data-component-category="ui"
+                data-component-id="select"
                 placeholder="Filter by category"
                 selectedKeys={[selectedCategory]}
                 onSelectionChange={(keys) =>
                   setSelectedCategory(Array.from(keys)[0] as string)
                 }
               >
-                <SelectItem key="all">All Categories</SelectItem>
-                <SelectItem key={DocumentCategory.LEGAL}>
+                <SelectItem
+                  key="all"
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
+                  All Categories
+                </SelectItem>
+                <SelectItem
+                  key={DocumentCategory.LEGAL}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.LEGAL)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.FINANCIAL}>
+                <SelectItem
+                  key={DocumentCategory.FINANCIAL}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.FINANCIAL)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.VALUATION}>
+                <SelectItem
+                  key={DocumentCategory.VALUATION}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.VALUATION)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.OWNERSHIP}>
+                <SelectItem
+                  key={DocumentCategory.OWNERSHIP}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.OWNERSHIP)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.CERTIFICATE}>
+                <SelectItem
+                  key={DocumentCategory.CERTIFICATE}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.CERTIFICATE)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.STATEMENT}>
+                <SelectItem
+                  key={DocumentCategory.STATEMENT}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.STATEMENT)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.AGREEMENT}>
+                <SelectItem
+                  key={DocumentCategory.AGREEMENT}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.AGREEMENT)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.REGISTRATION}>
+                <SelectItem
+                  key={DocumentCategory.REGISTRATION}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.REGISTRATION)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.INSURANCE}>
+                <SelectItem
+                  key={DocumentCategory.INSURANCE}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.INSURANCE)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.TAX}>
+                <SelectItem
+                  key={DocumentCategory.TAX}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.TAX)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.COMPLIANCE}>
+                <SelectItem
+                  key={DocumentCategory.COMPLIANCE}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.COMPLIANCE)}
                 </SelectItem>
-                <SelectItem key={DocumentCategory.OTHER}>
+                <SelectItem
+                  key={DocumentCategory.OTHER}
+                  data-component-category="ui"
+                  data-component-id="select-item"
+                >
                   {getDocumentCategoryDisplay(DocumentCategory.OTHER)}
                 </SelectItem>
               </Select>
@@ -299,7 +377,11 @@ export default function DocumentManager({
       ) : filteredDocuments.length === 0 ? (
         <Card>
           <CardBody className="p-8 text-center">
-            <DocumentIcon className="w-12 h-12 mx-auto mb-4 text-default-400" />
+            <DocumentIcon
+              className="w-12 h-12 mx-auto mb-4 text-default-400"
+              data-component-category="ui"
+              data-component-id="document-icon"
+            />
             <p className="text-default-600 mb-2">No documents found</p>
             <p className="text-sm text-default-400">
               {searchTerm || selectedCategory !== "all"
@@ -323,7 +405,12 @@ export default function DocumentManager({
                         {doc.originalName}
                       </h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <Chip size="sm" variant="flat">
+                        <Chip
+                          data-component-category="ui"
+                          data-component-id="chip"
+                          size="sm"
+                          variant="flat"
+                        >
                           {getDocumentCategoryDisplay(doc.category)}
                         </Chip>
                         <span className="text-xs text-default-500">
@@ -342,29 +429,49 @@ export default function DocumentManager({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Tooltip content="Preview">
+                    <Tooltip
+                      content="Preview"
+                      data-component-category="ui"
+                      data-component-id="tooltip"
+                    >
                       <Button
                         isIconOnly
                         size="sm"
                         variant="light"
                         onPress={() => handlePreviewDocument(doc)}
                       >
-                        <EyeIcon className="w-4 h-4" />
+                        <EyeIcon
+                          className="w-4 h-4"
+                          data-component-category="ui"
+                          data-component-id="eye-icon"
+                        />
                       </Button>
                     </Tooltip>
 
-                    <Tooltip content="Download">
+                    <Tooltip
+                      content="Download"
+                      data-component-category="ui"
+                      data-component-id="tooltip"
+                    >
                       <Button
                         isIconOnly
                         size="sm"
                         variant="light"
                         onPress={() => handleDownloadDocument(doc)}
                       >
-                        <CloudArrowDownIcon className="w-4 h-4" />
+                        <CloudArrowDownIcon
+                          className="w-4 h-4"
+                          data-component-category="ui"
+                          data-component-id="cloud-arrow-down-icon"
+                        />
                       </Button>
                     </Tooltip>
 
-                    <Tooltip content="Delete">
+                    <Tooltip
+                      content="Delete"
+                      data-component-category="ui"
+                      data-component-id="tooltip"
+                    >
                       <Button
                         isIconOnly
                         color="danger"
@@ -372,7 +479,11 @@ export default function DocumentManager({
                         variant="light"
                         onPress={() => handleDeleteDocument(doc.id)}
                       >
-                        <TrashIcon className="w-4 h-4" />
+                        <TrashIcon
+                          className="w-4 h-4"
+                          data-component-category="ui"
+                          data-component-id="trash-icon"
+                        />
                       </Button>
                     </Tooltip>
                   </div>
@@ -384,13 +495,32 @@ export default function DocumentManager({
       )}
 
       {/* Upload Modal */}
-      <Modal isOpen={isUploadOpen} size="lg" onClose={onUploadClose}>
-        <ModalContent>
-          <ModalHeader>Upload Documents</ModalHeader>
-          <ModalBody>
+      <Modal
+        data-component-category="ui"
+        data-component-id="modal"
+        isOpen={isUploadOpen}
+        size="lg"
+        onClose={onUploadClose}
+      >
+        <ModalContent
+          data-component-category="ui"
+          data-component-id="modal-content"
+        >
+          <ModalHeader
+            data-component-category="ui"
+            data-component-id="modal-header"
+          >
+            Upload Documents
+          </ModalHeader>
+          <ModalBody
+            data-component-category="ui"
+            data-component-id="modal-body"
+          >
             <DocumentUploadZone
               assetId={assetId}
               assetType={assetType}
+              data-component-category="ui"
+              data-component-id="document-upload-zone"
               maxFiles={5}
               onError={(error) => {
                 console.error("Upload error:", error);
@@ -399,7 +529,10 @@ export default function DocumentManager({
               onUploadComplete={handleDocumentUpload}
             />
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            data-component-category="ui"
+            data-component-id="modal-footer"
+          >
             <Button variant="light" onPress={onUploadClose}>
               Done
             </Button>
@@ -408,10 +541,27 @@ export default function DocumentManager({
       </Modal>
 
       {/* Preview Modal */}
-      <Modal isOpen={isPreviewOpen} size="3xl" onClose={onPreviewClose}>
-        <ModalContent>
-          <ModalHeader>{previewDocument?.originalName}</ModalHeader>
-          <ModalBody>
+      <Modal
+        data-component-category="ui"
+        data-component-id="modal"
+        isOpen={isPreviewOpen}
+        size="3xl"
+        onClose={onPreviewClose}
+      >
+        <ModalContent
+          data-component-category="ui"
+          data-component-id="modal-content"
+        >
+          <ModalHeader
+            data-component-category="ui"
+            data-component-id="modal-header"
+          >
+            {previewDocument?.originalName}
+          </ModalHeader>
+          <ModalBody
+            data-component-category="ui"
+            data-component-id="modal-body"
+          >
             {previewDocument && (
               <div className="min-h-96">
                 {previewDocument.mimeType.startsWith("image/") ? (
@@ -428,7 +578,11 @@ export default function DocumentManager({
                   />
                 ) : (
                   <div className="text-center p-8">
-                    <DocumentIcon className="w-12 h-12 mx-auto mb-4 text-default-400" />
+                    <DocumentIcon
+                      className="w-12 h-12 mx-auto mb-4 text-default-400"
+                      data-component-category="ui"
+                      data-component-id="document-icon"
+                    />
                     <p className="text-default-600">
                       Preview not available for this file type
                     </p>
@@ -443,7 +597,10 @@ export default function DocumentManager({
               </div>
             )}
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            data-component-category="ui"
+            data-component-id="modal-footer"
+          >
             <Button variant="light" onPress={onPreviewClose}>
               Close
             </Button>

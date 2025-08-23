@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { wills } from "@/db/schema";
+import { wills, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -16,6 +16,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Check if user has any wills
     const userWills = await db
       .select({
@@ -27,7 +38,7 @@ export async function GET(request: NextRequest) {
         finalized_at: wills.finalized_at,
       })
       .from(wills)
-      .where(eq(wills.user_email, session.user.email))
+      .where(eq(wills.user_id, user.id))
       .orderBy(wills.created_at);
 
     if (userWills.length === 0) {

@@ -36,9 +36,18 @@ export function ProtectedRoute({
 
   if (isSessionLoading || (!isAuthenticated && typeof window !== "undefined")) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div
+        className="min-h-screen bg-background flex items-center justify-center"
+        data-component-category="layout"
+        data-component-id="protected-route"
+      >
         <div className="flex flex-col items-center gap-4">
-          <Spinner color="primary" size="lg" />
+          <Spinner
+            color="primary"
+            data-component-category="ui"
+            data-component-id="spinner"
+            size="lg"
+          />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>

@@ -68,7 +68,12 @@ export function VerticalSteps({
   };
 
   return (
-    <nav aria-label="Progress" className="max-w-fit">
+    <nav
+      aria-label="Progress"
+      className="max-w-fit"
+      data-component-category="ui"
+      data-component-id="vertical-steps"
+    >
       <ol className={cn("flex flex-col gap-y-3", className)}>
         {steps?.map((step, stepIdx) => {
           const status =
@@ -107,7 +112,11 @@ export function VerticalSteps({
                       >
                         <div className="flex items-center justify-center">
                           {status === "complete" ? (
-                            <CheckIcon className="h-5 w-5" />
+                            <CheckIcon
+                              className="h-5 w-5"
+                              data-component-category="ui"
+                              data-component-id="check-icon"
+                            />
                           ) : (
                             <span>{stepIdx + 1}</span>
                           )}

@@ -3,7 +3,7 @@ import { eq, and, or, like, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db/db";
-import { beneficiaries } from "@/db/schema";
+import { beneficiaries, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { beneficiaryFormSchema } from "@/types/beneficiaries";
 
@@ -25,7 +25,18 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * pageSize;
 
-    let whereConditions = [eq(beneficiaries.user_email, session.user.email)];
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    let whereConditions = [eq(beneficiaries.user_id, user.id)];
 
     if (search) {
       whereConditions.push(
@@ -112,10 +123,21 @@ export async function POST(request: NextRequest) {
       specific_assets: validatedData.specific_assets || null,
     };
 
+    // Get user ID from email for POST
+    const [postUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!postUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const [newBeneficiary] = await db
       .insert(beneficiaries)
       .values({
-        user_email: session.user.email,
+        user_id: postUser.id,
         ...cleanedData,
       })
       .returning();

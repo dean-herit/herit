@@ -67,7 +67,11 @@ export function SignatureStamp({
   };
 
   return (
-    <div className="relative inline-block">
+    <div
+      className="relative inline-block"
+      data-component-category="input"
+      data-component-id="signature-stamp"
+    >
       {!isSigned ? (
         <button
           className={`
@@ -97,7 +101,10 @@ export function SignatureStamp({
         </button>
       ) : (
         <div className="relative inline-flex flex-col items-center">
-          <AnimatePresence>
+          <AnimatePresence
+            data-component-category="ui"
+            data-component-id="animate-presence"
+          >
             <motion.div
               animate={{ scale: 1, opacity: 1 }}
               className="flex flex-col items-center"

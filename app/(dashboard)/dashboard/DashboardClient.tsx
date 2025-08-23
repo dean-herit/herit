@@ -25,7 +25,6 @@ import {
   useWillStatus,
 } from "@/hooks/useDashboard";
 import { ComponentWrapper } from "@/components/dev/withComponentMetadata";
-import { COMPONENT_REGISTRY } from "@/lib/component-registry";
 import { createSimpleMetadata } from "@/components/dev/createSimpleMetadata";
 import { ComponentCategory } from "@/types/component-registry";
 
@@ -43,6 +42,11 @@ interface DashboardStats {
 }
 
 export function DashboardClient() {
+  // Component attributes - Required for visual dev mode
+  const componentAttributes = {
+    "data-component-id": "dashboard-client",
+    "data-component-category": "layout",
+  };
   const { user } = useAuth();
 
   // Use TanStack Query hooks
@@ -132,10 +136,7 @@ export function DashboardClient() {
   // Error handling
   if (statsError) {
     return (
-      <ComponentWrapper
-        componentId="dashboard-client"
-        metadata={COMPONENT_REGISTRY["dashboard-client"]}
-      >
+      <div {...componentAttributes}>
         <Card className="w-full">
           <CardBody className="p-6 text-center">
             <p className="text-red-600 mb-4">
@@ -146,15 +147,12 @@ export function DashboardClient() {
             </Button>
           </CardBody>
         </Card>
-      </ComponentWrapper>
+      </div>
     );
   }
 
   return (
-    <ComponentWrapper
-      componentId="dashboard-client"
-      metadata={COMPONENT_REGISTRY["dashboard-client"]}
-    >
+    <div {...componentAttributes}>
       {/* Welcome Header - Outside the card */}
       <div className="text-left mb-6 mt-12 ml-[2.5%]">
         <h1 className="tracking-tight inline font-semibold text-4xl md:text-5xl text-foreground">
@@ -174,6 +172,8 @@ export function DashboardClient() {
             {allStats.length > 0 && (
               <ComponentWrapper
                 componentId="dashboard-stats-section"
+                data-component-category="ui"
+                data-component-id="component-wrapper"
                 metadata={createSimpleMetadata(
                   "dashboard-stats-section",
                   "Dashboard Stats Section",
@@ -189,6 +189,8 @@ export function DashboardClient() {
                       <ComponentWrapper
                         key={stat.label}
                         componentId={`stat-card-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}
+                        data-component-category="ui"
+                        data-component-id="component-wrapper"
                         metadata={createSimpleMetadata(
                           `stat-card-${stat.label.toLowerCase().replace(/\s+/g, "-")}`,
                           `${stat.label} Card`,
@@ -205,6 +207,8 @@ export function DashboardClient() {
                                 >
                                   <IconComponent
                                     className={`h-6 w-6 text-${stat.color}-600`}
+                                    data-component-category="ui"
+                                    data-component-id="icon-component"
                                   />
                                 </div>
                                 <div>
@@ -234,6 +238,8 @@ export function DashboardClient() {
             {/* Quick Actions */}
             <ComponentWrapper
               componentId="quick-actions-section"
+              data-component-category="ui"
+              data-component-id="component-wrapper"
               metadata={createSimpleMetadata(
                 "quick-actions-section",
                 "Quick Actions Section",
@@ -245,14 +251,21 @@ export function DashboardClient() {
                 <CardHeader>
                   <h2 className="text-xl font-semibold">Quick Actions</h2>
                 </CardHeader>
-                <Divider />
+                <Divider
+                  data-component-category="ui"
+                  data-component-id="divider"
+                />
                 <CardBody className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Link href="/assets">
                       <Button
                         className="h-auto p-4 justify-start w-full"
                         startContent={
-                          <CurrencyDollarIcon className="h-5 w-5" />
+                          <CurrencyDollarIcon
+                            className="h-5 w-5"
+                            data-component-category="ui"
+                            data-component-id="currency-dollar-icon"
+                          />
                         }
                         variant="bordered"
                       >
@@ -274,7 +287,13 @@ export function DashboardClient() {
                     <Link href="/beneficiaries">
                       <Button
                         className="h-auto p-4 justify-start w-full"
-                        startContent={<UsersIcon className="h-5 w-5" />}
+                        startContent={
+                          <UsersIcon
+                            className="h-5 w-5"
+                            data-component-category="ui"
+                            data-component-id="users-icon"
+                          />
+                        }
                         variant="bordered"
                       >
                         <div className="text-left">
@@ -289,7 +308,13 @@ export function DashboardClient() {
                     <Link href="/will">
                       <Button
                         className="h-auto p-4 justify-start w-full"
-                        startContent={<DocumentTextIcon className="h-5 w-5" />}
+                        startContent={
+                          <DocumentTextIcon
+                            className="h-5 w-5"
+                            data-component-category="ui"
+                            data-component-id="document-text-icon"
+                          />
+                        }
                         variant="bordered"
                       >
                         <div className="text-left">
@@ -303,7 +328,13 @@ export function DashboardClient() {
 
                     <Button
                       className="h-auto p-4 justify-start"
-                      startContent={<UserIcon className="h-5 w-5" />}
+                      startContent={
+                        <UserIcon
+                          className="h-5 w-5"
+                          data-component-category="ui"
+                          data-component-id="user-icon"
+                        />
+                      }
                       variant="bordered"
                     >
                       <div className="text-left">
@@ -331,7 +362,10 @@ export function DashboardClient() {
                     )}
                   </div>
                 </CardHeader>
-                <Divider />
+                <Divider
+                  data-component-category="ui"
+                  data-component-id="divider"
+                />
                 <CardBody>
                   {loading ? (
                     <div className="text-center py-8">
@@ -350,7 +384,13 @@ export function DashboardClient() {
                         <Button
                           className="mt-4"
                           color="primary"
-                          startContent={<PlusIcon className="h-4 w-4" />}
+                          startContent={
+                            <PlusIcon
+                              className="h-4 w-4"
+                              data-component-category="ui"
+                              data-component-id="plus-icon"
+                            />
+                          }
                           variant="flat"
                         >
                           Add Your First Asset
@@ -366,7 +406,11 @@ export function DashboardClient() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="p-2 bg-primary-100 rounded-full">
-                              <CurrencyDollarIcon className="h-4 w-4 text-primary" />
+                              <CurrencyDollarIcon
+                                className="h-4 w-4 text-primary"
+                                data-component-category="ui"
+                                data-component-id="currency-dollar-icon"
+                              />
                             </div>
                             <div>
                               <p className="font-medium">{asset.name}</p>
@@ -397,6 +441,6 @@ export function DashboardClient() {
           </div>
         </CardBody>
       </Card>
-    </ComponentWrapper>
+    </div>
   );
 }

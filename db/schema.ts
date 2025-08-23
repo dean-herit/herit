@@ -157,7 +157,7 @@ export const assets = pgTable(
   "assets",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    user_email: varchar("user_email", { length: 255 }).notNull(),
+    user_id: uuid("user_id").notNull(),
 
     // Asset Details
     name: varchar("name", { length: 255 }).notNull(),
@@ -179,13 +179,13 @@ export const assets = pgTable(
   },
   (table) => ({
     // Indexes for asset queries
-    userEmailIndex: index("assets_user_email_idx").on(table.user_email),
+    userIdIndex: index("assets_user_id_idx").on(table.user_id),
     assetTypeIndex: index("assets_type_idx").on(table.asset_type),
     valueIndex: index("assets_value_idx").on(table.value),
     createdAtIndex: index("assets_created_at_idx").on(table.created_at),
     // Composite index for common queries
     userTypeIndex: index("assets_user_type_idx").on(
-      table.user_email,
+      table.user_id,
       table.asset_type,
     ),
   }),
@@ -194,7 +194,7 @@ export const assets = pgTable(
 // Beneficiaries table
 export const beneficiaries = pgTable("beneficiaries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  user_email: varchar("user_email", { length: 255 }).notNull(),
+  user_id: uuid("user_id").notNull(),
 
   // Beneficiary Details
   name: varchar("name", { length: 255 }).notNull(),
@@ -228,7 +228,7 @@ export const beneficiaries = pgTable("beneficiaries", {
 // Wills table
 export const wills = pgTable("wills", {
   id: uuid("id").primaryKey().defaultRandom(),
-  user_email: varchar("user_email", { length: 255 }).notNull(),
+  user_id: uuid("user_id").notNull(),
 
   // Will Metadata
   title: varchar("title", { length: 255 })
@@ -308,21 +308,21 @@ export const signatureUsage = pgTable("signature_usage", {
 // Audit Events table (comprehensive audit trail)
 export const auditEvents = pgTable("audit_events", {
   id: uuid("id").primaryKey().defaultRandom(),
-  user_email: varchar("user_email", { length: 255 }),
+  user_id: uuid("user_id"),
 
   // Event Details
-  action: varchar("action", { length: 100 }).notNull(),
-  entity_type: varchar("entity_type", { length: 100 }),
-  entity_id: varchar("entity_id", { length: 255 }),
+  event_type: varchar("event_type", { length: 100 }).notNull(),
+  event_action: varchar("event_action", { length: 100 }).notNull(),
+  resource_type: varchar("resource_type", { length: 100 }),
+  resource_id: varchar("resource_id", { length: 255 }),
+  event_data: jsonb("event_data"),
 
-  // Event Metadata
-  event_metadata: jsonb("event_metadata"),
+  // Request Context
   ip_address: varchar("ip_address", { length: 45 }),
   user_agent: text("user_agent"),
-  session_id: varchar("session_id", { length: 255 }),
 
   // Timestamps
-  timestamp: timestamp("timestamp").defaultNow(),
+  event_time: timestamp("event_time").defaultNow(),
 });
 
 // Document Storage Tables
@@ -413,23 +413,23 @@ export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
 
 export const assetsRelations = relations(assets, ({ one, many }) => ({
   user: one(users, {
-    fields: [assets.user_email],
-    references: [users.email],
+    fields: [assets.user_id],
+    references: [users.id],
   }),
   documents: many(assetDocuments),
 }));
 
 export const beneficiariesRelations = relations(beneficiaries, ({ one }) => ({
   user: one(users, {
-    fields: [beneficiaries.user_email],
-    references: [users.email],
+    fields: [beneficiaries.user_id],
+    references: [users.id],
   }),
 }));
 
 export const willsRelations = relations(wills, ({ one }) => ({
   user: one(users, {
-    fields: [wills.user_email],
-    references: [users.email],
+    fields: [wills.user_id],
+    references: [users.id],
   }),
 }));
 
@@ -454,8 +454,8 @@ export const signatureUsageRelations = relations(signatureUsage, ({ one }) => ({
 
 export const auditEventsRelations = relations(auditEvents, ({ one }) => ({
   user: one(users, {
-    fields: [auditEvents.user_email],
-    references: [users.email],
+    fields: [auditEvents.user_id],
+    references: [users.id],
   }),
 }));
 

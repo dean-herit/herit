@@ -7,6 +7,7 @@ import {
   documentAuditLog,
   documentRequirements,
   assets,
+  users,
   type NewAssetDocument,
   type NewDocumentAuditLog,
 } from "@/db/schema";
@@ -87,9 +88,10 @@ export class DocumentStorageService {
 
     // Get asset information to determine document priority
     const asset = await db
-      .select({ asset_type: assets.asset_type })
+      .select({ asset_type: assets.asset_type, user_id: assets.user_id })
       .from(assets)
-      .where(and(eq(assets.id, assetId), eq(assets.user_email, userEmail)))
+      .innerJoin(users, eq(assets.user_id, users.id))
+      .where(and(eq(assets.id, assetId), eq(users.email, userEmail)))
       .limit(1);
 
     if (asset.length === 0) {
@@ -258,7 +260,8 @@ export class DocumentStorageService {
     const assetCheck = await db
       .select({ id: assets.id })
       .from(assets)
-      .where(and(eq(assets.id, assetId), eq(assets.user_email, userEmail)))
+      .innerJoin(users, eq(assets.user_id, users.id))
+      .where(and(eq(assets.id, assetId), eq(users.email, userEmail)))
       .limit(1);
 
     if (assetCheck.length === 0) {
@@ -366,10 +369,11 @@ export class DocumentStorageService {
       .select({
         blob_url: assetDocuments.blob_url,
         blob_pathname: assetDocuments.blob_pathname,
-        user_email: assets.user_email,
+        user_email: users.email,
       })
       .from(assetDocuments)
       .innerJoin(assets, eq(assetDocuments.asset_id, assets.id))
+      .innerJoin(users, eq(assets.user_id, users.id))
       .where(eq(assetDocuments.id, documentId))
       .limit(1);
 

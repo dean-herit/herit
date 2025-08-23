@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, desc, asc, like, and, or } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { assets } from "@/db/schema";
+import { assets, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { AssetFormSchema, AssetType } from "@/types/assets";
 import {
@@ -31,8 +31,19 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get("sort_order") || "desc";
     const status = searchParams.get("status") || "";
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Build where conditions
-    const whereConditions = [eq(assets.user_email, session.user.email)];
+    const whereConditions = [eq(assets.user_id, user.id)];
 
     // Add status filter - default to active only
     if (status) {
@@ -113,12 +124,7 @@ export async function GET(request: NextRequest) {
         asset_type: assets.asset_type,
       })
       .from(assets)
-      .where(
-        and(
-          eq(assets.user_email, session.user.email),
-          eq(assets.status, "active"),
-        ),
-      );
+      .where(and(eq(assets.user_id, user.id), eq(assets.status, "active")));
 
     const totalValue = allUserAssets.reduce(
       (sum, asset) => sum + (asset.value || 0),
@@ -177,6 +183,17 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Try V2 schema first (discriminated union)
     const v2ValidationResult = AssetFormSchema.safeParse(body);
 
@@ -224,7 +241,7 @@ export async function POST(request: NextRequest) {
       const newAsset = await db
         .insert(assets)
         .values({
-          user_email: session.user.email,
+          user_id: user.id,
           name: assetData.name,
           asset_type: assetCategory,
           value: assetData.value,

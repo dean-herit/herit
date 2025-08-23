@@ -58,7 +58,11 @@ export function WillClient({ user }: WillClientProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div
+      className="space-y-8"
+      data-component-category="layout"
+      data-component-id="will-client"
+    >
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Your Will</h1>
@@ -73,7 +77,11 @@ export function WillClient({ user }: WillClientProps) {
           <CardHeader className="pb-0">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
-                <DocumentTextIcon className="w-6 h-6 text-primary" />
+                <DocumentTextIcon
+                  className="w-6 h-6 text-primary"
+                  data-component-category="ui"
+                  data-component-id="document-text-icon"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-semibold">Create Your Will</h3>
@@ -83,7 +91,11 @@ export function WillClient({ user }: WillClientProps) {
               </div>
             </div>
           </CardHeader>
-          <Divider className="my-4" />
+          <Divider
+            className="my-4"
+            data-component-category="ui"
+            data-component-id="divider"
+          />
           <CardBody className="pt-0">
             <p className="text-default-600 mb-6">
               Create a legally binding will to ensure your assets are
@@ -108,13 +120,25 @@ export function WillClient({ user }: WillClientProps) {
               <Button
                 color="primary"
                 size="lg"
-                startContent={<PlusIcon className="w-5 h-5" />}
+                startContent={
+                  <PlusIcon
+                    className="w-5 h-5"
+                    data-component-category="ui"
+                    data-component-id="plus-icon"
+                  />
+                }
               >
                 Create Will
               </Button>
               <Button
                 size="lg"
-                startContent={<EyeIcon className="w-5 h-5" />}
+                startContent={
+                  <EyeIcon
+                    className="w-5 h-5"
+                    data-component-category="ui"
+                    data-component-id="eye-icon"
+                  />
+                }
                 variant="bordered"
               >
                 View Sample
@@ -128,7 +152,11 @@ export function WillClient({ user }: WillClientProps) {
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-success/10">
-                  <DocumentTextIcon className="w-6 h-6 text-success" />
+                  <DocumentTextIcon
+                    className="w-6 h-6 text-success"
+                    data-component-category="ui"
+                    data-component-id="document-text-icon"
+                  />
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold">
@@ -162,7 +190,11 @@ export function WillClient({ user }: WillClientProps) {
               </div>
             </div>
           </CardHeader>
-          <Divider className="my-4" />
+          <Divider
+            className="my-4"
+            data-component-category="ui"
+            data-component-id="divider"
+          />
           <CardBody className="pt-0">
             <div className="flex gap-3">
               <Button color="primary" size="lg">
@@ -185,7 +217,11 @@ export function WillClient({ user }: WillClientProps) {
           <CardBody className="p-6">
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <DocumentTextIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <DocumentTextIcon
+                  className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                  data-component-category="ui"
+                  data-component-id="document-text-icon"
+                />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold">Will Templates</h4>
@@ -201,7 +237,11 @@ export function WillClient({ user }: WillClientProps) {
           <CardBody className="p-6">
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30">
-                <DocumentTextIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <DocumentTextIcon
+                  className="w-5 h-5 text-green-600 dark:text-green-400"
+                  data-component-category="ui"
+                  data-component-id="document-text-icon"
+                />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold">Legal Review</h4>

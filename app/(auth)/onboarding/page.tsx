@@ -332,6 +332,8 @@ export default function OnboardingPage() {
         return (
           <PersonalInfoStep
             {...commonProps}
+            data-component-category="ui"
+            data-component-id="personal-info-step"
             initialData={personalInfo}
             onChange={setPersonalInfo}
             onComplete={() => handleStepComplete(currentStep, personalInfo)}
@@ -341,6 +343,8 @@ export default function OnboardingPage() {
         return (
           <SignatureStep
             {...commonProps}
+            data-component-category="ui"
+            data-component-id="signature-step"
             initialSignature={signature}
             personalInfo={personalInfo}
             onChange={setSignature}
@@ -353,6 +357,8 @@ export default function OnboardingPage() {
         return signature ? (
           <LegalConsentStep
             {...commonProps}
+            data-component-category="ui"
+            data-component-id="legal-consent-step"
             initialConsents={consents}
             signature={signature}
             onChange={setConsents}
@@ -369,6 +375,8 @@ export default function OnboardingPage() {
         return (
           <VerificationStep
             {...commonProps}
+            data-component-category="ui"
+            data-component-id="verification-step"
             onComplete={() => handleStepComplete(currentStep, {})}
           />
         );
@@ -381,7 +389,12 @@ export default function OnboardingPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Spinner color="primary" size="lg" />
+          <Spinner
+            color="primary"
+            data-component-category="ui"
+            data-component-id="spinner"
+            size="lg"
+          />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>
@@ -401,6 +414,8 @@ export default function OnboardingPage() {
             <div className="sticky top-8">
               <VerticalSteps
                 currentStep={currentStep}
+                data-component-category="ui"
+                data-component-id="vertical-steps"
                 steps={STEPS}
                 onStepChange={goToStep}
               />

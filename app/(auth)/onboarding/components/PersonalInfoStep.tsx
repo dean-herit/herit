@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { useState } from "react";
+import { Input } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
+import { SubmitHandler } from "react-hook-form";
 
+import { SharedPersonalInfoFormProvider } from "@/components/shared/SharedPersonalInfoFormProvider";
+import { OnboardingPersonalInfo } from "@/types/shared-personal-info";
 import { PersonalInfo } from "@/types/onboarding";
 
 interface PersonalInfoStepProps {
@@ -14,42 +17,36 @@ interface PersonalInfoStepProps {
   loading?: boolean;
 }
 
-const IRISH_COUNTIES = [
-  // Republic of Ireland (26 counties)
-  "Carlow",
-  "Cavan",
-  "Clare",
-  "Cork",
-  "Donegal",
-  "Dublin",
-  "Galway",
-  "Kerry",
-  "Kildare",
-  "Kilkenny",
-  "Laois",
-  "Leitrim",
-  "Limerick",
-  "Longford",
-  "Louth",
-  "Mayo",
-  "Meath",
-  "Monaghan",
-  "Offaly",
-  "Roscommon",
-  "Sligo",
-  "Tipperary",
-  "Waterford",
-  "Westmeath",
-  "Wexford",
-  "Wicklow",
-  // Northern Ireland (6 counties)
-  "Antrim",
-  "Armagh",
-  "Down",
-  "Fermanagh",
-  "Londonderry",
-  "Tyrone",
-];
+// Helper functions to convert between onboarding and shared formats
+const convertToSharedFormat = (data: PersonalInfo): Partial<OnboardingPersonalInfo> => ({
+  name: `${data.first_name} ${data.last_name}`.trim(),
+  email: data.email,
+  phone: data.phone_number,
+  address_line_1: data.address_line_1,
+  address_line_2: data.address_line_2 || "",
+  city: data.city,
+  county: data.county as any, // Type compatibility - handled by validation
+  eircode: data.eircode,
+  country: "Ireland",
+  photo_url: data.profile_photo || "",
+});
+
+const convertFromSharedFormat = (sharedData: OnboardingPersonalInfo, dateOfBirth: string): PersonalInfo => {
+  const [firstName, ...lastNameParts] = sharedData.name.split(" ");
+  return {
+    first_name: firstName || "",
+    last_name: lastNameParts.join(" ") || "",
+    email: sharedData.email || "",
+    date_of_birth: dateOfBirth,
+    phone_number: sharedData.phone || "",
+    address_line_1: sharedData.address_line_1,
+    address_line_2: sharedData.address_line_2 || "",
+    city: sharedData.city,
+    county: sharedData.county || "",
+    eircode: sharedData.eircode || "",
+    profile_photo: sharedData.photo_url || null,
+  };
+};
 
 export function PersonalInfoStep({
   initialData,
@@ -58,8 +55,8 @@ export function PersonalInfoStep({
   onBack,
   loading,
 }: PersonalInfoStepProps) {
-  const [formData, setFormData] = useState<PersonalInfo>(initialData);
-  const [errors, setErrors] = useState<Partial<PersonalInfo>>({});
+  const [dateOfBirth, setDateOfBirth] = useState(initialData.date_of_birth || "");
+  const [dateOfBirthError, setDateOfBirthError] = useState<string>("");
 
   // API mutation for saving personal info
   const savePersonalInfoMutation = useMutation({
@@ -84,7 +81,6 @@ export function PersonalInfoStep({
 
       if (!response.ok) {
         const error = await response.json();
-
         throw new Error(error.error || "Failed to save personal information");
       }
 
@@ -94,240 +90,79 @@ export function PersonalInfoStep({
       onComplete();
     },
     onError: (error) => {
-      setErrors({ first_name: error.message });
+      console.error("Personal info save error:", error);
     },
   });
 
-  useEffect(() => {
-    onChange(formData);
-  }, [formData, onChange]);
-
-  const handleChange = (field: keyof PersonalInfo, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+  const handleSharedFormSubmit: SubmitHandler<OnboardingPersonalInfo> = async (sharedData) => {
+    // Validate date of birth
+    if (!dateOfBirth) {
+      setDateOfBirthError("Date of birth is required");
+      return;
     }
+    
+    setDateOfBirthError("");
+    
+    // Convert back to onboarding format
+    const personalInfoData = convertFromSharedFormat(sharedData, dateOfBirth);
+    
+    // Update parent state
+    onChange(personalInfoData);
+    
+    // Save via API
+    savePersonalInfoMutation.mutate(personalInfoData);
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<PersonalInfo> = {};
-
-    if (!formData.first_name.trim()) {
-      newErrors.first_name = "First name is required";
-    }
-
-    if (!formData.last_name.trim()) {
-      newErrors.last_name = "Last name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!formData.date_of_birth) {
-      newErrors.date_of_birth = "Date of birth is required";
-    }
-
-    if (!formData.phone_number.trim()) {
-      newErrors.phone_number = "Phone number is required";
-    }
-
-    if (!formData.address_line_1.trim()) {
-      newErrors.address_line_1 = "Address is required";
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
-    }
-
-    if (!formData.county.trim()) {
-      newErrors.county = "County is required";
-    }
-
-    if (!formData.eircode.trim()) {
-      newErrors.eircode = "Eircode is required";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      savePersonalInfoMutation.mutate(formData);
+  const handleDateOfBirthChange = (value: string) => {
+    setDateOfBirth(value);
+    if (dateOfBirthError) {
+      setDateOfBirthError("");
     }
   };
 
   const isLoading = loading || savePersonalInfoMutation.isPending;
 
   return (
-    <form
+    <div 
       className="space-y-6"
+      data-component-category="authentication"
       data-component-id="components-personal-info-step"
       data-testid="personal-info-form"
-      onSubmit={handleSubmit}
     >
-      {/* Personal Details */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Personal Details</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            isRequired
-            data-testid="first-name-input"
-            errorMessage={errors.first_name}
-            isInvalid={!!errors.first_name}
-            label="First Name"
-            placeholder="Enter your first name"
-            value={formData.first_name}
-            variant="bordered"
-            onChange={(e) => handleChange("first_name", e.target.value)}
-          />
-
-          <Input
-            isRequired
-            data-testid="last-name-input"
-            errorMessage={errors.last_name}
-            isInvalid={!!errors.last_name}
-            label="Last Name"
-            placeholder="Enter your last name"
-            value={formData.last_name}
-            variant="bordered"
-            onChange={(e) => handleChange("last_name", e.target.value)}
-          />
-
-          <Input
-            isRequired
-            data-testid="date-of-birth-input"
-            errorMessage={errors.date_of_birth}
-            isInvalid={!!errors.date_of_birth}
-            label="Date of Birth"
-            type="date"
-            value={formData.date_of_birth}
-            variant="bordered"
-            onChange={(e) => handleChange("date_of_birth", e.target.value)}
-          />
-
-          <Input
-            isRequired
-            data-testid="phone-number-input"
-            errorMessage={errors.phone_number}
-            isInvalid={!!errors.phone_number}
-            label="Phone Number"
-            placeholder="Enter your phone number"
-            type="tel"
-            value={formData.phone_number}
-            variant="bordered"
-            onChange={(e) => handleChange("phone_number", e.target.value)}
-          />
-        </div>
+      {/* Date of Birth - Additional field for onboarding */}
+      <div className="bg-white p-6 rounded-lg border">
+        <h3 className="text-lg font-semibold mb-4">Additional Information</h3>
+        <Input
+          isRequired
+          data-testid="date-of-birth-input"
+          errorMessage={dateOfBirthError}
+          isInvalid={!!dateOfBirthError}
+          label="Date of Birth"
+          type="date"
+          value={dateOfBirth}
+          variant="bordered"
+          onChange={(e) => handleDateOfBirthChange(e.target.value)}
+        />
       </div>
 
-      {/* Address */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Irish Address</h3>
-        <div className="space-y-4">
-          <Input
-            isRequired
-            data-testid="address-line-1-input"
-            errorMessage={errors.address_line_1}
-            isInvalid={!!errors.address_line_1}
-            label="Address Line 1"
-            placeholder="Enter your street address"
-            value={formData.address_line_1}
-            variant="bordered"
-            onChange={(e) => handleChange("address_line_1", e.target.value)}
-          />
-
-          <Input
-            data-testid="address-line-2-input"
-            label="Address Line 2"
-            placeholder="Apartment, suite, etc. (optional)"
-            value={formData.address_line_2 || ""}
-            variant="bordered"
-            onChange={(e) => handleChange("address_line_2", e.target.value)}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              isRequired
-              data-testid="city-input"
-              errorMessage={errors.city}
-              isInvalid={!!errors.city}
-              label="City/Town"
-              placeholder="Enter city or town"
-              value={formData.city}
-              variant="bordered"
-              onChange={(e) => handleChange("city", e.target.value)}
-            />
-
-            <Select
-              isRequired
-              data-testid="county-select"
-              errorMessage={errors.county}
-              isInvalid={!!errors.county}
-              label="County"
-              placeholder="Select county"
-              selectedKeys={formData.county ? [formData.county] : []}
-              variant="bordered"
-              onSelectionChange={(keys) => {
-                const county = Array.from(keys)[0] as string;
-
-                handleChange("county", county || "");
-              }}
-            >
-              {IRISH_COUNTIES.map((county) => (
-                <SelectItem key={county}>{county}</SelectItem>
-              ))}
-            </Select>
-
-            <Input
-              isRequired
-              data-testid="eircode-input"
-              errorMessage={errors.eircode}
-              isInvalid={!!errors.eircode}
-              label="Eircode"
-              placeholder="Enter eircode"
-              value={formData.eircode}
-              variant="bordered"
-              onChange={(e) =>
-                handleChange("eircode", e.target.value.toUpperCase())
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between pt-6">
-        {onBack ? (
-          <Button isDisabled={isLoading} variant="bordered" onPress={onBack}>
-            Back
-          </Button>
-        ) : (
-          <div />
-        )}
-
-        <Button
-          color="primary"
-          data-testid="continue-button"
-          isDisabled={isLoading}
-          isLoading={isLoading}
-          type="submit"
-        >
-          Continue
-        </Button>
-      </div>
-
+      {/* Shared Personal Information Form */}
+      <SharedPersonalInfoFormProvider
+        mode="onboarding"
+        initialData={convertToSharedFormat(initialData)}
+        onSubmit={handleSharedFormSubmit}
+        onCancel={onBack}
+        loading={isLoading}
+        showPhotoUpload={false}
+        submitLabel="Continue"
+        showCancelButton={!!onBack}
+      />
+      
       {/* Error Display */}
       {savePersonalInfoMutation.error && (
         <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {savePersonalInfoMutation.error.message}
         </div>
       )}
-    </form>
+    </div>
   );
 }

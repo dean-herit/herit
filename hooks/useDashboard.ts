@@ -83,7 +83,7 @@ export function useWillStatus() {
       const data = await response.json();
 
       return {
-        hasWill: true,
+        hasWill: data.hasWill,
         status: data.status,
       };
     },

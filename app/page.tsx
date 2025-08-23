@@ -4,5 +4,9 @@ import { HomePageClient } from "./HomePageClient";
 export const dynamic = "force-dynamic";
 
 export default function HomePage() {
-  return <HomePageClient />;
+  return (
+    <HomePageClient
+      data-component-category="ui"
+      data-component-id="home-page-client" />
+  );
 }

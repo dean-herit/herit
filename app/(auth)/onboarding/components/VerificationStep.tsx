@@ -252,7 +252,11 @@ export function VerificationStep({
           <p className="text-default-600">Loading verification status...</p>
         </div>
         <div className="flex justify-center">
-          <Spinner size="lg" />
+          <Spinner
+            data-component-category="ui"
+            data-component-id="spinner"
+            size="lg"
+          />
         </div>
       </div>
     );
@@ -261,6 +265,7 @@ export function VerificationStep({
   return (
     <div
       className="space-y-6"
+      data-component-category="authentication"
       data-component-id="components-verification-step"
       data-testid="verification-step"
     >
@@ -272,7 +277,11 @@ export function VerificationStep({
         </p>
       </div>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence
+        data-component-category="ui"
+        data-component-id="animate-presence"
+        mode="wait"
+      >
         {status === "pending" && (
           <motion.div
             key="pending"
@@ -325,7 +334,11 @@ export function VerificationStep({
             <Card>
               <CardBody className="p-6 text-center">
                 <div className="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ExclamationTriangleIcon className="w-8 h-8 text-warning-600" />
+                  <ExclamationTriangleIcon
+                    className="w-8 h-8 text-warning-600"
+                    data-component-category="ui"
+                    data-component-id="exclamation-triangle-icon"
+                  />
                 </div>
                 <h4 className="font-semibold mb-2">Verification In Progress</h4>
                 <p className="text-sm text-default-600 mb-4">
@@ -376,7 +389,11 @@ export function VerificationStep({
             <Card className="border-warning-200 bg-warning-50">
               <CardBody className="p-6 text-center">
                 <div className="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ExclamationTriangleIcon className="w-8 h-8 text-warning-600" />
+                  <ExclamationTriangleIcon
+                    className="w-8 h-8 text-warning-600"
+                    data-component-category="ui"
+                    data-component-id="exclamation-triangle-icon"
+                  />
                 </div>
                 <h4 className="font-semibold text-warning-700 mb-2">
                   Additional Input Required
@@ -427,7 +444,11 @@ export function VerificationStep({
             <Card className="border-success-200 bg-success-50">
               <CardBody className="p-6 text-center">
                 <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircleIcon className="w-8 h-8 text-success-600" />
+                  <CheckCircleIcon
+                    className="w-8 h-8 text-success-600"
+                    data-component-category="ui"
+                    data-component-id="check-circle-icon"
+                  />
                 </div>
                 <h4 className="font-semibold text-success-700 mb-2">
                   Identity Verified Successfully!

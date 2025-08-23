@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { wills } from "@/db/schema";
+import { wills, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -16,11 +16,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Get the most recent will for the current user
     const userWills = await db
       .select()
       .from(wills)
-      .where(eq(wills.user_email, session.user.email))
+      .where(eq(wills.user_id, user.id))
       .orderBy(desc(wills.updated_at))
       .limit(1);
 

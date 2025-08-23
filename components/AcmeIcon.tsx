@@ -9,6 +9,8 @@ export const AcmeIcon: React.FC<IconSvgProps> = ({
   ...props
 }) => (
   <svg
+    data-component-category="ui"
+    data-component-id="acme-icon"
     fill="none"
     height={size || height}
     viewBox="0 0 32 32"

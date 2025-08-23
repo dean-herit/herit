@@ -26,10 +26,22 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <QueryProvider>
-      <HeroUIProvider navigate={router.push}>
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
-      </HeroUIProvider>
-    </QueryProvider>
+    <div data-component-category="layout" data-component-id="providers">
+      <QueryProvider>
+        <HeroUIProvider
+          data-component-category="ui"
+          data-component-id="hero-u-i-provider"
+          navigate={router.push}
+        >
+          <NextThemesProvider
+            {...themeProps}
+            data-component-category="ui"
+            data-component-id="next-themes-provider"
+          >
+            {children}
+          </NextThemesProvider>
+        </HeroUIProvider>
+      </QueryProvider>
+    </div>
   );
 }

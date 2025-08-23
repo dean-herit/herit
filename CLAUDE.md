@@ -35,6 +35,115 @@ await get_components({ visibleOnly: true });
 
 ---
 
+## 🔒 CRITICAL: AUDIT SYSTEM & DATA PROTECTION PROTOCOLS
+
+### **🚨 MANDATORY DATABASE SAFETY RULES**
+
+#### **RULE #1: NEVER Run Database Operations Without Audit Safety**
+```typescript
+// ❌ FORBIDDEN - Direct database changes without safety
+await db.execute(sql`ALTER TABLE...`);
+await db.execute(sql`DROP TABLE...`);
+await db.execute(sql`DELETE FROM...`);
+
+// ✅ REQUIRED - Always use safety wrapper for schema changes
+import { safeMigration } from '@/scripts/migration-safety-protocol';
+await safeMigration('operation-name', async () => {
+  await db.execute(sql`ALTER TABLE...`);
+});
+```
+
+#### **RULE #2: ALWAYS Use Audit Logging for User Actions**
+```typescript
+// ✅ REQUIRED - Log all significant user actions
+import { audit } from '@/lib/audit-middleware';
+
+await audit.logUserAction(
+  userId, 'action_performed', 'resource_type', resourceId, metadata
+);
+
+await audit.logDataChange(
+  userId, 'update', 'table_name', recordId, oldData, newData
+);
+```
+
+#### **RULE #3: NEVER Delete Audit Records**
+- Audit logs are **APPEND-ONLY** by law (GDPR, SOX compliance)
+- Use data retention policies, never manual deletion
+- Audit log deletion violates legal requirements
+
+### **🛡️ IMPLEMENTED DATA PROTECTION SYSTEM**
+
+**Status:** ✅ **OPERATIONAL** - Enterprise-grade 4-layer protection active
+
+#### **Layer 1: Comprehensive Audit Trail**
+- **Location:** `audit_events` table + database triggers
+- **Coverage:** All CRUD operations automatically logged  
+- **Features:** old_data/new_data capture for rollback capability
+- **Performance:** Optimized indexes for fast audit queries
+
+#### **Layer 2: Migration Safety Protocol**  
+- **Location:** `scripts/migration-safety-protocol.ts`
+- **Features:** Pre-migration backups, rollback scripts, validation
+- **Backup Location:** `database-backups/` directory
+- **Usage:** Wrap ALL schema changes with `safeMigration()`
+
+#### **Layer 3: Real-Time Data Protection**
+- **Database Triggers:** Automatic audit on assets, beneficiaries, wills, users
+- **Application Middleware:** `lib/audit-middleware.ts` for API logging
+- **Session Tracking:** User context, IP address, session correlation
+
+#### **Layer 4: Recovery & Compliance**
+- **Documentation:** `docs/AUDIT_SYSTEM_OPERATIONS_MANUAL.md`
+- **Recovery Procedures:** Complete data restoration capabilities
+- **Compliance:** GDPR, SOX, HIPAA ready with audit trails
+
+### **⚡ IMMEDIATE REQUIREMENTS FOR ALL DATABASE WORK**
+
+1. **Before Any Schema Change:**
+   ```bash
+   # Verify clean state
+   npm run typecheck
+   git status
+   
+   # Use safety wrapper
+   npx tsx -e "
+   import { safeMigration } from './scripts/migration-safety-protocol';
+   await safeMigration('your-change-name', async () => {
+     // Your migration code here
+   });
+   "
+   ```
+
+2. **Before Any Data Operations:**
+   ```typescript
+   // Log the operation
+   await audit.logDataChange(userId, action, table, id, oldData, newData);
+   ```
+
+3. **Emergency Recovery Information:**
+   ```bash
+   # Latest backup location
+   ls -1t database-backups/*.sql | head -1
+   
+   # Rollback script location  
+   ls -1t database-backups/rollback-*.sh | head -1
+   
+   # Emergency recovery
+   ./database-backups/rollback-[timestamp].sh
+   ```
+
+### **🚨 DATA LOSS PREVENTION LEARNED FROM RECENT INCIDENT**
+
+**What Happened:** Lost 13 assets due to NULL user_id values during schema changes
+**Root Cause:** No audit trail to recover original ownership
+**Prevention:** Complete audit system now captures all ownership changes  
+**Recovery:** Audit trails now enable complete data relationship recovery
+
+**Never Again:** The implemented system makes this type of data loss impossible
+
+---
+
 ## Project Overview
 
 HeroUI Heritage - Estate planning and asset management platform built with Next.js, TypeScript, and Drizzle ORM.
@@ -153,9 +262,163 @@ Context7 is particularly valuable for this project's rapidly evolving tech stack
 
 ### Component Registry Usage
 
-- **Total Components**: 124 across 8 categories
+- **Total Components**: 145 across 8 categories
 - **Component Lookup**: Use `COMPONENT_REGISTRY[componentId]`
 - **Categories**: layout, navigation, data-display, input, feedback, authentication, business, ui
+
+## 🧩 COMPONENT DEVELOPMENT GUIDELINES
+
+### **Visual Dev Mode Integration Requirements**
+
+**MANDATORY:** All components MUST include both attributes for visual dev mode to work:
+
+```jsx
+<div 
+  data-component-id="my-component"      // ✅ Required
+  data-component-category="input"       // ✅ Required  
+  className="..."
+>
+```
+
+**Component Categories:**
+- `input` - Forms, inputs, interactive elements
+- `data-display` - Cards, lists, tables, display components  
+- `layout` - Layout containers, grids, sections
+- `navigation` - Menus, breadcrumbs, pagination
+- `feedback` - Alerts, notifications, loading states
+- `ui` - General UI elements, buttons, badges
+- `business` - Domain-specific components (assets, beneficiaries, etc.)
+- `authentication` - Auth-related components
+
+### **Recommended Development Patterns**
+
+#### **Pattern 1: useComponentMetadata Hook (Preferred)**
+```tsx
+import { useComponentMetadata } from '@/hooks/useComponentMetadata';
+import { ComponentCategory } from '@/types/component-registry';
+
+export function MyButton({ children, onClick }) {
+  const componentProps = useComponentMetadata("my-button", ComponentCategory.INPUT);
+  
+  return (
+    <button {...componentProps} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+```
+
+#### **Pattern 2: ComponentBaseProps Interface**
+```tsx
+import { ComponentBaseProps } from '@/types/component-base';
+
+interface MyComponentProps extends ComponentBaseProps {
+  title: string;
+  onAction: () => void;
+}
+
+export function MyComponent({ title, onAction, ...componentProps }: MyComponentProps) {
+  return (
+    <div {...componentProps}>
+      <h2>{title}</h2>
+      <button onClick={onAction}>Action</button>
+    </div>
+  );
+}
+```
+
+#### **Pattern 3: Manual Attributes (Fallback)**
+```tsx
+export function LegacyComponent() {
+  return (
+    <div 
+      data-component-id="legacy-component"
+      data-component-category="ui"
+      data-testid="legacy-component"
+    >
+      Content
+    </div>
+  );
+}
+```
+
+### **Component Development Workflow**
+
+1. **Create Component** with proper metadata
+   ```bash
+   # Use preferred hook pattern
+   import { useComponentMetadata } from '@/hooks/useComponentMetadata';
+   ```
+
+2. **Test Visual Dev Mode** during development
+   ```javascript
+   // Enable visual dev mode in browser
+   localStorage.setItem('visualDevMode', 'true');
+   ```
+
+3. **Validate with MCP Tools**
+   ```javascript
+   // Navigate to component page
+   await navigate({ path: "/your-page" });
+   
+   // Verify component detection
+   await get_components({ visibleOnly: true });
+   
+   // Test component interaction
+   await click({ selector: "your-component-id", isComponentId: true });
+   ```
+
+4. **Update Registry**
+   ```bash
+   # Regenerate component registry after adding components
+   node scripts/generate-component-registry.js
+   ```
+
+### **Visual Dev Mode Testing**
+
+**Enable Visual Dev Mode:**
+- Browser: `localStorage.setItem('visualDevMode', 'true')`  
+- Dev Panel: Toggle visual mode in floating button (🛠️)
+- MCP: `await visual_mode({ enabled: true })`
+
+**Testing Checklist:**
+- ✅ Component highlights on hover
+- ✅ Tooltip shows component metadata
+- ✅ MCP tools can detect component
+- ✅ Component appears in registry
+
+### **Common Issues & Solutions**
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Component not highlighted | Missing `data-component-category` | Add category attribute |
+| MCP tools can't find component | Missing `data-component-id` | Add component ID |
+| Tooltip missing metadata | Not in component registry | Run registry generation |
+| Visual dev mode not working | localStorage not set | Enable visual dev mode |
+
+### **Component ID Naming Conventions**
+
+- **Format**: `kebab-case`
+- **Structure**: `[category-]component-name`
+- **Examples**:
+  - `user-profile-card` 
+  - `asset-form`
+  - `navigation-breadcrumbs`
+  - `loading-spinner`
+
+### **Integration with MCP Tools**
+
+Components with proper metadata work seamlessly with MCP tools:
+
+```javascript
+// Navigate and test component
+await navigate({ path: "/beneficiaries/add" });
+await screenshot({ filename: "beneficiary-form" });
+await click({ selector: "beneficiary-form", isComponentId: true });
+
+// Get all components on page
+const components = await get_components({ visibleOnly: true });
+```
 
 ### Development Commands
 
@@ -436,11 +699,25 @@ git status --porcelain
 
 ## Important Notes
 
+### **🚨 CRITICAL - DATABASE SAFETY FIRST**
+- **NEVER run database operations without `safeMigration()` wrapper**
+- **NEVER delete audit logs** (legal compliance requirement)  
+- **ALWAYS use audit logging** for user actions and data changes
+- **VERIFY backups exist** before any risky operations
+- See `docs/AUDIT_SYSTEM_OPERATIONS_MANUAL.md` for complete procedures
+
+### **Development Standards**
 - NEVER commit without running typecheck and lint
 - Always use component registry IDs for testing
 - Enable visual dev mode for component identification
 - Use TodoWrite tool for task tracking during complex implementations
-- Run `npm run db:push` for schema changes in development
-- Use `npm run db:migrate` for production deployments
+- Run `npm run db:push` for schema changes in development (with safety wrapper)
+- Use `npm run db:migrate` for production deployments (with safety wrapper)
 - Monitor Stripe webhook events for verification status updates
 - Clean up test artifacts regularly to maintain repository hygiene
+
+### **Emergency Contacts & Procedures**
+- **Data Loss Emergency:** Check `database-backups/` for latest backup
+- **Audit System Failure:** Run `npx tsx scripts/fix-audit-system.ts`
+- **Schema Recovery:** Run `npx tsx scripts/emergency-schema-recovery.ts`
+- **Complete Operations Manual:** `docs/AUDIT_SYSTEM_OPERATIONS_MANUAL.md`

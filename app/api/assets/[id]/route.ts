@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { assets } from "@/db/schema";
+import { assets, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { IrishAssetFormSchema } from "@/types/assets";
 import { mapAssetTypeToCategory } from "@/lib/asset-type-utils";
@@ -23,13 +23,22 @@ export async function GET(
 
     const { id: assetId } = await params;
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Fetch the specific asset
     const asset = await db
       .select()
       .from(assets)
-      .where(
-        and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
-      )
+      .where(and(eq(assets.id, assetId), eq(assets.user_id, user.id)))
       .limit(1);
 
     if (asset.length === 0) {
@@ -67,6 +76,17 @@ export async function PUT(
     const { id: assetId } = await params;
     const body = await request.json();
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Validate input data
     const validationResult = IrishAssetFormSchema.safeParse(body);
 
@@ -86,9 +106,7 @@ export async function PUT(
     const existingAsset = await db
       .select()
       .from(assets)
-      .where(
-        and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
-      )
+      .where(and(eq(assets.id, assetId), eq(assets.user_id, user.id)))
       .limit(1);
 
     if (existingAsset.length === 0) {
@@ -115,9 +133,7 @@ export async function PUT(
           : existingAsset[0].property_address,
         updated_at: new Date(),
       })
-      .where(
-        and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
-      )
+      .where(and(eq(assets.id, assetId), eq(assets.user_id, user.id)))
       .returning();
 
     // Asset updated successfully
@@ -153,13 +169,22 @@ export async function DELETE(
 
     const { id: assetId } = await params;
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Check if asset exists and belongs to user
     const existingAsset = await db
       .select()
       .from(assets)
-      .where(
-        and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
-      )
+      .where(and(eq(assets.id, assetId), eq(assets.user_id, user.id)))
       .limit(1);
 
     if (existingAsset.length === 0) {
@@ -174,9 +199,7 @@ export async function DELETE(
         status: "inactive",
         updated_at: new Date(),
       })
-      .where(
-        and(eq(assets.id, assetId), eq(assets.user_email, session.user.email)),
-      );
+      .where(and(eq(assets.id, assetId), eq(assets.user_id, user.id)));
 
     // Asset deleted successfully
 

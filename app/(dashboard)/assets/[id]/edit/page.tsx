@@ -24,7 +24,13 @@ export default function EditAssetPage() {
           </p>
           <Button
             color="primary"
-            startContent={<ArrowLeftIcon className="h-4 w-4" />}
+            startContent={
+              <ArrowLeftIcon
+                className="h-4 w-4"
+                data-component-category="ui"
+                data-component-id="arrow-left-icon"
+              />
+            }
             onPress={() => router.push("/assets")}
           >
             Back to Assets

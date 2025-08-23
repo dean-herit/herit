@@ -331,6 +331,130 @@ git commit -m "feat: your feature description"
 3. **Documentation**: Update relevant documentation
 4. **Migration**: Include database migrations if schema changes
 
+## 🧩 Component Development Standards
+
+### **Visual Dev Mode Requirements**
+
+All components MUST include these attributes for visual development tools:
+
+```jsx
+<div 
+  data-component-id="component-name"       // Required: Unique identifier
+  data-component-category="input"          // Required: Component category
+  data-testid="component-name"            // Recommended: Testing identifier
+  className="..."
+>
+```
+
+### **Component Categories**
+
+- `input` - Forms, inputs, interactive elements  
+- `data-display` - Cards, lists, tables, display components
+- `layout` - Layout containers, grids, sections
+- `navigation` - Menus, breadcrumbs, pagination  
+- `feedback` - Alerts, notifications, loading states
+- `ui` - General UI elements, buttons, badges
+- `business` - Domain-specific components (assets, beneficiaries, etc.)
+- `authentication` - Auth-related components
+
+### **Recommended Development Patterns**
+
+#### **Pattern 1: useComponentMetadata Hook (Preferred)**
+
+```tsx
+import { useComponentMetadata } from '@/hooks/useComponentMetadata';
+import { ComponentCategory } from '@/types/component-registry';
+
+export function MyButton({ children, onClick }) {
+  const componentProps = useComponentMetadata("my-button", ComponentCategory.INPUT);
+  
+  return (
+    <button {...componentProps} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+```
+
+#### **Pattern 2: ComponentBaseProps Interface** 
+
+```tsx
+import { ComponentBaseProps } from '@/types/component-base';
+
+interface MyComponentProps extends ComponentBaseProps {
+  title: string;
+  onAction: () => void;
+}
+
+export function MyComponent({ title, onAction, ...componentProps }: MyComponentProps) {
+  return (
+    <div {...componentProps}>
+      <h2>{title}</h2>
+      <button onClick={onAction}>Action</button>
+    </div>
+  );
+}
+```
+
+### **Component Development Workflow**
+
+1. **Create Component** with proper metadata attributes
+2. **Test Visual Dev Mode** - Enable with `localStorage.setItem('visualDevMode', 'true')`
+3. **Validate Integration** - Use MCP tools to test component detection
+4. **Update Registry** - Run `node scripts/generate-component-registry.js`
+
+### **Quality Assurance**
+
+**Before Committing:**
+```bash
+# Ensure component is detected
+npm run dev
+# Enable visual dev mode in browser
+# Verify component highlighting and tooltips work
+
+# Update component registry
+node scripts/generate-component-registry.js
+
+# Type check and lint
+npm run typecheck
+npm run lint
+```
+
+**Testing Checklist:**
+- ✅ Component highlights on hover in visual dev mode
+- ✅ Tooltip displays component metadata  
+- ✅ MCP tools can detect and interact with component
+- ✅ Component appears in generated registry
+- ✅ TypeScript compilation passes
+- ✅ ESLint passes without warnings
+
+### **Troubleshooting Component Issues**
+
+| Issue | Solution |
+|-------|----------|
+| Component not highlighting | Add `data-component-category` attribute |
+| MCP tools can't find component | Add `data-component-id` attribute |
+| Missing metadata in tooltip | Run registry generation script |
+| Visual dev mode not working | Enable in browser: `localStorage.setItem('visualDevMode', 'true')` |
+
+### **Integration with Visual Testing Tools**
+
+Components following these standards work seamlessly with MCP tools:
+
+```javascript
+// Navigate to component page
+await navigate({ path: "/your-page" });
+
+// Get all components on page  
+const components = await get_components({ visibleOnly: true });
+
+// Interact with specific component
+await click({ selector: "your-component-id", isComponentId: true });
+
+// Capture component screenshot
+await screenshot({ filename: "component-test" });
+```
+
 ## 📝 API Documentation
 
 ### Authentication Endpoints

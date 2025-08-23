@@ -44,7 +44,12 @@ export function EmailLoginForm() {
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form
+      className="space-y-4"
+      data-component-category="authentication"
+      data-component-id="email-login-form"
+      onSubmit={handleSubmit}
+    >
       <Input
         isRequired
         errorMessage={errors.email}
@@ -66,9 +71,17 @@ export function EmailLoginForm() {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeSlashIcon className="h-4 w-4 text-default-400" />
+              <EyeSlashIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-slash-icon"
+              />
             ) : (
-              <EyeIcon className="h-4 w-4 text-default-400" />
+              <EyeIcon
+                className="h-4 w-4 text-default-400"
+                data-component-category="ui"
+                data-component-id="eye-icon"
+              />
             )}
           </button>
         }

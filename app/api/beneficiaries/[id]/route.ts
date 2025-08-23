@@ -3,7 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db/db";
-import { beneficiaries } from "@/db/schema";
+import { beneficiaries, users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { beneficiaryFormSchema } from "@/types/beneficiaries";
 
@@ -20,15 +20,21 @@ export async function GET(
 
     const { id } = await params;
 
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const beneficiary = await db
       .select()
       .from(beneficiaries)
-      .where(
-        and(
-          eq(beneficiaries.id, id),
-          eq(beneficiaries.user_email, session.user.email),
-        ),
-      )
+      .where(and(eq(beneficiaries.id, id), eq(beneficiaries.user_id, user.id)))
       .limit(1);
 
     if (!beneficiary[0]) {
@@ -80,6 +86,17 @@ export async function PUT(
       specific_assets: validatedData.specific_assets || null,
     };
 
+    // Get user ID from email for update
+    const [updateUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!updateUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const [updatedBeneficiary] = await db
       .update(beneficiaries)
       .set({
@@ -87,10 +104,7 @@ export async function PUT(
         updated_at: new Date(),
       })
       .where(
-        and(
-          eq(beneficiaries.id, id),
-          eq(beneficiaries.user_email, session.user.email),
-        ),
+        and(eq(beneficiaries.id, id), eq(beneficiaries.user_id, updateUser.id)),
       )
       .returning();
 
@@ -132,6 +146,17 @@ export async function DELETE(
 
     const { id } = await params;
 
+    // Get user ID from email for delete
+    const [deleteUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!deleteUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const [deletedBeneficiary] = await db
       .update(beneficiaries)
       .set({
@@ -139,10 +164,7 @@ export async function DELETE(
         updated_at: new Date(),
       })
       .where(
-        and(
-          eq(beneficiaries.id, id),
-          eq(beneficiaries.user_email, session.user.email),
-        ),
+        and(eq(beneficiaries.id, id), eq(beneficiaries.user_id, deleteUser.id)),
       )
       .returning();
 

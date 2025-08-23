@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, CardBody, Progress } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 
@@ -32,46 +32,64 @@ export default function AddBeneficiaryPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div
+      className="max-w-5xl mx-auto p-6"
+      data-component-category="layout"
+      data-component-id="add-beneficiary-page"
+    >
       {/* Header */}
-      <div className="mb-6">
+      <div
+        className="mb-6"
+        data-component-category="layout"
+        data-component-id="add-beneficiary-header"
+      >
         <Button
           className="mb-4"
-          startContent={<ArrowLeftIcon className="h-4 w-4" />}
+          data-component-category="navigation"
+          data-component-id="back-to-beneficiaries-button"
+          startContent={
+            <ArrowLeftIcon
+              className="h-4 w-4"
+              data-component-category="ui"
+              data-component-id="arrow-left-icon"
+            />
+          }
           variant="light"
           onPress={handleCancel}
         >
           Back to Beneficiaries
         </Button>
 
-        <h1 className="text-3xl font-bold">Add New Beneficiary</h1>
-        <p className="text-default-600 mt-2">
+        <h1
+          className="text-3xl font-bold"
+          data-component-category="ui"
+          data-component-id="page-title"
+        >
+          Add New Beneficiary
+        </h1>
+        <p
+          className="text-default-600 mt-2"
+          data-component-category="ui"
+          data-component-id="page-description"
+        >
           Add a person or organization who will inherit your assets
         </p>
       </div>
 
-      {/* Progress Indicator */}
-      <Card className="mb-6">
-        <CardBody className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Form Progress</span>
-            <span className="text-sm text-default-500">Step 1 of 2</span>
-          </div>
-          <Progress className="mb-2" color="primary" size="sm" value={50} />
-          <div className="flex justify-between text-xs text-default-500">
-            <span>Personal Information</span>
-            <span>Address Information</span>
-          </div>
-        </CardBody>
-      </Card>
-
       {/* Form */}
-      <BeneficiaryForm
-        loading={loading || createMutation.isPending}
-        mode="create"
-        onCancel={handleCancel}
-        onSubmit={handleSubmit}
-      />
+      <div
+        data-component-category="layout"
+        data-component-id="beneficiary-form-container"
+      >
+        <BeneficiaryForm
+          data-component-category="ui"
+          data-component-id="beneficiary-form"
+          loading={loading || createMutation.isPending}
+          mode="create"
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   );
 }
