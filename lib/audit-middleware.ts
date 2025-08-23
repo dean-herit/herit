@@ -43,15 +43,15 @@ class AuditLogger {
       }
 
       await db.insert(auditEvents).values({
-        user_id: context.userId || null,
+        user_id: context.userId,
         event_type: data.eventType,
         event_action: data.eventAction,
-        resource_type: data.resourceType || null,
-        resource_id: data.resourceId || null,
+        resource_type: data.resourceType,
+        resource_id: data.resourceId,
         event_data: data.eventData ? JSON.stringify(data.eventData) : null,
         old_data: data.oldData ? JSON.stringify(data.oldData) : null,
         new_data: data.newData ? JSON.stringify(data.newData) : null,
-        ip_address: context.ipAddress || null,
+        ip_address: context.ipAddress,
         user_agent: context.userAgent || null,
         session_id: context.sessionId || null,
       });
@@ -108,7 +108,7 @@ class AuditLogger {
     });
   }
 
-  private extractResourceType(pathParts: string[]): string {
+  public extractResourceType(pathParts: string[]): string {
     if (pathParts.includes('api')) {
       const apiIndex = pathParts.indexOf('api');
       return pathParts[apiIndex + 1] || 'unknown';
@@ -116,7 +116,7 @@ class AuditLogger {
     return pathParts[0] || 'unknown';
   }
 
-  private extractResourceId(pathParts: string[]): string | null {
+  private extractResourceId(pathParts: string[]): string | undefined {
     // Look for UUID pattern or numeric ID
     const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const numericPattern = /^\d+$/;
@@ -126,7 +126,7 @@ class AuditLogger {
         return part;
       }
     }
-    return null;
+    return undefined;
   }
 
   private mapHttpMethodToAction(method: string): string {
@@ -161,7 +161,7 @@ export async function auditMiddleware(
       const session = await getSession();
       if (session?.user) {
         context.email = session.user.email || undefined;
-        context.sessionId = session.sessionId || undefined;
+        context.sessionId = crypto.randomUUID(); // Generate session ID for tracking
         // You'd need to get user ID from email if not in session
         if (session.user.id) {
           context.userId = session.user.id;

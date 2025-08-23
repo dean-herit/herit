@@ -317,9 +317,14 @@ export const auditEvents = pgTable("audit_events", {
   resource_id: varchar("resource_id", { length: 255 }),
   event_data: jsonb("event_data"),
 
+  // Rollback Data
+  old_data: jsonb("old_data"),
+  new_data: jsonb("new_data"),
+
   // Request Context
   ip_address: varchar("ip_address", { length: 45 }),
   user_agent: text("user_agent"),
+  session_id: varchar("session_id", { length: 255 }),
 
   // Timestamps
   event_time: timestamp("event_time").defaultNow(),
