@@ -16,8 +16,12 @@ async function fixVerification() {
       .update(users)
       .set({
         verification_completed: true,
-        onboarding_completed: true,
-        onboardingStatus: "completed",
+        verification_status: "verified",
+        verification_completed_at: new Date(),
+        onboarding_status: "completed",
+        onboarding_current_step: "completed",
+        onboarding_completed_at: new Date(),
+        updated_at: new Date(),
       })
       .where(eq(users.email, "claude.assistant@example.com"))
       .returning();
@@ -27,8 +31,9 @@ async function fixVerification() {
       id: result[0].id,
       email: result[0].email,
       verification_completed: result[0].verification_completed,
-      onboarding_completed: result[0].onboarding_completed,
-      onboardingStatus: result[0].onboardingStatus,
+      verification_status: result[0].verification_status,
+      onboarding_status: result[0].onboarding_status,
+      onboarding_completed_at: result[0].onboarding_completed_at,
     });
   } catch (error) {
     console.error("❌ Database update failed:", error.message);

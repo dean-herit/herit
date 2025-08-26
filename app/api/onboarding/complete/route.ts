@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
 import { getSession } from "@/lib/auth";
+import { StripeIdentityService } from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,13 +17,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get current user completion status
+    // Get current user completion status including verification session ID
     const user = await db
       .select({
         personal_info_completed: users.personal_info_completed,
         signature_completed: users.signature_completed,
         legal_consent_completed: users.legal_consent_completed,
         verification_completed: users.verification_completed,
+        verification_session_id: users.verification_session_id,
+        verification_status: users.verification_status,
         onboarding_completed_at: users.onboarding_completed_at,
       })
       .from(users)
@@ -33,7 +36,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userData = user[0];
+    let userData = user[0];
+
+    // First, try to sync with Stripe if there's a verification session and it's not completed
+    if (
+      userData.verification_session_id &&
+      userData.verification_session_id.startsWith("vs_") &&
+      !userData.verification_completed
+    ) {
+      try {
+        console.log(
+          "Attempting to sync verification status before completion check",
+        );
+        const stripeSession =
+          await StripeIdentityService.getVerificationSession(
+            userData.verification_session_id,
+          );
+
+        // If Stripe shows verified but our DB doesn't, update it
+        if (
+          stripeSession.status === "verified" &&
+          !userData.verification_completed
+        ) {
+          console.log("Syncing verification status: Stripe shows verified");
+
+          await db
+            .update(users)
+            .set({
+              verification_status: "verified",
+              verification_completed: true,
+              verification_completed_at: new Date(),
+              updated_at: new Date(),
+            })
+            .where(eq(users.id, session.user.id));
+
+          // Update our local userData to reflect the change
+          userData.verification_completed = true;
+          userData.verification_status = "verified";
+        }
+      } catch (error) {
+        console.error("Error syncing with Stripe:", error);
+        // Continue anyway - maybe the webhook already processed it
+      }
+    }
 
     // Check if all steps are completed
     const allStepsCompleted = !!(

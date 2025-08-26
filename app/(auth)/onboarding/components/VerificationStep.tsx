@@ -139,34 +139,7 @@ export function VerificationStep({
     );
 
     try {
-      // First, sync verification status with Stripe to catch any webhook misses
-      console.log(
-        "VerificationStep.handleComplete - Syncing verification status",
-      );
-      const syncResponse = await fetch("/api/onboarding/verification/sync", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (syncResponse.ok) {
-        const syncData = await syncResponse.json();
-
-        console.log("VerificationStep.handleComplete - Sync result:", syncData);
-
-        if (syncData.synced) {
-          console.log(
-            "VerificationStep.handleComplete - Verification status synced successfully",
-          );
-        }
-      } else {
-        console.warn(
-          "VerificationStep.handleComplete - Sync failed, proceeding anyway",
-        );
-      }
-
-      // Now call the completion endpoint
+      // Call the completion endpoint which now handles syncing internally
       const completionResponse = await fetch("/api/onboarding/complete", {
         method: "POST",
         headers: {
@@ -184,8 +157,6 @@ export function VerificationStep({
 
         // Redirect to dashboard
         window.location.href = "/dashboard";
-
-        return;
       } else {
         const errorData = await completionResponse.json();
 
@@ -194,40 +165,26 @@ export function VerificationStep({
           errorData,
         );
 
-        // If completion still fails, try direct verification completion
-        if (errorData.error?.includes("verification")) {
-          console.log(
-            "VerificationStep.handleComplete - Attempting fallback verification completion",
-          );
+        // Show error to user
+        setError(
+          errorData.error || "Failed to complete onboarding. Please try again.",
+        );
 
-          const fallbackResponse = await fetch("/api/onboarding/verification", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ verificationMethod: "complete" }),
+        // If the error indicates missing steps, still call the parent callback
+        // to allow the user to potentially go back and complete them
+        if (errorData.completionStatus) {
+          onComplete({
+            verificationCompleted: true,
+            missingSteps: errorData.completionStatus,
           });
-
-          if (fallbackResponse.ok) {
-            console.log(
-              "VerificationStep.handleComplete - Fallback verification successful, retrying completion",
-            );
-            window.location.href = "/dashboard";
-
-            return;
-          }
         }
-
-        // Fallback to onboarding completion callback
-        onComplete({ verificationCompleted: true });
       }
     } catch (error) {
       console.error(
         "VerificationStep.handleComplete - Error during completion",
         error,
       );
-      // Still proceed to avoid blocking user
-      onComplete({ verificationCompleted: true });
+      setError("An unexpected error occurred. Please try again.");
     }
   };
 

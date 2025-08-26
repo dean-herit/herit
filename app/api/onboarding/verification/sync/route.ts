@@ -68,11 +68,14 @@ export async function POST(request: NextRequest) {
           );
           shouldUpdate = true;
 
-          // Check if all onboarding steps are complete
+          // Check if all onboarding steps are complete (including the now-verified verification)
           const isOnboardingComplete = !!(
-            userData.personal_info_completed &&
-            userData.signature_completed &&
-            userData.legal_consent_completed
+            (
+              userData.personal_info_completed &&
+              userData.signature_completed &&
+              userData.legal_consent_completed
+            )
+            // verification will be marked as completed below
           );
 
           updateData = {

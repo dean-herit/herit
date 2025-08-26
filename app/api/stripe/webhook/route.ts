@@ -77,7 +77,7 @@ async function handleVerificationSessionEvent(event: Stripe.Event) {
     const { userId, status, verificationData } = result;
 
     // Determine completion status
-    const isCompleted = status === "verified";
+    const isVerificationCompleted = status === "verified";
     // Map Stripe status to our enum values
     const verificationStatus:
       | "not_started"
@@ -96,23 +96,76 @@ async function handleVerificationSessionEvent(event: Stripe.Event) {
               ? "processing"
               : "pending";
 
-    // Update user verification status in database
-    await db
-      .update(users)
-      .set({
-        verification_status: verificationStatus,
-        verification_completed: isCompleted,
-        verification_completed_at: isCompleted ? new Date() : null,
-        onboarding_current_step: isCompleted ? "completed" : "verification",
-        onboarding_status: isCompleted ? "completed" : "in_progress",
-        onboarding_completed_at: isCompleted ? new Date() : null,
-        updated_at: new Date(),
+    // First, get the user's current onboarding status
+    const user = await db
+      .select({
+        personal_info_completed: users.personal_info_completed,
+        signature_completed: users.signature_completed,
+        legal_consent_completed: users.legal_consent_completed,
+        verification_completed: users.verification_completed,
+        onboarding_status: users.onboarding_status,
       })
-      .where(eq(users.id, userId));
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
-    // Updated verification status for user
+    if (user.length === 0) {
+      console.error(`User ${userId} not found during webhook processing`);
+
+      return;
+    }
+
+    const userData = user[0];
+
+    // Check if ALL onboarding steps are complete (including verification)
+    const isOnboardingComplete = !!(
+      userData.personal_info_completed &&
+      userData.signature_completed &&
+      userData.legal_consent_completed &&
+      isVerificationCompleted
+    );
+
+    console.log("Webhook: Onboarding completion check", {
+      userId,
+      personal_info: userData.personal_info_completed,
+      signature: userData.signature_completed,
+      legal_consent: userData.legal_consent_completed,
+      verification: isVerificationCompleted,
+      isOnboardingComplete,
+      currentStatus: userData.onboarding_status,
+    });
+
+    // Update user verification status and potentially onboarding status
+    const updateData: any = {
+      verification_status: verificationStatus,
+      verification_completed: isVerificationCompleted,
+      verification_completed_at: isVerificationCompleted ? new Date() : null,
+      updated_at: new Date(),
+    };
+
+    // Only mark onboarding as complete if ALL steps are done
+    if (isOnboardingComplete) {
+      updateData.onboarding_status = "completed";
+      updateData.onboarding_current_step = "completed";
+      updateData.onboarding_completed_at = new Date();
+      console.log(`Marking onboarding as complete for user ${userId}`);
+    } else {
+      // Keep current step as verification if not all steps are complete
+      updateData.onboarding_current_step = "verification";
+      updateData.onboarding_status = "in_progress";
+    }
+
+    await db.update(users).set(updateData).where(eq(users.id, userId));
+
+    console.log(
+      `Updated user ${userId} verification status to ${verificationStatus}`,
+      {
+        isVerificationCompleted,
+        isOnboardingComplete,
+      },
+    );
   } catch (error) {
-    // Error handling verification session event
+    console.error("Error handling verification session event:", error);
     throw error;
   }
 }
