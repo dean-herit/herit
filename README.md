@@ -132,7 +132,7 @@ NODE_ENV="development"
 
 ```bash
 git clone <repository-url>
-cd HeroUIHerit
+cd herit
 npm install
 ```
 
@@ -161,7 +161,7 @@ The application will be available at `http://localhost:3000`.
 
 ```bash
 # Development
-npm run dev              # Start development server with Turbopack
+npm run dev              # Start development server (custom script)
 npm run build           # Build for production
 npm run start           # Start production server
 
@@ -338,7 +338,7 @@ git commit -m "feat: your feature description"
 All components MUST include these attributes for visual development tools:
 
 ```jsx
-<div 
+<div
   data-component-id="component-name"       // Required: Unique identifier
   data-component-category="input"          // Required: Component category
   data-testid="component-name"            // Recommended: Testing identifier
@@ -348,10 +348,10 @@ All components MUST include these attributes for visual development tools:
 
 ### **Component Categories**
 
-- `input` - Forms, inputs, interactive elements  
+- `input` - Forms, inputs, interactive elements
 - `data-display` - Cards, lists, tables, display components
 - `layout` - Layout containers, grids, sections
-- `navigation` - Menus, breadcrumbs, pagination  
+- `navigation` - Menus, breadcrumbs, pagination
 - `feedback` - Alerts, notifications, loading states
 - `ui` - General UI elements, buttons, badges
 - `business` - Domain-specific components (assets, beneficiaries, etc.)
@@ -362,12 +362,15 @@ All components MUST include these attributes for visual development tools:
 #### **Pattern 1: useComponentMetadata Hook (Preferred)**
 
 ```tsx
-import { useComponentMetadata } from '@/hooks/useComponentMetadata';
-import { ComponentCategory } from '@/types/component-registry';
+import { useComponentMetadata } from "@/hooks/useComponentMetadata";
+import { ComponentCategory } from "@/types/component-registry";
 
 export function MyButton({ children, onClick }) {
-  const componentProps = useComponentMetadata("my-button", ComponentCategory.INPUT);
-  
+  const componentProps = useComponentMetadata(
+    "my-button",
+    ComponentCategory.INPUT,
+  );
+
   return (
     <button {...componentProps} onClick={onClick}>
       {children}
@@ -376,17 +379,21 @@ export function MyButton({ children, onClick }) {
 }
 ```
 
-#### **Pattern 2: ComponentBaseProps Interface** 
+#### **Pattern 2: ComponentBaseProps Interface**
 
 ```tsx
-import { ComponentBaseProps } from '@/types/component-base';
+import { ComponentBaseProps } from "@/types/component-base";
 
 interface MyComponentProps extends ComponentBaseProps {
   title: string;
   onAction: () => void;
 }
 
-export function MyComponent({ title, onAction, ...componentProps }: MyComponentProps) {
+export function MyComponent({
+  title,
+  onAction,
+  ...componentProps
+}: MyComponentProps) {
   return (
     <div {...componentProps}>
       <h2>{title}</h2>
@@ -406,6 +413,7 @@ export function MyComponent({ title, onAction, ...componentProps }: MyComponentP
 ### **Quality Assurance**
 
 **Before Committing:**
+
 ```bash
 # Ensure component is detected
 npm run dev
@@ -421,8 +429,9 @@ npm run lint
 ```
 
 **Testing Checklist:**
+
 - ✅ Component highlights on hover in visual dev mode
-- ✅ Tooltip displays component metadata  
+- ✅ Tooltip displays component metadata
 - ✅ MCP tools can detect and interact with component
 - ✅ Component appears in generated registry
 - ✅ TypeScript compilation passes
@@ -430,12 +439,12 @@ npm run lint
 
 ### **Troubleshooting Component Issues**
 
-| Issue | Solution |
-|-------|----------|
-| Component not highlighting | Add `data-component-category` attribute |
-| MCP tools can't find component | Add `data-component-id` attribute |
-| Missing metadata in tooltip | Run registry generation script |
-| Visual dev mode not working | Enable in browser: `localStorage.setItem('visualDevMode', 'true')` |
+| Issue                          | Solution                                                           |
+| ------------------------------ | ------------------------------------------------------------------ |
+| Component not highlighting     | Add `data-component-category` attribute                            |
+| MCP tools can't find component | Add `data-component-id` attribute                                  |
+| Missing metadata in tooltip    | Run registry generation script                                     |
+| Visual dev mode not working    | Enable in browser: `localStorage.setItem('visualDevMode', 'true')` |
 
 ### **Integration with Visual Testing Tools**
 
@@ -445,7 +454,7 @@ Components following these standards work seamlessly with MCP tools:
 // Navigate to component page
 await navigate({ path: "/your-page" });
 
-// Get all components on page  
+// Get all components on page
 const components = await get_components({ visibleOnly: true });
 
 // Interact with specific component
