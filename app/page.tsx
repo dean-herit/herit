@@ -7,6 +7,7 @@ export default function HomePage() {
   return (
     <HomePageClient
       data-component-category="ui"
-      data-component-id="home-page-client" />
+      data-component-id="home-page-client"
+    />
   );
 }

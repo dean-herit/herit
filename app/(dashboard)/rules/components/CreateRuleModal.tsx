@@ -420,7 +420,7 @@ export function CreateRuleModal({
                             <div className="flex flex-col gap-1">
                               <p className="text-medium">Rule Active</p>
                               <p className="text-tiny text-default-400">
-                                Inactive rules won't be evaluated
+                                Inactive rules will not be evaluated
                               </p>
                             </div>
                           </Switch>
@@ -823,7 +823,7 @@ export function CreateRuleModal({
                               (a) => a.id === allocation.asset_id,
                             );
                             const beneficiary = beneficiaries.find(
-                              (b) => b.id === allocation.beneficiary_id,
+                              (b: any) => b.id === allocation.beneficiary_id,
                             );
 
                             return (

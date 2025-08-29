@@ -11,15 +11,15 @@ import {
   Divider,
 } from "@heroui/react";
 
+import { SharedPhotoUpload } from "./SharedPhotoUpload";
+
 import {
   SharedPersonalInfo,
   IrishCounties,
-  RelationshipTypes,
   relationshipTypeLabels,
   FormMode,
   getFormFields,
 } from "@/types/shared-personal-info";
-import { SharedPhotoUpload } from "./SharedPhotoUpload";
 
 interface SharedPersonalInfoFormProps {
   mode: FormMode;
@@ -69,8 +69,10 @@ export function SharedPersonalInfoForm({
           {/* Relationship Type - Only for beneficiaries - MOVED TO TOP */}
           {fieldConfig.showRelationship && (
             <Controller
-              name="relationship_type"
               control={control}
+              data-component-category="ui"
+              data-component-id="controller"
+              name="relationship_type"
               render={({ field }) => (
                 <Select
                   {...field}
@@ -85,18 +87,21 @@ export function SharedPersonalInfoForm({
                   selectedKeys={field.value ? [field.value] : []}
                   onSelectionChange={(keys) => {
                     const selectedValue = Array.from(keys)[0] as string;
+
                     field.onChange(selectedValue);
                   }}
                 >
-                  {Object.entries(relationshipTypeLabels).map(([value, label]) => (
-                    <SelectItem
-                      key={value}
-                      data-component-category="ui"
-                      data-component-id="relationship-select-item"
-                    >
-                      {label}
-                    </SelectItem>
-                  ))}
+                  {Object.entries(relationshipTypeLabels).map(
+                    ([value, label]) => (
+                      <SelectItem
+                        key={value}
+                        data-component-category="ui"
+                        data-component-id="relationship-select-item"
+                      >
+                        {label}
+                      </SelectItem>
+                    ),
+                  )}
                 </Select>
               )}
             />
@@ -106,13 +111,13 @@ export function SharedPersonalInfoForm({
           <Input
             {...register("name")}
             isRequired
+            data-component-category="input"
+            data-component-id="name-input"
             data-testid={`${mode}-name`}
             errorMessage={errors.name?.message}
             isInvalid={!!errors.name}
             label="Full Name"
             placeholder="Enter full name"
-            data-component-category="input"
-            data-component-id="name-input"
           />
 
           {/* Email and Phone Row - NOW REQUIRED */}
@@ -120,40 +125,44 @@ export function SharedPersonalInfoForm({
             <Input
               {...register("email")}
               isRequired
+              data-component-category="input"
+              data-component-id="email-input"
               data-testid={`${mode}-email`}
               errorMessage={errors.email?.message}
               isInvalid={!!errors.email}
               label="Email Address"
               placeholder="email@example.com"
               type="email"
-              data-component-category="input"
-              data-component-id="email-input"
             />
 
             <Input
               {...register("phone")}
               isRequired
+              data-component-category="input"
+              data-component-id="phone-input"
               data-testid={`${mode}-phone`}
               errorMessage={errors.phone?.message}
               isInvalid={!!errors.phone}
               label="Phone Number"
               placeholder="+353 1 234 5678"
-              data-component-category="input"
-              data-component-id="phone-input"
             />
           </div>
 
           {/* PPS Number - Now included in onboarding */}
           <Input
             {...register("pps_number")}
+            data-component-category="input"
+            data-component-id="pps-number-input"
             data-testid={`${mode}-pps`}
+            description={
+              mode === "onboarding"
+                ? "Required for Irish estate planning compliance"
+                : undefined
+            }
             errorMessage={errors.pps_number?.message}
             isInvalid={!!errors.pps_number}
             label="PPS Number"
             placeholder="1234567A"
-            description={mode === "onboarding" ? "Required for Irish estate planning compliance" : undefined}
-            data-component-category="input"
-            data-component-id="pps-number-input"
           />
         </CardBody>
       </Card>
@@ -181,22 +190,22 @@ export function SharedPersonalInfoForm({
           <Input
             {...register("address_line_1")}
             isRequired
+            data-component-category="input"
+            data-component-id="address-line-1-input"
             data-testid={`${mode}-address1`}
             errorMessage={errors.address_line_1?.message}
             isInvalid={!!errors.address_line_1}
             label="Address Line 1"
             placeholder="Street address"
-            data-component-category="input"
-            data-component-id="address-line-1-input"
           />
 
           <Input
             {...register("address_line_2")}
+            data-component-category="input"
+            data-component-id="address-line-2-input"
             data-testid={`${mode}-address2`}
             label="Address Line 2"
             placeholder="Apartment, suite, etc."
-            data-component-category="input"
-            data-component-id="address-line-2-input"
           />
 
           {/* City and County Row */}
@@ -204,18 +213,20 @@ export function SharedPersonalInfoForm({
             <Input
               {...register("city")}
               isRequired
+              data-component-category="input"
+              data-component-id="city-input"
               data-testid={`${mode}-city`}
               errorMessage={errors.city?.message}
               isInvalid={!!errors.city}
               label="City/Town"
               placeholder="City or town"
-              data-component-category="input"
-              data-component-id="city-input"
             />
 
             <Controller
-              name="county"
               control={control}
+              data-component-category="ui"
+              data-component-id="controller"
+              name="county"
               render={({ field }) => (
                 <Select
                   {...field}
@@ -230,6 +241,7 @@ export function SharedPersonalInfoForm({
                   selectedKeys={field.value ? [field.value] : []}
                   onSelectionChange={(keys) => {
                     const selectedValue = Array.from(keys)[0] as string;
+
                     field.onChange(selectedValue);
                   }}
                 >
@@ -252,23 +264,23 @@ export function SharedPersonalInfoForm({
             <Input
               {...register("eircode")}
               isRequired
+              data-component-category="input"
+              data-component-id="eircode-input"
               data-testid={`${mode}-eircode`}
               errorMessage={errors.eircode?.message}
               isInvalid={!!errors.eircode}
               label="Eircode"
               placeholder="D02 XY56"
-              data-component-category="input"
-              data-component-id="eircode-input"
             />
 
             <Input
               {...register("country")}
-              data-testid={`${mode}-country`}
-              label="Country"
-              placeholder="Ireland"
               readOnly
               data-component-category="input"
               data-component-id="country-input"
+              data-testid={`${mode}-country`}
+              label="Country"
+              placeholder="Ireland"
             />
           </div>
         </CardBody>
@@ -297,16 +309,20 @@ export function SharedPersonalInfoForm({
             data-component-id="photo-section-body"
           >
             <Controller
-              name="photo_url"
               control={control}
+              data-component-category="ui"
+              data-component-id="controller"
+              name="photo_url"
               render={({ field }) => (
                 <SharedPhotoUpload
-                  mode={mode}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  name={watch("name") || ""}
+                  data-component-category="ui"
+                  data-component-id="shared-photo-upload"
                   errorMessage={errors.photo_url?.message}
                   isInvalid={!!errors.photo_url}
+                  mode={mode}
+                  name={watch("name") || ""}
+                  value={field.value || ""}
+                  onChange={field.onChange}
                 />
               )}
             />

@@ -17,14 +17,23 @@ export const withComponentMetadata = <P extends object>(
     const isDev = process.env.NODE_ENV === "development";
 
     return (
-      <ComponentOverlay componentId={metadata.id} metadata={metadata}>
+      <ComponentOverlay
+        componentId={metadata.id}
+        data-component-category="ui"
+        data-component-id="component-overlay"
+        metadata={metadata}
+      >
         <div
           className={isDev ? "dev-component-boundary" : ""}
           data-component-category={metadata.category}
           data-component-id={metadata.id}
           data-testid={metadata.id}
         >
-          <Component {...props} />
+          <Component
+            {...props}
+            data-component-category="ui"
+            data-component-id="component"
+          />
         </div>
       </ComponentOverlay>
     );
@@ -52,7 +61,12 @@ export const ComponentWrapper = ({
   const isDev = process.env.NODE_ENV === "development";
 
   return (
-    <ComponentOverlay componentId={componentId} metadata={metadata}>
+    <ComponentOverlay
+      componentId={componentId}
+      data-component-category="ui"
+      data-component-id="component-overlay"
+      metadata={metadata}
+    >
       <div
         className={`${className} ${isDev ? "dev-component-boundary" : ""}`.trim()}
         data-component-category={metadata.category}

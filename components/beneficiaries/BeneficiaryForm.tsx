@@ -15,7 +15,10 @@ interface BeneficiaryFormProps {
 }
 
 // Helper function to convert from SharedPersonalInfo to BeneficiaryFormData
-const convertToBeneficiaryData = (sharedData: SharedPersonalInfo, originalData?: Partial<BeneficiaryFormData>): BeneficiaryFormData => ({
+const convertToBeneficiaryData = (
+  sharedData: SharedPersonalInfo,
+  originalData?: Partial<BeneficiaryFormData>,
+): BeneficiaryFormData => ({
   ...originalData,
   name: sharedData.name,
   email: sharedData.email || "",
@@ -35,7 +38,9 @@ const convertToBeneficiaryData = (sharedData: SharedPersonalInfo, originalData?:
 });
 
 // Helper function to convert from BeneficiaryFormData to SharedPersonalInfo
-const convertToSharedData = (beneficiaryData: Partial<BeneficiaryFormData>): Partial<SharedPersonalInfo> => ({
+const convertToSharedData = (
+  beneficiaryData: Partial<BeneficiaryFormData>,
+): Partial<SharedPersonalInfo> => ({
   name: beneficiaryData.name || "",
   email: beneficiaryData.email || "",
   phone: beneficiaryData.phone || "",
@@ -60,6 +65,7 @@ export function BeneficiaryForm({
   const handleSubmit: SubmitHandler<SharedPersonalInfo> = async (data) => {
     // Convert shared form data back to beneficiary format
     const beneficiaryData = convertToBeneficiaryData(data, initialData);
+
     await onSubmit(beneficiaryData);
   };
 
@@ -70,14 +76,18 @@ export function BeneficiaryForm({
       data-component-id="beneficiary-form"
     >
       <SharedPersonalInfoFormProvider
-        mode="beneficiary"
+        data-component-category="ui"
+        data-component-id="shared-personal-info-form-provider"
         initialData={convertToSharedData(initialData || {})}
-        onSubmit={handleSubmit}
-        onCancel={onCancel}
         loading={loading}
-        showPhotoUpload={true}
-        submitLabel={mode === "create" ? "Add Beneficiary" : "Update Beneficiary"}
+        mode="beneficiary"
         showCancelButton={!!onCancel}
+        showPhotoUpload={true}
+        submitLabel={
+          mode === "create" ? "Add Beneficiary" : "Update Beneficiary"
+        }
+        onCancel={onCancel}
+        onSubmit={handleSubmit}
       />
     </div>
   );

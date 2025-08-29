@@ -18,7 +18,9 @@ interface PersonalInfoStepProps {
 }
 
 // Helper functions to convert between onboarding and shared formats
-const convertToSharedFormat = (data: PersonalInfo): Partial<OnboardingPersonalInfo> => ({
+const convertToSharedFormat = (
+  data: PersonalInfo,
+): Partial<OnboardingPersonalInfo> => ({
   name: `${data.first_name} ${data.last_name}`.trim(),
   email: data.email,
   phone: data.phone_number,
@@ -31,8 +33,12 @@ const convertToSharedFormat = (data: PersonalInfo): Partial<OnboardingPersonalIn
   photo_url: data.profile_photo || "",
 });
 
-const convertFromSharedFormat = (sharedData: OnboardingPersonalInfo, dateOfBirth: string): PersonalInfo => {
+const convertFromSharedFormat = (
+  sharedData: OnboardingPersonalInfo,
+  dateOfBirth: string,
+): PersonalInfo => {
   const [firstName, ...lastNameParts] = sharedData.name.split(" ");
+
   return {
     first_name: firstName || "",
     last_name: lastNameParts.join(" ") || "",
@@ -55,7 +61,9 @@ export function PersonalInfoStep({
   onBack,
   loading,
 }: PersonalInfoStepProps) {
-  const [dateOfBirth, setDateOfBirth] = useState(initialData.date_of_birth || "");
+  const [dateOfBirth, setDateOfBirth] = useState(
+    initialData.date_of_birth || "",
+  );
   const [dateOfBirthError, setDateOfBirthError] = useState<string>("");
 
   // API mutation for saving personal info
@@ -81,6 +89,7 @@ export function PersonalInfoStep({
 
       if (!response.ok) {
         const error = await response.json();
+
         throw new Error(error.error || "Failed to save personal information");
       }
 
@@ -94,21 +103,24 @@ export function PersonalInfoStep({
     },
   });
 
-  const handleSharedFormSubmit: SubmitHandler<OnboardingPersonalInfo> = async (sharedData) => {
+  const handleSharedFormSubmit: SubmitHandler<OnboardingPersonalInfo> = async (
+    sharedData,
+  ) => {
     // Validate date of birth
     if (!dateOfBirth) {
       setDateOfBirthError("Date of birth is required");
+
       return;
     }
-    
+
     setDateOfBirthError("");
-    
+
     // Convert back to onboarding format
     const personalInfoData = convertFromSharedFormat(sharedData, dateOfBirth);
-    
+
     // Update parent state
     onChange(personalInfoData);
-    
+
     // Save via API
     savePersonalInfoMutation.mutate(personalInfoData);
   };
@@ -123,7 +135,7 @@ export function PersonalInfoStep({
   const isLoading = loading || savePersonalInfoMutation.isPending;
 
   return (
-    <div 
+    <div
       className="space-y-6"
       data-component-category="authentication"
       data-component-id="components-personal-info-step"
@@ -147,16 +159,18 @@ export function PersonalInfoStep({
 
       {/* Shared Personal Information Form */}
       <SharedPersonalInfoFormProvider
-        mode="onboarding"
+        data-component-category="ui"
+        data-component-id="shared-personal-info-form-provider"
         initialData={convertToSharedFormat(initialData)}
-        onSubmit={handleSharedFormSubmit}
-        onCancel={onBack}
         loading={isLoading}
+        mode="onboarding"
+        showCancelButton={!!onBack}
         showPhotoUpload={false}
         submitLabel="Continue"
-        showCancelButton={!!onBack}
+        onCancel={onBack}
+        onSubmit={handleSharedFormSubmit}
       />
-      
+
       {/* Error Display */}
       {savePersonalInfoMutation.error && (
         <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">

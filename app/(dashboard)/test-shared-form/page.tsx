@@ -12,9 +12,9 @@ export default function TestSharedFormPage() {
   const handleSubmit = async (data: SharedPersonalInfo) => {
     console.log("Form submitted:", data);
     toast.success("Form submitted successfully!");
-    
+
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
   const handleCancel = () => {
@@ -29,34 +29,37 @@ export default function TestSharedFormPage() {
     >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Shared Personal Info Form Test</h1>
+          <h1 className="text-3xl font-bold mb-4">
+            Shared Personal Info Form Test
+          </h1>
           <p className="text-default-600 mb-6">
-            Testing our consolidated React Hook Form component with visual dev tools
+            Testing our consolidated React Hook Form component with visual dev
+            tools
           </p>
-          
+
           {/* Mode Toggle */}
           <div className="flex justify-center gap-4 mb-8">
             <button
               className={`px-4 py-2 rounded ${
-                mode === "onboarding" 
-                  ? "bg-primary text-white" 
+                mode === "onboarding"
+                  ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
-              onClick={() => setMode("onboarding")}
               data-component-category="ui"
               data-component-id="onboarding-mode-button"
+              onClick={() => setMode("onboarding")}
             >
               Onboarding Mode
             </button>
             <button
               className={`px-4 py-2 rounded ${
-                mode === "beneficiary" 
-                  ? "bg-primary text-white" 
+                mode === "beneficiary"
+                  ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
-              onClick={() => setMode("beneficiary")}
               data-component-category="ui"
               data-component-id="beneficiary-mode-button"
+              onClick={() => setMode("beneficiary")}
             >
               Beneficiary Mode
             </button>
@@ -66,11 +69,15 @@ export default function TestSharedFormPage() {
         {/* Form Component */}
         <SharedPersonalInfoFormProvider
           key={mode} // Force re-mount when mode changes
+          data-component-category="ui"
+          data-component-id="shared-personal-info-form-provider"
           mode={mode}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
           showPhotoUpload={true}
-          submitLabel={mode === "onboarding" ? "Continue to Next Step" : "Add Beneficiary"}
+          submitLabel={
+            mode === "onboarding" ? "Continue to Next Step" : "Add Beneficiary"
+          }
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
         />
       </div>
     </div>

@@ -407,6 +407,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   signatures: many(signatures),
   signatureUsage: many(signatureUsage),
   auditEvents: many(auditEvents),
+  inheritanceRules: many(inheritanceRules),
 }));
 
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
@@ -481,7 +482,7 @@ export const assetDocumentsRelations = relations(
 
 export const documentRequirementsRelations = relations(
   documentRequirements,
-  ({ one }) => ({
+  () => ({
     // No direct relations needed for this reference table
   }),
 );
@@ -499,6 +500,10 @@ export const documentAuditLogRelations = relations(
     }),
   }),
 );
+
+// Will move this later after table definitions
+
+// Will move this later after table definitions
 
 // Export types for TypeScript inference
 export type User = typeof users.$inferSelect;
@@ -533,3 +538,89 @@ export type NewDocumentRequirement = typeof documentRequirements.$inferInsert;
 
 export type DocumentAuditLog = typeof documentAuditLog.$inferSelect;
 export type NewDocumentAuditLog = typeof documentAuditLog.$inferInsert;
+
+// Inheritance Rules table
+export const inheritanceRules = pgTable(
+  "inheritance_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    user_id: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    rule_definition: jsonb("rule_definition").notNull(),
+    priority: integer("priority").default(1),
+    is_active: boolean("is_active").default(true),
+    created_at: timestamp("created_at").defaultNow().notNull(),
+    updated_at: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("inheritance_rules_user_id_idx").on(table.user_id),
+    activeIdx: index("inheritance_rules_active_idx").on(table.is_active),
+    priorityIdx: index("inheritance_rules_priority_idx").on(table.priority),
+  }),
+);
+
+// Rule Allocations table
+export const ruleAllocations = pgTable(
+  "rule_allocations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    rule_id: uuid("rule_id")
+      .notNull()
+      .references(() => inheritanceRules.id, { onDelete: "cascade" }),
+    asset_id: uuid("asset_id")
+      .notNull()
+      .references(() => assets.id, { onDelete: "cascade" }),
+    beneficiary_id: uuid("beneficiary_id")
+      .notNull()
+      .references(() => beneficiaries.id, { onDelete: "cascade" }),
+    allocation_percentage: real("allocation_percentage"),
+    allocation_amount: real("allocation_amount"),
+    created_at: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    ruleIdIdx: index("rule_allocations_rule_id_idx").on(table.rule_id),
+    assetIdIdx: index("rule_allocations_asset_id_idx").on(table.asset_id),
+    beneficiaryIdIdx: index("rule_allocations_beneficiary_id_idx").on(
+      table.beneficiary_id,
+    ),
+  }),
+);
+
+export type InheritanceRule = typeof inheritanceRules.$inferSelect;
+export type NewInheritanceRule = typeof inheritanceRules.$inferInsert;
+
+export type RuleAllocation = typeof ruleAllocations.$inferSelect;
+export type NewRuleAllocation = typeof ruleAllocations.$inferInsert;
+
+// Relations for inheritance rules (moved here to avoid circular references)
+export const inheritanceRulesRelations = relations(
+  inheritanceRules,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [inheritanceRules.user_id],
+      references: [users.id],
+    }),
+    allocations: many(ruleAllocations),
+  }),
+);
+
+export const ruleAllocationsRelations = relations(
+  ruleAllocations,
+  ({ one }) => ({
+    rule: one(inheritanceRules, {
+      fields: [ruleAllocations.rule_id],
+      references: [inheritanceRules.id],
+    }),
+    asset: one(assets, {
+      fields: [ruleAllocations.asset_id],
+      references: [assets.id],
+    }),
+    beneficiary: one(beneficiaries, {
+      fields: [ruleAllocations.beneficiary_id],
+      references: [beneficiaries.id],
+    }),
+  }),
+);

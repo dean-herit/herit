@@ -52,8 +52,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <CardBody className="text-center space-y-4 p-6">
             <AlertCircle
               className="h-12 w-12 text-danger mx-auto"
-        data-component-category="ui"
-        data-component-id="alert-circle" />
+              data-component-category="ui"
+              data-component-id="alert-circle"
+            />
             <div>
               <h3 className="text-lg font-semibold text-foreground">
                 Something went wrong
@@ -77,8 +78,10 @@ export class ErrorBoundary extends Component<Props, State> {
               startContent={
                 <RefreshCw
                   className="h-4 w-4"
-        data-component-category="ui"
-        data-component-id="refresh-cw" />}
+                  data-component-category="ui"
+                  data-component-id="refresh-cw"
+                />
+              }
               variant="solid"
               onClick={this.handleRetry}
             >
@@ -111,7 +114,8 @@ export function QueryErrorBoundary({
             data-component-category="ui"
             data-component-id="default-query-error-fallback"
           />
-        )}
+        )
+      }
       onError={(error) => {
         // Log query errors specifically
         console.error("Query error:", error);
@@ -132,8 +136,9 @@ function DefaultQueryErrorFallback() {
       <CardBody className="text-center space-y-3 p-4">
         <AlertCircle
           className="h-8 w-8 text-danger-600 mx-auto"
-        data-component-category="ui"
-        data-component-id="alert-circle" />
+          data-component-category="ui"
+          data-component-id="alert-circle"
+        />
         <div>
           <h4 className="font-semibold text-danger-900">Unable to load data</h4>
           <p className="text-sm text-danger-700 mt-1">
@@ -159,8 +164,9 @@ export function AuthErrorBoundary({ children }: { children: ReactNode }) {
           <CardBody className="text-center space-y-4 p-6">
             <AlertCircle
               className="h-10 w-10 text-warning mx-auto"
-        data-component-category="ui"
-        data-component-id="alert-circle" />
+              data-component-category="ui"
+              data-component-id="alert-circle"
+            />
             <div>
               <h3 className="text-lg font-semibold">Authentication Error</h3>
               <p className="text-sm text-default-600 mt-2">

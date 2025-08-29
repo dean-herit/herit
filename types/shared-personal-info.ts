@@ -3,7 +3,7 @@ import { z } from "zod";
 // Irish-specific constants and validation patterns
 export const IrishCounties = [
   "Antrim",
-  "Armagh", 
+  "Armagh",
   "Carlow",
   "Cavan",
   "Clare",
@@ -38,7 +38,7 @@ export const IrishCounties = [
 
 export const RelationshipTypes = {
   SPOUSE: "spouse",
-  CHILD: "child", 
+  CHILD: "child",
   PARENT: "parent",
   SIBLING: "sibling",
   GRANDCHILD: "grandchild",
@@ -51,12 +51,13 @@ export const RelationshipTypes = {
   OTHER: "other",
 } as const;
 
-export type RelationshipType = (typeof RelationshipTypes)[keyof typeof RelationshipTypes];
+export type RelationshipType =
+  (typeof RelationshipTypes)[keyof typeof RelationshipTypes];
 
 export const relationshipTypeLabels: Record<RelationshipType, string> = {
   [RelationshipTypes.SPOUSE]: "Spouse",
   [RelationshipTypes.CHILD]: "Child",
-  [RelationshipTypes.PARENT]: "Parent", 
+  [RelationshipTypes.PARENT]: "Parent",
   [RelationshipTypes.SIBLING]: "Sibling",
   [RelationshipTypes.GRANDCHILD]: "Grandchild",
   [RelationshipTypes.GRANDPARENT]: "Grandparent",
@@ -76,14 +77,20 @@ export const irishPhoneRegex = /^(\+353|0)[1-9]\d{7,9}$/;
 // Core personal information schema - used by both onboarding and beneficiaries
 export const sharedPersonalInfoSchema = z.object({
   // Basic personal details
-  name: z.string().min(1, "Name is required").max(255, "Name must be less than 255 characters"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name must be less than 255 characters"),
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   phone: z
     .string()
-    .regex(irishPhoneRegex, "Invalid Irish phone number (e.g., +353 1 234 5678)")
+    .regex(
+      irishPhoneRegex,
+      "Invalid Irish phone number (e.g., +353 1 234 5678)",
+    )
     .optional()
     .or(z.literal("")),
-  
+
   // Irish-specific identification
   pps_number: z
     .string()
@@ -105,11 +112,11 @@ export const sharedPersonalInfoSchema = z.object({
 
   // Optional photo
   photo_url: z.string().url("Invalid photo URL").optional().or(z.literal("")),
-  
+
   // Relationship - only used for beneficiaries
-  relationship_type: z.enum(
-    Object.values(RelationshipTypes) as [string, ...string[]]
-  ).optional(),
+  relationship_type: z
+    .enum(Object.values(RelationshipTypes) as [string, ...string[]])
+    .optional(),
 });
 
 // Onboarding-specific schema (excludes relationship)
@@ -120,24 +127,34 @@ export const onboardingPersonalInfoSchema = sharedPersonalInfoSchema.omit({
 // Beneficiary-specific schema (requires relationship + additional required fields)
 export const beneficiaryPersonalInfoSchema = sharedPersonalInfoSchema.extend({
   relationship_type: z.enum(
-    Object.values(RelationshipTypes) as [string, ...string[]]
+    Object.values(RelationshipTypes) as [string, ...string[]],
   ),
   // Make these fields required for beneficiaries
   email: z.string().email("Invalid email address").min(1, "Email is required"),
-  phone: z.string()
-    .regex(irishPhoneRegex, "Invalid Irish phone number (e.g., +353 1 234 5678)")
+  phone: z
+    .string()
+    .regex(
+      irishPhoneRegex,
+      "Invalid Irish phone number (e.g., +353 1 234 5678)",
+    )
     .min(1, "Phone number is required"),
-  county: z.enum(["", ...IrishCounties] as const)
+  county: z
+    .enum(["", ...IrishCounties] as const)
     .refine((val) => val !== "", "County is required"),
-  eircode: z.string()
+  eircode: z
+    .string()
     .regex(eircodeRegex, "Invalid Eircode format (e.g., D02 XY56)")
     .min(1, "Eircode is required"),
 });
 
 // Type exports
 export type SharedPersonalInfo = z.infer<typeof sharedPersonalInfoSchema>;
-export type OnboardingPersonalInfo = z.infer<typeof onboardingPersonalInfoSchema>;
-export type BeneficiaryPersonalInfo = z.infer<typeof beneficiaryPersonalInfoSchema>;
+export type OnboardingPersonalInfo = z.infer<
+  typeof onboardingPersonalInfoSchema
+>;
+export type BeneficiaryPersonalInfo = z.infer<
+  typeof beneficiaryPersonalInfoSchema
+>;
 
 // Validation helper functions
 export const validatePpsNumber = (pps: string): boolean => {

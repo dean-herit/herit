@@ -55,10 +55,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       .select()
       .from(inheritanceRules)
       .where(
-        and(
-          eq(inheritanceRules.id, id),
-          eq(inheritanceRules.user_id, user.id),
-        ),
+        and(eq(inheritanceRules.id, id), eq(inheritanceRules.user_id, user.id)),
       );
 
     if (!rule) {
@@ -108,10 +105,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       .select()
       .from(inheritanceRules)
       .where(
-        and(
-          eq(inheritanceRules.id, id),
-          eq(inheritanceRules.user_id, user.id),
-        ),
+        and(eq(inheritanceRules.id, id), eq(inheritanceRules.user_id, user.id)),
       );
 
     if (!existingRule) {
@@ -206,9 +200,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     // Update allocations if provided
     if (validatedData.allocations) {
       // Delete existing allocations
-      await db
-        .delete(ruleAllocations)
-        .where(eq(ruleAllocations.rule_id, id));
+      await db.delete(ruleAllocations).where(eq(ruleAllocations.rule_id, id));
 
       // Insert new allocations
       if (validatedData.allocations.length > 0) {
@@ -272,10 +264,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       .select()
       .from(inheritanceRules)
       .where(
-        and(
-          eq(inheritanceRules.id, id),
-          eq(inheritanceRules.user_id, user.id),
-        ),
+        and(eq(inheritanceRules.id, id), eq(inheritanceRules.user_id, user.id)),
       );
 
     if (!existingRule) {
@@ -285,16 +274,10 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     // Delete the rule (allocations will be deleted via CASCADE)
     await db.delete(inheritanceRules).where(eq(inheritanceRules.id, id));
 
-    await audit.logUserAction(
-      user.id,
-      "delete_rule",
-      "inheritance_rules",
-      id,
-      {
-        rule_name: existingRule.name,
-        deleted_at: new Date().toISOString(),
-      },
-    );
+    await audit.logUserAction(user.id, "delete_rule", "inheritance_rules", id, {
+      rule_name: existingRule.name,
+      deleted_at: new Date().toISOString(),
+    });
 
     return NextResponse.json({ message: "Rule deleted successfully" });
   } catch (error) {

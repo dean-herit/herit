@@ -99,7 +99,7 @@ export function LoginForm() {
 
           {/* Divider */}
           <div className="relative">
-            <Divider data-component-id="divider" data-component-category="ui" />
+            <Divider data-component-category="ui" data-component-id="divider" />
             <div className="absolute inset-0 flex justify-center">
               <span className="px-4 bg-content1 text-sm text-default-600">
                 Or continue with
@@ -110,12 +110,12 @@ export function LoginForm() {
           {/* OAuth Providers */}
           <div className="space-y-3">
             <GoogleSignInButton
-              data-component-id="google-sign-in-button"
               data-component-category="ui"
+              data-component-id="google-sign-in-button"
             />
             <AppleSignInButton
-              data-component-id="apple-sign-in-button"
               data-component-category="ui"
+              data-component-id="apple-sign-in-button"
             />
           </div>
         </div>

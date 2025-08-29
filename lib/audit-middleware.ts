@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db/db';
-import { auditEvents } from '@/db/schema';
-import { getSession } from '@/lib/auth';
-import { sql } from 'drizzle-orm';
+import { NextRequest, NextResponse } from "next/server";
+import { sql } from "drizzle-orm";
+
+import { db } from "@/db/db";
+import { auditEvents } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 
 interface AuditContext {
   userId?: string;
@@ -24,11 +25,12 @@ interface AuditLogData {
 
 class AuditLogger {
   private static instance: AuditLogger;
-  
+
   public static getInstance(): AuditLogger {
     if (!AuditLogger.instance) {
       AuditLogger.instance = new AuditLogger();
     }
+
     return AuditLogger.instance;
   }
 
@@ -39,7 +41,9 @@ class AuditLogger {
         await db.execute(sql`SET app.current_user_id = ${context.userId}`);
       }
       if (context.sessionId) {
-        await db.execute(sql`SET app.current_session_id = ${context.sessionId}`);
+        await db.execute(
+          sql`SET app.current_session_id = ${context.sessionId}`,
+        );
       }
 
       await db.insert(auditEvents).values({
@@ -57,7 +61,7 @@ class AuditLogger {
       });
     } catch (error) {
       // Log audit failures but don't break the main operation
-      console.error('Audit logging failed:', error);
+      console.error("Audit logging failed:", error);
     }
   }
 
@@ -65,25 +69,27 @@ class AuditLogger {
     request: NextRequest,
     response: NextResponse,
     context: AuditContext,
-    responseData?: any
+    responseData?: any,
   ): Promise<void> {
     const url = new URL(request.url);
     const method = request.method;
     const pathname = url.pathname;
-    
+
     // Determine resource type and action from URL
-    const pathParts = pathname.split('/').filter(Boolean);
+    const pathParts = pathname.split("/").filter(Boolean);
     const resourceType = this.extractResourceType(pathParts);
     const resourceId = this.extractResourceId(pathParts);
     const action = this.mapHttpMethodToAction(method);
-    
+
     // Get request body if available
     let requestData = null;
+
     try {
-      if (['POST', 'PUT', 'PATCH'].includes(method)) {
+      if (["POST", "PUT", "PATCH"].includes(method)) {
         // Note: request.json() can only be called once, so this should be called
         // by the middleware before the actual handler
         const body = await request.text();
+
         if (body) {
           requestData = JSON.parse(body);
         }
@@ -93,7 +99,7 @@ class AuditLogger {
     }
 
     await this.logEvent(context, {
-      eventType: 'api_request',
+      eventType: "api_request",
       eventAction: `${method.toLowerCase()}_${resourceType}`,
       resourceType: resourceType,
       resourceId: resourceId,
@@ -109,56 +115,63 @@ class AuditLogger {
   }
 
   public extractResourceType(pathParts: string[]): string {
-    if (pathParts.includes('api')) {
-      const apiIndex = pathParts.indexOf('api');
-      return pathParts[apiIndex + 1] || 'unknown';
+    if (pathParts.includes("api")) {
+      const apiIndex = pathParts.indexOf("api");
+
+      return pathParts[apiIndex + 1] || "unknown";
     }
-    return pathParts[0] || 'unknown';
+
+    return pathParts[0] || "unknown";
   }
 
   private extractResourceId(pathParts: string[]): string | undefined {
     // Look for UUID pattern or numeric ID
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     const numericPattern = /^\d+$/;
-    
+
     for (const part of pathParts) {
       if (uuidPattern.test(part) || numericPattern.test(part)) {
         return part;
       }
     }
+
     return undefined;
   }
 
   private mapHttpMethodToAction(method: string): string {
     const actionMap: Record<string, string> = {
-      GET: 'read',
-      POST: 'create',
-      PUT: 'update',
-      PATCH: 'update',
-      DELETE: 'delete',
+      GET: "read",
+      POST: "create",
+      PUT: "update",
+      PATCH: "update",
+      DELETE: "delete",
     };
-    return actionMap[method] || 'unknown';
+
+    return actionMap[method] || "unknown";
   }
 }
 
 // Middleware function for Next.js API routes
 export async function auditMiddleware(
   request: NextRequest,
-  handler: (req: NextRequest) => Promise<NextResponse>
+  handler: (req: NextRequest) => Promise<NextResponse>,
 ): Promise<NextResponse> {
   const auditor = AuditLogger.getInstance();
   let context: AuditContext = {};
-  
+
   try {
     // Extract context
-    context.ipAddress = request.headers.get('x-forwarded-for') || 
-                       request.headers.get('x-real-ip') || 
-                       'unknown';
-    context.userAgent = request.headers.get('user-agent') || 'unknown';
-    
+    context.ipAddress =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+    context.userAgent = request.headers.get("user-agent") || "unknown";
+
     // Get session information
     try {
       const session = await getSession();
+
       if (session?.user) {
         context.email = session.user.email || undefined;
         context.sessionId = crypto.randomUUID(); // Generate session ID for tracking
@@ -173,48 +186,52 @@ export async function auditMiddleware(
 
     // Execute the actual handler
     const response = await handler(request);
-    
+
     // Log successful requests
     if (response.status < 400) {
       let responseData = null;
+
       try {
         const responseText = await response.clone().text();
+
         if (responseText) {
           responseData = JSON.parse(responseText);
         }
       } catch (error) {
         // Ignore parsing errors
       }
-      
+
       await auditor.logApiRequest(request, response, context, responseData);
     } else {
       // Log error responses
       await auditor.logEvent(context, {
-        eventType: 'api_error',
+        eventType: "api_error",
         eventAction: `${request.method.toLowerCase()}_error`,
-        resourceType: auditor.extractResourceType(request.url.split('/').filter(Boolean)),
+        resourceType: auditor.extractResourceType(
+          request.url.split("/").filter(Boolean),
+        ),
         eventData: {
           method: request.method,
           pathname: new URL(request.url).pathname,
           statusCode: response.status,
-          error: 'Request failed',
+          error: "Request failed",
         },
       });
     }
-    
+
     return response;
   } catch (error) {
     // Log system errors
     await auditor.logEvent(context, {
-      eventType: 'system_error',
-      eventAction: 'request_processing_error',
+      eventType: "system_error",
+      eventAction: "request_processing_error",
       eventData: {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         method: request.method,
         pathname: new URL(request.url).pathname,
       },
     });
-    
+
     // Re-throw the error
     throw error;
   }
@@ -228,41 +245,43 @@ export const audit = {
     resourceType: string,
     resourceId?: string,
     data?: any,
-    sessionId?: string
+    sessionId?: string,
   ) => {
     const auditor = AuditLogger.getInstance();
+
     await auditor.logEvent(
       { userId, sessionId },
       {
-        eventType: 'user_action',
+        eventType: "user_action",
         eventAction: action,
         resourceType,
         resourceId,
         eventData: data,
-      }
+      },
     );
   },
 
   logDataChange: async (
     userId: string,
-    action: 'create' | 'update' | 'delete',
+    action: "create" | "update" | "delete",
     resourceType: string,
     resourceId: string,
     oldData?: any,
     newData?: any,
-    sessionId?: string
+    sessionId?: string,
   ) => {
     const auditor = AuditLogger.getInstance();
+
     await auditor.logEvent(
       { userId, sessionId },
       {
-        eventType: 'data_change',
+        eventType: "data_change",
         eventAction: action,
         resourceType,
         resourceId,
         oldData,
         newData,
-      }
+      },
     );
   },
 
@@ -271,17 +290,18 @@ export const audit = {
     event: string,
     details: any,
     ipAddress?: string,
-    sessionId?: string
+    sessionId?: string,
   ) => {
     const auditor = AuditLogger.getInstance();
+
     await auditor.logEvent(
       { userId: userId || undefined, ipAddress, sessionId },
       {
-        eventType: 'security',
+        eventType: "security",
         eventAction: event,
-        resourceType: 'system',
+        resourceType: "system",
         eventData: details,
-      }
+      },
     );
   },
 };

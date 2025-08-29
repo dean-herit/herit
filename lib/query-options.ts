@@ -3,7 +3,12 @@
 import { queryOptions, infiniteQueryOptions } from "@tanstack/react-query";
 
 import { Session } from "@/types/auth";
-import { Asset, AssetDocument } from "@/db/schema";
+import {
+  Asset,
+  AssetDocument,
+  InheritanceRule,
+  RuleAllocation,
+} from "@/db/schema";
 
 // Auth Query Options
 export const authQueryOptions = {
@@ -243,6 +248,43 @@ export const willQueryOptions = {
 
         if (!response.ok) {
           throw new Error("Failed to fetch beneficiaries");
+        }
+
+        return response.json();
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    }),
+};
+
+// Rules Query Options
+export const rulesQueryOptions = {
+  all: () =>
+    queryOptions({
+      queryKey: ["rules"] as const,
+      queryFn: async (): Promise<{
+        rules: (InheritanceRule & { allocations: RuleAllocation[] })[];
+      }> => {
+        const response = await fetch("/api/rules");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch rules");
+        }
+
+        return response.json();
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    }),
+
+  byId: (ruleId: string) =>
+    queryOptions({
+      queryKey: ["rules", ruleId] as const,
+      queryFn: async (): Promise<{
+        rule: InheritanceRule & { allocations: RuleAllocation[] };
+      }> => {
+        const response = await fetch(`/api/rules/${ruleId}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch rule");
         }
 
         return response.json();

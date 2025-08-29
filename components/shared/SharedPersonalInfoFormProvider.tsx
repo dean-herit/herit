@@ -37,9 +37,10 @@ export function SharedPersonalInfoFormProvider({
   className = "",
 }: SharedPersonalInfoFormProviderProps) {
   // Choose schema based on mode
-  const schema = mode === "onboarding" 
-    ? onboardingPersonalInfoSchema 
-    : beneficiaryPersonalInfoSchema;
+  const schema =
+    mode === "onboarding"
+      ? onboardingPersonalInfoSchema
+      : beneficiaryPersonalInfoSchema;
 
   // Set up form with React Hook Form
   const methods = useForm({
@@ -60,27 +61,34 @@ export function SharedPersonalInfoFormProvider({
   });
 
   // Auto-generate submit label if not provided
-  const defaultSubmitLabel = mode === "onboarding" 
-    ? "Continue" 
-    : initialData?.name 
-    ? "Update Information" 
-    : "Add Person";
+  const defaultSubmitLabel =
+    mode === "onboarding"
+      ? "Continue"
+      : initialData?.name
+        ? "Update Information"
+        : "Add Person";
 
   return (
-    <FormProvider {...methods}>
-      <form 
-        onSubmit={handleSubmit}
+    <FormProvider
+      {...methods}
+      data-component-category="ui"
+      data-component-id="form-provider"
+    >
+      <form
         className={`max-w-6xl mx-auto ${className}`}
         data-component-category="input"
         data-component-id={`${mode}-personal-info-form-provider`}
+        onSubmit={handleSubmit}
       >
         {/* Responsive grid layout */}
         <div
           className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6"
-          data-component-category="layout" 
+          data-component-category="layout"
           data-component-id={`${mode}-form-grid`}
         >
-          <SharedPersonalInfoForm 
+          <SharedPersonalInfoForm
+            data-component-category="ui"
+            data-component-id="shared-personal-info-form"
             mode={mode}
             showPhotoUpload={showPhotoUpload}
           />

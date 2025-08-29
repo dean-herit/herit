@@ -115,7 +115,6 @@ export function EditRuleModal({
     control,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<EditRuleFormData>({
@@ -896,7 +895,7 @@ export function EditRuleModal({
                         (a) => a.id === allocation.asset_id,
                       );
                       const beneficiary = beneficiaries.find(
-                        (b) => b.id === allocation.beneficiary_id,
+                        (b: any) => b.id === allocation.beneficiary_id,
                       );
 
                       return (
