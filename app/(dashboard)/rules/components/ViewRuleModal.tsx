@@ -226,20 +226,19 @@ export function ViewRuleModal({
             </Card>
 
             {/* Conditions */}
-            {/* @ts-ignore */}
-            <Card>
-              <CardHeader>
+            <div className="border rounded-lg p-4 bg-white">
+              <div className="mb-4">
                 <h3 className="text-lg font-semibold">Conditions</h3>
                 <p className="text-sm text-gray-600">
                   All conditions must be true for this rule to trigger
                 </p>
-              </CardHeader>
-              <CardBody>
+              </div>
+              <div>
                 {conditions.length === 0 ? (
                   <p className="text-gray-500 italic">No conditions defined</p>
                 ) : (
                   <div className="space-y-3">
-                    {conditions.map(
+                    {(conditions.map(
                       (
                         condition: {
                           fact: string;
@@ -281,16 +280,16 @@ export function ViewRuleModal({
                                 return condition.value ? "Yes" : "No";
                               }
 
-                              return condition.value?.toString() || "N/A";
-                            })()}
+                              return (condition.value?.toString() || "N/A") as string;
+                            })() as string}
                           </Chip>
                         </div>
                       ),
-                    )}
+                    ) as React.ReactNode[])}
                   </div>
                 )}
-              </CardBody>
-            </Card>
+              </div>
+            </div>
 
             {/* Allocations */}
             <Card>
