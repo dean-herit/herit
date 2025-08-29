@@ -42,17 +42,19 @@ interface CreateAssetData {
 }
 
 export function useAssets(params: AssetsQueryParams = {}) {
-  // Use simple all assets query if no params, otherwise custom query
-  if (Object.keys(params).length === 0) {
-    return useQuery({
-      ...assetsQueryOptions.all(),
-      select: (data) => ({ data: { assets: data, summary: null } }),
-      placeholderData: (previousData) => previousData, // Keep previous data while fetching
-    });
-  }
+  const hasParams = Object.keys(params).length > 0;
 
-  return useQuery<AssetsResponse>({
+  // Always call both hooks but conditionally enable them
+  const allAssetsQuery = useQuery({
+    ...assetsQueryOptions.all(),
+    enabled: !hasParams,
+    select: (data) => ({ data: { assets: data, summary: null } }),
+    placeholderData: (previousData) => previousData, // Keep previous data while fetching
+  });
+
+  const filteredAssetsQuery = useQuery<AssetsResponse>({
     queryKey: ["assets", "filtered", params],
+    enabled: hasParams,
     queryFn: async () => {
       const searchParams = new URLSearchParams({
         search: params.search || "",
@@ -68,6 +70,9 @@ export function useAssets(params: AssetsQueryParams = {}) {
     refetchOnWindowFocus: false,
     placeholderData: (previousData) => previousData, // Keep previous data while fetching
   });
+
+  // Return the appropriate query based on whether params are provided
+  return hasParams ? filteredAssetsQuery : allAssetsQuery;
 }
 
 // Infinite query for paginated assets
