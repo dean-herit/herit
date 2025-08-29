@@ -1,16 +1,18 @@
 "use client";
 
 import React from "react";
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
 import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from "@heroui/modal";
+} from "@heroui/react";
 import {
   PencilIcon,
   TrashIcon,
@@ -70,16 +72,16 @@ export function ViewRuleModal({
 
   const deleteRuleMutation = useDeleteRule();
 
-  // Early return if rule is null
-  if (!rule) {
-    return null;
-  }
-
   // Fetch required data
   const { data: beneficiariesData } = useQuery(
     willQueryOptions.beneficiaries(),
   );
   const { data: assetsData } = useQuery(assetsQueryOptions.all());
+
+  // Early return if rule is null
+  if (!rule) {
+    return null;
+  }
 
   const beneficiaries = beneficiariesData || [];
   const assets = assetsData || [];

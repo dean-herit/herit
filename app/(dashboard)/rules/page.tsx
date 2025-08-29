@@ -1,9 +1,6 @@
 "use client";
 
-import { Button } from "@heroui/button";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { Spinner } from "@heroui/spinner";
+import { Button, Card, CardBody, CardHeader, Chip, Spinner } from "@heroui/react";
 import {
   PlusIcon,
   Cog6ToothIcon,
