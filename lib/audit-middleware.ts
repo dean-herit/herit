@@ -38,11 +38,13 @@ class AuditLogger {
     try {
       // Set database context for triggers
       if (context.userId) {
-        await db.execute(sql`SET app.current_user_id = ${context.userId}`);
+        await db.execute(
+          sql.raw(`SET app.current_user_id = '${context.userId}'`),
+        );
       }
       if (context.sessionId) {
         await db.execute(
-          sql`SET app.current_session_id = ${context.sessionId}`,
+          sql.raw(`SET app.current_session_id = '${context.sessionId}'`),
         );
       }
 
