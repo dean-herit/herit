@@ -1,37 +1,39 @@
-const { chromium } = require('playwright');
-const fs = require('fs');
+const { chromium } = require("playwright");
+const fs = require("fs");
 
 async function testBeneficiariesHighlighting() {
-  console.log('🚀 Starting beneficiaries highlighting test...');
-  
+  console.log("🚀 Starting beneficiaries highlighting test...");
+
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext({
     storageState: {
       cookies: [],
-      origins: [{
-        origin: 'http://localhost:3000',
-        localStorage: [
-          { name: 'visualDevMode', value: 'true' },
-          { name: 'highlightingEnabled', value: 'true' }
-        ]
-      }]
-    }
+      origins: [
+        {
+          origin: "http://localhost:3000",
+          localStorage: [
+            { name: "visualDevMode", value: "true" },
+            { name: "highlightingEnabled", value: "true" },
+          ],
+        },
+      ],
+    },
   });
-  
+
   const page = await context.newPage();
-  
+
   // Navigate directly to beneficiaries (will redirect to login if not authenticated)
-  console.log('📍 Navigating to beneficiaries page...');
-  await page.goto('http://localhost:3000/beneficiaries');
+  console.log("📍 Navigating to beneficiaries page...");
+  await page.goto("http://localhost:3000/beneficiaries");
   await page.waitForTimeout(3000);
-  
+
   // Check if we're on the beneficiaries page
   const url = page.url();
-  console.log('📍 Current URL:', url);
-  
+  console.log("📍 Current URL:", url);
+
   // Apply highlighting regardless of page
-  console.log('💉 Applying highlighting to all components...');
-  
+  console.log("💉 Applying highlighting to all components...");
+
   const highlightScript = `
     console.log('🎨 DIRECT HIGHLIGHTING TEST STARTING');
     
@@ -84,29 +86,30 @@ async function testBeneficiariesHighlighting() {
     
     'DONE';
   `;
-  
+
   const result = await page.evaluate(highlightScript);
-  console.log('💉 Highlighting script result:', result);
-  
+  console.log("💉 Highlighting script result:", result);
+
   // Wait for visual update
   await page.waitForTimeout(2000);
-  
+
   // Take screenshot
-  console.log('📸 Taking screenshot...');
-  const screenshotPath = './tests/screenshots/beneficiaries-highlighting-final-proof.png';
-  await page.screenshot({ 
+  console.log("📸 Taking screenshot...");
+  const screenshotPath =
+    "./tests/screenshots/beneficiaries-highlighting-final-proof.png";
+  await page.screenshot({
     path: screenshotPath,
-    fullPage: true 
+    fullPage: true,
   });
-  
-  console.log('✅ Screenshot saved to:', screenshotPath);
-  
+
+  console.log("✅ Screenshot saved to:", screenshotPath);
+
   // Keep browser open for manual inspection
-  console.log('👀 Keeping browser open for 10 seconds for inspection...');
+  console.log("👀 Keeping browser open for 10 seconds for inspection...");
   await page.waitForTimeout(10000);
-  
+
   await browser.close();
-  console.log('🎯 Test complete!');
+  console.log("🎯 Test complete!");
 }
 
 testBeneficiariesHighlighting().catch(console.error);

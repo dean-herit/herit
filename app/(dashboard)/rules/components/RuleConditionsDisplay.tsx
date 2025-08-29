@@ -19,8 +19,8 @@ interface RuleDefinitionSchema {
 
 interface RuleConditionsDisplayProps {
   ruleDefinition: unknown;
-  'data-component-category'?: string;
-  'data-component-id'?: string;
+  "data-component-category"?: string;
+  "data-component-id"?: string;
 }
 
 const FACT_LABELS: Record<string, string> = {
@@ -51,16 +51,20 @@ const OPERATOR_LABELS: Record<string, string> = {
 function parseRuleDefinition(definition: unknown): RuleCondition[] {
   try {
     const parsed = definition as RuleDefinitionSchema;
+
     if (parsed?.conditions?.all && Array.isArray(parsed.conditions.all)) {
       return parsed.conditions.all;
     }
+
     return [];
   } catch {
     return [];
   }
 }
 
-export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({ ruleDefinition }) => {
+export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({
+  ruleDefinition,
+}) => {
   const conditions = parseRuleDefinition(ruleDefinition);
 
   return (
@@ -78,10 +82,14 @@ export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({ ru
           <div className="space-y-3">
             {conditions.map((condition, index) => {
               const factLabel = FACT_LABELS[condition.fact] || condition.fact;
-              const operatorLabel = OPERATOR_LABELS[condition.operator] || condition.operator;
-              const valueDisplay = typeof condition.value === "boolean" 
-                ? (condition.value ? "Yes" : "No")
-                : String(condition.value ?? "N/A");
+              const operatorLabel =
+                OPERATOR_LABELS[condition.operator] || condition.operator;
+              const valueDisplay =
+                typeof condition.value === "boolean"
+                  ? condition.value
+                    ? "Yes"
+                    : "No"
+                  : String(condition.value ?? "N/A");
 
               return (
                 <div

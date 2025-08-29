@@ -1,33 +1,33 @@
-const { chromium } = require('playwright');
+const { chromium } = require("playwright");
 
 async function testAddPageHighlighting() {
-  console.log('🚀 Testing highlighting on /beneficiaries/add page...');
-  
+  console.log("🚀 Testing highlighting on /beneficiaries/add page...");
+
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
-  
+
   // Navigate to login
-  console.log('📍 Logging in...');
-  await page.goto('http://localhost:3000/login');
+  console.log("📍 Logging in...");
+  await page.goto("http://localhost:3000/login");
   await page.waitForTimeout(2000);
-  
+
   // Login
-  await page.fill('input[type="email"]', 'claude.assistant@example.com');
-  await page.fill('input[type="password"]', 'DemoPassword123!');
+  await page.fill('input[type="email"]', "claude.assistant@example.com");
+  await page.fill('input[type="password"]', "DemoPassword123!");
   await page.click('button:has-text("Log In")');
   await page.waitForTimeout(3000);
-  
+
   // Navigate to /beneficiaries/add
-  console.log('📍 Navigating to /beneficiaries/add...');
-  await page.goto('http://localhost:3000/beneficiaries/add');
+  console.log("📍 Navigating to /beneficiaries/add...");
+  await page.goto("http://localhost:3000/beneficiaries/add");
   await page.waitForTimeout(3000);
-  
-  console.log('📍 Current URL:', page.url());
-  
+
+  console.log("📍 Current URL:", page.url());
+
   // Apply highlighting
-  console.log('🎨 Applying highlighting to /beneficiaries/add page...');
-  
+  console.log("🎨 Applying highlighting to /beneficiaries/add page...");
+
   const highlightScript = `
     (function() {
       console.log('🎨 ADD PAGE HIGHLIGHTING TEST');
@@ -80,25 +80,25 @@ async function testAddPageHighlighting() {
       return components.length;
     })();
   `;
-  
+
   const count = await page.evaluate(highlightScript);
   console.log(`✅ Highlighted ${count} components on /beneficiaries/add`);
-  
+
   await page.waitForTimeout(2000);
-  
+
   // Screenshot
-  console.log('📸 Taking screenshot...');
-  await page.screenshot({ 
-    path: './tests/screenshots/add-page-highlighting-proof.png',
-    fullPage: true 
+  console.log("📸 Taking screenshot...");
+  await page.screenshot({
+    path: "./tests/screenshots/add-page-highlighting-proof.png",
+    fullPage: true,
   });
-  
-  console.log('✅ Screenshot saved!');
-  console.log('👀 Keeping open for inspection...');
+
+  console.log("✅ Screenshot saved!");
+  console.log("👀 Keeping open for inspection...");
   await page.waitForTimeout(10000);
-  
+
   await browser.close();
-  console.log('🎯 Test complete!');
+  console.log("🎯 Test complete!");
 }
 
 testAddPageHighlighting().catch(console.error);
