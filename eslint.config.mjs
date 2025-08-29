@@ -12,7 +12,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
-import requireComponentAttributes from "./eslint-rules/require-component-attributes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,11 +58,6 @@ export default defineConfig([globalIgnores([
         "@typescript-eslint": typescriptEslint,
         "jsx-a11y": fixupPluginRules(jsxA11Y),
         prettier: fixupPluginRules(prettier),
-        "component-attributes": {
-            rules: {
-                "require-component-attributes": requireComponentAttributes,
-            },
-        },
     },
 
     languageOptions: {
@@ -154,19 +148,5 @@ export default defineConfig([globalIgnores([
             next: ["const", "let", "var"],
         }],
 
-        // Custom rule for component attributes
-        "component-attributes/require-component-attributes": ["warn", {
-            exemptedComponents: [
-                // Framework components
-                "Html", "Head", "Body", "Main",
-                // Next.js components  
-                "Image", "Link", "Script",
-                // Dev tools
-                "ErrorBoundary", "ComponentHighlighter", "BoundaryOverlay",
-                // Layout wrappers
-                "ProtectedRoute", "QueryProvider", "LayoutWrapper",
-            ],
-            requireCategory: true
-        }],
     },
 }]);

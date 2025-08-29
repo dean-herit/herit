@@ -13,7 +13,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 // Enums for better type safety and database constraints
 export const onboardingStatusEnum = pgEnum("onboarding_status", [
@@ -105,6 +105,16 @@ export const users = pgTable(
     }),
     verification_status: verificationStatusEnum("verification_status"),
 
+    // Computed column for overall onboarding completion
+    // This is a PostgreSQL generated column that automatically calculates
+    // based on the individual step completion flags
+    onboarding_completed: boolean("onboarding_completed").generatedAlwaysAs(
+      sql`COALESCE(personal_info_completed, false) AND 
+            COALESCE(signature_completed, false) AND 
+            COALESCE(legal_consent_completed, false) AND 
+            COALESCE(verification_completed, false)`,
+    ),
+
     // Auth Provider Info
     auth_provider: authProviderEnum("auth_provider"),
     auth_provider_id: varchar("auth_provider_id", { length: 255 }),
@@ -140,6 +150,7 @@ export const refreshTokens = pgTable(
     token_hash: text("token_hash").notNull(),
     family: uuid("family").notNull(),
     revoked: boolean("revoked").default(false),
+    revoked_at: timestamp("revoked_at"),
     expires_at: timestamp("expires_at").notNull(),
     created_at: timestamp("created_at").defaultNow(),
   },

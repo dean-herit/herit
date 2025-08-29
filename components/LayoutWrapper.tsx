@@ -3,9 +3,6 @@
 import { usePathname } from "next/navigation";
 import { lazy, Suspense } from "react";
 import { Link } from "@heroui/link";
-
-import { VisualDevModePanel } from "@/components/dev/VisualDevMode";
-
 // Lazy load navbar for better performance
 const Navbar = lazy(() =>
   import("@/components/navbar").then((mod) => ({ default: mod.Navbar })),
@@ -32,22 +29,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
   // For all other pages, render with navbar, container, and footer
   return (
-    <div
-      className="relative flex flex-col h-screen"
-      data-component-category="layout"
-      data-component-id="layout-wrapper"
-    >
-      <Suspense
-        data-component-category="ui"
-        data-component-id="suspense"
-        fallback={
-          <NavbarSkeleton
-            data-component-category="ui"
-            data-component-id="navbar-skeleton"
-          />
-        }
-      >
-        <Navbar data-component-category="ui" data-component-id="navbar" />
+    <div className="relative flex flex-col h-screen">
+      <Suspense fallback={<NavbarSkeleton />}>
+        <Navbar />
       </Suspense>
       <main className="container mx-auto max-w-7xl pt-4 px-6 flex-grow">
         {children}
@@ -63,11 +47,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           <p className="text-primary">HeroUI</p>
         </Link>
       </footer>
-      {/* Visual Development Mode Panel */}
-      <VisualDevModePanel
-        data-component-category="ui"
-        data-component-id="visual-dev-mode-panel"
-      />
     </div>
   );
 }

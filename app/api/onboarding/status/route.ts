@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       user: session.user,
-      onboardingStatus: session.user.onboardingStatus,
-      currentStep: session.user.onboardingCurrentStep,
+      onboardingStatus: session.user.onboarding_status,
+      currentStep: session.user.onboarding_current_step,
       isComplete: session.user.onboarding_completed,
     });
   } catch (error) {

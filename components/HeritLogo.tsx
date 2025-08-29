@@ -15,8 +15,6 @@ export const HeritLogo: React.FC<HeritLogoProps> = ({
 }) => (
   <div
     className={`bg-contain bg-no-repeat bg-center dark:invert ${className}`}
-    data-component-category="ui"
-    data-component-id="herit-logo"
     style={{
       width: width || size,
       height: height || size,

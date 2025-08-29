@@ -4,16 +4,10 @@
  * Client-side authentication utilities
  */
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  profilePhotoUrl?: string | null;
-  onboardingStatus?: string | null;
-  onboardingCurrentStep?: string | null;
-  onboarding_completed?: boolean;
-}
+import type { User } from "@/db/schema";
+
+// Use database schema as single source of truth for AuthUser
+export type AuthUser = User;
 
 export interface SessionResponse {
   user: AuthUser | null;

@@ -137,19 +137,13 @@ export function BeneficiaryPhotoInput({
   };
 
   return (
-    <div
-      className="space-y-4"
-      data-component-category="input"
-      data-component-id="beneficiary-photo-input"
-    >
+    <div className="space-y-4">
       {/* Photo Preview */}
       <div className="flex items-center gap-4">
         <div className="relative">
           <Avatar
             showFallback
             className="w-20 h-20"
-            data-component-category="ui"
-            data-component-id="avatar"
             name={name}
             src={url || undefined}
           />
@@ -162,11 +156,7 @@ export function BeneficiaryPhotoInput({
               variant="solid"
               onPress={clearPhoto}
             >
-              <XMarkIcon
-                className="w-3 h-3"
-                data-component-category="ui"
-                data-component-id="x-mark-icon"
-              />
+              <XMarkIcon className="w-3 h-3" />
             </Button>
           )}
         </div>
@@ -189,8 +179,6 @@ export function BeneficiaryPhotoInput({
           <Progress
             showValueLabel
             color="primary"
-            data-component-category="ui"
-            data-component-id="progress"
             size="sm"
             value={uploadProgress}
           />
@@ -228,17 +216,9 @@ export function BeneficiaryPhotoInput({
           />
           <div className="space-y-2">
             {isDragging ? (
-              <CloudArrowUpIcon
-                className="w-10 h-10 mx-auto text-primary"
-                data-component-category="ui"
-                data-component-id="cloud-arrow-up-icon"
-              />
+              <CloudArrowUpIcon className="w-10 h-10 mx-auto text-primary" />
             ) : (
-              <PhotoIcon
-                className="w-10 h-10 mx-auto text-default-400"
-                data-component-category="ui"
-                data-component-id="photo-icon"
-              />
+              <PhotoIcon className="w-10 h-10 mx-auto text-default-400" />
             )}
             <div>
               <p className="text-sm font-medium">

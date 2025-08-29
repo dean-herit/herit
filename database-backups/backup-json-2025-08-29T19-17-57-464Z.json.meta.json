@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-08-29T19-17-57-464Z",
+  "filename": "backup-json-2025-08-29T19-17-57-464Z.json",
+  "tables": [
+    "app_refresh_tokens",
+    "app_users",
+    "asset_documents",
+    "assets",
+    "audit_events",
+    "beneficiaries",
+    "document_audit_log",
+    "document_requirements",
+    "inheritance_rules",
+    "rule_allocations",
+    "signature_usage",
+    "signatures",
+    "wills"
+  ],
+  "rowCounts": {
+    "app_refresh_tokens": 7,
+    "app_users": 3,
+    "asset_documents": 0,
+    "assets": 4,
+    "audit_events": 8,
+    "beneficiaries": 3,
+    "document_audit_log": 0,
+    "document_requirements": 0,
+    "inheritance_rules": 0,
+    "rule_allocations": 0,
+    "signature_usage": 0,
+    "signatures": 0,
+    "wills": 0
+  },
+  "totalRows": 25
+}

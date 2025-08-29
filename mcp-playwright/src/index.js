@@ -831,21 +831,6 @@ class RobustOnboardingAutomation {
           return `${info.first_name} ${info.last_name}`.trim();
         }
 
-        // Try to get from localStorage (saved during personal info)
-        const progress = localStorage.getItem("onboarding-progress");
-        if (progress) {
-          try {
-            const parsed = JSON.parse(progress);
-            if (
-              parsed.personalInfo &&
-              parsed.personalInfo.first_name &&
-              parsed.personalInfo.last_name
-            ) {
-              return `${parsed.personalInfo.first_name} ${parsed.personalInfo.last_name}`.trim();
-            }
-          } catch {}
-        }
-
         // Try to get from auth context or any displayed name
         const bodyText = document.body.textContent || "";
         const nameMatches = bodyText.match(/([A-Z][a-z]+)\s+([A-Z][a-z]+)/g);

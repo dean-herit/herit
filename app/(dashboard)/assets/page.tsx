@@ -139,13 +139,7 @@ export default function AssetsPage() {
         <div className="flex gap-2">
           <Button
             color="primary"
-            startContent={
-              <PlusIcon
-                className="h-4 w-4"
-                data-component-category="ui"
-                data-component-id="plus-icon"
-              />
-            }
+            startContent={<PlusIcon className="h-4 w-4" />}
             onPress={handleAddAsset}
           >
             Add Asset
@@ -161,11 +155,7 @@ export default function AssetsPage() {
               <CardBody className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-success-100 rounded-lg">
-                    <CurrencyDollarIcon
-                      className="h-5 w-5 text-success-600"
-                      data-component-category="ui"
-                      data-component-id="currency-dollar-icon"
-                    />
+                    <CurrencyDollarIcon className="h-5 w-5 text-success-600" />
                   </div>
                   <div>
                     <p className="text-sm text-default-600">Total Value</p>
@@ -222,11 +212,7 @@ export default function AssetsPage() {
                   className="md:max-w-xs"
                   placeholder="Search assets..."
                   startContent={
-                    <MagnifyingGlassIcon
-                      className="h-4 w-4 text-default-400"
-                      data-component-category="ui"
-                      data-component-id="magnifying-glass-icon"
-                    />
+                    <MagnifyingGlassIcon className="h-4 w-4 text-default-400" />
                   }
                   value={searchTerm}
                   onValueChange={setSearchTerm}
@@ -234,16 +220,10 @@ export default function AssetsPage() {
 
                 <Select
                   className="md:max-w-xs"
-                  data-component-category="ui"
-                  data-component-id="select"
                   placeholder="All categories"
                   selectedKeys={selectedCategory ? [selectedCategory] : []}
                   startContent={
-                    <FunnelIcon
-                      className="h-4 w-4 text-default-400"
-                      data-component-category="ui"
-                      data-component-id="funnel-icon"
-                    />
+                    <FunnelIcon className="h-4 w-4 text-default-400" />
                   }
                   onSelectionChange={(keys) => {
                     const category = Array.from(keys)[0] as string;
@@ -253,11 +233,7 @@ export default function AssetsPage() {
                 >
                   {Object.entries(AssetCategoryDefinitions).map(
                     ([key, category]) => (
-                      <SelectItem
-                        key={key}
-                        data-component-category="ui"
-                        data-component-id="select-item"
-                      >
+                      <SelectItem key={key}>
                         {category.icon} {category.name}
                       </SelectItem>
                     ),
@@ -266,8 +242,6 @@ export default function AssetsPage() {
 
                 <Select
                   className="md:max-w-xs"
-                  data-component-category="ui"
-                  data-component-id="select"
                   placeholder="Sort by"
                   selectedKeys={[sortBy]}
                   onSelectionChange={(keys) => {
@@ -276,34 +250,10 @@ export default function AssetsPage() {
                     setSortBy(sort);
                   }}
                 >
-                  <SelectItem
-                    key="created_at"
-                    data-component-category="ui"
-                    data-component-id="select-item"
-                  >
-                    Date Created
-                  </SelectItem>
-                  <SelectItem
-                    key="name"
-                    data-component-category="ui"
-                    data-component-id="select-item"
-                  >
-                    Name
-                  </SelectItem>
-                  <SelectItem
-                    key="value"
-                    data-component-category="ui"
-                    data-component-id="select-item"
-                  >
-                    Value
-                  </SelectItem>
-                  <SelectItem
-                    key="asset_type"
-                    data-component-category="ui"
-                    data-component-id="select-item"
-                  >
-                    Type
-                  </SelectItem>
+                  <SelectItem key="created_at">Date Created</SelectItem>
+                  <SelectItem key="name">Name</SelectItem>
+                  <SelectItem key="value">Value</SelectItem>
+                  <SelectItem key="asset_type">Type</SelectItem>
                 </Select>
               </div>
             </CardBody>
@@ -316,7 +266,7 @@ export default function AssetsPage() {
         <CardHeader className="pb-3">
           <h2 className="text-lg font-semibold">Your Assets</h2>
         </CardHeader>
-        <Divider data-component-category="ui" data-component-id="divider" />
+        <Divider />
         <CardBody>
           {loading ? (
             <div className="text-center py-12">
@@ -326,11 +276,7 @@ export default function AssetsPage() {
           ) : assets.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-default-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CurrencyDollarIcon
-                  className="h-8 w-8 text-default-400"
-                  data-component-category="ui"
-                  data-component-id="currency-dollar-icon"
-                />
+                <CurrencyDollarIcon className="h-8 w-8 text-default-400" />
               </div>
               <h3 className="text-lg font-semibold mb-2">
                 {searchTerm || selectedCategory
@@ -345,13 +291,7 @@ export default function AssetsPage() {
               <div className="flex gap-2 flex-wrap justify-center">
                 <Button
                   color="primary"
-                  startContent={
-                    <PlusIcon
-                      className="h-4 w-4"
-                      data-component-category="ui"
-                      data-component-id="plus-icon"
-                    />
-                  }
+                  startContent={<PlusIcon className="h-4 w-4" />}
                   onPress={handleAddAsset}
                 >
                   {searchTerm || selectedCategory
@@ -366,59 +306,18 @@ export default function AssetsPage() {
               classNames={{
                 wrapper: "min-h-[200px]",
               }}
-              data-component-category="ui"
-              data-component-id="table"
             >
-              <TableHeader
-                data-component-category="ui"
-                data-component-id="table-header"
-              >
-                <TableColumn
-                  data-component-category="ui"
-                  data-component-id="table-column"
-                >
-                  NAME
-                </TableColumn>
-                <TableColumn
-                  data-component-category="ui"
-                  data-component-id="table-column"
-                >
-                  TYPE
-                </TableColumn>
-                <TableColumn
-                  data-component-category="ui"
-                  data-component-id="table-column"
-                >
-                  VALUE
-                </TableColumn>
-                <TableColumn
-                  data-component-category="ui"
-                  data-component-id="table-column"
-                >
-                  STATUS
-                </TableColumn>
-                <TableColumn
-                  data-component-category="ui"
-                  data-component-id="table-column"
-                  width={100}
-                >
-                  ACTIONS
-                </TableColumn>
+              <TableHeader>
+                <TableColumn>NAME</TableColumn>
+                <TableColumn>TYPE</TableColumn>
+                <TableColumn>VALUE</TableColumn>
+                <TableColumn>STATUS</TableColumn>
+                <TableColumn width={100}>ACTIONS</TableColumn>
               </TableHeader>
-              <TableBody
-                data-component-category="ui"
-                data-component-id="table-body"
-              >
+              <TableBody>
                 {assets.map((asset) => (
-                  <TableRow
-                    key={asset.id}
-                    data-component-category="ui"
-                    data-component-id="table-row"
-                  >
-                    <TableCell
-                      data-component-category="ui"
-                      data-component-id="table-cell"
-                    >
+                  <TableRow key={asset.id}>
+                    <TableCell>
                       <div>
                         <p className="font-medium">{asset.name}</p>
                         {asset.description && (
@@ -428,79 +327,42 @@ export default function AssetsPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell
-                      data-component-category="ui"
-                      data-component-id="table-cell"
-                    >
+                    <TableCell>
                       <Chip
                         color={getCategoryChipColor(asset.asset_type)}
-                        data-component-category="ui"
-                        data-component-id="chip"
                         size="sm"
                         variant="flat"
                       >
                         {getAssetTypeDisplay(asset.asset_type)}
                       </Chip>
                     </TableCell>
-                    <TableCell
-                      data-component-category="ui"
-                      data-component-id="table-cell"
-                    >
+                    <TableCell>
                       <span className="font-medium text-success-600">
                         {formatCurrency(asset.value)}
                       </span>
                     </TableCell>
-                    <TableCell
-                      data-component-category="ui"
-                      data-component-id="table-cell"
-                    >
+                    <TableCell>
                       <Chip
                         color={
                           asset.status === "active" ? "success" : "default"
                         }
-                        data-component-category="ui"
-                        data-component-id="chip"
                         size="sm"
                         variant="flat"
                       >
                         {asset.status}
                       </Chip>
                     </TableCell>
-                    <TableCell
-                      data-component-category="ui"
-                      data-component-id="table-cell"
-                    >
-                      <Dropdown
-                        data-component-category="ui"
-                        data-component-id="dropdown"
-                      >
-                        <DropdownTrigger
-                          data-component-category="ui"
-                          data-component-id="dropdown-trigger"
-                        >
+                    <TableCell>
+                      <Dropdown>
+                        <DropdownTrigger>
                           <Button isIconOnly size="sm" variant="light">
-                            <EllipsisVerticalIcon
-                              className="h-4 w-4"
-                              data-component-category="ui"
-                              data-component-id="ellipsis-vertical-icon"
-                            />
+                            <EllipsisVerticalIcon className="h-4 w-4" />
                           </Button>
                         </DropdownTrigger>
-                        <DropdownMenu
-                          data-component-category="ui"
-                          data-component-id="dropdown-menu"
-                        >
+                        <DropdownMenu>
                           <DropdownItem
                             key="edit"
-                            data-component-category="ui"
-                            data-component-id="dropdown-item"
-                            startContent={
-                              <PencilIcon
-                                className="h-4 w-4"
-                                data-component-category="ui"
-                                data-component-id="pencil-icon"
-                              />
-                            }
+                            startContent={<PencilIcon className="h-4 w-4" />}
                             onPress={() =>
                               router.push(`/assets/${asset.id}/edit`)
                             }
@@ -511,15 +373,7 @@ export default function AssetsPage() {
                             key="delete"
                             className="text-danger"
                             color="danger"
-                            data-component-category="ui"
-                            data-component-id="dropdown-item"
-                            startContent={
-                              <TrashIcon
-                                className="h-4 w-4"
-                                data-component-category="ui"
-                                data-component-id="trash-icon"
-                              />
-                            }
+                            startContent={<TrashIcon className="h-4 w-4" />}
                             onPress={() => handleDeleteAsset(asset.id)}
                           >
                             Delete

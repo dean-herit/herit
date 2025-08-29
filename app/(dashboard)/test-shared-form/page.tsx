@@ -22,11 +22,7 @@ export default function TestSharedFormPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-background p-6"
-      data-component-category="layout"
-      data-component-id="test-shared-form-page"
-    >
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">
@@ -45,8 +41,6 @@ export default function TestSharedFormPage() {
                   ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
-              data-component-category="ui"
-              data-component-id="onboarding-mode-button"
               onClick={() => setMode("onboarding")}
             >
               Onboarding Mode
@@ -57,8 +51,6 @@ export default function TestSharedFormPage() {
                   ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
-              data-component-category="ui"
-              data-component-id="beneficiary-mode-button"
               onClick={() => setMode("beneficiary")}
             >
               Beneficiary Mode
@@ -69,8 +61,6 @@ export default function TestSharedFormPage() {
         {/* Form Component */}
         <SharedPersonalInfoFormProvider
           key={mode} // Force re-mount when mode changes
-          data-component-category="ui"
-          data-component-id="shared-personal-info-form-provider"
           mode={mode}
           showPhotoUpload={true}
           submitLabel={

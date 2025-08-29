@@ -9,8 +9,6 @@ export const Logo: React.FC<IconSvgProps> = ({
   ...props
 }) => (
   <svg
-    data-component-category="ui"
-    data-component-id="logo"
     fill="none"
     height={size || height}
     viewBox="0 0 32 32"
@@ -36,8 +34,6 @@ export const DiscordIcon: React.FC<IconSvgProps> = ({
 }) => {
   return (
     <svg
-      data-component-category="ui"
-      data-component-id="discord-icon"
       height={size || height}
       viewBox="0 0 24 24"
       width={size || width}
@@ -59,8 +55,6 @@ export const TwitterIcon: React.FC<IconSvgProps> = ({
 }) => {
   return (
     <svg
-      data-component-category="ui"
-      data-component-id="twitter-icon"
       height={size || height}
       viewBox="0 0 24 24"
       width={size || width}
@@ -82,8 +76,6 @@ export const GithubIcon: React.FC<IconSvgProps> = ({
 }) => {
   return (
     <svg
-      data-component-category="ui"
-      data-component-id="github-icon"
       height={size || height}
       viewBox="0 0 24 24"
       width={size || width}
@@ -107,8 +99,6 @@ export const MoonFilledIcon = ({
 }: IconSvgProps) => (
   <svg
     aria-hidden="true"
-    data-component-category="ui"
-    data-component-id="moon-filled-icon"
     focusable="false"
     height={size || height}
     role="presentation"
@@ -131,8 +121,6 @@ export const SunFilledIcon = ({
 }: IconSvgProps) => (
   <svg
     aria-hidden="true"
-    data-component-category="ui"
-    data-component-id="sun-filled-icon"
     focusable="false"
     height={size || height}
     role="presentation"
@@ -155,8 +143,6 @@ export const HeartFilledIcon = ({
 }: IconSvgProps) => (
   <svg
     aria-hidden="true"
-    data-component-category="ui"
-    data-component-id="heart-filled-icon"
     focusable="false"
     height={size || height}
     role="presentation"
@@ -177,8 +163,6 @@ export const HeartFilledIcon = ({
 export const SearchIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
-    data-component-category="ui"
-    data-component-id="search-icon"
     fill="none"
     focusable="false"
     height="1em"

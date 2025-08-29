@@ -8,11 +8,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div
-      className="space-y-6"
-      data-component-category="layout"
-      data-component-id="dashboard-layout"
-    >
+    <div className="space-y-6">
       {/* The children now include welcome message outside card and content inside card */}
       {children}
     </div>

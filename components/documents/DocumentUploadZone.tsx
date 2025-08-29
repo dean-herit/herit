@@ -277,11 +277,7 @@ export default function DocumentUploadZone({
 
   return (
     <>
-      <div
-        className="space-y-4"
-        data-component-category="input"
-        data-component-id="document-upload-zone"
-      >
+      <div className="space-y-4">
         {/* Upload Zone */}
         <div
           {...getRootProps()}
@@ -296,11 +292,7 @@ export default function DocumentUploadZone({
           `}
         >
           <input {...getInputProps()} />
-          <CloudArrowUpIcon
-            className="w-12 h-12 mx-auto mb-4 text-default-400"
-            data-component-category="ui"
-            data-component-id="cloud-arrow-up-icon"
-          />
+          <CloudArrowUpIcon className="w-12 h-12 mx-auto mb-4 text-default-400" />
           {isDragActive ? (
             <p className="text-lg font-medium">Drop files here...</p>
           ) : (
@@ -328,27 +320,15 @@ export default function DocumentUploadZone({
                 <div key={item.fileName} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <DocumentIcon
-                        className="w-5 h-5 text-default-500"
-                        data-component-category="ui"
-                        data-component-id="document-icon"
-                      />
+                      <DocumentIcon className="w-5 h-5 text-default-500" />
                       <span className="text-sm">{item.fileName}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {item.status === "complete" && (
-                        <CheckCircleIcon
-                          className="w-5 h-5 text-success"
-                          data-component-category="ui"
-                          data-component-id="check-circle-icon"
-                        />
+                        <CheckCircleIcon className="w-5 h-5 text-success" />
                       )}
                       {item.status === "error" && (
-                        <ExclamationCircleIcon
-                          className="w-5 h-5 text-danger"
-                          data-component-category="ui"
-                          data-component-id="exclamation-circle-icon"
-                        />
+                        <ExclamationCircleIcon className="w-5 h-5 text-danger" />
                       )}
                       {item.status === "complete" && (
                         <Button
@@ -357,11 +337,7 @@ export default function DocumentUploadZone({
                           variant="light"
                           onPress={() => removeFromQueue(item.fileName)}
                         >
-                          <XMarkIcon
-                            className="w-4 h-4"
-                            data-component-category="ui"
-                            data-component-id="x-mark-icon"
-                          />
+                          <XMarkIcon className="w-4 h-4" />
                         </Button>
                       )}
                     </div>
@@ -370,8 +346,6 @@ export default function DocumentUploadZone({
                     <Progress
                       className="w-full"
                       color="primary"
-                      data-component-category="ui"
-                      data-component-id="progress"
                       size="sm"
                       value={item.progress}
                     />
@@ -387,26 +361,10 @@ export default function DocumentUploadZone({
       </div>
 
       {/* Metadata Modal */}
-      <Modal
-        data-component-category="ui"
-        data-component-id="modal"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <ModalContent
-          data-component-category="ui"
-          data-component-id="modal-content"
-        >
-          <ModalHeader
-            data-component-category="ui"
-            data-component-id="modal-header"
-          >
-            Document Details
-          </ModalHeader>
-          <ModalBody
-            data-component-category="ui"
-            data-component-id="modal-body"
-          >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalContent>
+          <ModalHeader>Document Details</ModalHeader>
+          <ModalBody>
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-default-600 mb-2">
@@ -418,8 +376,6 @@ export default function DocumentUploadZone({
               </div>
 
               <Select
-                data-component-category="ui"
-                data-component-id="select"
                 label="Document Category"
                 selectedKeys={[documentMetadata.category]}
                 onSelectionChange={(keys) =>
@@ -429,88 +385,40 @@ export default function DocumentUploadZone({
                   })
                 }
               >
-                <SelectItem
-                  key={DocumentCategory.LEGAL}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.LEGAL}>
                   {getDocumentCategoryDisplay(DocumentCategory.LEGAL)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.FINANCIAL}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.FINANCIAL}>
                   {getDocumentCategoryDisplay(DocumentCategory.FINANCIAL)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.VALUATION}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.VALUATION}>
                   {getDocumentCategoryDisplay(DocumentCategory.VALUATION)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.OWNERSHIP}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.OWNERSHIP}>
                   {getDocumentCategoryDisplay(DocumentCategory.OWNERSHIP)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.CERTIFICATE}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.CERTIFICATE}>
                   {getDocumentCategoryDisplay(DocumentCategory.CERTIFICATE)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.STATEMENT}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.STATEMENT}>
                   {getDocumentCategoryDisplay(DocumentCategory.STATEMENT)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.AGREEMENT}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.AGREEMENT}>
                   {getDocumentCategoryDisplay(DocumentCategory.AGREEMENT)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.REGISTRATION}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.REGISTRATION}>
                   {getDocumentCategoryDisplay(DocumentCategory.REGISTRATION)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.INSURANCE}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.INSURANCE}>
                   {getDocumentCategoryDisplay(DocumentCategory.INSURANCE)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.TAX}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.TAX}>
                   {getDocumentCategoryDisplay(DocumentCategory.TAX)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.COMPLIANCE}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.COMPLIANCE}>
                   {getDocumentCategoryDisplay(DocumentCategory.COMPLIANCE)}
                 </SelectItem>
-                <SelectItem
-                  key={DocumentCategory.OTHER}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
+                <SelectItem key={DocumentCategory.OTHER}>
                   {getDocumentCategoryDisplay(DocumentCategory.OTHER)}
                 </SelectItem>
               </Select>
@@ -529,8 +437,6 @@ export default function DocumentUploadZone({
               />
 
               <Textarea
-                data-component-category="ui"
-                data-component-id="textarea"
                 label="Description (Optional)"
                 placeholder="Add any notes about this document"
                 value={documentMetadata.description}
@@ -568,10 +474,7 @@ export default function DocumentUploadZone({
               </div>
             </div>
           </ModalBody>
-          <ModalFooter
-            data-component-category="ui"
-            data-component-id="modal-footer"
-          >
+          <ModalFooter>
             <Button variant="light" onPress={() => setIsModalOpen(false)}>
               Cancel
             </Button>

@@ -318,8 +318,6 @@ export default function AddAssetV2Page() {
           <div className="space-y-4">
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Bank Name"
               selectedKeys={
                 specificFields.irish_bank_name
@@ -333,13 +331,7 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(IrishBankName).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
 
@@ -354,8 +346,6 @@ export default function AddAssetV2Page() {
             />
 
             <Select
-              data-component-category="ui"
-              data-component-id="select"
               label="Account Type"
               selectedKeys={
                 specificFields.irish_account_type
@@ -369,13 +359,7 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(IrishAccountType).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
           </div>
@@ -419,8 +403,6 @@ export default function AddAssetV2Page() {
 
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Stockbroker"
               selectedKeys={
                 specificFields.stockbroker ? [specificFields.stockbroker] : []
@@ -432,13 +414,7 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(IrishStockbroker).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
 
@@ -478,8 +454,6 @@ export default function AddAssetV2Page() {
 
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Property Type"
               selectedKeys={
                 specificFields.property_type
@@ -493,13 +467,7 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(IrishPropertyType).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
 
@@ -515,8 +483,6 @@ export default function AddAssetV2Page() {
 
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Title Type"
               selectedKeys={
                 specificFields.title_type ? [specificFields.title_type] : []
@@ -527,20 +493,8 @@ export default function AddAssetV2Page() {
                 handleSpecificFieldChange("title_type", value);
               }}
             >
-              <SelectItem
-                key="F"
-                data-component-category="ui"
-                data-component-id="select-item"
-              >
-                Freehold
-              </SelectItem>
-              <SelectItem
-                key="L"
-                data-component-category="ui"
-                data-component-id="select-item"
-              >
-                Leasehold
-              </SelectItem>
+              <SelectItem key="F">Freehold</SelectItem>
+              <SelectItem key="L">Leasehold</SelectItem>
             </Select>
 
             <Input
@@ -562,8 +516,6 @@ export default function AddAssetV2Page() {
           <div className="space-y-4">
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Cryptocurrency Type"
               selectedKeys={
                 specificFields.cryptocurrency_type
@@ -577,20 +529,12 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(CryptocurrencyType).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
 
             <Select
               isRequired
-              data-component-category="ui"
-              data-component-id="select"
               label="Wallet Type"
               selectedKeys={
                 specificFields.wallet_type ? [specificFields.wallet_type] : []
@@ -602,13 +546,7 @@ export default function AddAssetV2Page() {
               }}
             >
               {Object.entries(CryptoWalletType).map(([_key, value]) => (
-                <SelectItem
-                  key={value}
-                  data-component-category="ui"
-                  data-component-id="select-item"
-                >
-                  {value}
-                </SelectItem>
+                <SelectItem key={value}>{value}</SelectItem>
               ))}
             </Select>
 
@@ -678,11 +616,7 @@ export default function AddAssetV2Page() {
                             </p>
                           </div>
                           {formData.category === key && (
-                            <CheckIcon
-                              className="h-5 w-5 text-primary flex-shrink-0"
-                              data-component-category="ui"
-                              data-component-id="check-icon"
-                            />
+                            <CheckIcon className="h-5 w-5 text-primary flex-shrink-0" />
                           )}
                         </div>
                       </CardBody>
@@ -742,11 +676,7 @@ export default function AddAssetV2Page() {
                               </span>
                             </div>
                             {formData.asset_type === assetType && (
-                              <CheckIcon
-                                className="h-5 w-5 text-primary"
-                                data-component-category="ui"
-                                data-component-id="check-icon"
-                              />
+                              <CheckIcon className="h-5 w-5 text-primary" />
                             )}
                           </div>
                           {typeDef?.description && (
@@ -782,8 +712,6 @@ export default function AddAssetV2Page() {
               />
 
               <Textarea
-                data-component-category="ui"
-                data-component-id="textarea"
                 errorMessage={errors.description}
                 isInvalid={!!errors.description}
                 label="Description"
@@ -808,8 +736,6 @@ export default function AddAssetV2Page() {
               <div className="flex gap-4">
                 <Select
                   className="flex-shrink-0 w-40"
-                  data-component-category="ui"
-                  data-component-id="select"
                   label="Currency"
                   selectedKeys={formData.currency ? [formData.currency] : []}
                   size="lg"
@@ -820,11 +746,7 @@ export default function AddAssetV2Page() {
                   }}
                 >
                   {CurrencyOptions.map((currency) => (
-                    <SelectItem
-                      key={currency.value}
-                      data-component-category="ui"
-                      data-component-id="select-item"
-                    >
+                    <SelectItem key={currency.value}>
                       {currency.symbol}
                     </SelectItem>
                   ))}
@@ -839,11 +761,7 @@ export default function AddAssetV2Page() {
                   placeholder="0.00"
                   size="lg"
                   startContent={
-                    <CurrencyDollarIcon
-                      className="h-5 w-5 text-default-400"
-                      data-component-category="ui"
-                      data-component-id="currency-dollar-icon"
-                    />
+                    <CurrencyDollarIcon className="h-5 w-5 text-default-400" />
                   }
                   type="number"
                   value={formData.value?.toString() || ""}
@@ -886,8 +804,6 @@ export default function AddAssetV2Page() {
                 <DocumentUploadZone
                   assetId={createdAssetId}
                   assetType={formData.asset_type || ""}
-                  data-component-category="ui"
-                  data-component-id="document-upload-zone"
                   maxFiles={10}
                   onError={(error) => {
                     console.error("Upload error:", error);
@@ -933,30 +849,21 @@ export default function AddAssetV2Page() {
                     </span>
                   </div>
 
-                  <Divider
-                    data-component-category="ui"
-                    data-component-id="divider"
-                  />
+                  <Divider />
 
                   <div className="flex justify-between items-center">
                     <span className="text-default-600">Type:</span>
                     <span className="font-medium">{typeDef?.name}</span>
                   </div>
 
-                  <Divider
-                    data-component-category="ui"
-                    data-component-id="divider"
-                  />
+                  <Divider />
 
                   <div className="flex justify-between items-center">
                     <span className="text-default-600">Name:</span>
                     <span className="font-medium">{formData.name}</span>
                   </div>
 
-                  <Divider
-                    data-component-category="ui"
-                    data-component-id="divider"
-                  />
+                  <Divider />
 
                   <div className="flex justify-between items-center">
                     <span className="text-default-600">Value:</span>
@@ -970,10 +877,7 @@ export default function AddAssetV2Page() {
 
                   {formData.description && (
                     <>
-                      <Divider
-                        data-component-category="ui"
-                        data-component-id="divider"
-                      />
+                      <Divider />
                       <div>
                         <span className="text-default-600 block mb-2">
                           Description:
@@ -988,10 +892,7 @@ export default function AddAssetV2Page() {
                   {formData.specific_fields &&
                     Object.keys(formData.specific_fields).length > 0 && (
                       <>
-                        <Divider
-                          data-component-category="ui"
-                          data-component-id="divider"
-                        />
+                        <Divider />
                         <div>
                           <span className="text-default-600 block mb-2">
                             Specific Details:
@@ -1029,11 +930,7 @@ export default function AddAssetV2Page() {
       {/* Page Header */}
       <div className="flex items-center gap-4">
         <Button isIconOnly variant="light" onPress={() => router.back()}>
-          <ArrowLeftIcon
-            className="h-5 w-5"
-            data-component-category="ui"
-            data-component-id="arrow-left-icon"
-          />
+          <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Add New Asset</h1>
@@ -1050,8 +947,6 @@ export default function AddAssetV2Page() {
             <Progress
               className="w-full"
               color="primary"
-              data-component-category="ui"
-              data-component-id="progress"
               size="sm"
               value={progressPercentage}
             />
@@ -1094,13 +989,9 @@ export default function AddAssetV2Page() {
             </p>
           </div>
         </CardHeader>
-        <Divider data-component-category="ui" data-component-id="divider" />
+        <Divider />
         <CardBody className="py-8">
-          <AnimatePresence
-            data-component-category="ui"
-            data-component-id="animate-presence"
-            mode="wait"
-          >
+          <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
               animate={{ opacity: 1, x: 0 }}
@@ -1112,7 +1003,7 @@ export default function AddAssetV2Page() {
             </motion.div>
           </AnimatePresence>
         </CardBody>
-        <Divider data-component-category="ui" data-component-id="divider" />
+        <Divider />
         <CardBody className="py-4">
           <div className="flex justify-between">
             <Button

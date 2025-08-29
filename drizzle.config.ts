@@ -11,4 +11,8 @@ export default defineConfig({
   },
   verbose: true,
   strict: true,
+  migrations: {
+    table: "drizzle_migrations", // Standardized migration tracking table
+    schema: "public", // Keep migrations in public schema
+  },
 });

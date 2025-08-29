@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { eq, and } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { users, refreshTokens } from "@/db/schema";
+import { users, refreshTokens, type User } from "@/db/schema";
 import { env } from "@/lib/env";
 
 // JWT Configuration
@@ -32,17 +32,8 @@ interface RefreshTokenPayload {
   type: "refresh";
 }
 
-// Auth User Interface
-export interface AuthUser {
-  id: string;
-  email: string;
-  firstName?: string | null;
-  lastName?: string | null;
-  profilePhotoUrl?: string | null;
-  onboardingStatus?: string | null;
-  onboardingCurrentStep?: string | null;
-  onboarding_completed?: boolean;
-}
+// Auth User Type - derived from database schema
+export type AuthUser = User;
 
 // Session Interface
 export interface Session {
@@ -53,6 +44,11 @@ export interface Session {
 export interface NoSession {
   user: null;
   isAuthenticated: false;
+  error?:
+    | "token_invalid"
+    | "token_expired"
+    | "token_missing"
+    | "user_not_found";
 }
 
 export type SessionResult = Session | NoSession;
@@ -292,7 +288,10 @@ export async function clearAuthCookies(): Promise<void> {
       // Revoke all refresh tokens for this user in the database
       await db
         .update(refreshTokens)
-        .set({ revoked: true })
+        .set({
+          revoked: true,
+          revoked_at: new Date(),
+        })
         .where(eq(refreshTokens.user_id, refreshPayload.userId));
     } catch (dbError) {
       // Log the error but don't fail logout - cookies are already cleared
@@ -314,13 +313,26 @@ export async function getSession(): Promise<SessionResult> {
     const accessToken = cookieStore.get("herit_access_token")?.value;
 
     if (!accessToken) {
-      return { user: null, isAuthenticated: false };
+      return { user: null, isAuthenticated: false, error: "token_missing" };
     }
 
     const payload = await verifyAccessToken(accessToken);
 
     if (!payload) {
-      return { user: null, isAuthenticated: false };
+      // Check if token exists but is invalid (corrupted/malformed)
+      try {
+        // Attempt to decode without verification to detect malformed tokens
+        const parts = accessToken.split(".");
+
+        if (parts.length !== 3) {
+          return { user: null, isAuthenticated: false, error: "token_invalid" };
+        }
+
+        // If we can split but verification failed, it's likely expired or invalid signature
+        return { user: null, isAuthenticated: false, error: "token_expired" };
+      } catch {
+        return { user: null, isAuthenticated: false, error: "token_invalid" };
+      }
     }
 
     // Try to get user from database, with fallback for development
@@ -332,48 +344,58 @@ export async function getSession(): Promise<SessionResult> {
         .limit(1);
 
       if (user) {
-        // Determine onboarding completion based on all required steps
-        const onboarding_completed = !!(
-          user.personal_info_completed &&
-          user.signature_completed &&
-          user.legal_consent_completed &&
-          user.verification_completed &&
-          user.onboarding_completed_at
-        );
-
+        // No need to compute onboarding_completed - it's already computed in the database!
         return {
-          user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.first_name,
-            lastName: user.last_name,
-            profilePhotoUrl: user.profile_photo_url,
-            onboardingStatus: user.onboarding_status,
-            onboardingCurrentStep: user.onboarding_current_step,
-            onboarding_completed,
-          },
+          user: user, // Direct return of database user - types already match!
           isAuthenticated: true,
         };
       }
+
+      // User token is valid but user not found in database
+      return { user: null, isAuthenticated: false, error: "user_not_found" };
     } catch (dbError) {
       console.error("Database error in getSession:", dbError);
     }
 
-    // Fallback: return user data from JWT payload for OAuth users or development
-    // For OAuth users, extract the provider from the userId prefix
-    const isOAuthUser = payload.userId.includes("_");
+    // Fallback: create minimal user object for OAuth users
+    // This should rarely happen now that we use database as source of truth
+    const fallbackUser: AuthUser = {
+      id: payload.userId,
+      email: payload.email,
+      password_hash: null,
+      first_name: null,
+      last_name: null,
+      phone_number: null,
+      date_of_birth: null,
+      profile_photo_url: null,
+      address_line_1: null,
+      address_line_2: null,
+      city: null,
+      county: null,
+      eircode: null,
+      onboarding_status: "not_started",
+      onboarding_current_step: "personal_info",
+      onboarding_completed_at: null,
+      personal_info_completed: false,
+      personal_info_completed_at: null,
+      signature_completed: false,
+      signature_completed_at: null,
+      legal_consent_completed: false,
+      legal_consent_completed_at: null,
+      legal_consents: null,
+      verification_completed: false,
+      verification_completed_at: null,
+      verification_session_id: null,
+      verification_status: null,
+      onboarding_completed: false, // Will be false since all steps are false
+      auth_provider: null,
+      auth_provider_id: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
 
     return {
-      user: {
-        id: payload.userId,
-        email: payload.email,
-        firstName: null,
-        lastName: null,
-        profilePhotoUrl: null,
-        onboardingStatus: "not_started", // Always not_started for new OAuth users
-        onboardingCurrentStep: "personal_info",
-        onboarding_completed: false,
-      },
+      user: fallbackUser,
       isAuthenticated: true,
     };
   } catch (error) {
@@ -480,28 +502,11 @@ export async function refreshTokenRotation(
       expires_at: expiresAt,
     });
 
-    // Determine onboarding completion
-    const onboarding_completed = !!(
-      user.personal_info_completed &&
-      user.signature_completed &&
-      user.legal_consent_completed &&
-      user.verification_completed &&
-      user.onboarding_completed_at
-    );
-
+    // No need to compute onboarding_completed - it's already computed in the database!
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        profilePhotoUrl: user.profile_photo_url,
-        onboardingStatus: user.onboarding_status,
-        onboardingCurrentStep: user.onboarding_current_step,
-        onboarding_completed,
-      },
+      user: user, // Direct return of database user - types already match!
     };
   } catch (error) {
     console.error("Token rotation error:", error);

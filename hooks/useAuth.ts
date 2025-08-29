@@ -125,6 +125,7 @@ export function useAuth() {
     // Session data
     user: session?.user || null,
     isAuthenticated: !!session?.user,
+    authError: session?.error || null,
     isSessionLoading,
     sessionError,
     refetchSession,

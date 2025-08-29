@@ -8,8 +8,6 @@ import { Icon } from "@iconify/react";
 import { HeritLogo } from "@/components/HeritLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { ComponentWrapper } from "@/components/dev/withComponentMetadata";
-import { COMPONENT_REGISTRY } from "@/lib/component-registry";
 
 export const dynamic = "force-dynamic";
 
@@ -104,12 +102,7 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Spinner
-            color="primary"
-            data-component-category="ui"
-            data-component-id="spinner"
-            size="lg"
-          />
+          <Spinner color="primary" size="lg" />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>
@@ -117,256 +110,203 @@ export default function SignupPage() {
   }
 
   return (
-    <ComponentWrapper
-      componentId="signup-page"
-      data-component-category="ui"
-      data-component-id="component-wrapper"
-      metadata={
-        COMPONENT_REGISTRY["signup-page"] || {
-          id: "signup-page",
-          name: "SignupPage",
-          category: "authentication",
-          description: "User registration page",
-          filePath: "/app/(auth)/signup/page.tsx",
-          startLine: 1,
-          endLine: 100,
-          dependencies: [],
-          variants: [],
-          accessibility: {
-            violations: 0,
-            hasAriaLabels: false,
-            hasKeyboardSupport: false,
-            screenReaderFriendly: false,
-          },
-          performance: { complexity: "low" },
-          lastUpdated: new Date().toISOString(),
-          exports: [],
-        }
-      }
+    <div
+      className="bg-content1 flex min-h-screen w-full items-center justify-end overflow-hidden"
+      style={{
+        backgroundImage: "url(/login-background.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
-      <div
-        className="bg-content1 flex min-h-screen w-full items-center justify-end overflow-hidden"
-        style={{
-          backgroundImage: "url(/login-background.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Brand Logo */}
-        <div className="absolute top-5 left-5 md:left-10 z-10">
-          <div className="flex items-center">
-            <HeritLogo
-              className="invert"
-              data-component-category="ui"
-              data-component-id="herit-logo"
-              size={120}
-            />
-          </div>
-        </div>
-
-        {/* Testimonial */}
-        <div className="absolute bottom-10 left-10 hidden md:block">
-          <p className="max-w-xl text-white text-3xl font-light">
-            <span className="font-medium">&quot;</span>
-            Peace of mind in what you leave behind
-            <span className="font-medium">&quot;</span>
-          </p>
-        </div>
-
-        {/* Signup Form */}
-        <div className="rounded-large bg-transparent backdrop-blur-sm border border-white/50 shadow-xl flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10 mr-4 md:mr-8 mt-16 md:my-8 text-white">
-          <p className="pb-2 text-xl font-medium text-white">Create Account</p>
-
-          {signupError && (
-            <div className="p-3 rounded-lg bg-danger-50 border border-danger-200">
-              <p className="text-sm text-danger-600">{signupError}</p>
-            </div>
-          )}
-
-          <Form
-            className="flex flex-col gap-3"
-            data-component-category="ui"
-            data-component-id="form"
-            validationBehavior="native"
-            onSubmit={handleSubmit}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                isRequired
-                classNames={{
-                  label: "text-white",
-                  input: "text-white placeholder:text-white/50",
-                  inputWrapper:
-                    "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                  errorMessage: "text-danger-300",
-                }}
-                errorMessage={errors.firstName}
-                isInvalid={!!errors.firstName}
-                label="First Name"
-                name="firstName"
-                placeholder="First name"
-                value={formData.firstName}
-                variant="bordered"
-                onChange={(e) => handleChange("firstName", e.target.value)}
-              />
-              <Input
-                isRequired
-                classNames={{
-                  label: "text-white",
-                  input: "text-white placeholder:text-white/50",
-                  inputWrapper:
-                    "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                  errorMessage: "text-danger-300",
-                }}
-                errorMessage={errors.lastName}
-                isInvalid={!!errors.lastName}
-                label="Last Name"
-                name="lastName"
-                placeholder="Last name"
-                value={formData.lastName}
-                variant="bordered"
-                onChange={(e) => handleChange("lastName", e.target.value)}
-              />
-            </div>
-
-            <Input
-              isRequired
-              classNames={{
-                label: "text-white",
-                input: "text-white placeholder:text-white/50",
-                inputWrapper:
-                  "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300",
-              }}
-              errorMessage={errors.email}
-              isInvalid={!!errors.email}
-              label="Email Address"
-              name="email"
-              placeholder="Enter your email"
-              type="email"
-              value={formData.email}
-              variant="bordered"
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-
-            <Input
-              isRequired
-              classNames={{
-                label: "text-white",
-                input: "text-white placeholder:text-white/50",
-                inputWrapper:
-                  "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300",
-              }}
-              endContent={
-                <button type="button" onClick={toggleVisibility}>
-                  {isVisible ? (
-                    <Icon
-                      className="text-white pointer-events-none text-2xl"
-                      data-component-category="ui"
-                      data-component-id="icon"
-                      icon="solar:eye-closed-linear"
-                    />
-                  ) : (
-                    <Icon
-                      className="text-white pointer-events-none text-2xl"
-                      data-component-category="ui"
-                      data-component-id="icon"
-                      icon="solar:eye-bold"
-                    />
-                  )}
-                </button>
-              }
-              errorMessage={errors.password}
-              isInvalid={!!errors.password}
-              label="Password"
-              name="password"
-              placeholder="Create a password"
-              type={isVisible ? "text" : "password"}
-              value={formData.password}
-              variant="bordered"
-              onChange={(e) => handleChange("password", e.target.value)}
-            />
-
-            <Input
-              isRequired
-              classNames={{
-                label: "text-white",
-                input: "text-white placeholder:text-white/50",
-                inputWrapper:
-                  "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
-                errorMessage: "text-danger-300",
-              }}
-              endContent={
-                <button type="button" onClick={toggleConfirmVisibility}>
-                  {isConfirmVisible ? (
-                    <Icon
-                      className="text-white pointer-events-none text-2xl"
-                      data-component-category="ui"
-                      data-component-id="icon"
-                      icon="solar:eye-closed-linear"
-                    />
-                  ) : (
-                    <Icon
-                      className="text-white pointer-events-none text-2xl"
-                      data-component-category="ui"
-                      data-component-id="icon"
-                      icon="solar:eye-bold"
-                    />
-                  )}
-                </button>
-              }
-              errorMessage={errors.confirmPassword}
-              isInvalid={!!errors.confirmPassword}
-              label="Confirm Password"
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              type={isConfirmVisible ? "text" : "password"}
-              value={formData.confirmPassword}
-              variant="bordered"
-              onChange={(e) => handleChange("confirmPassword", e.target.value)}
-            />
-
-            <Button
-              className="w-full"
-              color="primary"
-              isLoading={isSigningUp}
-              type="submit"
-            >
-              Create Account
-            </Button>
-          </Form>
-
-          <div className="flex items-center gap-4 py-2">
-            <Divider
-              className="flex-1 bg-white/30"
-              data-component-category="ui"
-              data-component-id="divider"
-            />
-            <p className="text-tiny text-white shrink-0">OR</p>
-            <Divider
-              className="flex-1 bg-white/30"
-              data-component-category="ui"
-              data-component-id="divider"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <GoogleSignInButton
-              data-component-category="ui"
-              data-component-id="google-sign-in-button"
-              onSignInStart={() => setIsOAuthRedirecting(true)}
-            />
-          </div>
-
-          <p className="text-small text-center text-white">
-            Already have an account?&nbsp;
-            <Link className="text-white underline" href="/login" size="sm">
-              Log In
-            </Link>
-          </p>
+      {/* Brand Logo */}
+      <div className="absolute top-5 left-5 md:left-10 z-10">
+        <div className="flex items-center">
+          <HeritLogo className="invert" size={120} />
         </div>
       </div>
-    </ComponentWrapper>
+
+      {/* Testimonial */}
+      <div className="absolute bottom-10 left-10 hidden md:block">
+        <p className="max-w-xl text-white text-3xl font-light">
+          <span className="font-medium">&quot;</span>
+          Peace of mind in what you leave behind
+          <span className="font-medium">&quot;</span>
+        </p>
+      </div>
+
+      {/* Signup Form */}
+      <div className="rounded-large bg-transparent backdrop-blur-sm border border-white/50 shadow-xl flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10 mr-4 md:mr-8 mt-16 md:my-8 text-white">
+        <p className="pb-2 text-xl font-medium text-white">Create Account</p>
+
+        {signupError && (
+          <div className="p-3 rounded-lg bg-danger-50 border border-danger-200">
+            <p className="text-sm text-danger-600">{signupError}</p>
+          </div>
+        )}
+
+        <Form
+          className="flex flex-col gap-3"
+          validationBehavior="native"
+          onSubmit={handleSubmit}
+        >
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              isRequired
+              classNames={{
+                label: "text-white",
+                input: "text-white placeholder:text-white/50",
+                inputWrapper:
+                  "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
+                errorMessage: "text-danger-300",
+              }}
+              errorMessage={errors.firstName}
+              isInvalid={!!errors.firstName}
+              label="First Name"
+              name="firstName"
+              placeholder="First name"
+              value={formData.firstName}
+              variant="bordered"
+              onChange={(e) => handleChange("firstName", e.target.value)}
+            />
+            <Input
+              isRequired
+              classNames={{
+                label: "text-white",
+                input: "text-white placeholder:text-white/50",
+                inputWrapper:
+                  "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
+                errorMessage: "text-danger-300",
+              }}
+              errorMessage={errors.lastName}
+              isInvalid={!!errors.lastName}
+              label="Last Name"
+              name="lastName"
+              placeholder="Last name"
+              value={formData.lastName}
+              variant="bordered"
+              onChange={(e) => handleChange("lastName", e.target.value)}
+            />
+          </div>
+
+          <Input
+            isRequired
+            classNames={{
+              label: "text-white",
+              input: "text-white placeholder:text-white/50",
+              inputWrapper:
+                "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
+              errorMessage: "text-danger-300",
+            }}
+            errorMessage={errors.email}
+            isInvalid={!!errors.email}
+            label="Email Address"
+            name="email"
+            placeholder="Enter your email"
+            type="email"
+            value={formData.email}
+            variant="bordered"
+            onChange={(e) => handleChange("email", e.target.value)}
+          />
+
+          <Input
+            isRequired
+            classNames={{
+              label: "text-white",
+              input: "text-white placeholder:text-white/50",
+              inputWrapper:
+                "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
+              errorMessage: "text-danger-300",
+            }}
+            endContent={
+              <button type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-closed-linear"
+                  />
+                ) : (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-bold"
+                  />
+                )}
+              </button>
+            }
+            errorMessage={errors.password}
+            isInvalid={!!errors.password}
+            label="Password"
+            name="password"
+            placeholder="Create a password"
+            type={isVisible ? "text" : "password"}
+            value={formData.password}
+            variant="bordered"
+            onChange={(e) => handleChange("password", e.target.value)}
+          />
+
+          <Input
+            isRequired
+            classNames={{
+              label: "text-white",
+              input: "text-white placeholder:text-white/50",
+              inputWrapper:
+                "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
+              errorMessage: "text-danger-300",
+            }}
+            endContent={
+              <button type="button" onClick={toggleConfirmVisibility}>
+                {isConfirmVisible ? (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-closed-linear"
+                  />
+                ) : (
+                  <Icon
+                    className="text-white pointer-events-none text-2xl"
+                    icon="solar:eye-bold"
+                  />
+                )}
+              </button>
+            }
+            errorMessage={errors.confirmPassword}
+            isInvalid={!!errors.confirmPassword}
+            label="Confirm Password"
+            name="confirmPassword"
+            placeholder="Confirm your password"
+            type={isConfirmVisible ? "text" : "password"}
+            value={formData.confirmPassword}
+            variant="bordered"
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+          />
+
+          <Button
+            className="w-full"
+            color="primary"
+            isLoading={isSigningUp}
+            type="submit"
+          >
+            Create Account
+          </Button>
+        </Form>
+
+        <div className="flex items-center gap-4 py-2">
+          <Divider className="flex-1 bg-white/30" />
+          <p className="text-tiny text-white shrink-0">OR</p>
+          <Divider className="flex-1 bg-white/30" />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <GoogleSignInButton
+            onSignInStart={() => setIsOAuthRedirecting(true)}
+          />
+        </div>
+
+        <p className="text-small text-center text-white">
+          Already have an account?&nbsp;
+          <Link className="text-white underline" href="/login" size="sm">
+            Log In
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

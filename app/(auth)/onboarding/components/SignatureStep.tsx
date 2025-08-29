@@ -249,19 +249,9 @@ export function SignatureStep({
               <div className="mb-4">
                 <div className="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   {isProcessing ? (
-                    <Spinner
-                      color="secondary"
-                      data-component-category="ui"
-                      data-component-id="spinner"
-                      size="sm"
-                    />
+                    <Spinner color="secondary" size="sm" />
                   ) : openCVStatus === "loading" ? (
-                    <Spinner
-                      color="default"
-                      data-component-category="ui"
-                      data-component-id="spinner"
-                      size="sm"
-                    />
+                    <Spinner color="default" size="sm" />
                   ) : openCVStatus === "error" ? (
                     <span className="text-danger text-xl">⚠️</span>
                   ) : (
@@ -330,12 +320,7 @@ export function SignatureStep({
   };
 
   return (
-    <div
-      className="space-y-6"
-      data-component-category="authentication"
-      data-component-id="components-signature-step"
-      data-testid="signature-step"
-    >
+    <div className="space-y-6" data-testid="signature-step">
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">
           Choose Your Signature Style
@@ -365,19 +350,9 @@ export function SignatureStep({
               <div>
                 <div className="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   {isProcessing ? (
-                    <Spinner
-                      color="secondary"
-                      data-component-category="ui"
-                      data-component-id="spinner"
-                      size="sm"
-                    />
+                    <Spinner color="secondary" size="sm" />
                   ) : openCVStatus === "loading" ? (
-                    <Spinner
-                      color="default"
-                      data-component-category="ui"
-                      data-component-id="spinner"
-                      size="sm"
-                    />
+                    <Spinner color="default" size="sm" />
                   ) : openCVStatus === "error" ? (
                     <span className="text-danger text-xl">⚠️</span>
                   ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner, Card, CardBody } from "@heroui/react";
 import {
@@ -17,11 +17,8 @@ import { VerificationStep } from "./components/VerificationStep";
 
 import { VerticalSteps } from "@/components/ui/VerticalSteps";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  PersonalInfo,
-  Signature,
-  OnboardingProgress,
-} from "@/types/onboarding";
+import { AuthErrorHandler } from "@/components/auth/AuthErrorHandler";
+import { PersonalInfo, Signature } from "@/types/onboarding";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +51,9 @@ const STEPS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { isAuthenticated, isSessionLoading, user } = useAuth();
+  const { isAuthenticated, isSessionLoading, user, authError, refetchSession } =
+    useAuth();
+  const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Main state
   const [currentStep, setCurrentStep] = useState(0);
@@ -82,68 +81,53 @@ export default function OnboardingPage() {
 
   // Check authentication
   useEffect(() => {
+    console.log("Onboarding page effect:", {
+      isSessionLoading,
+      isAuthenticated,
+      userId: user?.id,
+      onboardingCompleted: user?.onboarding_completed,
+    });
+
+    // Clear any pending redirects
+    if (redirectTimeoutRef.current) {
+      clearTimeout(redirectTimeoutRef.current);
+      redirectTimeoutRef.current = null;
+    }
+
     if (!isSessionLoading) {
       if (!isAuthenticated) {
-        router.push("/login");
+        console.log("Onboarding: Not authenticated, redirecting to login");
+        redirectTimeoutRef.current = setTimeout(() => {
+          router.push("/login");
+        }, 100); // Small delay to prevent rapid redirects
 
         return;
       }
 
       if (user && user.onboarding_completed) {
-        console.log("User onboarding completed, redirecting to dashboard");
-        router.push("/dashboard");
+        console.log(
+          "Onboarding: User onboarding completed, redirecting to dashboard",
+        );
+        redirectTimeoutRef.current = setTimeout(() => {
+          router.push("/dashboard");
+        }, 100); // Small delay to prevent rapid redirects
 
         return;
       }
     }
+
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
   }, [isAuthenticated, isSessionLoading, user, router]);
 
-  // Load progress from localStorage and always fetch fresh data from database
+  // Load initial data from database on component mount
   useEffect(() => {
-    const savedProgress = localStorage.getItem("onboarding-progress");
-    let hasLocalProgress = false;
-
-    console.log(
-      "Loading onboarding progress from localStorage:",
-      savedProgress,
-    );
-
-    if (savedProgress) {
-      try {
-        const progress: OnboardingProgress = JSON.parse(savedProgress);
-
-        console.log("Parsed localStorage progress:", progress);
-
-        // Load localStorage data as a starting point
-        setCurrentStep(progress.currentStep || 0);
-        setPersonalInfo(progress.personalInfo || personalInfo);
-        setSignature(progress.signature || null);
-        setConsents(progress.consents || []);
-        setCompletedSteps(progress.completedSteps || []);
-        hasLocalProgress = true;
-      } catch (error) {
-        console.error("Error loading onboarding progress:", error);
-      }
-    }
-
-    // Always fetch fresh data from database to ensure consistency
-    // Database data will override localStorage if it's more complete/recent
-    fetchUserData(!hasLocalProgress);
+    // Always fetch fresh data from database to determine current state
+    fetchUserData(true);
   }, []);
-
-  // Save progress to localStorage whenever state changes
-  useEffect(() => {
-    const progress: OnboardingProgress = {
-      currentStep,
-      personalInfo,
-      signature,
-      consents,
-      completedSteps,
-    };
-
-    localStorage.setItem("onboarding-progress", JSON.stringify(progress));
-  }, [currentStep, personalInfo, signature, consents, completedSteps]);
-
   // Determine current step based on completion status
   const determineCurrentStep = (userData: any) => {
     console.log("Determining current step with data:", userData);
@@ -249,17 +233,27 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-      // Save step data to backend (placeholder for now)
-      // const response = await fetch('/api/onboarding/save-step', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     step: stepIndex,
-      //     data: stepData,
-      //   }),
-      // });
+      // Save step data to backend
+      const response = await fetch("/api/onboarding/save-step", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          step: stepIndex,
+          data: stepData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(errorData.error || "Failed to save step");
+      }
+
+      const result = await response.json();
+
+      console.log("Step saved successfully:", result);
 
       // Update local state based on step
       switch (stepIndex) {
@@ -273,8 +267,8 @@ export default function OnboardingPage() {
           setConsents(stepData);
           break;
         case 3:
-          // Verification completed - redirect to dashboard
-          completeOnboarding();
+          // Verification completed - complete onboarding
+          await completeOnboarding();
 
           return;
       }
@@ -301,14 +295,33 @@ export default function OnboardingPage() {
   // Complete onboarding and redirect to dashboard
   const completeOnboarding = async () => {
     try {
-      // Clear onboarding progress
-      localStorage.removeItem("onboarding-progress");
+      // Call completion API to mark onboarding as complete in backend
+      const response = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      // Redirect to dashboard (placeholder - would normally mark completion in backend)
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(errorData.error || "Failed to complete onboarding");
+      }
+
+      const result = await response.json();
+
+      console.log("Onboarding completed successfully:", result);
+
+      // Redirect to dashboard
       router.push("/dashboard");
     } catch (error) {
       console.error("Error completing onboarding:", error);
-      setErrors(["Failed to complete onboarding. Please try again."]);
+      setErrors([
+        error instanceof Error
+          ? error.message
+          : "Failed to complete onboarding. Please try again.",
+      ]);
     }
   };
 
@@ -332,8 +345,6 @@ export default function OnboardingPage() {
         return (
           <PersonalInfoStep
             {...commonProps}
-            data-component-category="ui"
-            data-component-id="personal-info-step"
             initialData={personalInfo}
             onChange={setPersonalInfo}
             onComplete={() => handleStepComplete(currentStep, personalInfo)}
@@ -343,8 +354,6 @@ export default function OnboardingPage() {
         return (
           <SignatureStep
             {...commonProps}
-            data-component-category="ui"
-            data-component-id="signature-step"
             initialSignature={signature}
             personalInfo={personalInfo}
             onChange={setSignature}
@@ -357,8 +366,6 @@ export default function OnboardingPage() {
         return signature ? (
           <LegalConsentStep
             {...commonProps}
-            data-component-category="ui"
-            data-component-id="legal-consent-step"
             initialConsents={consents}
             signature={signature}
             onChange={setConsents}
@@ -375,8 +382,6 @@ export default function OnboardingPage() {
         return (
           <VerificationStep
             {...commonProps}
-            data-component-category="ui"
-            data-component-id="verification-step"
             onComplete={() => handleStepComplete(currentStep, {})}
           />
         );
@@ -385,16 +390,16 @@ export default function OnboardingPage() {
     }
   };
 
+  // Show authentication error handler if there are JWT issues
+  if (authError) {
+    return <AuthErrorHandler error={authError} onRetry={refetchSession} />;
+  }
+
   if (isSessionLoading || (!isAuthenticated && typeof window !== "undefined")) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Spinner
-            color="primary"
-            data-component-category="ui"
-            data-component-id="spinner"
-            size="lg"
-          />
+          <Spinner color="primary" size="lg" />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>
@@ -411,11 +416,9 @@ export default function OnboardingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar with steps */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8">
+            <div className="sticky top-8 mt-4">
               <VerticalSteps
                 currentStep={currentStep}
-                data-component-category="ui"
-                data-component-id="vertical-steps"
                 steps={STEPS}
                 onStepChange={goToStep}
               />
@@ -446,7 +449,7 @@ export default function OnboardingPage() {
             <div className="mb-2">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-primary flex items-center justify-center ">
                     <span className="text-white font-semibold">
                       {currentStep + 1}
                     </span>

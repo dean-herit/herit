@@ -17,7 +17,7 @@ await screenshot({ filename: "mobile-test" });
 
 // Navigate and interact - DIRECT CALLS:
 await navigate({ path: "/signup" });
-await click({ selector: "signup-button", isComponentId: true });
+await click({ selector: "signup-button" });
 
 // Get component info - ONE CALL:
 await get_components({ visibleOnly: true });
@@ -173,7 +173,6 @@ HeroUI Heritage - Estate planning and asset management platform built with Next.
 - **Backend**: Next.js API routes, Drizzle ORM, PostgreSQL
 - **Authentication**: NextAuth.js with Google OAuth
 - **Database**: PostgreSQL with Drizzle migrations
-- **Development**: Visual component system with AST-based registry
 
 ## MCP Configuration
 
@@ -195,20 +194,15 @@ Context7 provides up-to-date documentation for LLMs and AI code editors, pulling
 2. **`screenshot`** - Capture screenshots with component highlighting
 
    - `filename`: Name for the screenshot (saved to tests/screenshots/)
-   - `componentId`: Optional component ID to highlight
    - `fullPage`: Whether to capture full page (default: true)
 
 3. **`click`** - Click elements by selector or component ID
 
-   - `selector`: CSS selector or component ID
-   - `isComponentId`: Whether selector is a component ID (default: false)
+   - `selector`: CSS selector
 
 4. **`get_components`** - List all components on current page
 
    - `visibleOnly`: Only return visible components (default: true)
-
-5. **`visual_mode`** - Toggle visual development mode
-   - `enabled`: Enable or disable visual mode
 
 #### Usage Examples
 
@@ -216,31 +210,19 @@ Context7 provides up-to-date documentation for LLMs and AI code editors, pulling
 // Navigate to dashboard
 await navigate({ path: "/dashboard" });
 
-// Take screenshot with component highlight
+// Take screenshot
 await screenshot({
   filename: "dashboard-stats",
-  componentId: "dashboard-stats-section",
 });
 
 // Click a component
 await click({
-  selector: "dashboard-client",
-  isComponentId: true,
+  selector: ".dashboard-button",
 });
 
 // Get all visible components
 await get_components({ visibleOnly: true });
-
-// Enable visual mode
-await visual_mode({ enabled: true });
 ```
-
-#### Component Testing Strategy
-
-- Components are identified by `data-component-id` attributes
-- Visual dev mode shows component metadata on hover
-- Dev panel accessible via floating button (🛠️)
-- 126 components registered across 8 categories
 
 #### Context7 Usage Patterns
 
@@ -279,190 +261,11 @@ Context7 is particularly valuable for this project's rapidly evolving tech stack
 - Working with form validation using Zod
 - Implementing authentication flows with latest patterns
 
-### Component Registry Usage
-
-- **Total Components**: 145 across 8 categories
-- **Component Lookup**: Use `COMPONENT_REGISTRY[componentId]`
-- **Categories**: layout, navigation, data-display, input, feedback, authentication, business, ui
-
-## 🧩 COMPONENT DEVELOPMENT GUIDELINES
-
-### **Visual Dev Mode Integration Requirements**
-
-**MANDATORY:** All components MUST include both attributes for visual dev mode to work:
-
-```jsx
-<div
-  data-component-id="my-component"      // ✅ Required
-  data-component-category="input"       // ✅ Required
-  className="..."
->
-```
-
-**Component Categories:**
-
-- `input` - Forms, inputs, interactive elements
-- `data-display` - Cards, lists, tables, display components
-- `layout` - Layout containers, grids, sections
-- `navigation` - Menus, breadcrumbs, pagination
-- `feedback` - Alerts, notifications, loading states
-- `ui` - General UI elements, buttons, badges
-- `business` - Domain-specific components (assets, beneficiaries, etc.)
-- `authentication` - Auth-related components
-
-### **Recommended Development Patterns**
-
-#### **Pattern 1: useComponentMetadata Hook (Preferred)**
-
-```tsx
-import { useComponentMetadata } from "@/hooks/useComponentMetadata";
-import { ComponentCategory } from "@/types/component-registry";
-
-export function MyButton({ children, onClick }) {
-  const componentProps = useComponentMetadata(
-    "my-button",
-    ComponentCategory.INPUT,
-  );
-
-  return (
-    <button {...componentProps} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
-```
-
-#### **Pattern 2: ComponentBaseProps Interface**
-
-```tsx
-import { ComponentBaseProps } from "@/types/component-base";
-
-interface MyComponentProps extends ComponentBaseProps {
-  title: string;
-  onAction: () => void;
-}
-
-export function MyComponent({
-  title,
-  onAction,
-  ...componentProps
-}: MyComponentProps) {
-  return (
-    <div {...componentProps}>
-      <h2>{title}</h2>
-      <button onClick={onAction}>Action</button>
-    </div>
-  );
-}
-```
-
-#### **Pattern 3: Manual Attributes (Fallback)**
-
-```tsx
-export function LegacyComponent() {
-  return (
-    <div
-      data-component-id="legacy-component"
-      data-component-category="ui"
-      data-testid="legacy-component"
-    >
-      Content
-    </div>
-  );
-}
-```
-
-### **Component Development Workflow**
-
-1. **Create Component** with proper metadata
-
-   ```bash
-   # Use preferred hook pattern
-   import { useComponentMetadata } from '@/hooks/useComponentMetadata';
-   ```
-
-2. **Test Visual Dev Mode** during development
-
-   ```javascript
-   // Enable visual dev mode in browser
-   localStorage.setItem("visualDevMode", "true");
-   ```
-
-3. **Validate with MCP Tools**
-
-   ```javascript
-   // Navigate to component page
-   await navigate({ path: "/your-page" });
-
-   // Verify component detection
-   await get_components({ visibleOnly: true });
-
-   // Test component interaction
-   await click({ selector: "your-component-id", isComponentId: true });
-   ```
-
-4. **Update Registry**
-   ```bash
-   # Regenerate component registry after adding components
-   node scripts/generate-component-registry.js
-   ```
-
-### **Visual Dev Mode Testing**
-
-**Enable Visual Dev Mode:**
-
-- Browser: `localStorage.setItem('visualDevMode', 'true')`
-- Dev Panel: Toggle visual mode in floating button (🛠️)
-- MCP: `await visual_mode({ enabled: true })`
-
-**Testing Checklist:**
-
-- ✅ Component highlights on hover
-- ✅ Tooltip shows component metadata
-- ✅ MCP tools can detect component
-- ✅ Component appears in registry
-
-### **Common Issues & Solutions**
-
-| Issue                          | Cause                             | Solution                |
-| ------------------------------ | --------------------------------- | ----------------------- |
-| Component not highlighted      | Missing `data-component-category` | Add category attribute  |
-| MCP tools can't find component | Missing `data-component-id`       | Add component ID        |
-| Tooltip missing metadata       | Not in component registry         | Run registry generation |
-| Visual dev mode not working    | localStorage not set              | Enable visual dev mode  |
-
-### **Component ID Naming Conventions**
-
-- **Format**: `kebab-case`
-- **Structure**: `[category-]component-name`
-- **Examples**:
-  - `user-profile-card`
-  - `asset-form`
-  - `navigation-breadcrumbs`
-  - `loading-spinner`
-
-### **Integration with MCP Tools**
-
-Components with proper metadata work seamlessly with MCP tools:
-
-```javascript
-// Navigate and test component
-await navigate({ path: "/beneficiaries/add" });
-await screenshot({ filename: "beneficiary-form" });
-await click({ selector: "beneficiary-form", isComponentId: true });
-
-// Get all components on page
-const components = await get_components({ visibleOnly: true });
-```
-
 ### Development Commands
 
 ```bash
 # Start development server
 npm run dev
-
-# Generate component registry (run after adding new components)
-node scripts/generate-component-registry.js
 
 # Database operations
 npm run db:push       # Push schema changes
@@ -498,14 +301,6 @@ npm run lint          # ESLint validation
 - **Database Schema**: `/drizzle/schema.ts`
 - **Types**: `/types/` (TypeScript definitions)
 - **Hooks**: `/hooks/` (React hooks)
-- **Component Registry**: `/lib/component-registry.ts` (auto-generated)
-
-### Visual Testing Workflow
-
-1. Enable visual dev mode: Toggle in dev panel or `localStorage.setItem('visualDevMode', 'true')`
-2. Use component IDs for reliable element selection
-3. Hover components to see metadata (name, category, file path)
-4. Use data attributes: `data-component-id`, `data-testid`, `data-component-category`
 
 ### Database Context
 
@@ -517,9 +312,8 @@ npm run lint          # ESLint validation
 ### Common Issues & Solutions
 
 1. **React Query Caching**: Use `staleTime: 0` to force fresh data when debugging
-2. **Component Detection**: Regenerate registry after adding new components
-3. **Build Issues**: Run `npm run typecheck` before deployment
-4. **Database**: Use Drizzle as single source of truth, avoid raw SQL
+2. **Build Issues**: Run `npm run typecheck` before deployment
+3. **Database**: Use Drizzle as single source of truth, avoid raw SQL
 
 ### Testing Priorities
 
@@ -531,7 +325,6 @@ npm run lint          # ESLint validation
 
 ### Performance Considerations
 
-- Components marked with complexity levels in registry
 - Use React.memo for expensive re-renders
 - Lazy load heavy components
 - Optimize images and assets
@@ -567,13 +360,6 @@ npm run lint          # ESLint validation
 - **Error Handling**: Proper retry strategies and error boundaries
 - **Session Management**: Auto-refresh token rotation on 401 errors
 - **Cache Invalidation**: Strategic query invalidation on auth state changes
-
-### **Component Architecture**
-
-- **Registry System**: 128 registered components with AST-based discovery
-- **Visual Dev Mode**: Runtime component identification and metadata
-- **Type-Safe Props**: All components use proper TypeScript interfaces
-- **Category Organization**: 8 categories (layout, navigation, data-display, etc.)
 
 ### **Asset Management System**
 
@@ -640,98 +426,6 @@ npm run lint          # ESLint validation
 - **SQL Injection**: Drizzle ORM prevents injection attacks
 - **File Upload Security**: Type validation and size limits
 
-## Project Cleanup & .gitignore Management
-
-### **Comprehensive Git Ignore Patterns**
-
-The project maintains a comprehensive `.gitignore` to prevent tracking of temporary files, test artifacts, and debugging outputs:
-
-**Test Artifacts & Reports:**
-
-```gitignore
-# Test artifacts and reports
-/tests/reports/                    # Jest/test runner reports
-/tests/debug-reports/              # Debug test execution reports
-/tests/debug-screenshots/          # Automated debug screenshots
-/tests/debug-videos/               # Video recordings of test runs
-/tests/screenshots/automation/     # Automation test screenshots
-/tests/screenshots/*-test-*.png    # Temporary test screenshots
-/tests/screenshots/auth-*.png      # Auth flow test artifacts
-/tests/screenshots/direct-test-*.png # Direct test artifacts
-/tests/screenshots/*verification*.png # Verification test artifacts
-/tests/screenshots/home-page-test.png # Page test screenshots
-/tests/screenshots/signup-test.png # Signup test artifacts
-*.webm                            # Video files from test recordings
-test-report.json                  # JSON test reports
-junit.xml                         # JUnit test output
-test-results.html                 # HTML test reports
-test-results.json                 # JSON test results
-```
-
-**MCP & Debugging Files:**
-
-```gitignore
-# MCP test files (temporary debugging scripts)
-test-mcp-*.js                     # MCP debugging scripts
-MCP_PLAYWRIGHT_TEST_REPORT.md     # MCP test reports
-
-# Test automation artifacts
-/tests/automation/                # Automated test suites
-/tests/debug-automation/          # Debug automation scripts
-```
-
-### **File Preservation Strategy**
-
-**✅ Preserved Files:**
-
-- `tests/screenshots/final-*.png` - Production-ready screenshots for documentation
-- `tests/demo-tests/` - Core demonstration test suites
-- `tests/integration-tests/` - Integration test files
-- Core component test files and legitimate project assets
-
-**🗑️ Ignored Files:**
-
-- Temporary test artifacts and reports
-- Debug screenshots and videos from development
-- MCP debugging scripts (temporary tools)
-- Automation test outputs and reports
-- Build artifacts and temporary files
-
-### **Cleanup Workflow**
-
-**During Development:**
-
-1. Test artifacts are automatically generated in ignored directories
-2. Temporary MCP scripts can be created without git tracking
-3. Debug outputs accumulate in ignored paths
-
-**Periodic Cleanup:**
-
-```bash
-# Remove all ignored test artifacts (safe - won't delete tracked files)
-git clean -fdX tests/
-
-# Remove temporary MCP files
-rm -f test-mcp-*.js MCP_PLAYWRIGHT_TEST_REPORT.md
-
-# Verify clean status
-git status --porcelain
-```
-
-**Pre-Deployment:**
-
-- Ensure only production screenshots are committed
-- Remove debugging scripts and temporary artifacts
-- Maintain clean git history without development clutter
-
-### **Git Ignore Best Practices**
-
-1. **Pattern Specificity**: Use specific patterns like `/tests/screenshots/*-test-*.png` instead of broad wildcards
-2. **Directory Structure**: Align ignore patterns with actual directory structure
-3. **Preservation Safety**: Ensure production assets aren't accidentally ignored
-4. **Development Efficiency**: Allow temporary files during development without git noise
-5. **Documentation**: Document why patterns exist for future maintenance
-
 ## Important Notes
 
 ### **🚨 CRITICAL - DATABASE SAFETY FIRST**
@@ -745,13 +439,9 @@ git status --porcelain
 ### **Development Standards**
 
 - NEVER commit without running typecheck and lint
-- Always use component registry IDs for testing
-- Enable visual dev mode for component identification
-- Use TodoWrite tool for task tracking during complex implementations
-- Run `npm run db:push` for schema changes in development (with safety wrapper)
+- Use `npm run db:push` for schema changes in development (with safety wrapper)
 - Use `npm run db:migrate` for production deployments (with safety wrapper)
 - Monitor Stripe webhook events for verification status updates
-- Clean up test artifacts regularly to maintain repository hygiene
 
 ### **Emergency Contacts & Procedures**
 
@@ -759,3 +449,12 @@ git status --porcelain
 - **Audit System Failure:** Run `npx tsx scripts/fix-audit-system.ts`
 - **Schema Recovery:** Run `npx tsx scripts/emergency-schema-recovery.ts`
 - **Complete Operations Manual:** `docs/AUDIT_SYSTEM_OPERATIONS_MANUAL.md`
+
+# important-instruction-reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+      IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.

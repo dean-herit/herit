@@ -55,12 +55,7 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Spinner
-            color="primary"
-            data-component-category="ui"
-            data-component-id="spinner"
-            size="lg"
-          />
+          <Spinner color="primary" size="lg" />
           <p className="text-default-600">Loading...</p>
         </div>
       </div>
@@ -79,12 +74,7 @@ export default function LoginPage() {
       {/* Brand Logo */}
       <div className="absolute top-5 left-10">
         <div className="flex items-center">
-          <HeritLogo
-            className="invert"
-            data-component-category="ui"
-            data-component-id="herit-logo"
-            size={144}
-          />
+          <HeritLogo className="invert" size={144} />
         </div>
       </div>
 
@@ -109,8 +99,6 @@ export default function LoginPage() {
 
         <Form
           className="flex flex-col gap-3"
-          data-component-category="ui"
-          data-component-id="form"
           validationBehavior="native"
           onSubmit={handleSubmit}
         >
@@ -143,15 +131,11 @@ export default function LoginPage() {
                 {isVisible ? (
                   <Icon
                     className="text-white pointer-events-none text-2xl"
-                    data-component-category="ui"
-                    data-component-id="icon"
                     icon="solar:eye-closed-linear"
                   />
                 ) : (
                   <Icon
                     className="text-white pointer-events-none text-2xl"
-                    data-component-category="ui"
-                    data-component-id="icon"
                     icon="solar:eye-bold"
                   />
                 )}
@@ -171,8 +155,6 @@ export default function LoginPage() {
                 label: "text-white",
                 wrapper: "before:border-white/50",
               }}
-              data-component-category="ui"
-              data-component-id="checkbox"
               name="remember"
               size="sm"
             >
@@ -192,22 +174,12 @@ export default function LoginPage() {
           </Button>
         </Form>
         <div className="flex items-center gap-4 py-2">
-          <Divider
-            className="flex-1 bg-white/30"
-            data-component-category="ui"
-            data-component-id="divider"
-          />
+          <Divider className="flex-1 bg-white/30" />
           <p className="text-tiny text-white shrink-0">OR</p>
-          <Divider
-            className="flex-1 bg-white/30"
-            data-component-category="ui"
-            data-component-id="divider"
-          />
+          <Divider className="flex-1 bg-white/30" />
         </div>
         <div className="flex flex-col gap-2">
           <GoogleSignInButton
-            data-component-category="ui"
-            data-component-id="google-sign-in-button"
             onSignInStart={() => setIsOAuthRedirecting(true)}
           />
         </div>

@@ -24,10 +24,10 @@ export const authQueryOptions = {
 
         const data = await response.json();
 
-        return { user: data.user };
+        return { user: data.user, error: data.error };
       },
       retry: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 0, // Always fetch fresh data to debug the issue
       gcTime: 1000 * 60 * 10, // 10 minutes (previously cacheTime)
     }),
 

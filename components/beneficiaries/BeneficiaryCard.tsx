@@ -64,8 +64,6 @@ export function BeneficiaryCard({
     <Card
       isPressable
       className="w-full hover:shadow-lg transition-shadow cursor-pointer"
-      data-component-category="data-display"
-      data-component-id="beneficiary-card"
       data-testid={`beneficiary-card-${beneficiary.id}`}
       onPress={() => onView?.(beneficiary)}
     >
@@ -74,8 +72,6 @@ export function BeneficiaryCard({
           <div className="flex gap-3">
             <Avatar
               className="flex-shrink-0"
-              data-component-category="ui"
-              data-component-id="avatar"
               fallback={getInitials(beneficiary.name)}
               name={beneficiary.name}
               radius="lg"
@@ -86,14 +82,7 @@ export function BeneficiaryCard({
             <div className="flex flex-col gap-1 flex-grow">
               <h4 className="text-lg font-semibold">{beneficiary.name}</h4>
 
-              <Chip
-                className="w-fit"
-                color="primary"
-                data-component-category="ui"
-                data-component-id="chip"
-                size="sm"
-                variant="flat"
-              >
+              <Chip className="w-fit" color="primary" size="sm" variant="flat">
                 {relationshipTypeLabels[
                   beneficiary.relationship_type as keyof typeof relationshipTypeLabels
                 ] || beneficiary.relationship_type}
@@ -111,33 +100,21 @@ export function BeneficiaryCard({
               <div className="flex flex-col gap-1 mt-2">
                 {beneficiary.email && (
                   <div className="flex items-center gap-2 text-sm text-default-600">
-                    <IconMail
-                      data-component-category="ui"
-                      data-component-id="icon-mail"
-                      size={16}
-                    />
+                    <IconMail size={16} />
                     <span>{beneficiary.email}</span>
                   </div>
                 )}
 
                 {beneficiary.phone && (
                   <div className="flex items-center gap-2 text-sm text-default-600">
-                    <IconPhone
-                      data-component-category="ui"
-                      data-component-id="icon-phone"
-                      size={16}
-                    />
+                    <IconPhone size={16} />
                     <span>{beneficiary.phone}</span>
                   </div>
                 )}
 
                 {formatAddress() && (
                   <div className="flex items-center gap-2 text-sm text-default-600">
-                    <IconMapPin
-                      data-component-category="ui"
-                      data-component-id="icon-map-pin"
-                      size={16}
-                    />
+                    <IconMapPin size={16} />
                     <span className="line-clamp-2">{formatAddress()}</span>
                   </div>
                 )}
@@ -151,44 +128,21 @@ export function BeneficiaryCard({
             </div>
           </div>
 
-          <Dropdown
-            data-component-category="ui"
-            data-component-id="dropdown"
-            placement="bottom-end"
-          >
-            <DropdownTrigger
-              data-component-category="ui"
-              data-component-id="dropdown-trigger"
-            >
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
               <Button
                 isIconOnly
                 size="sm"
                 variant="light"
                 onClick={(e) => e.stopPropagation()}
               >
-                <IconDotsVertical
-                  data-component-category="ui"
-                  data-component-id="icon-dots-vertical"
-                  size={18}
-                />
+                <IconDotsVertical size={18} />
               </Button>
             </DropdownTrigger>
-            <DropdownMenu
-              aria-label="Beneficiary actions"
-              data-component-category="ui"
-              data-component-id="dropdown-menu"
-            >
+            <DropdownMenu aria-label="Beneficiary actions">
               <DropdownItem
                 key="edit"
-                data-component-category="ui"
-                data-component-id="dropdown-item"
-                startContent={
-                  <IconEdit
-                    data-component-category="ui"
-                    data-component-id="icon-edit"
-                    size={16}
-                  />
-                }
+                startContent={<IconEdit size={16} />}
                 onPress={() => onEdit?.(beneficiary)}
               >
                 Edit
@@ -197,15 +151,7 @@ export function BeneficiaryCard({
                 key="delete"
                 className="text-danger"
                 color="danger"
-                data-component-category="ui"
-                data-component-id="dropdown-item"
-                startContent={
-                  <IconTrash
-                    data-component-category="ui"
-                    data-component-id="icon-trash"
-                    size={16}
-                  />
-                }
+                startContent={<IconTrash size={16} />}
                 onPress={() => onDelete?.(beneficiary)}
               >
                 Delete

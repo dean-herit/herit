@@ -7,7 +7,6 @@ import { Button } from "@heroui/react";
 import { SharedPersonalInfoForm } from "./SharedPersonalInfoForm";
 
 import {
-  SharedPersonalInfo,
   FormMode,
   onboardingPersonalInfoSchema,
   beneficiaryPersonalInfoSchema,
@@ -15,8 +14,8 @@ import {
 
 interface SharedPersonalInfoFormProviderProps {
   mode: FormMode;
-  initialData?: Partial<SharedPersonalInfo>;
-  onSubmit: SubmitHandler<SharedPersonalInfo>;
+  initialData?: Partial<any>;
+  onSubmit: SubmitHandler<any>;
   onCancel?: () => void;
   loading?: boolean;
   showPhotoUpload?: boolean;
@@ -54,7 +53,7 @@ export function SharedPersonalInfoFormProvider({
 
   const handleSubmit = methods.handleSubmit(async (data) => {
     try {
-      await onSubmit(data as SharedPersonalInfo);
+      await onSubmit(data);
     } catch (error) {
       console.error("Form submission error:", error);
     }
@@ -82,7 +81,7 @@ export function SharedPersonalInfoFormProvider({
       >
         {/* Responsive grid layout */}
         <div
-          className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6"
+          className="gap-6 mb-6"
           data-component-category="layout"
           data-component-id={`${mode}-form-grid`}
         >

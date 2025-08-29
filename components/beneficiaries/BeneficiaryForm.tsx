@@ -70,14 +70,8 @@ export function BeneficiaryForm({
   };
 
   return (
-    <div
-      className="max-w-6xl mx-auto"
-      data-component-category="input"
-      data-component-id="beneficiary-form"
-    >
+    <div className="max-w-6xl mx-auto">
       <SharedPersonalInfoFormProvider
-        data-component-category="ui"
-        data-component-id="shared-personal-info-form-provider"
         initialData={convertToSharedData(initialData || {})}
         loading={loading}
         mode="beneficiary"

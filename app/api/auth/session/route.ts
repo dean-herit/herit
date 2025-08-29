@@ -7,12 +7,19 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
 
     if (!session.isAuthenticated) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      return NextResponse.json(
+        {
+          user: null,
+          error: session.error || null,
+        },
+        { status: 200 },
+      );
     }
 
     return NextResponse.json(
       {
         user: session.user,
+        error: null,
       },
       { status: 200 },
     );

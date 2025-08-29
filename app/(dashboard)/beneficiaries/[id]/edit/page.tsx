@@ -50,11 +50,7 @@ export default function EditBeneficiaryPage({
   if (isLoading || !beneficiaryId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Spinner
-          data-component-category="ui"
-          data-component-id="spinner"
-          size="lg"
-        />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -73,13 +69,7 @@ export default function EditBeneficiaryPage({
             </p>
             <Button
               color="primary"
-              startContent={
-                <ArrowLeftIcon
-                  className="h-4 w-4"
-                  data-component-category="ui"
-                  data-component-id="arrow-left-icon"
-                />
-              }
+              startContent={<ArrowLeftIcon className="h-4 w-4" />}
               onPress={handleCancel}
             >
               Back to Beneficiaries
@@ -96,13 +86,7 @@ export default function EditBeneficiaryPage({
       <div className="mb-6">
         <Button
           className="mb-4"
-          startContent={
-            <ArrowLeftIcon
-              className="h-4 w-4"
-              data-component-category="ui"
-              data-component-id="arrow-left-icon"
-            />
-          }
+          startContent={<ArrowLeftIcon className="h-4 w-4" />}
           variant="light"
           onPress={handleCancel}
         >
@@ -117,8 +101,6 @@ export default function EditBeneficiaryPage({
 
       {/* Form */}
       <BeneficiaryForm
-        data-component-category="ui"
-        data-component-id="beneficiary-form"
         initialData={{
           ...beneficiary,
           country: beneficiary.country || "Ireland",

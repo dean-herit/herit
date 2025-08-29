@@ -21,16 +21,11 @@ import { CreateRuleModal } from "./components/CreateRuleModal";
 import { EditRuleModal } from "./components/EditRuleModal";
 import { ViewRuleModal } from "./components/ViewRuleModal";
 
-import { useComponentMetadata } from "@/hooks/useComponentMetadata";
-import { ComponentCategory } from "@/types/component-registry";
 import { useRules, useDeleteRule } from "@/hooks/useRules";
 import { InheritanceRule, RuleAllocation } from "@/db/schema";
 
 export default function RulesPage() {
-  const componentProps = useComponentMetadata(
-    "rules-page",
-    ComponentCategory.BUSINESS,
-  );
+  const componentProps = {};
   const [selectedRule, setSelectedRule] = useState<
     (InheritanceRule & { allocations: RuleAllocation[] }) | null
   >(null);
@@ -92,12 +87,7 @@ export default function RulesPage() {
         {...componentProps}
         className="flex justify-center items-center min-h-96"
       >
-        <Spinner
-          data-component-category="ui"
-          data-component-id="spinner"
-          label="Loading rules..."
-          size="lg"
-        />
+        <Spinner label="Loading rules..." size="lg" />
       </div>
     );
   }
@@ -121,11 +111,7 @@ export default function RulesPage() {
   return (
     <div {...componentProps} className="container mx-auto px-6 py-8">
       {/* Header */}
-      <div
-        className="flex justify-between items-center mb-8"
-        data-component-category="layout"
-        data-component-id="rules-header"
-      >
+      <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Inheritance Rules
@@ -138,15 +124,7 @@ export default function RulesPage() {
         <Button
           className="shrink-0"
           color="primary"
-          data-component-category="input"
-          data-component-id="create-rule-button"
-          startContent={
-            <PlusIcon
-              className="w-4 h-4"
-              data-component-category="ui"
-              data-component-id="plus-icon"
-            />
-          }
+          startContent={<PlusIcon className="w-4 h-4" />}
           onPress={() => setIsCreateModalOpen(true)}
         >
           Create Rule
@@ -154,11 +132,7 @@ export default function RulesPage() {
       </div>
 
       {/* Rules Count Card */}
-      <div
-        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
-        data-component-category="data-display"
-        data-component-id="rules-stats"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>
           <CardBody>
             <div className="flex items-center justify-between">
@@ -166,11 +140,7 @@ export default function RulesPage() {
                 <p className="text-small text-gray-600">Total Rules</p>
                 <p className="text-2xl font-bold">{rules.length}</p>
               </div>
-              <Cog6ToothIcon
-                className="w-8 h-8 text-gray-400"
-                data-component-category="ui"
-                data-component-id="cog6-tooth-icon"
-              />
+              <Cog6ToothIcon className="w-8 h-8 text-gray-400" />
             </div>
           </CardBody>
         </Card>
@@ -206,17 +176,9 @@ export default function RulesPage() {
 
       {/* Rules List */}
       {rules.length === 0 ? (
-        <Card
-          className="py-16"
-          data-component-category="data-display"
-          data-component-id="empty-rules-state"
-        >
+        <Card className="py-16">
           <CardBody className="text-center">
-            <Cog6ToothIcon
-              className="w-16 h-16 text-gray-300 mx-auto mb-4"
-              data-component-category="ui"
-              data-component-id="cog6-tooth-icon"
-            />
+            <Cog6ToothIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No Rules Created Yet
             </h3>
@@ -227,13 +189,7 @@ export default function RulesPage() {
             </p>
             <Button
               color="primary"
-              startContent={
-                <PlusIcon
-                  className="w-4 h-4"
-                  data-component-category="ui"
-                  data-component-id="plus-icon"
-                />
-              }
+              startContent={<PlusIcon className="w-4 h-4" />}
               onPress={() => setIsCreateModalOpen(true)}
             >
               Create Your First Rule
@@ -241,11 +197,7 @@ export default function RulesPage() {
           </CardBody>
         </Card>
       ) : (
-        <div
-          className="grid gap-6"
-          data-component-category="data-display"
-          data-component-id="rules-grid"
-        >
+        <div className="grid gap-6">
           {rules.map((rule) => (
             <Card key={rule.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
@@ -262,20 +214,12 @@ export default function RulesPage() {
                     <div className="flex items-center gap-2">
                       <Chip
                         color={rule.is_active ? "success" : "warning"}
-                        data-component-category="ui"
-                        data-component-id="chip"
                         size="sm"
                         variant="flat"
                       >
                         {rule.is_active ? "Active" : "Inactive"}
                       </Chip>
-                      <Chip
-                        color="default"
-                        data-component-category="ui"
-                        data-component-id="chip"
-                        size="sm"
-                        variant="flat"
-                      >
+                      <Chip color="default" size="sm" variant="flat">
                         Priority: {rule.priority || 1}
                       </Chip>
                     </div>
@@ -287,11 +231,7 @@ export default function RulesPage() {
                       variant="light"
                       onPress={() => handleViewRule(rule)}
                     >
-                      <EyeIcon
-                        className="w-4 h-4"
-                        data-component-category="ui"
-                        data-component-id="eye-icon"
-                      />
+                      <EyeIcon className="w-4 h-4" />
                     </Button>
                     <Button
                       isIconOnly
@@ -299,11 +239,7 @@ export default function RulesPage() {
                       variant="light"
                       onPress={() => handleEditRule(rule)}
                     >
-                      <PencilIcon
-                        className="w-4 h-4"
-                        data-component-category="ui"
-                        data-component-id="pencil-icon"
-                      />
+                      <PencilIcon className="w-4 h-4" />
                     </Button>
                     <Button
                       isIconOnly
@@ -313,11 +249,7 @@ export default function RulesPage() {
                       variant="light"
                       onPress={() => handleDeleteRule(rule)}
                     >
-                      <TrashIcon
-                        className="w-4 h-4"
-                        data-component-category="ui"
-                        data-component-id="trash-icon"
-                      />
+                      <TrashIcon className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -354,8 +286,6 @@ export default function RulesPage() {
 
       {/* Modals */}
       <CreateRuleModal
-        data-component-category="ui"
-        data-component-id="create-rule-modal"
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
@@ -364,8 +294,6 @@ export default function RulesPage() {
       {selectedRule && (
         <>
           <EditRuleModal
-            data-component-category="ui"
-            data-component-id="edit-rule-modal"
             isOpen={isEditModalOpen}
             rule={selectedRule}
             onClose={() => setIsEditModalOpen(false)}
@@ -373,8 +301,6 @@ export default function RulesPage() {
           />
 
           <ViewRuleModal
-            data-component-category="ui"
-            data-component-id="view-rule-modal"
             isOpen={isViewModalOpen}
             rule={selectedRule}
             onClose={closeViewModal}

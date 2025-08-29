@@ -49,13 +49,8 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         "data-component-id": "theme-switch",
         "data-component-category": "ui",
       })}
-      data-component-category="ui"
-      data-component-id="component"
     >
-      <VisuallyHidden
-        data-component-category="ui"
-        data-component-id="visually-hidden"
-      >
+      <VisuallyHidden>
         <input {...getInputProps()} />
       </VisuallyHidden>
       <div
@@ -78,17 +73,9 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         })}
       >
         {!isSelected || isSSR ? (
-          <SunFilledIcon
-            data-component-category="ui"
-            data-component-id="sun-filled-icon"
-            size={22}
-          />
+          <SunFilledIcon size={22} />
         ) : (
-          <MoonFilledIcon
-            data-component-category="ui"
-            data-component-id="moon-filled-icon"
-            size={22}
-          />
+          <MoonFilledIcon size={22} />
         )}
       </div>
     </Component>

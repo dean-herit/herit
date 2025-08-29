@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
 import { SubmitHandler } from "react-hook-form";
 
@@ -31,11 +29,11 @@ const convertToSharedFormat = (
   eircode: data.eircode,
   country: "Ireland",
   photo_url: data.profile_photo || "",
+  date_of_birth: data.date_of_birth || "",
 });
 
 const convertFromSharedFormat = (
   sharedData: OnboardingPersonalInfo,
-  dateOfBirth: string,
 ): PersonalInfo => {
   const [firstName, ...lastNameParts] = sharedData.name.split(" ");
 
@@ -43,7 +41,7 @@ const convertFromSharedFormat = (
     first_name: firstName || "",
     last_name: lastNameParts.join(" ") || "",
     email: sharedData.email || "",
-    date_of_birth: dateOfBirth,
+    date_of_birth: sharedData.date_of_birth || "",
     phone_number: sharedData.phone || "",
     address_line_1: sharedData.address_line_1,
     address_line_2: sharedData.address_line_2 || "",
@@ -61,11 +59,6 @@ export function PersonalInfoStep({
   onBack,
   loading,
 }: PersonalInfoStepProps) {
-  const [dateOfBirth, setDateOfBirth] = useState(
-    initialData.date_of_birth || "",
-  );
-  const [dateOfBirthError, setDateOfBirthError] = useState<string>("");
-
   // API mutation for saving personal info
   const savePersonalInfoMutation = useMutation({
     mutationFn: async (data: PersonalInfo) => {
@@ -106,17 +99,8 @@ export function PersonalInfoStep({
   const handleSharedFormSubmit: SubmitHandler<OnboardingPersonalInfo> = async (
     sharedData,
   ) => {
-    // Validate date of birth
-    if (!dateOfBirth) {
-      setDateOfBirthError("Date of birth is required");
-
-      return;
-    }
-
-    setDateOfBirthError("");
-
     // Convert back to onboarding format
-    const personalInfoData = convertFromSharedFormat(sharedData, dateOfBirth);
+    const personalInfoData = convertFromSharedFormat(sharedData);
 
     // Update parent state
     onChange(personalInfoData);
@@ -125,42 +109,12 @@ export function PersonalInfoStep({
     savePersonalInfoMutation.mutate(personalInfoData);
   };
 
-  const handleDateOfBirthChange = (value: string) => {
-    setDateOfBirth(value);
-    if (dateOfBirthError) {
-      setDateOfBirthError("");
-    }
-  };
-
   const isLoading = loading || savePersonalInfoMutation.isPending;
 
   return (
-    <div
-      className="space-y-6"
-      data-component-category="authentication"
-      data-component-id="components-personal-info-step"
-      data-testid="personal-info-form"
-    >
-      {/* Date of Birth - Additional field for onboarding */}
-      <div className="bg-white p-6 rounded-lg border">
-        <h3 className="text-lg font-semibold mb-4">Additional Information</h3>
-        <Input
-          isRequired
-          data-testid="date-of-birth-input"
-          errorMessage={dateOfBirthError}
-          isInvalid={!!dateOfBirthError}
-          label="Date of Birth"
-          type="date"
-          value={dateOfBirth}
-          variant="bordered"
-          onChange={(e) => handleDateOfBirthChange(e.target.value)}
-        />
-      </div>
-
+    <div className="space-y-6" data-testid="personal-info-form">
       {/* Shared Personal Information Form */}
       <SharedPersonalInfoFormProvider
-        data-component-category="ui"
-        data-component-id="shared-personal-info-form-provider"
         initialData={convertToSharedFormat(initialData)}
         loading={isLoading}
         mode="onboarding"
@@ -173,7 +127,7 @@ export function PersonalInfoStep({
 
       {/* Error Display */}
       {savePersonalInfoMutation.error && (
-        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mt-4 p-3 bg-danger-50 border border-danger-200 text-danger-700 rounded">
           {savePersonalInfoMutation.error.message}
         </div>
       )}

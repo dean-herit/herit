@@ -24,8 +24,6 @@ import { z } from "zod";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
 
-import { useComponentMetadata } from "@/hooks/useComponentMetadata";
-import { ComponentCategory } from "@/types/component-registry";
 import {
   useCreateRule,
   useValidateAllocation,
@@ -109,10 +107,7 @@ export function CreateRuleModal({
   onClose,
   onSuccess,
 }: CreateRuleModalProps) {
-  const componentProps = useComponentMetadata(
-    "create-rule-modal",
-    ComponentCategory.BUSINESS,
-  );
+  const componentProps = {};
   const [currentStep, setCurrentStep] = useState(1);
 
   const createRuleMutation = useCreateRule();
@@ -295,20 +290,11 @@ export function CreateRuleModal({
       size="4xl"
       onOpenChange={onClose}
       {...componentProps}
-      data-component-category="ui"
-      data-component-id="modal"
     >
-      <ModalContent
-        data-component-category="ui"
-        data-component-id="modal-content"
-      >
+      <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader
-              className="flex flex-col gap-1"
-              data-component-category="ui"
-              data-component-id="modal-header"
-            >
+            <ModalHeader className="flex flex-col gap-1">
               <h3 className="text-xl font-semibold">
                 Create New Inheritance Rule
               </h3>
@@ -340,18 +326,13 @@ export function CreateRuleModal({
               </div>
             </ModalHeader>
 
-            <ModalBody
-              data-component-category="ui"
-              data-component-id="modal-body"
-            >
+            <ModalBody>
               <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
                     <Controller
                       control={control}
-                      data-component-category="ui"
-                      data-component-id="controller"
                       name="name"
                       render={({ field }) => (
                         <Input
@@ -367,14 +348,10 @@ export function CreateRuleModal({
 
                     <Controller
                       control={control}
-                      data-component-category="ui"
-                      data-component-id="controller"
                       name="description"
                       render={({ field }) => (
                         <Textarea
                           {...field}
-                          data-component-category="ui"
-                          data-component-id="textarea"
                           label="Description"
                           placeholder="Optional description of what this rule accomplishes"
                         />
@@ -384,8 +361,6 @@ export function CreateRuleModal({
                     <div className="flex gap-4">
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name="priority"
                         render={({ field }) => (
                           <Input
@@ -405,8 +380,6 @@ export function CreateRuleModal({
 
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name="is_active"
                         render={({ field }) => (
                           <Switch
@@ -416,8 +389,6 @@ export function CreateRuleModal({
                               thumb:
                                 "w-6 h-6 border-2 shadow-lg group-data-[hover=true]:border-primary group-data-[selected=true]:ml-6 rtl:group-data-[selected=true]:ml-0 rtl:group-data-[selected=true]:mr-6",
                             }}
-                            data-component-category="ui"
-                            data-component-id="switch"
                             isSelected={field.value}
                             onValueChange={field.onChange}
                           >
@@ -441,13 +412,7 @@ export function CreateRuleModal({
                       <h4 className="text-lg font-medium">Rule Conditions</h4>
                       <Button
                         size="sm"
-                        startContent={
-                          <PlusIcon
-                            className="w-4 h-4"
-                            data-component-category="ui"
-                            data-component-id="plus-icon"
-                          />
-                        }
+                        startContent={<PlusIcon className="w-4 h-4" />}
                         variant="ghost"
                         onPress={handleAddCondition}
                       >
@@ -462,15 +427,11 @@ export function CreateRuleModal({
                             <div className="flex items-end gap-4">
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`conditions.${index}.fact`}
                                 render={({ field }) => (
                                   <Select
                                     {...field}
                                     className="flex-1"
-                                    data-component-category="ui"
-                                    data-component-id="select"
                                     label="Condition Type"
                                     selectedKeys={
                                       field.value ? [field.value] : []
@@ -489,11 +450,7 @@ export function CreateRuleModal({
                                     }}
                                   >
                                     {AVAILABLE_FACTS.map((fact) => (
-                                      <SelectItem
-                                        key={fact.key}
-                                        data-component-category="ui"
-                                        data-component-id="select-item"
-                                      >
+                                      <SelectItem key={fact.key}>
                                         {fact.label}
                                       </SelectItem>
                                     ))}
@@ -503,15 +460,11 @@ export function CreateRuleModal({
 
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`conditions.${index}.operator`}
                                 render={({ field }) => (
                                   <Select
                                     {...field}
                                     className="flex-1"
-                                    data-component-category="ui"
-                                    data-component-id="select"
                                     isDisabled={!condition.fact}
                                     label="Operator"
                                     selectedKeys={
@@ -525,11 +478,7 @@ export function CreateRuleModal({
                                       AVAILABLE_FACTS.find(
                                         (f) => f.key === condition.fact,
                                       )?.operators.map((op) => (
-                                        <SelectItem
-                                          key={op}
-                                          data-component-category="ui"
-                                          data-component-id="select-item"
-                                        >
+                                        <SelectItem key={op}>
                                           {OPERATORS[op]}
                                         </SelectItem>
                                       ))) ||
@@ -540,8 +489,6 @@ export function CreateRuleModal({
 
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`conditions.${index}.value`}
                                 render={({ field }) => (
                                   <Input
@@ -560,11 +507,7 @@ export function CreateRuleModal({
                                   variant="light"
                                   onPress={() => handleRemoveCondition(index)}
                                 >
-                                  <XMarkIcon
-                                    className="w-4 h-4"
-                                    data-component-category="ui"
-                                    data-component-id="x-mark-icon"
-                                  />
+                                  <XMarkIcon className="w-4 h-4" />
                                 </Button>
                               )}
                             </div>
@@ -582,13 +525,7 @@ export function CreateRuleModal({
                       <h4 className="text-lg font-medium">Asset Allocations</h4>
                       <Button
                         size="sm"
-                        startContent={
-                          <PlusIcon
-                            className="w-4 h-4"
-                            data-component-category="ui"
-                            data-component-id="plus-icon"
-                          />
-                        }
+                        startContent={<PlusIcon className="w-4 h-4" />}
                         variant="ghost"
                         onPress={handleAddAllocation}
                       >
@@ -603,14 +540,10 @@ export function CreateRuleModal({
                             <div className="grid grid-cols-2 gap-4 mb-4">
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`allocations.${index}.asset_id`}
                                 render={({ field }) => (
                                   <Select
                                     {...field}
-                                    data-component-category="ui"
-                                    data-component-id="select"
                                     label="Asset"
                                     selectedKeys={
                                       field.value ? [field.value] : []
@@ -620,11 +553,7 @@ export function CreateRuleModal({
                                     }
                                   >
                                     {assets.map((asset) => (
-                                      <SelectItem
-                                        key={asset.id}
-                                        data-component-category="ui"
-                                        data-component-id="select-item"
-                                      >
+                                      <SelectItem key={asset.id}>
                                         {asset.name} (€
                                         {asset.value.toLocaleString()})
                                       </SelectItem>
@@ -635,14 +564,10 @@ export function CreateRuleModal({
 
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`allocations.${index}.beneficiary_id`}
                                 render={({ field }) => (
                                   <Select
                                     {...field}
-                                    data-component-category="ui"
-                                    data-component-id="select"
                                     label="Beneficiary"
                                     selectedKeys={
                                       field.value ? [field.value] : []
@@ -656,11 +581,7 @@ export function CreateRuleModal({
                                         id: string;
                                         name: string;
                                       }) => (
-                                        <SelectItem
-                                          key={beneficiary.id}
-                                          data-component-category="ui"
-                                          data-component-id="select-item"
-                                        >
+                                        <SelectItem key={beneficiary.id}>
                                           {beneficiary.name}
                                         </SelectItem>
                                       ),
@@ -673,8 +594,6 @@ export function CreateRuleModal({
                             <div className="flex gap-4 items-end">
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`allocations.${index}.allocation_percentage`}
                                 render={({ field }) => (
                                   <Input
@@ -700,8 +619,6 @@ export function CreateRuleModal({
 
                               <Controller
                                 control={control}
-                                data-component-category="ui"
-                                data-component-id="controller"
                                 name={`allocations.${index}.allocation_amount`}
                                 render={({ field }) => (
                                   <Input
@@ -729,11 +646,7 @@ export function CreateRuleModal({
                                   variant="light"
                                   onPress={() => handleRemoveAllocation(index)}
                                 >
-                                  <XMarkIcon
-                                    className="w-4 h-4"
-                                    data-component-category="ui"
-                                    data-component-id="x-mark-icon"
-                                  />
+                                  <XMarkIcon className="w-4 h-4" />
                                 </Button>
                               )}
                             </div>
@@ -785,12 +698,7 @@ export function CreateRuleModal({
                           );
 
                           return (
-                            <Chip
-                              key={index}
-                              className="mb-2 mr-2"
-                              data-component-category="ui"
-                              data-component-id="chip"
-                            >
+                            <Chip key={index} className="mb-2 mr-2">
                               {fact?.label}{" "}
                               {
                                 OPERATORS[
@@ -854,10 +762,7 @@ export function CreateRuleModal({
               </form>
             </ModalBody>
 
-            <ModalFooter
-              data-component-category="ui"
-              data-component-id="modal-footer"
-            >
+            <ModalFooter>
               <Button variant="light" onPress={onClose}>
                 Cancel
               </Button>

@@ -119,10 +119,14 @@ export const sharedPersonalInfoSchema = z.object({
     .optional(),
 });
 
-// Onboarding-specific schema (excludes relationship)
-export const onboardingPersonalInfoSchema = sharedPersonalInfoSchema.omit({
-  relationship_type: true,
-});
+// Onboarding-specific schema (excludes relationship, adds date_of_birth)
+export const onboardingPersonalInfoSchema = sharedPersonalInfoSchema
+  .omit({
+    relationship_type: true,
+  })
+  .extend({
+    date_of_birth: z.string().min(1, "Date of birth is required"),
+  });
 
 // Beneficiary-specific schema (requires relationship + additional required fields)
 export const beneficiaryPersonalInfoSchema = sharedPersonalInfoSchema.extend({

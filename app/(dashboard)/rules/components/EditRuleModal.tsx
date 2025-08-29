@@ -24,8 +24,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 
-import { useComponentMetadata } from "@/hooks/useComponentMetadata";
-import { ComponentCategory } from "@/types/component-registry";
 import { useUpdateRule, useValidateAllocation } from "@/hooks/useRules";
 import { InheritanceRule, RuleAllocation } from "@/db/schema";
 import { willQueryOptions, assetsQueryOptions } from "@/lib/query-options";
@@ -96,10 +94,7 @@ export function EditRuleModal({
   onClose,
   onSuccess,
 }: EditRuleModalProps) {
-  const componentProps = useComponentMetadata(
-    "edit-rule-modal",
-    ComponentCategory.BUSINESS,
-  );
+  const componentProps = {};
   const [currentStep, setCurrentStep] = useState(0);
   const [validationResult, setValidationResult] = useState<any>(null);
 
@@ -274,36 +269,22 @@ export function EditRuleModal({
         base: "max-h-[90vh]",
         body: "py-6",
       }}
-      data-component-category="ui"
-      data-component-id="modal"
       isOpen={isOpen}
       scrollBehavior="inside"
       size="4xl"
       onClose={onClose}
     >
-      <ModalContent
-        {...componentProps}
-        data-component-category="ui"
-        data-component-id="modal-content"
-      >
-        <ModalHeader
-          className="flex flex-col gap-1"
-          data-component-category="ui"
-          data-component-id="modal-header"
-        >
+      <ModalContent {...componentProps}>
+        <ModalHeader className="flex flex-col gap-1">
           <h2 className="text-2xl font-bold">Edit Inheritance Rule</h2>
           <p className="text-sm text-gray-600">
             Modify the conditions and allocations for this rule
           </p>
         </ModalHeader>
 
-        <ModalBody data-component-category="ui" data-component-id="modal-body">
+        <ModalBody>
           {/* Progress Steps */}
-          <div
-            className="flex justify-between mb-8"
-            data-component-category="navigation"
-            data-component-id="edit-rule-steps"
-          >
+          <div className="flex justify-between mb-8">
             {steps.map((step, index) => (
               <div key={index} className="flex flex-col items-center flex-1">
                 <div
@@ -333,15 +314,9 @@ export function EditRuleModal({
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Step 1: Basic Information */}
             {currentStep === 0 && (
-              <div
-                className="space-y-4"
-                data-component-category="input"
-                data-component-id="edit-rule-basic-info"
-              >
+              <div className="space-y-4">
                 <Controller
                   control={control}
-                  data-component-category="ui"
-                  data-component-id="controller"
                   name="name"
                   render={({ field }) => (
                     <Input
@@ -357,14 +332,10 @@ export function EditRuleModal({
 
                 <Controller
                   control={control}
-                  data-component-category="ui"
-                  data-component-id="controller"
                   name="description"
                   render={({ field }) => (
                     <Textarea
                       {...field}
-                      data-component-category="ui"
-                      data-component-id="textarea"
                       errorMessage={errors.description?.message}
                       isInvalid={!!errors.description}
                       label="Description"
@@ -377,8 +348,6 @@ export function EditRuleModal({
                 <div className="flex gap-4">
                   <Controller
                     control={control}
-                    data-component-category="ui"
-                    data-component-id="controller"
                     name="priority"
                     render={({ field }) => (
                       <Input
@@ -401,14 +370,10 @@ export function EditRuleModal({
 
                   <Controller
                     control={control}
-                    data-component-category="ui"
-                    data-component-id="controller"
                     name="is_active"
                     render={({ field }) => (
                       <div className="flex items-center mt-6">
                         <Checkbox
-                          data-component-category="ui"
-                          data-component-id="checkbox"
                           isSelected={field.value}
                           onValueChange={field.onChange}
                         >
@@ -423,23 +388,13 @@ export function EditRuleModal({
 
             {/* Step 2: Conditions */}
             {currentStep === 1 && (
-              <div
-                className="space-y-4"
-                data-component-category="input"
-                data-component-id="edit-rule-conditions"
-              >
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">Rule Conditions</h3>
                   <Button
                     color="primary"
                     size="sm"
-                    startContent={
-                      <PlusIcon
-                        className="w-4 h-4"
-                        data-component-category="ui"
-                        data-component-id="plus-icon"
-                      />
-                    }
+                    startContent={<PlusIcon className="w-4 h-4" />}
                     variant="flat"
                     onPress={() =>
                       appendCondition({
@@ -463,16 +418,12 @@ export function EditRuleModal({
                     <div className="flex gap-4 items-start">
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`conditions.${index}.fact`}
                         render={({ field }) => (
                           <Select
                             {...field}
                             isRequired
                             className="flex-1"
-                            data-component-category="ui"
-                            data-component-id="select"
                             errorMessage={
                               errors.conditions?.[index]?.fact?.message
                             }
@@ -487,11 +438,7 @@ export function EditRuleModal({
                             }}
                           >
                             {FACT_OPTIONS.map((option) => (
-                              <SelectItem
-                                key={option.key}
-                                data-component-category="ui"
-                                data-component-id="select-item"
-                              >
+                              <SelectItem key={option.key}>
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -501,16 +448,12 @@ export function EditRuleModal({
 
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`conditions.${index}.operator`}
                         render={({ field }) => (
                           <Select
                             {...field}
                             isRequired
                             className="flex-1"
-                            data-component-category="ui"
-                            data-component-id="select"
                             errorMessage={
                               errors.conditions?.[index]?.operator?.message
                             }
@@ -525,11 +468,7 @@ export function EditRuleModal({
                             }}
                           >
                             {OPERATOR_OPTIONS.map((option) => (
-                              <SelectItem
-                                key={option.key}
-                                data-component-category="ui"
-                                data-component-id="select-item"
-                              >
+                              <SelectItem key={option.key}>
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -539,8 +478,6 @@ export function EditRuleModal({
 
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`conditions.${index}.value`}
                         render={({ field }) => (
                           <Input
@@ -582,11 +519,7 @@ export function EditRuleModal({
                         variant="light"
                         onPress={() => removeCondition(index)}
                       >
-                        <TrashIcon
-                          className="w-4 h-4"
-                          data-component-category="ui"
-                          data-component-id="trash-icon"
-                        />
+                        <TrashIcon className="w-4 h-4" />
                       </Button>
                     </div>
                   </Card>
@@ -596,23 +529,13 @@ export function EditRuleModal({
 
             {/* Step 3: Allocations */}
             {currentStep === 2 && (
-              <div
-                className="space-y-4"
-                data-component-category="input"
-                data-component-id="edit-rule-allocations"
-              >
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">Asset Allocations</h3>
                   <Button
                     color="primary"
                     size="sm"
-                    startContent={
-                      <PlusIcon
-                        className="w-4 h-4"
-                        data-component-category="ui"
-                        data-component-id="plus-icon"
-                      />
-                    }
+                    startContent={<PlusIcon className="w-4 h-4" />}
                     variant="flat"
                     onPress={() =>
                       appendAllocation({
@@ -672,16 +595,12 @@ export function EditRuleModal({
                     <div className="flex gap-4 items-start">
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`allocations.${index}.asset_id`}
                         render={({ field }) => (
                           <Select
                             {...field}
                             isRequired
                             className="flex-1"
-                            data-component-category="ui"
-                            data-component-id="select"
                             errorMessage={
                               errors.allocations?.[index]?.asset_id?.message
                             }
@@ -696,11 +615,7 @@ export function EditRuleModal({
                             }}
                           >
                             {assets.map((asset) => (
-                              <SelectItem
-                                key={asset.id}
-                                data-component-category="ui"
-                                data-component-id="select-item"
-                              >
+                              <SelectItem key={asset.id}>
                                 {asset.name} (€{asset.value.toLocaleString()})
                               </SelectItem>
                             ))}
@@ -710,16 +625,12 @@ export function EditRuleModal({
 
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`allocations.${index}.beneficiary_id`}
                         render={({ field }) => (
                           <Select
                             {...field}
                             isRequired
                             className="flex-1"
-                            data-component-category="ui"
-                            data-component-id="select"
                             errorMessage={
                               errors.allocations?.[index]?.beneficiary_id
                                 ?.message
@@ -737,11 +648,7 @@ export function EditRuleModal({
                             }}
                           >
                             {beneficiaries.map((beneficiary: any) => (
-                              <SelectItem
-                                key={beneficiary.id}
-                                data-component-category="ui"
-                                data-component-id="select-item"
-                              >
+                              <SelectItem key={beneficiary.id}>
                                 {beneficiary.name}
                               </SelectItem>
                             ))}
@@ -751,8 +658,6 @@ export function EditRuleModal({
 
                       <Controller
                         control={control}
-                        data-component-category="ui"
-                        data-component-id="controller"
                         name={`allocations.${index}.allocation_percentage`}
                         render={({ field }) => (
                           <Input
@@ -792,11 +697,7 @@ export function EditRuleModal({
                         variant="light"
                         onPress={() => removeAllocation(index)}
                       >
-                        <TrashIcon
-                          className="w-4 h-4"
-                          data-component-category="ui"
-                          data-component-id="trash-icon"
-                        />
+                        <TrashIcon className="w-4 h-4" />
                       </Button>
                     </div>
                   </Card>
@@ -806,11 +707,7 @@ export function EditRuleModal({
 
             {/* Step 4: Review */}
             {currentStep === 3 && (
-              <div
-                className="space-y-6"
-                data-component-category="data-display"
-                data-component-id="edit-rule-review"
-              >
+              <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Review Changes</h3>
 
                 <Card>
@@ -838,8 +735,6 @@ export function EditRuleModal({
                       <span className="text-gray-600">Status:</span>
                       <Chip
                         color={watch("is_active") ? "success" : "warning"}
-                        data-component-category="ui"
-                        data-component-id="chip"
                         size="sm"
                         variant="flat"
                       >
@@ -858,13 +753,7 @@ export function EditRuleModal({
                   <CardBody>
                     {watch("conditions")?.map((condition, index) => (
                       <div key={index} className="flex items-center gap-2 py-1">
-                        <Chip
-                          color="primary"
-                          data-component-category="ui"
-                          data-component-id="chip"
-                          size="sm"
-                          variant="flat"
-                        >
+                        <Chip color="primary" size="sm" variant="flat">
                           {FACT_OPTIONS.find((f) => f.key === condition.fact)
                             ?.label || condition.fact}
                         </Chip>
@@ -873,13 +762,7 @@ export function EditRuleModal({
                             (o) => o.key === condition.operator,
                           )?.label || condition.operator}
                         </span>
-                        <Chip
-                          color="secondary"
-                          data-component-category="ui"
-                          data-component-id="chip"
-                          size="sm"
-                          variant="flat"
-                        >
+                        <Chip color="secondary" size="sm" variant="flat">
                           {condition.value?.toString()}
                         </Chip>
                       </div>
@@ -976,19 +859,10 @@ export function EditRuleModal({
           </form>
         </ModalBody>
 
-        <ModalFooter
-          data-component-category="ui"
-          data-component-id="modal-footer"
-        >
+        <ModalFooter>
           <div className="flex justify-between items-center w-full">
             <Button
-              startContent={
-                <XMarkIcon
-                  className="w-4 h-4"
-                  data-component-category="ui"
-                  data-component-id="x-mark-icon"
-                />
-              }
+              startContent={<XMarkIcon className="w-4 h-4" />}
               variant="light"
               onPress={onClose}
             >

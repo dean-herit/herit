@@ -274,12 +274,7 @@ export function LegalConsentStep({
   }
 
   return (
-    <div
-      className="space-y-6"
-      data-component-category="authentication"
-      data-component-id="components-legal-consent-step"
-      data-testid="legal-consent-step"
-    >
+    <div className="space-y-6" data-testid="legal-consent-step">
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">Legal Agreements</h3>
         <p className="text-default-600">
@@ -363,17 +358,9 @@ export function LegalConsentStep({
                       `}
                       >
                         {isSigned ? (
-                          <Check
-                            className="w-4 h-4"
-                            data-component-category="ui"
-                            data-component-id="check"
-                          />
+                          <Check className="w-4 h-4" />
                         ) : (
-                          <FileText
-                            className="w-4 h-4 text-default-500"
-                            data-component-category="ui"
-                            data-component-id="file-text"
-                          />
+                          <FileText className="w-4 h-4 text-default-500" />
                         )}
                       </div>
                       <div>
@@ -460,11 +447,7 @@ export function LegalConsentStep({
             <CardBody className="p-4">
               <div className="text-center">
                 <div className="w-12 h-12 bg-success rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Check
-                    className="w-6 h-6 text-white"
-                    data-component-category="ui"
-                    data-component-id="check"
-                  />
+                  <Check className="w-6 h-6 text-white" />
                 </div>
                 <p className="text-sm font-medium text-success-700">
                   All agreements have been signed

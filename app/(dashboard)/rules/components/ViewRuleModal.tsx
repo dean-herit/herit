@@ -49,22 +49,9 @@ export function ViewRuleModal({
   };
 
   return (
-    <Modal
-      data-component-category="ui"
-      data-component-id="modal"
-      isOpen={isOpen}
-      scrollBehavior="inside"
-      size="2xl"
-      onClose={onClose}
-    >
-      <ModalContent
-        data-component-category="ui"
-        data-component-id="modal-content"
-      >
-        <ModalHeader
-          data-component-category="ui"
-          data-component-id="modal-header"
-        >
+    <Modal isOpen={isOpen} scrollBehavior="inside" size="2xl" onClose={onClose}>
+      <ModalContent>
+        <ModalHeader>
           <div>
             <h2 className="text-xl font-bold">{rule.name}</h2>
             {rule.description && (
@@ -73,7 +60,7 @@ export function ViewRuleModal({
           </div>
         </ModalHeader>
 
-        <ModalBody data-component-category="ui" data-component-id="modal-body">
+        <ModalBody>
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold mb-2">Rule Status</h3>
@@ -99,21 +86,12 @@ export function ViewRuleModal({
           </div>
         </ModalBody>
 
-        <ModalFooter
-          data-component-category="ui"
-          data-component-id="modal-footer"
-        >
+        <ModalFooter>
           <div className="flex justify-between items-center w-full">
             <Button
               color="danger"
               isLoading={deleteRuleMutation.isPending}
-              startContent={
-                <TrashIcon
-                  className="w-4 h-4"
-                  data-component-category="ui"
-                  data-component-id="trash-icon"
-                />
-              }
+              startContent={<TrashIcon className="w-4 h-4" />}
               variant="light"
               onPress={handleDeleteRule}
             >
@@ -128,13 +106,7 @@ export function ViewRuleModal({
               {onEdit && (
                 <Button
                   color="primary"
-                  startContent={
-                    <PencilIcon
-                      className="w-4 h-4"
-                      data-component-category="ui"
-                      data-component-id="pencil-icon"
-                    />
-                  }
+                  startContent={<PencilIcon className="w-4 h-4" />}
                   onPress={onEdit}
                 >
                   Edit Rule

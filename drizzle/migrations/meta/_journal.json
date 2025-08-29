@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1755271527189,
-      "tag": "0000_majestic_tiger_shark",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1755295760235,
-      "tag": "0001_flippant_sentinels",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1755344498221,
-      "tag": "0002_big_jazinda",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1755382110506,
-      "tag": "0003_fuzzy_madame_hydra",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1755999999999,
-      "tag": "0004_add_beneficiary_columns",
+      "when": 1756495230813,
+      "tag": "0000_initial_schema_with_computed_onboarding",
       "breakpoints": true
     }
   ]
