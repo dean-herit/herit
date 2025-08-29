@@ -268,9 +268,9 @@ Context7 is particularly valuable for this project's rapidly evolving tech stack
 npm run dev
 
 # Database operations
-npm run db:push       # Push schema changes
 npm run db:generate   # Generate migrations
-npm run db:migrate    # Run migrations
+npm run db:migrate    # Apply migrations safely
+npm run db:validate   # Validate schema health
 npm run db:studio     # Open Drizzle Studio
 
 # Type checking and linting
@@ -439,7 +439,7 @@ npm run lint          # ESLint validation
 ### **Development Standards**
 
 - NEVER commit without running typecheck and lint
-- Use `npm run db:push` for schema changes in development (with safety wrapper)
+- Use `npm run db:migrate` for safe schema changes (deprecated: db:push)
 - Use `npm run db:migrate` for production deployments (with safety wrapper)
 - Monitor Stripe webhook events for verification status updates
 

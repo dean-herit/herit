@@ -26,10 +26,11 @@ HERIT is a full-stack estate planning platform that provides:
 ### Backend
 
 - **API Routes**: Next.js API routes with rate limiting
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: PostgreSQL with Drizzle ORM (single source of truth)
+- **Schema Management**: Computed columns, environment-specific migrations
 - **Authentication**: JWT tokens with secure refresh rotation
 - **File Storage**: Vercel Blob for document storage
-- **Security**: Rate limiting, CSRF protection, environment validation
+- **Security**: Rate limiting, CSRF protection, comprehensive audit system
 
 ### Infrastructure
 
@@ -42,7 +43,7 @@ HERIT is a full-stack estate planning platform that provides:
 
 ### Core Tables
 
-- **`app_users`**: User profiles, onboarding status, and authentication
+- **`app_users`**: User profiles with computed onboarding status and authentication
 - **`app_refresh_tokens`**: JWT refresh token management with rotation
 - **`assets`**: Financial and physical asset tracking
 - **`beneficiaries`**: Heir information and inheritance details
@@ -54,9 +55,11 @@ HERIT is a full-stack estate planning platform that provides:
 ### Key Features
 
 - UUID primary keys for security
+- **Computed onboarding_completed column** - automatically calculated from step flags
 - Soft delete capabilities with audit trails
 - Comprehensive indexing for performance
 - JSONB columns for flexible metadata storage
+- **Type-safe schema** - all application types derived from database schema
 
 ## 🔧 Technology Stack
 
@@ -142,8 +145,16 @@ npm install
 # Generate database schema
 npm run db:generate
 
-# Apply migrations
+# Apply migrations (safe, recommended)
 npm run db:migrate
+
+# Environment-specific migrations
+npm run db:migrate:dev      # Development
+npm run db:migrate:staging  # Staging
+npm run db:migrate:prod     # Production
+
+# Validate schema health
+npm run db:validate
 
 # Optional: Open database studio
 npm run db:studio
@@ -170,14 +181,20 @@ npm run lint            # Run ESLint with auto-fix
 npm run typecheck       # TypeScript compilation check
 npm run test:build      # Full build verification
 
-# Database
+# Database (Schema Refactor Ready)
 npm run db:generate     # Generate new migrations
-npm run db:migrate      # Apply pending migrations
-npm run db:push         # Push schema changes directly
+npm run db:migrate      # Apply pending migrations (safe)
+npm run db:migrate:dev  # Apply to development database
+npm run db:migrate:staging # Apply to staging database
+npm run db:migrate:prod # Apply to production database
+npm run db:push         # DEPRECATED: Use db:migrate instead
+npm run db:validate     # Validate schema health
+npm run db:reset        # Reset database (development only)
 npm run db:studio       # Open Drizzle Studio
 
-# Analysis
+# Analysis & Testing
 npm run analyze         # Bundle size analysis
+npm run test:build      # Build verification with type checking
 ```
 
 ## 🏗️ Application Structure
@@ -331,71 +348,32 @@ git commit -m "feat: your feature description"
 3. **Documentation**: Update relevant documentation
 4. **Migration**: Include database migrations if schema changes
 
-## 🧩 Component Development Standards
+## 🧩 Development Standards
 
-### **Visual Dev Mode Requirements**
+### **Database Schema Management**
 
-All components MUST include these attributes for visual development tools:
+The project uses a **single source of truth** approach with Drizzle ORM:
 
-```jsx
-<div
-  data-component-id="component-name"       // Required: Unique identifier
-  data-component-category="input"          // Required: Component category
-  data-testid="component-name"            // Recommended: Testing identifier
-  className="..."
->
-```
+- **Schema Definition**: All types derived from `db/schema.ts`
+- **Type Safety**: Auto-generated types prevent schema mismatches
+- **Migration Safety**: Pre-migration backups and validation
+- **Environment Separation**: Dev/staging/prod migration workflows
 
-### **Component Categories**
+### **Component Development**
 
-- `input` - Forms, inputs, interactive elements
-- `data-display` - Cards, lists, tables, display components
-- `layout` - Layout containers, grids, sections
-- `navigation` - Menus, breadcrumbs, pagination
-- `feedback` - Alerts, notifications, loading states
-- `ui` - General UI elements, buttons, badges
-- `business` - Domain-specific components (assets, beneficiaries, etc.)
-- `authentication` - Auth-related components
-
-### **Recommended Development Patterns**
-
-#### **Pattern 1: useComponentMetadata Hook (Preferred)**
+#### **Standard Component Structure**
 
 ```tsx
-import { useComponentMetadata } from "@/hooks/useComponentMetadata";
-import { ComponentCategory } from "@/types/component-registry";
+import { ComponentProps } from "react";
 
-export function MyButton({ children, onClick }) {
-  const componentProps = useComponentMetadata(
-    "my-button",
-    ComponentCategory.INPUT,
-  );
-
-  return (
-    <button {...componentProps} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
-```
-
-#### **Pattern 2: ComponentBaseProps Interface**
-
-```tsx
-import { ComponentBaseProps } from "@/types/component-base";
-
-interface MyComponentProps extends ComponentBaseProps {
+interface MyComponentProps extends ComponentProps<"div"> {
   title: string;
   onAction: () => void;
 }
 
-export function MyComponent({
-  title,
-  onAction,
-  ...componentProps
-}: MyComponentProps) {
+export function MyComponent({ title, onAction, ...props }: MyComponentProps) {
   return (
-    <div {...componentProps}>
+    <div {...props} data-testid="my-component">
       <h2>{title}</h2>
       <button onClick={onAction}>Action</button>
     </div>
@@ -403,65 +381,40 @@ export function MyComponent({
 }
 ```
 
-### **Component Development Workflow**
+#### **Type Safety Requirements**
 
-1. **Create Component** with proper metadata attributes
-2. **Test Visual Dev Mode** - Enable with `localStorage.setItem('visualDevMode', 'true')`
-3. **Validate Integration** - Use MCP tools to test component detection
-4. **Update Registry** - Run `node scripts/generate-component-registry.js`
+- All components must use proper TypeScript interfaces
+- Database types must be imported from `db/schema.ts`
+- API response types should match database schema
+- Use `satisfies` operator for type validation where appropriate
 
-### **Quality Assurance**
+### **Quality Assurance Standards**
 
-**Before Committing:**
+**Pre-commit Requirements:**
 
 ```bash
-# Ensure component is detected
-npm run dev
-# Enable visual dev mode in browser
-# Verify component highlighting and tooltips work
-
-# Update component registry
-node scripts/generate-component-registry.js
-
-# Type check and lint
+# Type checking (must pass)
 npm run typecheck
+
+# Linting with auto-fix
 npm run lint
+
+# Full build verification
+npm run test:build
 ```
 
-**Testing Checklist:**
+**Database Change Workflow:**
 
-- ✅ Component highlights on hover in visual dev mode
-- ✅ Tooltip displays component metadata
-- ✅ MCP tools can detect and interact with component
-- ✅ Component appears in generated registry
-- ✅ TypeScript compilation passes
-- ✅ ESLint passes without warnings
+```bash
+# 1. Modify schema in db/schema.ts
+# 2. Generate migration
+npm run db:generate
 
-### **Troubleshooting Component Issues**
+# 3. Apply with safety checks
+npm run db:migrate:dev
 
-| Issue                          | Solution                                                           |
-| ------------------------------ | ------------------------------------------------------------------ |
-| Component not highlighting     | Add `data-component-category` attribute                            |
-| MCP tools can't find component | Add `data-component-id` attribute                                  |
-| Missing metadata in tooltip    | Run registry generation script                                     |
-| Visual dev mode not working    | Enable in browser: `localStorage.setItem('visualDevMode', 'true')` |
-
-### **Integration with Visual Testing Tools**
-
-Components following these standards work seamlessly with MCP tools:
-
-```javascript
-// Navigate to component page
-await navigate({ path: "/your-page" });
-
-// Get all components on page
-const components = await get_components({ visibleOnly: true });
-
-// Interact with specific component
-await click({ selector: "your-component-id", isComponentId: true });
-
-// Capture component screenshot
-await screenshot({ filename: "component-test" });
+# 4. Validate schema health
+npm run db:validate
 ```
 
 ## 📝 API Documentation
