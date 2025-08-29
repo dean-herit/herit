@@ -1,6 +1,6 @@
 const { drizzle } = require("drizzle-orm/neon-http");
 const { neon } = require("@neondatabase/serverless");
-const { users } = require("./db/schema.ts");
+const { users } = require("../db/schema.ts");
 const { eq } = require("drizzle-orm");
 
 const sql = neon(process.env.DATABASE_URL);
