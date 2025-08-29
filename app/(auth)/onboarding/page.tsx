@@ -58,6 +58,7 @@ export default function OnboardingPage() {
   // Main state
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true); // Track initial data loading
   const [errors, setErrors] = useState<string[]>([]);
 
   // Step data
@@ -145,6 +146,7 @@ export default function OnboardingPage() {
   // Fetch user data from session and database
   const fetchUserData = async (shouldSetStep = false) => {
     console.log("fetchUserData called, shouldSetStep:", shouldSetStep);
+    setDataLoading(true); // Set loading state
     try {
       // Fetch personal information and completion status from database
       console.log("Fetching personal info...");
@@ -156,8 +158,14 @@ export default function OnboardingPage() {
         console.log("Personal info data:", personalInfoData);
 
         if (personalInfoData.personalInfo) {
-          setPersonalInfo(personalInfoData.personalInfo);
-          console.log("Personal info set:", personalInfoData.personalInfo);
+          // Merge personal info with OAuth provider data for immutable email handling
+          const personalInfoWithOAuth = {
+            ...personalInfoData.personalInfo,
+            auth_provider: personalInfoData.dataSource?.provider || null,
+            user_id: user?.id || null
+          };
+          setPersonalInfo(personalInfoWithOAuth);
+          console.log("Personal info set with OAuth data:", personalInfoWithOAuth);
         }
 
         // Set current step based on completion status if this is initial load without local progress
@@ -224,6 +232,8 @@ export default function OnboardingPage() {
       }
     } catch (error) {
       console.error("Error in fetchUserData:", error);
+    } finally {
+      setDataLoading(false); // Always clear loading state
     }
   };
 
@@ -336,6 +346,7 @@ export default function OnboardingPage() {
   const renderCurrentStep = () => {
     const commonProps = {
       loading,
+      dataLoading, // Pass data loading state to steps
       onBack:
         currentStep > 0 ? () => setCurrentStep(currentStep - 1) : undefined,
     };
@@ -416,7 +427,7 @@ export default function OnboardingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar with steps */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 mt-4">
+            <div className="sticky top-16 pt-16 ">
               <VerticalSteps
                 currentStep={currentStep}
                 steps={STEPS}
@@ -426,7 +437,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Main content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 mt-12 ">
             {/* Error Display */}
             {errors.length > 0 && (
               <Card className="mb-8 border-danger-200 bg-danger-50">
@@ -445,30 +456,9 @@ export default function OnboardingPage() {
               </Card>
             )}
 
-            {/* Step Header */}
-            <div className="mb-2">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary flex items-center justify-center ">
-                    <span className="text-white font-semibold">
-                      {currentStep + 1}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-semibold text-foreground">
-                    {STEPS[currentStep].title}
-                  </h1>
-                  <p className="text-sm text-default-600 mt-1">
-                    {STEPS[currentStep].description}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Step Content */}
-            <Card>
-              <CardBody className="p-8">{renderCurrentStep()}</CardBody>
+            <Card className="shadow-none bg-transparent">
+              <CardBody className="px-8 pb-8">{renderCurrentStep()}</CardBody>
             </Card>
           </div>
         </div>

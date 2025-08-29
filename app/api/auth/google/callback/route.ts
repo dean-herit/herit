@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
 import { setAuthCookies } from "@/lib/auth";
+import { audit } from "@/lib/audit-middleware";
 
 interface GoogleUser {
   id: string;
@@ -16,6 +17,15 @@ interface GoogleUser {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const sessionId = crypto.randomUUID(); // Generate session correlation ID
+  
+  // Extract context for audit logging
+  const ipAddress = request.headers.get("x-forwarded-for") || 
+                   request.headers.get("x-real-ip") || 
+                   "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
+  
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
@@ -25,6 +35,20 @@ export async function GET(request: NextRequest) {
     // Check for OAuth errors
     if (error) {
       console.error("Google OAuth error:", error);
+      
+      // Log OAuth error for security monitoring
+      await audit.logSecurityEvent(
+        null as any,
+        "google_oauth_error",
+        {
+          error: error,
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress,
+          user_agent: userAgent
+        },
+        ipAddress,
+        sessionId
+      );
 
       return NextResponse.redirect(
         new URL("/login?error=oauth_error", request.url),
@@ -32,6 +56,19 @@ export async function GET(request: NextRequest) {
     }
 
     if (!code) {
+      // Log missing authorization code
+      await audit.logSecurityEvent(
+        null as any,
+        "oauth_missing_code",
+        {
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress,
+          user_agent: userAgent
+        },
+        ipAddress,
+        sessionId
+      );
+
       return NextResponse.redirect(
         new URL("/login?error=missing_code", request.url),
       );
@@ -41,6 +78,22 @@ export async function GET(request: NextRequest) {
     const storedState = request.cookies.get("oauth_state")?.value;
 
     if (!storedState || storedState !== state) {
+      // Log potential CSRF attempt
+      await audit.logSecurityEvent(
+        null as any,
+        "oauth_state_validation_failed",
+        {
+          provided_state: state,
+          state_mismatch: storedState !== state,
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress,
+          user_agent: userAgent,
+          potential_csrf_attempt: true
+        },
+        ipAddress,
+        sessionId
+      );
+
       return NextResponse.redirect(
         new URL("/login?error=invalid_state", request.url),
       );
@@ -59,10 +112,39 @@ export async function GET(request: NextRequest) {
     ).trim();
 
     if (!googleClientId || !googleClientSecret) {
+      // Log OAuth configuration error
+      await audit.logSecurityEvent(
+        null,
+        "oauth_config_error",
+        {
+          missing_client_id: !googleClientId,
+          missing_client_secret: !googleClientSecret,
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress
+        },
+        ipAddress,
+        sessionId
+      );
+
       return NextResponse.redirect(
         new URL("/login?error=oauth_config", request.url),
       );
     }
+
+    // Log token exchange attempt (without sensitive data)
+    await audit.logUserAction(
+      null,
+      "oauth_token_exchange_initiated",
+      "authentication",
+      "",
+      {
+        provider: "google",
+        redirect_uri: redirectUri,
+        processing_duration_ms: Date.now() - startTime,
+        session_id: sessionId
+      },
+      sessionId
+    );
 
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -81,12 +163,42 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       console.error("Token exchange failed:", await tokenResponse.text());
 
+      // Log token exchange failure
+      await audit.logSecurityEvent(
+        null,
+        "oauth_token_exchange_failed",
+        {
+          provider: "google",
+          status_code: tokenResponse.status,
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress
+        },
+        ipAddress,
+        sessionId
+      );
+
       return NextResponse.redirect(
         new URL("/login?error=token_exchange", request.url),
       );
     }
 
     const tokens = await tokenResponse.json();
+
+    // Log successful token exchange (without token values)
+    await audit.logUserAction(
+      null,
+      "oauth_token_exchange_success",
+      "authentication",
+      "",
+      {
+        provider: "google",
+        token_type: tokens.token_type || "Bearer",
+        scope: tokens.scope || "profile email",
+        processing_duration_ms: Date.now() - startTime,
+        session_id: sessionId
+      },
+      sessionId
+    );
 
     // Get user info from Google
     const userResponse = await fetch(
@@ -101,12 +213,47 @@ export async function GET(request: NextRequest) {
     if (!userResponse.ok) {
       console.error("User info fetch failed:", await userResponse.text());
 
+      // Log user info fetch failure
+      await audit.logSecurityEvent(
+        null,
+        "oauth_user_info_fetch_failed",
+        {
+          provider: "google",
+          status_code: userResponse.status,
+          processing_duration_ms: Date.now() - startTime,
+          ip_address: ipAddress
+        },
+        ipAddress,
+        sessionId
+      );
+
       return NextResponse.redirect(
         new URL("/login?error=user_info", request.url),
       );
     }
 
     const googleUser: GoogleUser = await userResponse.json();
+
+    // Log successful user info retrieval (without PII)
+    await audit.logUserAction(
+      null,
+      "oauth_user_info_retrieved",
+      "authentication",
+      "",
+      {
+        provider: "google",
+        email_verified: googleUser.verified_email,
+        has_profile_data: {
+          first_name: !!googleUser.given_name,
+          last_name: !!googleUser.family_name,
+          email: !!googleUser.email,
+          profile_photo: !!googleUser.picture
+        },
+        processing_duration_ms: Date.now() - startTime,
+        session_id: sessionId
+      },
+      sessionId
+    );
 
     try {
       // Check if user exists in database
@@ -118,6 +265,7 @@ export async function GET(request: NextRequest) {
 
       let userId: string;
       let needsOnboarding = false;
+      let userType: 'existing' | 'new' = 'existing';
 
       if (existingUser) {
         // User exists - update auth provider info if needed
@@ -126,6 +274,13 @@ export async function GET(request: NextRequest) {
         // Prepare update fields - only update if not already set
         const updateFields: any = {
           updated_at: new Date(),
+        };
+
+        const oldData = {
+          auth_provider: existingUser.auth_provider,
+          profile_photo_url: existingUser.profile_photo_url,
+          first_name: existingUser.first_name,
+          last_name: existingUser.last_name
         };
 
         // Update auth provider if not set
@@ -157,6 +312,22 @@ export async function GET(request: NextRequest) {
             .update(users)
             .set(updateFields)
             .where(eq(users.id, existingUser.id));
+
+          // Log data change for existing user OAuth pre-population
+          await audit.logDataChange(
+            userId,
+            "update",
+            "user_profile",
+            userId,
+            oldData,
+            {
+              auth_provider: updateFields.auth_provider || oldData.auth_provider,
+              profile_photo_url: updateFields.profile_photo_url || oldData.profile_photo_url,
+              first_name: updateFields.first_name || oldData.first_name,
+              last_name: updateFields.last_name || oldData.last_name
+            },
+            sessionId
+          );
         }
 
         // Check if onboarding is complete
@@ -167,7 +338,27 @@ export async function GET(request: NextRequest) {
           existingUser.verification_completed &&
           existingUser.onboarding_completed_at
         );
+
+        // Log existing user OAuth login
+        await audit.logUserAction(
+          userId,
+          "oauth_existing_user_login",
+          "authentication",
+          userId,
+          {
+            provider: "google",
+            user_updated: Object.keys(updateFields).length > 1,
+            fields_updated: Object.keys(updateFields).filter(key => key !== 'updated_at'),
+            needs_onboarding: needsOnboarding,
+            onboarding_status: existingUser.onboarding_status,
+            processing_duration_ms: Date.now() - startTime,
+            session_id: sessionId
+          },
+          sessionId
+        );
       } else {
+        userType = 'new';
+        
         // Create new user with all available Google data
         const [newUser] = await db
           .insert(users)
@@ -185,6 +376,64 @@ export async function GET(request: NextRequest) {
 
         userId = newUser.id;
         needsOnboarding = true;
+
+        // Log new user creation with OAuth pre-population data
+        await audit.logDataChange(
+          userId,
+          "create",
+          "user_profile",
+          userId,
+          null, // No old data for new user
+          {
+            email: googleUser.email,
+            first_name: googleUser.given_name || null,
+            last_name: googleUser.family_name || null,
+            profile_photo_url: googleUser.picture || null,
+            auth_provider: "google",
+            onboarding_status: "not_started"
+          },
+          sessionId
+        );
+
+        // Log GDPR compliance for new user OAuth data processing
+        await audit.logUserAction(
+          userId,
+          "gdpr_compliance_oauth_processing",
+          "data_protection",
+          userId,
+          {
+            consent_type: "oauth_profile_prepopulation",
+            provider: "google",
+            data_categories: ["name", "email", "profile_photo"],
+            legal_basis: "consent",
+            retention_period: "account_lifetime_plus_7_years",
+            processing_purpose: "estate_planning_onboarding",
+            user_consent_timestamp: new Date().toISOString(),
+            audit_trail_enabled: true
+          },
+          sessionId
+        );
+
+        // Log new user OAuth registration
+        await audit.logUserAction(
+          userId,
+          "oauth_new_user_registration",
+          "authentication",
+          userId,
+          {
+            provider: "google",
+            prepopulation_data: {
+              first_name: !!googleUser.given_name,
+              last_name: !!googleUser.family_name,
+              email: !!googleUser.email,
+              profile_photo: !!googleUser.picture
+            },
+            email_verified: googleUser.verified_email,
+            processing_duration_ms: Date.now() - startTime,
+            session_id: sessionId
+          },
+          sessionId
+        );
       }
 
       // Set authentication cookies using our JWT system
@@ -192,6 +441,24 @@ export async function GET(request: NextRequest) {
 
       // Determine redirect URL
       const redirectUrl = needsOnboarding ? "/onboarding" : "/dashboard";
+
+      // Log successful OAuth callback completion
+      await audit.logUserAction(
+        userId,
+        "google_oauth_callback_complete",
+        "authentication",
+        userId,
+        {
+          provider: "google",
+          user_type: userType,
+          redirect_destination: redirectUrl,
+          needs_onboarding: needsOnboarding,
+          prepopulation_ready: !!(googleUser.given_name || googleUser.family_name || googleUser.email),
+          total_processing_duration_ms: Date.now() - startTime,
+          session_id: sessionId
+        },
+        sessionId
+      );
 
       // Create response and clear state cookie
       const response = NextResponse.redirect(new URL(redirectUrl, request.url));
@@ -201,6 +468,21 @@ export async function GET(request: NextRequest) {
       return response;
     } catch (dbError) {
       console.error("Database error during OAuth:", dbError);
+
+      // Log database error for monitoring
+      await audit.logSecurityEvent(
+        null,
+        "oauth_database_error",
+        {
+          provider: "google",
+          error: dbError instanceof Error ? dbError.message : "Unknown database error",
+          processing_duration_ms: Date.now() - startTime,
+          fallback_session_created: true,
+          ip_address: ipAddress
+        },
+        ipAddress,
+        sessionId
+      );
 
       // Fallback: create temporary session without database (for development)
       // Generate a proper UUID instead of using string concatenation
@@ -218,6 +500,21 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error("Google OAuth callback error:", error);
+
+    // Log system error for monitoring
+    await audit.logSecurityEvent(
+      null,
+      "oauth_callback_system_error",
+      {
+        provider: "google",
+        error: error instanceof Error ? error.message : "Unknown system error",
+        processing_duration_ms: Date.now() - startTime,
+        ip_address: ipAddress,
+        user_agent: userAgent
+      },
+      ipAddress,
+      sessionId
+    );
 
     return NextResponse.redirect(
       new URL("/login?error=callback_error", request.url),

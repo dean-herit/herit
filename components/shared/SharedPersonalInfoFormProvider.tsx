@@ -22,6 +22,9 @@ interface SharedPersonalInfoFormProviderProps {
   submitLabel?: string;
   showCancelButton?: boolean;
   className?: string;
+  // OAuth security enhancement
+  isFromOAuth?: boolean;
+  oauthProvider?: string;
 }
 
 export function SharedPersonalInfoFormProvider({
@@ -34,6 +37,8 @@ export function SharedPersonalInfoFormProvider({
   submitLabel,
   showCancelButton = true,
   className = "",
+  isFromOAuth = false,
+  oauthProvider,
 }: SharedPersonalInfoFormProviderProps) {
   // Choose schema based on mode
   const schema =
@@ -41,13 +46,19 @@ export function SharedPersonalInfoFormProvider({
       ? onboardingPersonalInfoSchema
       : beneficiaryPersonalInfoSchema;
 
-  // Set up form with React Hook Form
+  // Set up form with React Hook Form using modern values prop pattern
   const methods = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       country: "Ireland",
-      ...initialData,
+      // Base defaults only - values prop will handle dynamic data
     },
+    ...(initialData && Object.keys(initialData).length > 0 ? {
+      values: {
+        country: "Ireland",
+        ...initialData,
+      }
+    } : {}), // Reactive values that update when initialData changes
     mode: "onBlur", // Validate on blur for better UX
   });
 
@@ -90,12 +101,14 @@ export function SharedPersonalInfoFormProvider({
             data-component-id="shared-personal-info-form"
             mode={mode}
             showPhotoUpload={showPhotoUpload}
+            isFromOAuth={isFromOAuth}
+            oauthProvider={oauthProvider}
           />
         </div>
 
         {/* Form Actions */}
         <div
-          className="flex justify-end gap-3 pt-4 border-t"
+          className="flex justify-end gap-3 pt-4"
           data-component-category="ui"
           data-component-id="form-actions"
         >
