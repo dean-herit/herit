@@ -101,11 +101,16 @@ export function ViewRuleModal({
     }
   };
 
-  const conditions = ((rule.rule_definition as any)?.conditions?.all || []) as Array<{
-    fact: string;
-    operator: string;
-    value: string | number | boolean | null;
-  }>;
+  const ruleDefinition = rule.rule_definition as {
+    conditions?: {
+      all?: Array<{
+        fact: string;
+        operator: string;
+        value: string | number | boolean | null;
+      }>;
+    };
+  };
+  const conditions = ruleDefinition.conditions?.all || [];
   const totalAllocationPercentage = rule.allocations.reduce(
     (sum, allocation) => sum + (allocation.allocation_percentage || 0),
     0,
@@ -238,54 +243,40 @@ export function ViewRuleModal({
                   <p className="text-gray-500 italic">No conditions defined</p>
                 ) : (
                   <div className="space-y-3">
-                    {(conditions.map(
-                      (
-                        condition: {
-                          fact: string;
-                          operator: string;
-                          value: string | number | boolean | null;
-                        },
-                        index: number,
-                      ) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-                          data-component-category="data-display"
-                          data-component-id={`rule-condition-${index.toString()}`}
+                    {conditions.map((condition, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                        data-component-category="data-display"
+                        data-component-id={`rule-condition-${index}`}
+                      >
+                        <Chip
+                          color="primary"
+                          data-component-category="ui"
+                          data-component-id="chip"
+                          size="sm"
+                          variant="flat"
                         >
-                          <Chip
-                            color="primary"
-                            data-component-category="ui"
-                            data-component-id="chip"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {(FACT_LABELS[condition.fact] || condition.fact) as string}
-                          </Chip>
+                          {String(FACT_LABELS[condition.fact] || condition.fact)}
+                        </Chip>
 
-                          <span className="text-sm font-medium text-gray-700">
-                            {(OPERATOR_LABELS[condition.operator] ||
-                              condition.operator) as string}
-                          </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {String(OPERATOR_LABELS[condition.operator] || condition.operator)}
+                        </span>
 
-                          <Chip
-                            color="secondary"
-                            data-component-category="ui"
-                            data-component-id="chip"
-                            size="sm"
-                            variant="flat"
-                          >
-                            {(() => {
-                              if (typeof condition.value === "boolean") {
-                                return condition.value ? "Yes" : "No";
-                              }
-
-                              return (condition.value?.toString() || "N/A") as string;
-                            })() as string}
-                          </Chip>
-                        </div>
-                      ),
-                    ) as React.ReactNode[])}
+                        <Chip
+                          color="secondary"
+                          data-component-category="ui"
+                          data-component-id="chip"
+                          size="sm"
+                          variant="flat"
+                        >
+                          {typeof condition.value === "boolean" 
+                            ? (condition.value ? "Yes" : "No")
+                            : String(condition.value ?? "N/A")}
+                        </Chip>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
