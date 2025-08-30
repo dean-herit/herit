@@ -367,6 +367,7 @@ export async function getSession(): Promise<SessionResult> {
       last_name: null,
       phone_number: null,
       date_of_birth: null,
+      pps_number: null,
       profile_photo_url: null,
       address_line_1: null,
       address_line_2: null,

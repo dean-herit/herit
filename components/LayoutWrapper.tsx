@@ -36,16 +36,43 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       <main className="container mx-auto max-w-7xl pt-4 px-6 flex-grow">
         {children}
       </main>
-      <footer className="w-full flex items-center justify-center py-3">
-        <Link
-          isExternal
-          className="flex items-center gap-1 text-current"
-          href="https://heroui.com?utm_source=next-app-template"
-          title="heroui.com homepage"
-        >
-          <span className="text-default-600">Powered by</span>
-          <p className="text-primary">HeroUI</p>
-        </Link>
+      <footer className="w-full border-t border-default-200 bg-content1 py-8">
+        <div className="container mx-auto max-w-7xl px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <span className="text-default-600 text-sm">© 2024 Herit</span>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/privacy"
+                  className="text-default-500 hover:text-default-600 text-sm"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="/terms"
+                  className="text-default-500 hover:text-default-600 text-sm"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-default-500 hover:text-default-600 text-sm"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-default-600">
+              <span>Need help?</span>
+              <Link
+                href="mailto:support@herit.ie"
+                className="text-primary hover:text-primary-600"
+              >
+                support@herit.ie
+              </Link>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

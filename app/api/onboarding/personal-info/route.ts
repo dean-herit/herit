@@ -41,25 +41,7 @@ export async function GET(request: NextRequest) {
 
     // Get user's personal information and completion status with OAuth source tracking
     const user = await db
-      .select({
-        first_name: users.first_name,
-        last_name: users.last_name,
-        email: users.email,
-        phone_number: users.phone_number,
-        date_of_birth: users.date_of_birth,
-        address_line_1: users.address_line_1,
-        address_line_2: users.address_line_2,
-        city: users.city,
-        county: users.county,
-        eircode: users.eircode,
-        personal_info_completed: users.personal_info_completed,
-        signature_completed: users.signature_completed,
-        legal_consent_completed: users.legal_consent_completed,
-        verification_completed: users.verification_completed,
-        auth_provider: users.auth_provider,
-        updated_at: users.updated_at,
-        profile_photo_url: users.profile_photo_url,
-      })
+      .select()
       .from(users)
       .where(eq(users.id, session.user.id))
       .limit(1);
@@ -92,6 +74,7 @@ export async function GET(request: NextRequest) {
         email: userData.email || "",
         phone_number: userData.phone_number || "",
         date_of_birth: userData.date_of_birth || "",
+        pps_number: userData.pps_number || "",
         address_line_1: userData.address_line_1 || "",
         address_line_2: userData.address_line_2 || "",
         city: userData.city || "",
@@ -191,11 +174,14 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
+    console.log("Received data:", data);
+    
     const {
       firstName,
       lastName,
       phoneNumber,
       dateOfBirth,
+      ppsNumber,
       addressLine1,
       addressLine2,
       city,
@@ -205,23 +191,13 @@ export async function POST(request: NextRequest) {
 
     // Get current user data for security check and audit trail
     const [currentUser] = await db
-      .select({
-        first_name: users.first_name,
-        last_name: users.last_name,
-        phone_number: users.phone_number,
-        date_of_birth: users.date_of_birth,
-        address_line_1: users.address_line_1,
-        address_line_2: users.address_line_2,
-        city: users.city,
-        county: users.county,
-        eircode: users.eircode,
-        personal_info_completed: users.personal_info_completed,
-        auth_provider: users.auth_provider
-      })
+      .select()
       .from(users)
       .where(eq(users.id, session.user.id))
       .limit(1);
 
+    console.log("Current user query result:", currentUser);
+    
     if (!currentUser) {
       await audit.logSecurityEvent(
         session.user.id,
@@ -275,6 +251,7 @@ export async function POST(request: NextRequest) {
       email: sessionEmail, // Always use session email for OAuth users, form email for others
       phone: phoneNumber,
       date_of_birth: dateOfBirth,
+      pps_number: ppsNumber || "",
       address_line_1: addressLine1,
       address_line_2: addressLine2 || "",
       city: city,
@@ -283,7 +260,16 @@ export async function POST(request: NextRequest) {
       country: "Ireland" // Always Ireland for Irish compliance
     };
 
-    const validation = onboardingPersonalInfoSchema.safeParse(validationData);
+    console.log("Validation data:", validationData);
+    
+    let validation;
+    try {
+      validation = onboardingPersonalInfoSchema.safeParse(validationData);
+      console.log("Validation result:", validation);
+    } catch (error) {
+      console.error("Validation schema error:", error);
+      throw error;
+    }
     
     if (!validation.success) {
       // Log validation failure with details
@@ -321,6 +307,7 @@ export async function POST(request: NextRequest) {
       last_name: currentUser.last_name,
       phone_number: currentUser.phone_number,
       date_of_birth: currentUser.date_of_birth,
+      pps_number: currentUser.pps_number,
       address_line_1: currentUser.address_line_1,
       address_line_2: currentUser.address_line_2,
       city: currentUser.city,
@@ -328,12 +315,15 @@ export async function POST(request: NextRequest) {
       eircode: currentUser.eircode,
       personal_info_completed: currentUser.personal_info_completed
     };
+    
+    console.log("Old data:", oldData);
 
     const newData = {
       first_name: firstName,
       last_name: lastName,
       phone_number: phoneNumber,
       date_of_birth: dateOfBirth,
+      pps_number: ppsNumber || null,
       address_line_1: addressLine1 || null,
       address_line_2: addressLine2 || null,
       city: city || null,
@@ -341,6 +331,8 @@ export async function POST(request: NextRequest) {
       eircode: eircode || null,
       personal_info_completed: true
     };
+    
+    console.log("New data:", newData);
 
     // Update user's personal information
     await db
@@ -374,9 +366,18 @@ export async function POST(request: NextRequest) {
         completed_step: "personal_info",
         next_step: "signature",
         from_oauth_prepopulation: currentUser.auth_provider === 'google',
-        fields_changed: (Object.keys(newData) as (keyof typeof newData)[]).filter((key) => 
-          oldData[key] !== newData[key]
-        ),
+        fields_changed: (() => {
+          try {
+            console.log("About to compare fields - oldData:", oldData);
+            console.log("About to compare fields - newData:", newData);
+            return (Object.keys(newData) as (keyof typeof newData)[]).filter((key) => 
+              oldData[key] !== newData[key]
+            );
+          } catch (error) {
+            console.error("Error in fields comparison:", error);
+            return [];
+          }
+        })(),
         irish_compliance_validated: true,
         processing_duration_ms: Date.now() - startTime,
         session_id: sessionId

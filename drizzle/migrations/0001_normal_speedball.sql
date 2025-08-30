@@ -1,0 +1,1 @@
+ALTER TABLE "app_users" ADD COLUMN "pps_number" varchar(20);

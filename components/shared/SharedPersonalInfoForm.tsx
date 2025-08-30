@@ -104,7 +104,7 @@ export function SharedPersonalInfoForm({
                   field.onChange(selectedValue);
                 }}
               >
-                {Object.entries(relationshipTypeLabels).map(
+                {Object.entries(relationshipTypeLabels || {}).map(
                   ([value, label]) => (
                     <SelectItem key={value}>{label}</SelectItem>
                   ),
