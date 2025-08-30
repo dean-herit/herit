@@ -69,6 +69,7 @@ export function VerticalSteps({
 
   const handleStepClick = (stepIndex: number) => {
     const isClickable = clickableSteps[stepIndex] !== false; // Default to true if not specified
+
     if (isClickable) {
       setCurrentStep(stepIndex);
       onStepChange?.(stepIndex);
@@ -85,7 +86,7 @@ export function VerticalSteps({
               : currentStep < stepIdx
                 ? "inactive"
                 : "complete";
-          
+
           const isClickable = clickableSteps[stepIdx] !== false; // Default to true if not specified
 
           return (
@@ -120,18 +121,15 @@ export function VerticalSteps({
                 {/* Connecting line - extends to next circle */}
                 {stepIdx < steps.length - 1 && !hideProgressBars && (
                   <div
-                    className={cn(
-                      "w-0.5 transition-colors duration-200",
-                      {
-                        "bg-primary": stepIdx < currentStep,
-                        "bg-default-300": stepIdx >= currentStep,
-                      },
-                    )}
-                    style={{ height: '36px' }}
+                    className={cn("w-0.5 transition-colors duration-200", {
+                      "bg-primary": stepIdx < currentStep,
+                      "bg-default-300": stepIdx >= currentStep,
+                    })}
+                    style={{ height: "36px" }}
                   />
                 )}
               </div>
-              
+
               {/* Content column */}
               <div className="flex-1 ml-4">
                 <Button
@@ -143,8 +141,8 @@ export function VerticalSteps({
                     },
                     stepClassName,
                   )}
-                  variant="light"
                   isDisabled={!isClickable}
+                  variant="light"
                   onPress={() => handleStepClick(stepIdx)}
                 >
                   <div className="flex-1 text-left">

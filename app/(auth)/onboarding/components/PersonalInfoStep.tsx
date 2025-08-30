@@ -195,6 +195,8 @@ export function PersonalInfoStep({
           city: data.city,
           county: data.county,
           eircode: data.eircode,
+          photo_url: data.profile_photo,
+          photoMarkedForDeletion: data.photoMarkedForDeletion || false,
         }),
       });
 
@@ -358,12 +360,13 @@ export function PersonalInfoStep({
           {/* Shared Personal Information Form */}
           <SharedPersonalInfoFormProvider
             initialData={convertToSharedFormat(initialData)}
+            initialPhotoUrl={initialData.profile_photo || undefined}
             isFromOAuth={isFromOAuth}
             loading={isLoading}
             mode="onboarding"
             oauthProvider={initialData.auth_provider || undefined}
             showCancelButton={!!onBack}
-            showPhotoUpload={false}
+            showPhotoUpload={true}
             submitLabel="Continue"
             onCancel={onBack}
             onSubmit={handleSharedFormSubmit}

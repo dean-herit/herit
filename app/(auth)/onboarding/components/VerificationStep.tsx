@@ -204,9 +204,13 @@ export function VerificationStep({
   if (checkingStatus) {
     return (
       <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold mb-2">Identity Verification</h3>
-          <p className="text-default-600">Loading verification status...</p>
+        <div className="text-left">
+          <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
+            Identity Verification
+          </h3>
+          <p className="text-black dark:text-white">
+            Loading verification status...
+          </p>
         </div>
         <div className="flex justify-center">
           <Spinner size="lg" />
@@ -217,9 +221,11 @@ export function VerificationStep({
 
   return (
     <div className="space-y-6" data-testid="verification-step">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold mb-2">Identity Verification</h3>
-        <p className="text-default-600">
+      <div className="text-left">
+        <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
+          Identity Verification
+        </h3>
+        <p className="text-black dark:text-white">
           For your security, we need to verify your identity before completing
           your onboarding.
         </p>
@@ -238,10 +244,10 @@ export function VerificationStep({
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-primary text-2xl">🛡️</span>
                 </div>
-                <h4 className="font-semibold mb-2">
+                <h4 className="font-semibold mb-2 text-black dark:text-white">
                   Secure Identity Verification
                 </h4>
-                <p className="text-sm text-default-600 mb-4">
+                <p className="text-sm text-black dark:text-white mb-4">
                   We use Stripe Identity to securely verify your identity.
                   You&apos;ll need a government-issued ID and will be asked to
                   take a selfie.
@@ -280,26 +286,28 @@ export function VerificationStep({
                 <div className="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ExclamationTriangleIcon className="w-8 h-8 text-warning-600" />
                 </div>
-                <h4 className="font-semibold mb-2">Verification In Progress</h4>
-                <p className="text-sm text-default-600 mb-4">
+                <h4 className="font-semibold mb-2 text-black dark:text-white">
+                  Verification In Progress
+                </h4>
+                <p className="text-sm text-black dark:text-white mb-4">
                   Your identity verification is currently being processed. This
                   may take a few minutes.
                 </p>
                 <div className="bg-default-100 dark:bg-default-800/50 border border-default-200 dark:border-default-700 rounded-lg p-4 mb-4">
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-default-600 dark:text-default-400">
+                      <span className="text-black/70 dark:text-white/70">
                         Session ID:
                       </span>
-                      <span className="font-mono text-xs text-default-800 dark:text-default-200">
+                      <span className="font-mono text-xs text-black dark:text-white">
                         {verificationData?.sessionId}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-default-600 dark:text-default-400">
+                      <span className="text-black/70 dark:text-white/70">
                         Status:
                       </span>
-                      <span className="capitalize text-default-800 dark:text-default-200">
+                      <span className="capitalize text-black dark:text-white">
                         {verificationData?.status || "Processing"}
                       </span>
                     </div>
@@ -377,42 +385,40 @@ export function VerificationStep({
             exit={{ opacity: 0, y: -20 }}
             initial={{ opacity: 0, y: 20 }}
           >
-            <Card className="border-success-200 bg-success-50">
+            <Card>
               <CardBody className="p-6 text-center">
-                <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircleIcon className="w-8 h-8 text-success-600" />
+                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircleIcon className="w-8 h-8 text-black dark:text-white" />
                 </div>
-                <h4 className="font-semibold text-success-700 mb-2">
+                <h4 className="font-semibold text-black dark:text-white mb-2">
                   Identity Verified Successfully!
                 </h4>
-                <p className="text-sm text-success-600 mb-4">
+                <p className="text-sm text-black dark:text-white mb-4">
                   Your identity has been verified using Stripe Identity. You can
                   now access all features of Herit.
                 </p>
 
-                <div className="bg-success-100/50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-lg p-4 mb-4">
+                <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-success-600 dark:text-success-400">
+                      <p className="text-black/70 dark:text-white/70">
                         Verification Method
                       </p>
-                      <p className="font-medium text-success-800 dark:text-success-200">
+                      <p className="font-medium text-black dark:text-white">
                         Stripe Identity
                       </p>
                     </div>
                     <div>
-                      <p className="text-success-600 dark:text-success-400">
-                        Status
-                      </p>
-                      <p className="font-medium text-success-700 dark:text-success-300">
+                      <p className="text-black/70 dark:text-white/70">Status</p>
+                      <p className="font-medium text-black dark:text-white">
                         Verified
                       </p>
                     </div>
                     <div>
-                      <p className="text-success-600 dark:text-success-400">
+                      <p className="text-black/70 dark:text-white/70">
                         Completed At
                       </p>
-                      <p className="font-medium text-success-800 dark:text-success-200">
+                      <p className="font-medium text-black dark:text-white">
                         {verificationData?.completedAt
                           ? new Date(
                               verificationData.completedAt,
@@ -421,10 +427,10 @@ export function VerificationStep({
                       </p>
                     </div>
                     <div>
-                      <p className="text-success-600 dark:text-success-400">
+                      <p className="text-black/70 dark:text-white/70">
                         Session ID
                       </p>
-                      <p className="font-mono text-xs text-success-700 dark:text-success-300">
+                      <p className="font-mono text-xs text-black dark:text-white">
                         {verificationData?.sessionId}
                       </p>
                     </div>

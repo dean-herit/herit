@@ -194,6 +194,8 @@ export async function POST(request: NextRequest) {
       city,
       county,
       eircode,
+      photo_url,
+      photoMarkedForDeletion,
     } = data;
 
     // Get current user data for security check and audit trail
@@ -330,10 +332,22 @@ export async function POST(request: NextRequest) {
       city: currentUser.city,
       county: currentUser.county,
       eircode: currentUser.eircode,
+      profile_photo_url: currentUser.profile_photo_url,
       personal_info_completed: currentUser.personal_info_completed,
     };
 
     console.log("Old data:", oldData);
+
+    // Handle photo deletion logic
+    let finalPhotoUrl = photo_url || null;
+
+    if (photoMarkedForDeletion && currentUser.profile_photo_url) {
+      // User marked existing photo for deletion
+      finalPhotoUrl = null;
+      console.log(
+        "Photo marked for deletion - setting profile_photo_url to null",
+      );
+    }
 
     const newData = {
       first_name: firstName,
@@ -346,6 +360,7 @@ export async function POST(request: NextRequest) {
       city: city || null,
       county: county || null,
       eircode: eircode || null,
+      profile_photo_url: finalPhotoUrl,
       personal_info_completed: true,
     };
 
@@ -397,6 +412,9 @@ export async function POST(request: NextRequest) {
             return [];
           }
         })(),
+        photo_deletion_requested: photoMarkedForDeletion || false,
+        photo_deleted:
+          photoMarkedForDeletion && !!currentUser.profile_photo_url,
         irish_compliance_validated: true,
         processing_duration_ms: Date.now() - startTime,
         session_id: sessionId,

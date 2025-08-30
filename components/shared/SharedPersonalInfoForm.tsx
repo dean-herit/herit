@@ -1,15 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import {
-  Input,
-  Select,
-  SelectItem,
-  Card,
-  CardBody,
-  CardHeader,
-} from "@heroui/react";
+import { Input, Select, SelectItem } from "@heroui/react";
 
 import { SharedPhotoUpload } from "./SharedPhotoUpload";
 
@@ -27,6 +20,8 @@ interface SharedPersonalInfoFormProps {
   // OAuth security enhancement
   isFromOAuth?: boolean;
   oauthProvider?: string;
+  // Initial photo data for deletion tracking
+  initialPhotoUrl?: string;
 }
 
 export function SharedPersonalInfoForm({
@@ -35,23 +30,27 @@ export function SharedPersonalInfoForm({
   className = "",
   isFromOAuth = false,
   oauthProvider,
+  initialPhotoUrl,
 }: SharedPersonalInfoFormProps) {
-  // Debug OAuth props
-  console.log("SharedPersonalInfoForm OAuth props:", {
-    isFromOAuth,
-    oauthProvider,
-    mode,
-  });
+  // State for tracking photo deletion
+  const [isPhotoMarkedForDeletion, setIsPhotoMarkedForDeletion] =
+    useState(false);
+
   const {
     register,
     control,
     watch,
-    formState: { errors, touchedFields },
+    formState: { errors },
     setValue,
     getValues,
   } = useFormContext<any>(); // Use any for now to avoid complex generics
 
   const fieldConfig = getFormFields(mode);
+
+  // Add photo deletion flag to form data
+  React.useEffect(() => {
+    setValue("photoMarkedForDeletion", isPhotoMarkedForDeletion);
+  }, [isPhotoMarkedForDeletion, setValue]);
 
   // Security: Monitor and prevent OAuth email tampering
   const originalEmail = watch("email");
@@ -77,7 +76,7 @@ export function SharedPersonalInfoForm({
               attempted_change: true,
             },
           }),
-        }).catch((err) => console.warn("Failed to log security event:", err));
+        }).catch(() => {});
 
         // Reset to original OAuth email
         setValue("email", originalEmail, { shouldValidate: true });
@@ -310,29 +309,23 @@ export function SharedPersonalInfoForm({
 
       {/* Photo Upload Section - Optional */}
       {showPhotoUpload && (
-        <Card className="shadow-none border-none bg-transparent">
-          <CardHeader className="pb-3">
-            <h3 className="text-lg font-semibold">
-              Photo {mode === "beneficiary" ? "(Optional)" : ""}
-            </h3>
-          </CardHeader>
-          <CardBody className="p-6">
-            <Controller
-              control={control}
-              name="photo_url"
-              render={({ field }) => (
-                <SharedPhotoUpload
-                  errorMessage={errors.photo_url?.message as string}
-                  isInvalid={!!errors.photo_url}
-                  mode={mode}
-                  name={watch("name") || ""}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </CardBody>
-        </Card>
+        <div className="relative">
+          <div className="relative p-3 rounded-medium bg-default-100 min-h-[56px] flex flex-col">
+            <label className="text-xs font-medium text-foreground font-sans">
+              Profile Photo {mode === "beneficiary" ? "(Optional)" : ""}
+            </label>
+            <div className="flex-1 mx-8 mb-6 mt-4">
+              <SharedPhotoUpload
+                hasExistingPhoto={!!initialPhotoUrl}
+                mode={mode}
+                name={watch("name") || ""}
+                value=""
+                onChange={() => {}}
+                onMarkForDeletion={setIsPhotoMarkedForDeletion}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

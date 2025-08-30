@@ -15,7 +15,10 @@ async function createTestUserHandler(request: NextRequest) {
   }
 
   try {
-    const { email = "claude.assistant@example.com", password = "DemoPassword123!" } = await request.json().catch(() => ({}));
+    const {
+      email = "claude.assistant@example.com",
+      password = "DemoPassword123!",
+    } = await request.json().catch(() => ({}));
 
     // Check if test user already exists
     const [existingUser] = await db

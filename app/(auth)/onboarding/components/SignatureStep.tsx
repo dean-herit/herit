@@ -49,6 +49,7 @@ export function SignatureStep({
         const matchingFont = signatureFonts.find(
           (f) => f.name === initialSignature.font,
         );
+
         if (matchingFont) {
           setSelectedFont(matchingFont);
         }
@@ -142,6 +143,7 @@ export function SignatureStep({
       }
 
       const result = await response.json();
+
       onComplete(result.signature);
     } catch {
       // Error handling signature save

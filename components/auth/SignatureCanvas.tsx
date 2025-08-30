@@ -34,6 +34,7 @@ export function SignatureCanvas({
       // Save existing signature data if we need to preserve it
       let existingData: any[] = [];
       let wasEmpty = isEmpty;
+
       if (!shouldClear && signaturePadRef.current) {
         existingData = signaturePadRef.current.toData();
       }
@@ -113,14 +114,17 @@ export function SignatureCanvas({
     // Set up canvas dimensions BEFORE creating SignaturePad
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
     const container = containerRef.current;
+
     if (container) {
       const rect = container.getBoundingClientRect();
+
       canvasRef.current.style.width = rect.width + "px";
       canvasRef.current.style.height = "200px";
       canvasRef.current.width = rect.width * ratio;
       canvasRef.current.height = 200 * ratio;
 
       const context = canvasRef.current.getContext("2d");
+
       if (context) {
         context.scale(ratio, ratio);
       }
@@ -158,6 +162,7 @@ export function SignatureCanvas({
 
     // Add resize listener for window resize events (these should clear)
     const handleResize = () => resizeCanvas(true);
+
     window.addEventListener("resize", handleResize);
 
     return () => {

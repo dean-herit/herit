@@ -175,9 +175,12 @@ export default function OnboardingPage() {
 
         // Set current step based on completion status if this is initial load without local progress
         if (personalInfoData.completionStatus) {
-          console.log("Setting completion status:", personalInfoData.completionStatus);
+          console.log(
+            "Setting completion status:",
+            personalInfoData.completionStatus,
+          );
           setCompletionStatus(personalInfoData.completionStatus);
-          
+
           if (shouldSetStep) {
             const appropriateStep = determineCurrentStep(
               personalInfoData.completionStatus,
@@ -295,16 +298,16 @@ export default function OnboardingPage() {
 
       // Update completion status and move to next step
       const stepKeys = [
-        'personal_info_completed',
-        'signature_completed', 
-        'legal_consent_completed',
-        'verification_completed'
+        "personal_info_completed",
+        "signature_completed",
+        "legal_consent_completed",
+        "verification_completed",
       ];
-      
+
       if (stepKeys[stepIndex]) {
-        setCompletionStatus(prev => ({
+        setCompletionStatus((prev) => ({
           ...prev,
-          [stepKeys[stepIndex]]: true
+          [stepKeys[stepIndex]]: true,
         }));
       }
 
@@ -360,6 +363,7 @@ export default function OnboardingPage() {
     if (completionStatus.legal_consent_completed) return 2;
     if (completionStatus.signature_completed) return 1;
     if (completionStatus.personal_info_completed) return 0;
+
     return -1;
   };
 
@@ -367,7 +371,7 @@ export default function OnboardingPage() {
   const isStepClickable = (stepIndex: number) => {
     const highestCompleted = getHighestCompletedStep();
     const nextAllowedStep = highestCompleted + 1;
-    
+
     // Allow clicking on completed steps, current step, or next step if current is complete
     return stepIndex <= nextAllowedStep;
   };
@@ -466,10 +470,10 @@ export default function OnboardingPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-16 pt-16 ">
               <VerticalSteps
+                clickableSteps={STEPS.map((_, index) => isStepClickable(index))}
                 currentStep={currentStep}
                 steps={STEPS}
                 onStepChange={goToStep}
-                clickableSteps={STEPS.map((_, index) => isStepClickable(index))}
               />
             </div>
           </div>

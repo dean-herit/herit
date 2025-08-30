@@ -25,6 +25,8 @@ interface SharedPersonalInfoFormProviderProps {
   // OAuth security enhancement
   isFromOAuth?: boolean;
   oauthProvider?: string;
+  // Photo deletion tracking
+  initialPhotoUrl?: string;
 }
 
 export function SharedPersonalInfoFormProvider({
@@ -39,6 +41,7 @@ export function SharedPersonalInfoFormProvider({
   className = "",
   isFromOAuth = false,
   oauthProvider,
+  initialPhotoUrl,
 }: SharedPersonalInfoFormProviderProps) {
   // Use a type-safe approach with union types
   const schema =
@@ -91,6 +94,7 @@ export function SharedPersonalInfoFormProvider({
           <SharedPersonalInfoForm
             data-component-category="ui"
             data-testid="shared-personal-info-form"
+            initialPhotoUrl={initialPhotoUrl}
             isFromOAuth={isFromOAuth}
             mode={mode}
             oauthProvider={oauthProvider}

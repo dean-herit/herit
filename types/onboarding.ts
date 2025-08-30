@@ -11,6 +11,7 @@ export interface PersonalInfo {
   county: string;
   eircode: string;
   profile_photo?: string | null;
+  photoMarkedForDeletion?: boolean;
 }
 
 export interface Signature {
