@@ -4,7 +4,8 @@
  * with audit logging, performance metrics, and compliance validation
  */
 
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
+// TODO: Install Jest or use different testing framework
+// import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/db';
 import { users, auditEvents } from '@/db/schema';

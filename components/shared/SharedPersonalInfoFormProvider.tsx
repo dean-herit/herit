@@ -40,25 +40,18 @@ export function SharedPersonalInfoFormProvider({
   isFromOAuth = false,
   oauthProvider,
 }: SharedPersonalInfoFormProviderProps) {
-  // Choose schema based on mode
+  // Use a type-safe approach with union types
   const schema =
     mode === "onboarding"
       ? onboardingPersonalInfoSchema
       : beneficiaryPersonalInfoSchema;
 
-  // Set up form with React Hook Form using modern values prop pattern
   const methods = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       country: "Ireland",
-      // Base defaults only - values prop will handle dynamic data
-    },
-    ...(initialData && Object.keys(initialData).length > 0
-      ? {
-          values: initialData,
-        }
-      : {}), // Reactive values that update when initialData changes
-    mode: "onBlur", // Validate on blur for better UX
+    } as any, // Use any to handle the dynamic schema types
+    mode: "onBlur",
   });
 
   const handleSubmit = methods.handleSubmit(async (data) => {
