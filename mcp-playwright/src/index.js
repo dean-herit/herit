@@ -16,6 +16,133 @@ class RobustOnboardingAutomation {
     this.page = null;
     this.baseUrl = "http://localhost:3000";
     this.stepLogs = [];
+    this.tools = [];
+    this.toolHandlers = new Map();
+    
+    // Initialize default tools
+    this.initializeDefaultTools();
+  }
+  
+  // Dynamic tool registration methods
+  addTool(toolDefinition, handler) {
+    this.tools.push(toolDefinition);
+    if (handler) {
+      this.toolHandlers.set(toolDefinition.name, handler);
+    }
+  }
+  
+  removeTool(toolName) {
+    this.tools = this.tools.filter(tool => tool.name !== toolName);
+    this.toolHandlers.delete(toolName);
+  }
+  
+  getTools() {
+    return this.tools;
+  }
+  
+  getToolHandler(toolName) {
+    return this.toolHandlers.get(toolName);
+  }
+  
+  initializeDefaultTools() {
+    // Add all the default tools
+    this.addTool({
+      name: "navigate",
+      description: "Navigate to a page in the application",
+      inputSchema: {
+        type: "object",
+        properties: {
+          path: { type: "string", description: "The path to navigate to" },
+        },
+        required: ["path"],
+      },
+    });
+    
+    this.addTool({
+      name: "screenshot",
+      description: "Take a screenshot",
+      inputSchema: {
+        type: "object",
+        properties: {
+          filename: { type: "string", description: "Filename for the screenshot" },
+        },
+        required: ["filename"],
+      },
+    });
+    
+    this.addTool({
+      name: "authenticate",
+      description: "Authenticate with test user credentials",
+      inputSchema: {
+        type: "object",
+        properties: {
+          email: { type: "string", default: "claude.assistant@example.com" },
+          password: { type: "string", default: "DemoPassword123!" },
+        },
+      },
+    });
+    
+    this.addTool({
+      name: "reinit_browser",
+      description: "Reinitialize the browser session",
+      inputSchema: {
+        type: "object",
+        properties: {},
+      },
+    }, async () => {
+      await this.init();
+      return { success: true, message: "Browser reinitialized" };
+    });
+    
+    this.addTool({
+      name: "register_user",
+      description: "Register a new user account",
+      inputSchema: {
+        type: "object",
+        properties: {
+          email: { type: "string" },
+          password: { type: "string", default: "TestPassword123!" },
+          firstName: { type: "string", default: "Test" },
+          lastName: { type: "string", default: "User" },
+        },
+      },
+    });
+    
+    this.addTool({
+      name: "complete_onboarding",
+      description: "Complete the onboarding process",
+      inputSchema: {
+        type: "object",
+        properties: {
+          personalInfo: { type: "object" },
+          skipVerification: { type: "boolean", default: true },
+        },
+      },
+    });
+    
+    this.addTool({
+      name: "authenticate_and_onboard",
+      description: "Complete authentication and onboarding in one step",
+      inputSchema: {
+        type: "object",
+        properties: {
+          email: { type: "string", default: "claude.assistant@example.com" },
+          password: { type: "string", default: "DemoPassword123!" },
+          skipVerification: { type: "boolean", default: true },
+        },
+      },
+    });
+    
+    this.addTool({
+      name: "get_components",
+      description: "Get all components on the current page",
+      inputSchema: {
+        type: "object",
+        properties: {
+          visibleOnly: { type: "boolean", default: true },
+        },
+      },
+    });
   }
 
   // ===== PHASE 1: COMPONENT-ID BASED ARCHITECTURE =====
@@ -4080,6 +4207,246 @@ class RobustOnboardingAutomation {
     }
   }
 
+  async registerUser({
+    email = `test-${Date.now()}@example.com`,
+    password = "TestPassword123!",
+    firstName = "Test",
+    lastName = "User",
+  } = {}) {
+    console.error("📝 Starting user registration...");
+
+    try {
+      // Ensure browser is initialized and not closed
+      try {
+        // Test if browser/page is still usable
+        if (this.page) {
+          await this.page.url(); // This will throw if page is closed
+        }
+      } catch (error) {
+        console.error("🔧 Browser/page is closed, reinitializing...");
+        await this.init();
+      }
+      
+      if (!this.browser || !this.page) {
+        console.error("🔧 Browser not initialized, initializing...");
+        await this.init();
+      } else {
+        // Force complete browser context recreation for clean session
+        if (this.context) {
+          await this.context.close();
+        }
+        this.context = await this.browser.newContext();
+        this.page = await this.context.newPage();
+        this.page.setDefaultTimeout(30000);
+        this.page.setDefaultNavigationTimeout(30000);
+      }
+      
+      console.error("✅ Fresh browser context created");
+      
+      // Check if user is authenticated and logout if needed
+      console.error("🔍 Checking authentication status...");
+      const sessionResponse = await this.page.evaluate(async () => {
+        try {
+          const response = await fetch("/api/auth/session");
+          return await response.json();
+        } catch (error) {
+          console.error("Session check failed:", error);
+          return { user: null };
+        }
+      });
+
+      if (sessionResponse.user) {
+        console.error("🚪 User is authenticated, logging out via UI...");
+        
+        // Navigate to a page that has the user menu
+        await this.navigate("/dashboard");
+        await this.page.waitForTimeout(1000);
+        
+        try {
+          // Click the user avatar to open dropdown
+          await this.page.click('button.transition-transform');
+          await this.page.waitForTimeout(500);
+          
+          // Click the logout menu item
+          await this.page.click('[key="logout"]');
+          
+          // Wait for logout to complete - should redirect to login
+          await this.page.waitForTimeout(2000);
+          console.error("✅ Logout completed");
+        } catch (logoutError) {
+          console.error("⚠️  Logout click failed, but continuing:", logoutError.message);
+        }
+      } else {
+        console.error("✅ User not authenticated, proceeding...");
+      }
+      
+      // Navigate to signup page
+      await this.navigate("/signup");
+
+      // Wait for the form to be ready
+      await this.page.waitForSelector('input[name="firstName"]', { timeout: 5000 });
+      console.error("✅ Form is ready");
+      
+      // Monitor network requests
+      this.page.on('request', request => {
+        if (request.url().includes('/api/auth')) {
+          console.error(`🌐 Network request: ${request.method()} ${request.url()}`);
+        }
+      });
+      
+      this.page.on('response', response => {
+        if (response.url().includes('/api/auth')) {
+          console.error(`🌐 Network response: ${response.status()} ${response.url()}`);
+        }
+      });
+      
+      // Fill registration form field by field with explicit waits
+      console.error("🔍 Filling form fields individually...");
+      
+      // First Name
+      const firstNameField = this.page.locator('input[name="firstName"]');
+      await firstNameField.clear();
+      await firstNameField.fill(firstName);
+      console.error(`✅ First name: ${await firstNameField.inputValue()}`);
+      
+      // Last Name  
+      const lastNameField = this.page.locator('input[name="lastName"]');
+      await lastNameField.clear();
+      await lastNameField.fill(lastName);
+      console.error(`✅ Last name: ${await lastNameField.inputValue()}`);
+      
+      // Email
+      const emailField = this.page.locator('input[name="email"]');
+      await emailField.clear();
+      await emailField.fill(email);
+      console.error(`✅ Email: ${await emailField.inputValue()}`);
+      
+      // Password
+      const passwordField = this.page.locator('input[name="password"]');
+      await passwordField.clear();
+      await passwordField.fill(password);
+      console.error(`✅ Password: ${await passwordField.inputValue()}`);
+      
+      // Confirm Password - try multiple strategies
+      console.error("🔍 Attempting to fill confirm password with multiple strategies...");
+      
+      const confirmPasswordField = this.page.locator('input[name="confirmPassword"]');
+      await confirmPasswordField.waitFor({ timeout: 5000 });
+      
+      // Strategy 1: Clear and fill
+      await confirmPasswordField.clear();
+      await confirmPasswordField.fill(password);
+      let confirmValue = await confirmPasswordField.inputValue();
+      console.error(`Strategy 1 result: ${confirmValue}`);
+      
+      if (!confirmValue) {
+        // Strategy 2: Focus, clear, type
+        await confirmPasswordField.focus();
+        await confirmPasswordField.clear();
+        await confirmPasswordField.type(password);
+        confirmValue = await confirmPasswordField.inputValue();
+        console.error(`Strategy 2 result: ${confirmValue}`);
+      }
+      
+      if (!confirmValue) {
+        // Strategy 3: pressSequentially 
+        await confirmPasswordField.focus();
+        await confirmPasswordField.clear();
+        await confirmPasswordField.pressSequentially(password);
+        confirmValue = await confirmPasswordField.inputValue();
+        console.error(`Strategy 3 result: ${confirmValue}`);
+      }
+      
+      console.error(`✅ Final confirm password value: ${confirmValue}`);
+      
+      // Verify all fields have values
+      const formValues = await this.page.evaluate(() => {
+        return {
+          firstName: document.querySelector('input[name="firstName"]')?.value,
+          lastName: document.querySelector('input[name="lastName"]')?.value,
+          email: document.querySelector('input[name="email"]')?.value,
+          password: document.querySelector('input[name="password"]')?.value,
+          confirmPassword: document.querySelector('input[name="confirmPassword"]')?.value,
+        };
+      });
+      
+      console.error("🔍 Form values:", formValues);
+      
+      if (!formValues.confirmPassword || formValues.password !== formValues.confirmPassword) {
+        throw new Error(`Confirm password not set correctly. Password: ${formValues.password}, Confirm: ${formValues.confirmPassword}`);
+      }
+      
+      await this.page.waitForTimeout(500);
+
+      // Take a screenshot to see the filled form
+      console.error("📸 Taking screenshot after filling form...");
+      await this.page.screenshot({ path: 'tests/screenshots/form-filled-debug.png', fullPage: true });
+
+      // Check for any validation errors before submitting
+      const errorElements = await this.page.locator('[data-slot="errorMessage"]').count();
+      if (errorElements > 0) {
+        const errors = await this.page.locator('[data-slot="errorMessage"]').allTextContents();
+        console.error(`❌ Form validation errors found: ${errors.join(', ')}`);
+        throw new Error(`Form validation failed: ${errors.join(', ')}`);
+      }
+      
+      // Submit form
+      console.error("🚀 Attempting to submit form...");
+      
+      // First check if the submit button is enabled
+      const signupButton = this.page.locator('button[type="submit"]').first();
+      const isButtonDisabled = await signupButton.getAttribute('disabled');
+      console.error(`🔍 Submit button disabled: ${isButtonDisabled !== null}`);
+      
+      if (isButtonDisabled !== null) {
+        throw new Error("Submit button is disabled - form validation may have failed");
+      }
+      
+      await signupButton.waitFor({ timeout: 5000 });
+      
+      // Check if submit button is enabled
+      const isButtonEnabled = await signupButton.isEnabled();
+      console.error(`🔍 Submit button enabled: ${isButtonEnabled}`);
+      
+      if (!isButtonEnabled) {
+        // Take screenshot of disabled form
+        await this.page.screenshot({ path: 'tests/screenshots/form-disabled-debug.png', fullPage: true });
+        throw new Error("Submit button is disabled - form validation may have failed");
+      }
+      
+      console.error("✅ Submit button found and enabled, clicking...");
+      await signupButton.click();
+
+      // Wait for navigation or registration to complete
+      console.error("⏳ Waiting for registration to complete...");
+      await Promise.race([
+        this.page.waitForURL('**/onboarding', { timeout: 10000 }),
+        this.page.waitForURL('**/dashboard', { timeout: 10000 }),
+        this.page.waitForTimeout(5000)
+      ]);
+
+      const currentUrl = this.page.url();
+      const registrationSuccessful = currentUrl.includes("/onboarding") || currentUrl.includes("/dashboard");
+
+      console.error(
+        `✅ Registration ${registrationSuccessful ? "successful" : "failed"}`,
+      );
+
+      return {
+        success: registrationSuccessful,
+        user: {
+          email,
+          firstName,
+          lastName,
+        },
+        redirectUrl: currentUrl,
+      };
+    } catch (error) {
+      console.error("❌ Registration failed:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
   async authenticateAndOnboard({
     email,
     password,
@@ -4131,9 +4498,9 @@ class RobustOnboardingAutomation {
   async getComponents() {
     try {
       const components = await this.page.evaluate(() => {
-        const elements = document.querySelectorAll("[data-component-id]");
+        const elements = document.querySelectorAll("[data-testid]");
         return Array.from(elements).map((el) => ({
-          id: el.getAttribute("data-component-id"),
+          id: el.getAttribute("data-testid"),
           tagName: el.tagName.toLowerCase(),
           visible: el.offsetParent !== null,
           text: el.textContent?.slice(0, 100) || "",
@@ -4166,82 +4533,31 @@ const server = new Server(
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    {
-      name: "navigate",
-      description: "Navigate to a page in the application",
-      inputSchema: {
-        type: "object",
-        properties: {
-          path: { type: "string", description: "The path to navigate to" },
-        },
-        required: ["path"],
-      },
-    },
-    {
-      name: "screenshot",
-      description: "Take a screenshot",
-      inputSchema: {
-        type: "object",
-        properties: {
-          filename: {
-            type: "string",
-            description: "Filename for the screenshot",
-          },
-        },
-        required: ["filename"],
-      },
-    },
-    {
-      name: "authenticate",
-      description: "Authenticate with test user credentials",
-      inputSchema: {
-        type: "object",
-        properties: {
-          email: { type: "string", default: "claude.assistant@example.com" },
-          password: { type: "string", default: "DemoPassword123!" },
-        },
-      },
-    },
-    {
-      name: "complete_onboarding",
-      description: "Complete the onboarding process",
-      inputSchema: {
-        type: "object",
-        properties: {
-          personalInfo: { type: "object" },
-          skipVerification: { type: "boolean", default: true },
-        },
-      },
-    },
-    {
-      name: "authenticate_and_onboard",
-      description: "Complete authentication and onboarding in one step",
-      inputSchema: {
-        type: "object",
-        properties: {
-          email: { type: "string", default: "claude.assistant@example.com" },
-          password: { type: "string", default: "DemoPassword123!" },
-          skipVerification: { type: "boolean", default: true },
-        },
-      },
-    },
-    {
-      name: "get_components",
-      description: "Get all components on the current page",
-      inputSchema: {
-        type: "object",
-        properties: {
-          visibleOnly: { type: "boolean", default: true },
-        },
-      },
-    },
-  ],
+  tools: automation.getTools(),
 }));
+
+// OLD TOOLS SECTION REPLACED WITH DYNAMIC SYSTEM
+// The tools are now managed by the automation.initializeDefaultTools() method
+// and can be added/removed dynamically using automation.addTool() and automation.removeTool()
+
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const { name, arguments: args } = request.params;
+    
+    // Check for custom tool handlers first
+    const customHandler = automation.getToolHandler(name);
+    if (customHandler) {
+      const result = await customHandler(args);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(result),
+          },
+        ],
+      };
+    }
 
     // Initialize browser if needed
     if (!automation.browser) {
@@ -4277,6 +4593,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: JSON.stringify(
                 await automation.authenticate(args.email, args.password),
               ),
+            },
+          ],
+        };
+
+      case "reinit_browser":
+        const reinitHandler = automation.getToolHandler("reinit_browser");
+        const reinitResult = reinitHandler ? await reinitHandler(args) : { success: true, message: "Browser reinitialized" };
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(reinitResult),
+            },
+          ],
+        };
+      case "register_user":
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(await automation.registerUser(args)),
             },
           ],
         };

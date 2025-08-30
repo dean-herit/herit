@@ -42,7 +42,7 @@ interface DashboardStats {
 export function DashboardClient() {
   // Component attributes - Required for visual dev mode
   const componentAttributes = {
-    "data-component-id": "dashboard-client",
+    "data-testid": "dashboard-client",
     "data-component-category": "layout",
   };
   const { user, authError, refetchSession } = useAuth();

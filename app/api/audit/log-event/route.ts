@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { db } from "@/db/db";
 import { auditEvents } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const { event_type, event_action, resource_type, event_data } = await request.json();
-    
+    const { event_type, event_action, resource_type, event_data } =
+      await request.json();
+
     // Get session for user context (optional for client-side logging)
     let userId = null;
+
     try {
       const session = await getSession();
+
       if (session?.isAuthenticated) {
         userId = session.user.id;
       }
@@ -19,9 +23,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract context
-    const ipAddress = request.headers.get("x-forwarded-for") || 
-                     request.headers.get("x-real-ip") || 
-                     "unknown";
+    const ipAddress =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
     const userAgent = request.headers.get("user-agent") || "unknown";
 
     // Log the event
@@ -38,8 +43,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Audit logging error:", error);
+
     // Don't fail the main request if audit logging fails
-    return NextResponse.json({ success: false, error: "Audit logging failed" }, { status: 200 });
+    return NextResponse.json(
+      { success: false, error: "Audit logging failed" },
+      { status: 200 },
+    );
   }
 }
 

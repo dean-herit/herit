@@ -43,20 +43,20 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
               <span className="text-default-600 text-sm">© 2024 Herit</span>
               <div className="flex items-center gap-4">
                 <Link
-                  href="/privacy"
                   className="text-default-500 hover:text-default-600 text-sm"
+                  href="/privacy"
                 >
                   Privacy Policy
                 </Link>
                 <Link
-                  href="/terms"
                   className="text-default-500 hover:text-default-600 text-sm"
+                  href="/terms"
                 >
                   Terms of Service
                 </Link>
                 <Link
-                  href="/contact"
                   className="text-default-500 hover:text-default-600 text-sm"
+                  href="/contact"
                 >
                   Contact
                 </Link>
@@ -65,8 +65,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2 text-sm text-default-600">
               <span>Need help?</span>
               <Link
-                href="mailto:support@herit.ie"
                 className="text-primary hover:text-primary-600"
+                href="mailto:support@herit.ie"
               >
                 support@herit.ie
               </Link>

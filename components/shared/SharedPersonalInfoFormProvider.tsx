@@ -53,12 +53,11 @@ export function SharedPersonalInfoFormProvider({
       country: "Ireland",
       // Base defaults only - values prop will handle dynamic data
     },
-    ...(initialData && Object.keys(initialData).length > 0 ? {
-      values: {
-        country: "Ireland",
-        ...initialData,
-      }
-    } : {}), // Reactive values that update when initialData changes
+    ...(initialData && Object.keys(initialData).length > 0
+      ? {
+          values: initialData,
+        }
+      : {}), // Reactive values that update when initialData changes
     mode: "onBlur", // Validate on blur for better UX
   });
 
@@ -82,27 +81,27 @@ export function SharedPersonalInfoFormProvider({
     <FormProvider
       {...methods}
       data-component-category="ui"
-      data-component-id="form-provider"
+      data-testid="form-provider"
     >
       <form
         className={`max-w-6xl mx-auto ${className}`}
         data-component-category="input"
-        data-component-id={`${mode}-personal-info-form-provider`}
+        data-testid={`${mode}-personal-info-form-provider`}
         onSubmit={handleSubmit}
       >
         {/* Responsive grid layout */}
         <div
           className="gap-6 mb-6"
           data-component-category="layout"
-          data-component-id={`${mode}-form-grid`}
+          data-testid={`${mode}-form-grid`}
         >
           <SharedPersonalInfoForm
             data-component-category="ui"
-            data-component-id="shared-personal-info-form"
-            mode={mode}
-            showPhotoUpload={showPhotoUpload}
+            data-testid="shared-personal-info-form"
             isFromOAuth={isFromOAuth}
+            mode={mode}
             oauthProvider={oauthProvider}
+            showPhotoUpload={showPhotoUpload}
           />
         </div>
 
@@ -110,12 +109,11 @@ export function SharedPersonalInfoFormProvider({
         <div
           className="flex justify-end gap-3 pt-4"
           data-component-category="ui"
-          data-component-id="form-actions"
+          data-testid="form-actions"
         >
           {showCancelButton && onCancel && (
             <Button
               data-component-category="navigation"
-              data-component-id="cancel-button"
               data-testid={`${mode}-cancel`}
               isDisabled={loading}
               variant="flat"
@@ -127,7 +125,6 @@ export function SharedPersonalInfoFormProvider({
           <Button
             color="primary"
             data-component-category="input"
-            data-component-id="submit-button"
             data-testid={`${mode}-submit`}
             isLoading={loading}
             type="submit"

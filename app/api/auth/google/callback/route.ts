@@ -19,13 +19,14 @@ interface GoogleUser {
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = crypto.randomUUID(); // Generate session correlation ID
-  
+
   // Extract context for audit logging
-  const ipAddress = request.headers.get("x-forwarded-for") || 
-                   request.headers.get("x-real-ip") || 
-                   "unknown";
+  const ipAddress =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
-  
+
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     // Check for OAuth errors
     if (error) {
       console.error("Google OAuth error:", error);
-      
+
       // Log OAuth error for security monitoring
       await audit.logSecurityEvent(
         null as any,
@@ -44,10 +45,10 @@ export async function GET(request: NextRequest) {
           error: error,
           processing_duration_ms: Date.now() - startTime,
           ip_address: ipAddress,
-          user_agent: userAgent
+          user_agent: userAgent,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -63,10 +64,10 @@ export async function GET(request: NextRequest) {
         {
           processing_duration_ms: Date.now() - startTime,
           ip_address: ipAddress,
-          user_agent: userAgent
+          user_agent: userAgent,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -88,10 +89,10 @@ export async function GET(request: NextRequest) {
           processing_duration_ms: Date.now() - startTime,
           ip_address: ipAddress,
           user_agent: userAgent,
-          potential_csrf_attempt: true
+          potential_csrf_attempt: true,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -120,10 +121,10 @@ export async function GET(request: NextRequest) {
           missing_client_id: !googleClientId,
           missing_client_secret: !googleClientSecret,
           processing_duration_ms: Date.now() - startTime,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
 
     // Log token exchange attempt (without sensitive data)
     await audit.logUserAction(
-      null,
+      "anonymous",
       "oauth_token_exchange_initiated",
       "authentication",
       "",
@@ -141,9 +142,9 @@ export async function GET(request: NextRequest) {
         provider: "google",
         redirect_uri: redirectUri,
         processing_duration_ms: Date.now() - startTime,
-        session_id: sessionId
+        session_id: sessionId,
       },
-      sessionId
+      sessionId,
     );
 
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -171,10 +172,10 @@ export async function GET(request: NextRequest) {
           provider: "google",
           status_code: tokenResponse.status,
           processing_duration_ms: Date.now() - startTime,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -186,7 +187,7 @@ export async function GET(request: NextRequest) {
 
     // Log successful token exchange (without token values)
     await audit.logUserAction(
-      null,
+      "anonymous",
       "oauth_token_exchange_success",
       "authentication",
       "",
@@ -195,9 +196,9 @@ export async function GET(request: NextRequest) {
         token_type: tokens.token_type || "Bearer",
         scope: tokens.scope || "profile email",
         processing_duration_ms: Date.now() - startTime,
-        session_id: sessionId
+        session_id: sessionId,
       },
-      sessionId
+      sessionId,
     );
 
     // Get user info from Google
@@ -221,10 +222,10 @@ export async function GET(request: NextRequest) {
           provider: "google",
           status_code: userResponse.status,
           processing_duration_ms: Date.now() - startTime,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.redirect(
@@ -236,7 +237,7 @@ export async function GET(request: NextRequest) {
 
     // Log successful user info retrieval (without PII)
     await audit.logUserAction(
-      null,
+      "anonymous",
       "oauth_user_info_retrieved",
       "authentication",
       "",
@@ -247,12 +248,12 @@ export async function GET(request: NextRequest) {
           first_name: !!googleUser.given_name,
           last_name: !!googleUser.family_name,
           email: !!googleUser.email,
-          profile_photo: !!googleUser.picture
+          profile_photo: !!googleUser.picture,
         },
         processing_duration_ms: Date.now() - startTime,
-        session_id: sessionId
+        session_id: sessionId,
       },
-      sessionId
+      sessionId,
     );
 
     try {
@@ -265,7 +266,7 @@ export async function GET(request: NextRequest) {
 
       let userId: string;
       let needsOnboarding = false;
-      let userType: 'existing' | 'new' = 'existing';
+      let userType: "existing" | "new" = "existing";
 
       if (existingUser) {
         // User exists - update auth provider info if needed
@@ -280,7 +281,7 @@ export async function GET(request: NextRequest) {
           auth_provider: existingUser.auth_provider,
           profile_photo_url: existingUser.profile_photo_url,
           first_name: existingUser.first_name,
-          last_name: existingUser.last_name
+          last_name: existingUser.last_name,
         };
 
         // Update auth provider if not set
@@ -321,12 +322,14 @@ export async function GET(request: NextRequest) {
             userId,
             oldData,
             {
-              auth_provider: updateFields.auth_provider || oldData.auth_provider,
-              profile_photo_url: updateFields.profile_photo_url || oldData.profile_photo_url,
+              auth_provider:
+                updateFields.auth_provider || oldData.auth_provider,
+              profile_photo_url:
+                updateFields.profile_photo_url || oldData.profile_photo_url,
               first_name: updateFields.first_name || oldData.first_name,
-              last_name: updateFields.last_name || oldData.last_name
+              last_name: updateFields.last_name || oldData.last_name,
             },
-            sessionId
+            sessionId,
           );
         }
 
@@ -348,17 +351,19 @@ export async function GET(request: NextRequest) {
           {
             provider: "google",
             user_updated: Object.keys(updateFields).length > 1,
-            fields_updated: Object.keys(updateFields).filter(key => key !== 'updated_at'),
+            fields_updated: Object.keys(updateFields).filter(
+              (key) => key !== "updated_at",
+            ),
             needs_onboarding: needsOnboarding,
             onboarding_status: existingUser.onboarding_status,
             processing_duration_ms: Date.now() - startTime,
-            session_id: sessionId
+            session_id: sessionId,
           },
-          sessionId
+          sessionId,
         );
       } else {
-        userType = 'new';
-        
+        userType = "new";
+
         // Create new user with all available Google data
         const [newUser] = await db
           .insert(users)
@@ -390,9 +395,9 @@ export async function GET(request: NextRequest) {
             last_name: googleUser.family_name || null,
             profile_photo_url: googleUser.picture || null,
             auth_provider: "google",
-            onboarding_status: "not_started"
+            onboarding_status: "not_started",
           },
-          sessionId
+          sessionId,
         );
 
         // Log GDPR compliance for new user OAuth data processing
@@ -409,9 +414,9 @@ export async function GET(request: NextRequest) {
             retention_period: "account_lifetime_plus_7_years",
             processing_purpose: "estate_planning_onboarding",
             user_consent_timestamp: new Date().toISOString(),
-            audit_trail_enabled: true
+            audit_trail_enabled: true,
           },
-          sessionId
+          sessionId,
         );
 
         // Log new user OAuth registration
@@ -426,13 +431,13 @@ export async function GET(request: NextRequest) {
               first_name: !!googleUser.given_name,
               last_name: !!googleUser.family_name,
               email: !!googleUser.email,
-              profile_photo: !!googleUser.picture
+              profile_photo: !!googleUser.picture,
             },
             email_verified: googleUser.verified_email,
             processing_duration_ms: Date.now() - startTime,
-            session_id: sessionId
+            session_id: sessionId,
           },
-          sessionId
+          sessionId,
         );
       }
 
@@ -453,11 +458,15 @@ export async function GET(request: NextRequest) {
           user_type: userType,
           redirect_destination: redirectUrl,
           needs_onboarding: needsOnboarding,
-          prepopulation_ready: !!(googleUser.given_name || googleUser.family_name || googleUser.email),
+          prepopulation_ready: !!(
+            googleUser.given_name ||
+            googleUser.family_name ||
+            googleUser.email
+          ),
           total_processing_duration_ms: Date.now() - startTime,
-          session_id: sessionId
+          session_id: sessionId,
         },
-        sessionId
+        sessionId,
       );
 
       // Create response and clear state cookie
@@ -475,13 +484,16 @@ export async function GET(request: NextRequest) {
         "oauth_database_error",
         {
           provider: "google",
-          error: dbError instanceof Error ? dbError.message : "Unknown database error",
+          error:
+            dbError instanceof Error
+              ? dbError.message
+              : "Unknown database error",
           processing_duration_ms: Date.now() - startTime,
           fallback_session_created: true,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       // Fallback: create temporary session without database (for development)
@@ -510,10 +522,10 @@ export async function GET(request: NextRequest) {
         error: error instanceof Error ? error.message : "Unknown system error",
         processing_duration_ms: Date.now() - startTime,
         ip_address: ipAddress,
-        user_agent: userAgent
+        user_agent: userAgent,
       },
       ipAddress,
-      sessionId
+      sessionId,
     );
 
     return NextResponse.redirect(

@@ -90,6 +90,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate drawn signatures (SVG format)
+    if (signatureType === "drawn") {
+      if (
+        !signatureData.startsWith("<svg") ||
+        !signatureData.includes("</svg>")
+      ) {
+        return NextResponse.json(
+          { error: "Drawn signatures must be in SVG format" },
+          { status: 400 },
+        );
+      }
+
+      // Basic SVG sanitization - ensure it's not too large
+      if (signatureData.length > 100000) {
+        // 100KB limit
+        return NextResponse.json(
+          { error: "Signature data too large" },
+          { status: 400 },
+        );
+      }
+    }
+
     // Create a simple hash of the signature data
     const signatureHash = await crypto.subtle.digest(
       "SHA-256",
@@ -113,6 +135,12 @@ export async function POST(request: NextRequest) {
         signature_metadata: {
           createdAt: new Date().toISOString(),
           userAgent: request.headers.get("user-agent") || "unknown",
+          signatureType: signatureType,
+          ...(signatureType === "drawn" && {
+            format: "svg",
+            hasTransparentBackground: true,
+            vectorBased: true,
+          }),
         },
       })
       .returning();

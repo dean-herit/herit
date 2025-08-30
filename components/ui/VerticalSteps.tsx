@@ -41,6 +41,10 @@ export interface VerticalStepsProps {
    * Callback function when the step index changes.
    */
   onStepChange?: (stepIndex: number) => void;
+  /**
+   * Array indicating which steps are clickable.
+   */
+  clickableSteps?: boolean[];
 }
 
 export function VerticalSteps({
@@ -51,6 +55,7 @@ export function VerticalSteps({
   hideProgressBars = false,
   stepClassName,
   className,
+  clickableSteps = [],
 }: VerticalStepsProps) {
   const [currentStep, setCurrentStep] = React.useState(
     currentStepProp ?? defaultStep,
@@ -63,13 +68,16 @@ export function VerticalSteps({
   }, [currentStepProp]);
 
   const handleStepClick = (stepIndex: number) => {
-    setCurrentStep(stepIndex);
-    onStepChange?.(stepIndex);
+    const isClickable = clickableSteps[stepIndex] !== false; // Default to true if not specified
+    if (isClickable) {
+      setCurrentStep(stepIndex);
+      onStepChange?.(stepIndex);
+    }
   };
 
   return (
     <nav aria-label="Progress" className="max-w-fit">
-      <ol className={cn("flex flex-col gap-y-3", className)}>
+      <ol className={cn("flex flex-col", className)}>
         {steps?.map((step, stepIdx) => {
           const status =
             currentStep === stepIdx
@@ -77,44 +85,68 @@ export function VerticalSteps({
               : currentStep < stepIdx
                 ? "inactive"
                 : "complete";
+          
+          const isClickable = clickableSteps[stepIdx] !== false; // Default to true if not specified
 
           return (
-            <li key={stepIdx} className="relative">
-              <div className="flex w-full max-w-full items-center">
+            <li key={stepIdx} className="relative flex">
+              {/* Step circle column */}
+              <div className="flex flex-col items-center relative">
+                <div
+                  className={cn(
+                    "relative flex h-[34px] w-[34px] items-center justify-center rounded-full font-semibold border-2 text-sm transition-all duration-200 z-10 bg-white",
+                    {
+                      "bg-primary border-primary text-white shadow-lg":
+                        status === "complete",
+                      "bg-transparent border-primary text-primary":
+                        status === "active",
+                      "bg-transparent border-default-300 text-default-400":
+                        status === "inactive",
+                    },
+                    {
+                      "opacity-50": !isClickable && status === "inactive",
+                    },
+                  )}
+                  data-status={status}
+                >
+                  <div className="flex items-center justify-center">
+                    {status === "complete" ? (
+                      <CheckIcon className="h-5 w-5" />
+                    ) : (
+                      <span>{stepIdx + 1}</span>
+                    )}
+                  </div>
+                </div>
+                {/* Connecting line - extends to next circle */}
+                {stepIdx < steps.length - 1 && !hideProgressBars && (
+                  <div
+                    className={cn(
+                      "w-0.5 transition-colors duration-200",
+                      {
+                        "bg-primary": stepIdx < currentStep,
+                        "bg-default-300": stepIdx >= currentStep,
+                      },
+                    )}
+                    style={{ height: '36px' }}
+                  />
+                )}
+              </div>
+              
+              {/* Content column */}
+              <div className="flex-1 ml-4">
                 <Button
                   className={cn(
-                    "group rounded-large flex w-full cursor-pointer items-center justify-start gap-4 px-3 py-2.5 h-auto",
+                    "group rounded-large flex w-full items-center justify-start gap-0 px-3 py-2.5 h-auto",
+                    {
+                      "cursor-pointer": isClickable,
+                      "cursor-not-allowed opacity-60": !isClickable,
+                    },
                     stepClassName,
                   )}
                   variant="light"
+                  isDisabled={!isClickable}
                   onPress={() => handleStepClick(stepIdx)}
                 >
-                  <div className="flex h-full items-center">
-                    <div className="relative">
-                      <div
-                        className={cn(
-                          "relative flex h-[34px] w-[34px] items-center justify-center rounded-full font-semibold border-2 text-sm transition-all duration-200",
-                          {
-                            "bg-primary border-primary text-white shadow-lg":
-                              status === "complete",
-                            "bg-transparent border-primary text-primary":
-                              status === "active",
-                            "bg-transparent border-default-300 text-default-400":
-                              status === "inactive",
-                          },
-                        )}
-                        data-status={status}
-                      >
-                        <div className="flex items-center justify-center">
-                          {status === "complete" ? (
-                            <CheckIcon className="h-5 w-5" />
-                          ) : (
-                            <span>{stepIdx + 1}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   <div className="flex-1 text-left">
                     <div>
                       <div
@@ -124,6 +156,9 @@ export function VerticalSteps({
                             "text-foreground":
                               status === "active" || status === "complete",
                             "text-default-400": status === "inactive",
+                          },
+                          {
+                            "opacity-50": !isClickable && status === "inactive",
                           },
                         )}
                       >
@@ -137,6 +172,9 @@ export function VerticalSteps({
                               status === "active" || status === "complete",
                             "text-default-400": status === "inactive",
                           },
+                          {
+                            "opacity-50": !isClickable && status === "inactive",
+                          },
                         )}
                       >
                         {step.description}
@@ -145,22 +183,6 @@ export function VerticalSteps({
                   </div>
                 </Button>
               </div>
-              {stepIdx < steps.length - 1 && !hideProgressBars && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-4 top-[52px] flex h-6 items-center px-4"
-                >
-                  <div
-                    className={cn(
-                      "relative h-full w-0.5 transition-colors duration-200",
-                      {
-                        "bg-primary": stepIdx < currentStep,
-                        "bg-default-300": stepIdx >= currentStep,
-                      },
-                    )}
-                  />
-                </div>
-              )}
             </li>
           );
         })}

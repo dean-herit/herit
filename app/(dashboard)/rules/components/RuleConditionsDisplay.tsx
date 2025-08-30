@@ -20,7 +20,7 @@ interface RuleDefinitionSchema {
 interface RuleConditionsDisplayProps {
   ruleDefinition: unknown;
   "data-component-category"?: string;
-  "data-component-id"?: string;
+  "data-testid"?: string;
 }
 
 const FACT_LABELS: Record<string, string> = {
@@ -96,12 +96,12 @@ export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({
                   key={index}
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                   data-component-category="data-display"
-                  data-component-id={`rule-condition-${index}`}
+                  data-testid={`rule-condition-${index}`}
                 >
                   <Chip
                     color="primary"
                     data-component-category="ui"
-                    data-component-id="chip"
+                    data-testid="chip"
                     size="sm"
                     variant="flat"
                   >
@@ -115,7 +115,7 @@ export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({
                   <Chip
                     color="secondary"
                     data-component-category="ui"
-                    data-component-id="chip"
+                    data-testid="chip"
                     size="sm"
                     variant="flat"
                   >

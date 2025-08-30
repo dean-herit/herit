@@ -184,7 +184,7 @@ export function SharedPhotoUpload({
     <div
       className={`space-y-4 ${className}`}
       data-component-category="input"
-      data-component-id={`${mode}-photo-upload`}
+      data-testid={`${mode}-photo-upload`}
     >
       {/* Photo Preview */}
       <div className="flex items-center gap-4">
@@ -193,7 +193,7 @@ export function SharedPhotoUpload({
             showFallback
             className="w-20 h-20"
             data-component-category="ui"
-            data-component-id="photo-avatar"
+            data-testid="photo-avatar"
             name={name}
             src={url || undefined}
           />
@@ -203,7 +203,7 @@ export function SharedPhotoUpload({
               className="absolute -top-2 -right-2 min-w-6 w-6 h-6"
               color="danger"
               data-component-category="ui"
-              data-component-id="photo-clear-button"
+              data-testid="photo-clear-button"
               size="sm"
               variant="solid"
               onPress={clearPhoto}
@@ -211,7 +211,7 @@ export function SharedPhotoUpload({
               <XMarkIcon
                 className="w-3 h-3"
                 data-component-category="ui"
-                data-component-id="x-mark-icon"
+                data-testid="x-mark-icon"
               />
             </Button>
           )}
@@ -227,7 +227,7 @@ export function SharedPhotoUpload({
         <div className="space-y-2">
           <Input
             data-component-category="input"
-            data-component-id="photo-url-input"
+            data-testid="photo-url-input"
             errorMessage={errorMessage}
             isInvalid={isInvalid}
             label="Photo URL"
@@ -239,7 +239,7 @@ export function SharedPhotoUpload({
           {mode === "beneficiary" && (
             <Button
               data-component-category="ui"
-              data-component-id="hide-url-input-button"
+              data-testid="hide-url-input-button"
               size="sm"
               variant="light"
               onPress={() => setShowUrlInput(false)}
@@ -260,7 +260,7 @@ export function SharedPhotoUpload({
                 showValueLabel
                 color="primary"
                 data-component-category="ui"
-                data-component-id="upload-progress"
+                data-testid="upload-progress"
                 size="sm"
                 value={uploadProgress}
               />
@@ -277,7 +277,7 @@ export function SharedPhotoUpload({
                 }
               `}
               data-component-category="input"
-              data-component-id="photo-upload-zone"
+              data-testid="photo-upload-zone"
               role="button"
               tabIndex={0}
               onClick={triggerFileSelect}
@@ -303,13 +303,13 @@ export function SharedPhotoUpload({
                   <CloudArrowUpIcon
                     className="w-10 h-10 mx-auto text-primary"
                     data-component-category="ui"
-                    data-component-id="cloud-arrow-up-icon"
+                    data-testid="cloud-arrow-up-icon"
                   />
                 ) : (
                   <PhotoIcon
                     className="w-10 h-10 mx-auto text-default-400"
                     data-component-category="ui"
-                    data-component-id="photo-icon"
+                    data-testid="photo-icon"
                   />
                 )}
                 <div>
@@ -328,7 +328,7 @@ export function SharedPhotoUpload({
           <div className="text-center">
             <Button
               data-component-category="ui"
-              data-component-id="show-url-input-button"
+              data-testid="show-url-input-button"
               size="sm"
               variant="light"
               onPress={() => setShowUrlInput(true)}

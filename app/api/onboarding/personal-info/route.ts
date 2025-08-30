@@ -10,11 +10,12 @@ import { onboardingPersonalInfoSchema } from "@/types/shared-personal-info";
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = crypto.randomUUID();
-  
+
   // Extract context for audit logging
-  const ipAddress = request.headers.get("x-forwarded-for") || 
-                   request.headers.get("x-real-ip") || 
-                   "unknown";
+  const ipAddress =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
   try {
     const session = await getSession();
@@ -27,10 +28,10 @@ export async function GET(request: NextRequest) {
         {
           processing_duration_ms: Date.now() - startTime,
           ip_address: ipAddress,
-          attempted_resource: "onboarding_personal_info"
+          attempted_resource: "onboarding_personal_info",
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json(
@@ -54,10 +55,10 @@ export async function GET(request: NextRequest) {
         {
           user_id: session.user.id,
           processing_duration_ms: Date.now() - startTime,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -89,11 +90,15 @@ export async function GET(request: NextRequest) {
       },
       // New: OAuth source tracking for pre-population
       dataSource: {
-        from_oauth: !!(userData.first_name && userData.last_name && userData.auth_provider === 'google'),
+        from_oauth: !!(
+          userData.first_name &&
+          userData.last_name &&
+          userData.auth_provider === "google"
+        ),
         provider: userData.auth_provider || null,
         last_updated: userData.updated_at,
-        has_profile_photo: !!userData.profile_photo_url
-      }
+        has_profile_photo: !!userData.profile_photo_url,
+      },
     };
 
     // Log successful data retrieval with source information
@@ -106,13 +111,13 @@ export async function GET(request: NextRequest) {
         has_oauth_data: responseData.dataSource.from_oauth,
         provider: responseData.dataSource.provider,
         fields_available: Object.keys(responseData.personalInfo).filter(
-          (key) => (responseData.personalInfo as any)[key] !== ""
+          (key) => (responseData.personalInfo as any)[key] !== "",
         ),
         pre_population_ready: responseData.dataSource.from_oauth,
         processing_duration_ms: Date.now() - startTime,
-        session_id: sessionId
+        session_id: sessionId,
       },
-      sessionId
+      sessionId,
     );
 
     return NextResponse.json(responseData);
@@ -126,10 +131,10 @@ export async function GET(request: NextRequest) {
       {
         error: error instanceof Error ? error.message : "Unknown error",
         processing_duration_ms: Date.now() - startTime,
-        ip_address: ipAddress
+        ip_address: ipAddress,
       },
       ipAddress,
-      sessionId
+      sessionId,
     );
 
     return NextResponse.json(
@@ -142,11 +147,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = crypto.randomUUID();
-  
+
   // Extract context for audit logging
-  const ipAddress = request.headers.get("x-forwarded-for") || 
-                   request.headers.get("x-real-ip") || 
-                   "unknown";
+  const ipAddress =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
 
   try {
@@ -161,10 +167,10 @@ export async function POST(request: NextRequest) {
           processing_duration_ms: Date.now() - startTime,
           ip_address: ipAddress,
           user_agent: userAgent,
-          attempted_resource: "onboarding_personal_info_save"
+          attempted_resource: "onboarding_personal_info_save",
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json(
@@ -174,8 +180,9 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
+
     console.log("Received data:", data);
-    
+
     const {
       firstName,
       lastName,
@@ -197,7 +204,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     console.log("Current user query result:", currentUser);
-    
+
     if (!currentUser) {
       await audit.logSecurityEvent(
         session.user.id,
@@ -205,10 +212,10 @@ export async function POST(request: NextRequest) {
         {
           user_id: session.user.id,
           processing_duration_ms: Date.now() - startTime,
-          ip_address: ipAddress
+          ip_address: ipAddress,
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -219,29 +226,38 @@ export async function POST(request: NextRequest) {
     const sessionEmail = session.user.email; // Email from authenticated session
 
     // Check if user is from OAuth and attempting to change email
-    if (currentUser.auth_provider === 'google' && requestEmail && requestEmail !== sessionEmail) {
+    if (
+      currentUser.auth_provider === "google" &&
+      requestEmail &&
+      requestEmail !== sessionEmail
+    ) {
       // Log potential OAuth email tampering attempt
       await audit.logSecurityEvent(
         session.user.id,
         "oauth_email_tampering_attempt",
         {
           provider: currentUser.auth_provider,
-          original_email_hash: Buffer.from(sessionEmail).toString('base64').slice(0, 10),
-          attempted_email_hash: Buffer.from(requestEmail).toString('base64').slice(0, 10),
+          original_email_hash: Buffer.from(sessionEmail)
+            .toString("base64")
+            .slice(0, 10),
+          attempted_email_hash: Buffer.from(requestEmail)
+            .toString("base64")
+            .slice(0, 10),
           session_id: sessionId,
           tampering_severity: "high",
-          action_taken: "request_rejected"
+          action_taken: "request_rejected",
         },
         ipAddress,
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json(
-        { 
+        {
           error: "Email modification not allowed",
-          details: "OAuth-verified email addresses cannot be changed for security reasons"
+          details:
+            "OAuth-verified email addresses cannot be changed for security reasons",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -257,12 +273,13 @@ export async function POST(request: NextRequest) {
       city: city,
       county: county,
       eircode: eircode,
-      country: "Ireland" // Always Ireland for Irish compliance
+      country: "Ireland", // Always Ireland for Irish compliance
     };
 
     console.log("Validation data:", validationData);
-    
+
     let validation;
+
     try {
       validation = onboardingPersonalInfoSchema.safeParse(validationData);
       console.log("Validation result:", validation);
@@ -270,7 +287,7 @@ export async function POST(request: NextRequest) {
       console.error("Validation schema error:", error);
       throw error;
     }
-    
+
     if (!validation.success) {
       // Log validation failure with details
       await audit.logUserAction(
@@ -280,23 +297,23 @@ export async function POST(request: NextRequest) {
         session.user.id,
         {
           validation_errors: validation.error.issues.map((err: any) => ({
-            field: err.path.join('.'),
+            field: err.path.join("."),
             message: err.message,
-            received_value: "[REDACTED]" // Don't log actual PII
+            received_value: "[REDACTED]", // Don't log actual PII
           })),
           processing_duration_ms: Date.now() - startTime,
-          session_id: sessionId
+          session_id: sessionId,
         },
-        sessionId
+        sessionId,
       );
 
       return NextResponse.json(
-        { 
+        {
           error: "Validation failed",
           details: validation.error.issues.map((err: any) => ({
-            field: err.path.join('.'),
-            message: err.message
-          }))
+            field: err.path.join("."),
+            message: err.message,
+          })),
         },
         { status: 400 },
       );
@@ -313,9 +330,9 @@ export async function POST(request: NextRequest) {
       city: currentUser.city,
       county: currentUser.county,
       eircode: currentUser.eircode,
-      personal_info_completed: currentUser.personal_info_completed
+      personal_info_completed: currentUser.personal_info_completed,
     };
-    
+
     console.log("Old data:", oldData);
 
     const newData = {
@@ -329,9 +346,9 @@ export async function POST(request: NextRequest) {
       city: city || null,
       county: county || null,
       eircode: eircode || null,
-      personal_info_completed: true
+      personal_info_completed: true,
     };
-    
+
     console.log("New data:", newData);
 
     // Update user's personal information
@@ -353,7 +370,7 @@ export async function POST(request: NextRequest) {
       session.user.id,
       oldData,
       newData,
-      sessionId
+      sessionId,
     );
 
     // Log completion of personal info step
@@ -365,24 +382,26 @@ export async function POST(request: NextRequest) {
       {
         completed_step: "personal_info",
         next_step: "signature",
-        from_oauth_prepopulation: currentUser.auth_provider === 'google',
+        from_oauth_prepopulation: currentUser.auth_provider === "google",
         fields_changed: (() => {
           try {
             console.log("About to compare fields - oldData:", oldData);
             console.log("About to compare fields - newData:", newData);
-            return (Object.keys(newData) as (keyof typeof newData)[]).filter((key) => 
-              oldData[key] !== newData[key]
+
+            return (Object.keys(newData) as (keyof typeof newData)[]).filter(
+              (key) => oldData[key] !== newData[key],
             );
           } catch (error) {
             console.error("Error in fields comparison:", error);
+
             return [];
           }
         })(),
         irish_compliance_validated: true,
         processing_duration_ms: Date.now() - startTime,
-        session_id: sessionId
+        session_id: sessionId,
       },
-      sessionId
+      sessionId,
     );
 
     return NextResponse.json({
@@ -400,10 +419,10 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : "Unknown error",
         processing_duration_ms: Date.now() - startTime,
         ip_address: ipAddress,
-        user_agent: userAgent
+        user_agent: userAgent,
       },
       ipAddress,
-      sessionId
+      sessionId,
     );
 
     return NextResponse.json(

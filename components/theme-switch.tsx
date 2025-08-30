@@ -46,7 +46,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
           className,
           classNames?.base,
         ),
-        "data-component-id": "theme-switch",
+        "data-testid": "theme-switch",
         "data-component-category": "ui",
       })}
     >

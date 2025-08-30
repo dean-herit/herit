@@ -37,7 +37,11 @@ export function SharedPersonalInfoForm({
   oauthProvider,
 }: SharedPersonalInfoFormProps) {
   // Debug OAuth props
-  console.log("SharedPersonalInfoForm OAuth props:", { isFromOAuth, oauthProvider, mode });
+  console.log("SharedPersonalInfoForm OAuth props:", {
+    isFromOAuth,
+    oauthProvider,
+    mode,
+  });
   const {
     register,
     control,
@@ -51,27 +55,29 @@ export function SharedPersonalInfoForm({
 
   // Security: Monitor and prevent OAuth email tampering
   const originalEmail = watch("email");
+
   React.useEffect(() => {
     if (isFromOAuth && oauthProvider && originalEmail) {
       const currentEmail = getValues("email");
+
       if (currentEmail !== originalEmail) {
         // Log potential tampering attempt
-        fetch('/api/audit/log-event', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/audit/log-event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            event_type: 'security_violation',
-            event_action: 'oauth_email_tampering_attempt',
-            resource_type: 'form_security',
+            event_type: "security_violation",
+            event_action: "oauth_email_tampering_attempt",
+            resource_type: "form_security",
             event_data: {
               provider: oauthProvider,
               mode: mode,
               tampering_detected: true,
               original_email_hash: btoa(originalEmail).slice(0, 10), // Partial hash for audit
-              attempted_change: true
-            }
-          })
-        }).catch(err => console.warn('Failed to log security event:', err));
+              attempted_change: true,
+            },
+          }),
+        }).catch((err) => console.warn("Failed to log security event:", err));
 
         // Reset to original OAuth email
         setValue("email", originalEmail, { shouldValidate: true });
@@ -131,35 +137,48 @@ export function SharedPersonalInfoForm({
             <Input
               {...register("email")}
               isRequired
-              data-testid={`${mode}-email`}
-              errorMessage={errors.email?.message as string}
-              isInvalid={!!errors.email}
-              label="Email Address"
-              placeholder="email@example.com"
-              type="email"
-              isReadOnly={isFromOAuth}
               classNames={{
-                input: isFromOAuth ? "bg-default-100 text-default-500 cursor-not-allowed" : "",
+                input: isFromOAuth
+                  ? "bg-default-100 text-default-500 cursor-not-allowed"
+                  : "",
                 inputWrapper: isFromOAuth ? "bg-default-100" : "",
               }}
+              data-testid={`${mode}-email`}
               endContent={
-                isFromOAuth && oauthProvider && (
+                isFromOAuth &&
+                oauthProvider && (
                   <div className="flex items-center space-x-1">
                     <span className="text-xs text-default-500">
-                      {oauthProvider === 'google' && '🔒'}
-                      {oauthProvider === 'apple' && '🔒'}
+                      {oauthProvider === "google" && "🔒"}
+                      {oauthProvider === "apple" && "🔒"}
                     </span>
                   </div>
                 )
               }
+              errorMessage={errors.email?.message as string}
+              isInvalid={!!errors.email}
+              isReadOnly={isFromOAuth}
+              label="Email Address"
+              placeholder="email@example.com"
+              type="email"
             />
             {isFromOAuth && (
               <div className="flex items-center mt-1 text-xs text-default-500">
-                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                <svg
+                  className="w-3 h-3 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    clipRule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    fillRule="evenodd"
+                  />
                 </svg>
                 <span>
-                  Email verified by {oauthProvider === 'google' ? 'Google' : oauthProvider} - cannot be changed
+                  Email verified by{" "}
+                  {oauthProvider === "google" ? "Google" : oauthProvider} -
+                  cannot be changed
                 </span>
               </div>
             )}

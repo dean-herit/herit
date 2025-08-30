@@ -50,8 +50,16 @@ export function SignatureStamp({
           width={200}
         />
       );
+    } else if (signature.type === "drawn") {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: signature.data }}
+          className="[&>svg]:h-12 [&>svg]:w-auto [&>svg]:min-w-[120px] [&>svg]:max-w-[200px] [&>svg_path]:!stroke-black [&>svg_path]:!fill-black dark:[&>svg_path]:!stroke-white dark:[&>svg_path]:!fill-white"
+          style={{ transform: "scaleY(1.2)" }}
+        />
+      );
     } else {
-      // Fallback for legacy signatures or drawn signatures
+      // Fallback for legacy signatures
       return (
         <div
           className={`text-4xl text-black dark:text-white ${signature.className || "font-cursive"}`}

@@ -136,11 +136,16 @@ export function LegalConsentStep({
     setSigningConsent(consentId);
 
     try {
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch("/api/onboarding/consent-signature", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           consentId,
           signatureId: signature.id,
@@ -156,6 +161,8 @@ export function LegalConsentStep({
           },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -187,8 +194,19 @@ export function LegalConsentStep({
       const consentIds = updatedSignedConsents.map((sc) => sc.id);
 
       onChange(consentIds);
-    } catch {
-      // Error handling consent signature
+    } catch (error) {
+      console.error("Consent signature error:", error);
+
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          alert(
+            "Request timed out. Please check your connection and try again.",
+          );
+        } else {
+          alert("Failed to save signature. Please try again.");
+        }
+      }
     } finally {
       setSigningConsent(null);
     }
@@ -315,6 +333,11 @@ export function LegalConsentStep({
                     height={32}
                     src={signature.data}
                     width={100}
+                  />
+                ) : signature.type === "drawn" ? (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: signature.data }}
+                    className="inline-block [&>svg]:h-8 [&>svg]:w-auto [&>svg]:min-w-[80px] [&>svg]:max-w-[120px] [&>svg_path]:!stroke-foreground [&>svg_path]:!fill-foreground"
                   />
                 ) : (
                   <span className="text-lg text-primary">{signature.data}</span>

@@ -26,25 +26,21 @@ const STEPS = [
   {
     id: "personal_info",
     title: "Personal Information",
-    description: "Basic details and Irish address",
     icon: UserIcon,
   },
   {
     id: "signature",
     title: "Create Signature",
-    description: "Choose or create your digital signature",
     icon: PencilSquareIcon,
   },
   {
     id: "legal_consent",
     title: "Legal Consent",
-    description: "Required legal agreements",
     icon: DocumentTextIcon,
   },
   {
     id: "verification",
     title: "Identity Verification",
-    description: "Secure identity verification",
     icon: ShieldCheckIcon,
   },
 ];
@@ -78,7 +74,12 @@ export default function OnboardingPage() {
 
   const [signature, setSignature] = useState<Signature | null>(null);
   const [consents, setConsents] = useState<string[]>([]);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [completionStatus, setCompletionStatus] = useState({
+    personal_info_completed: false,
+    signature_completed: false,
+    legal_consent_completed: false,
+    verification_completed: false,
+  });
 
   // Check authentication
   useEffect(() => {
@@ -162,20 +163,29 @@ export default function OnboardingPage() {
           const personalInfoWithOAuth = {
             ...personalInfoData.personalInfo,
             auth_provider: personalInfoData.dataSource?.provider || null,
-            user_id: user?.id || null
+            user_id: user?.id || null,
           };
+
           setPersonalInfo(personalInfoWithOAuth);
-          console.log("Personal info set with OAuth data:", personalInfoWithOAuth);
+          console.log(
+            "Personal info set with OAuth data:",
+            personalInfoWithOAuth,
+          );
         }
 
         // Set current step based on completion status if this is initial load without local progress
-        if (personalInfoData.completionStatus && shouldSetStep) {
-          const appropriateStep = determineCurrentStep(
-            personalInfoData.completionStatus,
-          );
+        if (personalInfoData.completionStatus) {
+          console.log("Setting completion status:", personalInfoData.completionStatus);
+          setCompletionStatus(personalInfoData.completionStatus);
+          
+          if (shouldSetStep) {
+            const appropriateStep = determineCurrentStep(
+              personalInfoData.completionStatus,
+            );
 
-          console.log("Setting current step to:", appropriateStep);
-          setCurrentStep(appropriateStep);
+            console.log("Setting current step to:", appropriateStep);
+            setCurrentStep(appropriateStep);
+          }
         }
       } else {
         console.error(
@@ -283,11 +293,20 @@ export default function OnboardingPage() {
           return;
       }
 
-      // Mark step as completed and move to next step
-      setCompletedSteps((prev) => [
-        ...prev.filter((s) => s !== stepIndex),
-        stepIndex,
-      ]);
+      // Update completion status and move to next step
+      const stepKeys = [
+        'personal_info_completed',
+        'signature_completed', 
+        'legal_consent_completed',
+        'verification_completed'
+      ];
+      
+      if (stepKeys[stepIndex]) {
+        setCompletionStatus(prev => ({
+          ...prev,
+          [stepKeys[stepIndex]]: true
+        }));
+      }
 
       if (stepIndex < STEPS.length - 1) {
         setCurrentStep(stepIndex + 1);
@@ -335,9 +354,27 @@ export default function OnboardingPage() {
     }
   };
 
+  // Get the highest completed step index
+  const getHighestCompletedStep = () => {
+    if (completionStatus.verification_completed) return 3;
+    if (completionStatus.legal_consent_completed) return 2;
+    if (completionStatus.signature_completed) return 1;
+    if (completionStatus.personal_info_completed) return 0;
+    return -1;
+  };
+
+  // Check if a step is clickable (completed steps + current step + next step if current is complete)
+  const isStepClickable = (stepIndex: number) => {
+    const highestCompleted = getHighestCompletedStep();
+    const nextAllowedStep = highestCompleted + 1;
+    
+    // Allow clicking on completed steps, current step, or next step if current is complete
+    return stepIndex <= nextAllowedStep;
+  };
+
   // Navigate between steps
   const goToStep = (stepIndex: number) => {
-    if (stepIndex <= Math.max(...completedSteps, -1) + 1) {
+    if (isStepClickable(stepIndex)) {
       setCurrentStep(stepIndex);
     }
   };
@@ -432,6 +469,7 @@ export default function OnboardingPage() {
                 currentStep={currentStep}
                 steps={STEPS}
                 onStepChange={goToStep}
+                clickableSteps={STEPS.map((_, index) => isStepClickable(index))}
               />
             </div>
           </div>
