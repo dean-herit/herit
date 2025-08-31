@@ -68,7 +68,9 @@ export async function hashPassword(password: string): Promise<string> {
     });
   } catch (error) {
     console.error("Password hashing error:", error);
-    throw new Error("Password hashing failed");
+    throw new Error(
+      `AUTH_HASH_ERROR: Password hashing failed - ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -104,7 +106,9 @@ export async function signAccessToken(
       .sign(JWT_SECRET);
   } catch (error) {
     console.error("Token signing error:", error);
-    throw new Error("Token signing failed");
+    throw new Error(
+      `AUTH_TOKEN_ERROR: JWT access token signing failed - ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 

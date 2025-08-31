@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 import { Signature } from "@/types/onboarding";
+import { sanitizeSVG } from "@/lib/svg-sanitizer";
 
 interface SignatureStampProps {
   signature: Signature;
@@ -53,7 +54,7 @@ export function SignatureStamp({
     } else if (signature.type === "drawn") {
       return (
         <div
-          dangerouslySetInnerHTML={{ __html: signature.data }}
+          dangerouslySetInnerHTML={{ __html: sanitizeSVG(signature.data) }}
           className="[&>svg]:h-12 [&>svg]:w-auto [&>svg]:min-w-[120px] [&>svg]:max-w-[200px] [&>svg_path]:!stroke-black [&>svg_path]:!fill-black dark:[&>svg_path]:!stroke-white dark:[&>svg_path]:!fill-white"
           style={{ transform: "scaleY(1.2)" }}
         />

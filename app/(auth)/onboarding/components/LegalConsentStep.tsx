@@ -9,6 +9,7 @@ import Image from "next/image";
 import { SignatureStamp } from "./SignatureStamp";
 
 import { Signature, SignedConsent } from "@/types/onboarding";
+import { sanitizeSVG } from "@/lib/svg-sanitizer";
 
 interface LegalConsentStepProps {
   signature: Signature;
@@ -336,7 +337,9 @@ export function LegalConsentStep({
                   />
                 ) : signature.type === "drawn" ? (
                   <div
-                    dangerouslySetInnerHTML={{ __html: signature.data }}
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeSVG(signature.data),
+                    }}
                     className="inline-block [&>svg]:h-8 [&>svg]:w-auto [&>svg]:min-w-[80px] [&>svg]:max-w-[120px] [&>svg_path]:!stroke-foreground [&>svg_path]:!fill-foreground"
                   />
                 ) : (

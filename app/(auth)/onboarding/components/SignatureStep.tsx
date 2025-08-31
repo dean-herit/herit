@@ -9,6 +9,7 @@ import { signatureFonts } from "@/config/fonts";
 import { processSignatureImage } from "@/lib/signature-extract";
 import { useOpenCV } from "@/hooks/useOpenCV";
 import { SignatureCanvas } from "@/components/auth/SignatureCanvas";
+import { sanitizeSVG } from "@/lib/svg-sanitizer";
 
 interface SignatureStepProps {
   personalInfo: PersonalInfo;
@@ -481,7 +482,9 @@ export function SignatureStep({
               </div>
             ) : signature.type === "drawn" ? (
               <div
-                dangerouslySetInnerHTML={{ __html: signature.data }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeSVG(signature.data),
+                }}
                 className="signature-preview [&>svg]:h-16 [&>svg]:w-auto [&>svg]:max-w-[300px] [&>svg_path]:!stroke-foreground [&>svg_path]:!fill-foreground"
               />
             ) : (

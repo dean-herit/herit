@@ -156,16 +156,31 @@ export default function DocumentUploadZone({
       // Handle completion
       xhr.addEventListener("load", () => {
         if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
+          try {
+            const response = JSON.parse(xhr.responseText);
 
-          setUploadQueue((prev) =>
-            prev.map((item) =>
-              item.fileName === file.name
-                ? { ...item, status: "complete", progress: 100 }
-                : item,
-            ),
-          );
-          onUploadComplete?.(response.id);
+            setUploadQueue((prev) =>
+              prev.map((item) =>
+                item.fileName === file.name
+                  ? { ...item, status: "complete", progress: 100 }
+                  : item,
+              ),
+            );
+            onUploadComplete?.(response.id);
+          } catch (parseError) {
+            console.error("Failed to parse upload response:", parseError);
+            setUploadQueue((prev) =>
+              prev.map((item) =>
+                item.fileName === file.name
+                  ? {
+                      ...item,
+                      status: "error",
+                      error: "Invalid response from server",
+                    }
+                  : item,
+              ),
+            );
+          }
         } else {
           // Parse error response for better error messages
           let errorMessage = "Upload failed";

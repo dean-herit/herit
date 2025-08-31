@@ -58,8 +58,9 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 
-  // Skip validation in certain environments if needed
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  // Only allow skipping validation in development
+  skipValidation:
+    process.env.NODE_ENV === "development" && !!process.env.SKIP_ENV_VALIDATION,
 
   // Make it clear when we're in production but missing vars
   emptyStringAsUndefined: true,

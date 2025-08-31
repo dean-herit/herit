@@ -994,7 +994,15 @@ export const getSchemaForAssetType = (assetType: AssetType) => {
       return OnlineAccountsSchema;
 
     default:
-      throw new Error(`No schema defined for asset type: ${assetType}`);
+      throw new Error(
+        `ASSET_SCHEMA_ERROR: No validation schema defined for asset type '${assetType}'. Available types: ${[
+          ...Object.values(FinancialAssetType),
+          ...Object.values(PropertyAssetType),
+          ...Object.values(BusinessAssetType),
+          ...Object.values(PersonalAssetType),
+          ...Object.values(DigitalAssetType),
+        ].join(", ")}`,
+      );
   }
 };
 

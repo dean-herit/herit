@@ -100,16 +100,16 @@ export function useCreateAsset() {
       // Optimistically update to show the new asset immediately
       if (previousAssets) {
         const optimisticAsset = {
-          id: `temp-${Date.now()}`,
+          id: `optimistic-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           name: newAsset.name,
-          asset_type: "personal" as any, // Default category, will be replaced by server
-          value: newAsset.estimatedValue,
+          asset_type: newAsset.asset_type || "personal",
+          value: newAsset.estimatedValue || 0,
           description: newAsset.description || null,
-          user_email: "current-user@temp.com", // Will be replaced by server
+          user_email: "", // Will be populated by server
           account_number: null,
           bank_name: null,
           property_address: null,
-          status: "active",
+          status: "pending", // Mark as pending to distinguish from real assets
           created_at: new Date(),
           updated_at: new Date(),
         } as Asset;
