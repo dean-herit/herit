@@ -81,6 +81,8 @@ export async function GET(request: NextRequest) {
         city: userData.city || "",
         county: userData.county || "",
         eircode: userData.eircode || "",
+        profile_photo: userData.profile_photo_url || null,
+        auth_provider: userData.auth_provider || null,
       },
       completionStatus: {
         personal_info_completed: userData.personal_info_completed || false,

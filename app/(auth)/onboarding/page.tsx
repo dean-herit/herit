@@ -160,9 +160,13 @@ export default function OnboardingPage() {
 
         if (personalInfoData.personalInfo) {
           // Merge personal info with OAuth provider data for immutable email handling
+          // Include auth_provider from personalInfo response which now includes it
           const personalInfoWithOAuth = {
             ...personalInfoData.personalInfo,
-            auth_provider: personalInfoData.dataSource?.provider || null,
+            auth_provider:
+              personalInfoData.personalInfo.auth_provider ||
+              personalInfoData.dataSource?.provider ||
+              null,
             user_id: user?.id || null,
           };
 

@@ -489,26 +489,20 @@ export async function GET(request: NextRequest) {
               ? dbError.message
               : "Unknown database error",
           processing_duration_ms: Date.now() - startTime,
-          fallback_session_created: true,
           ip_address: ipAddress,
         },
         ipAddress,
         sessionId,
       );
 
-      // Fallback: create temporary session without database (for development)
-      // Generate a proper UUID instead of using string concatenation
-      const userId = crypto.randomUUID();
-
-      await setAuthCookies(userId, googleUser.email);
-
-      const response = NextResponse.redirect(
-        new URL("/onboarding", request.url),
+      // DO NOT create a fake session - this causes issues downstream
+      // Instead, redirect to login with an error message
+      return NextResponse.redirect(
+        new URL(
+          "/login?error=database_error&message=Unable+to+complete+sign+in",
+          request.url,
+        ),
       );
-
-      response.cookies.delete("oauth_state");
-
-      return response;
     }
   } catch (error) {
     console.error("Google OAuth callback error:", error);

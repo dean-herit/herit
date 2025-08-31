@@ -88,6 +88,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Critical validation: Ensure we have a valid user ID
+    if (!session.user?.id) {
+      console.error("Session missing user ID - this should never happen:", {
+        isAuthenticated: session.isAuthenticated,
+        hasUser: !!session.user,
+        userEmail: session.user?.email,
+      });
+
+      return NextResponse.json(
+        {
+          error: "Invalid session",
+          details:
+            "User ID not found in session. Please log out and log in again.",
+        },
+        { status: 401 },
+      );
+    }
+
     const data = await request.json();
     const { verificationMethod, returnUrl } = data;
 
