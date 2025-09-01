@@ -71,6 +71,9 @@ const optionalEnvVars = [
   "REFRESH_SECRET",
   "GOOGLE_CLIENT_ID",
   "GOOGLE_CLIENT_SECRET",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+  "BLOB_READ_WRITE_TOKEN",
 ];
 
 const missingCriticalVars = criticalEnvVars.filter(

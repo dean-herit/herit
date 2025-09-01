@@ -24,6 +24,10 @@ export const env = createEnv({
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
 
+    // Stripe
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+
     // Vercel (optional)
     BLOB_READ_WRITE_TOKEN: z.string().optional(),
     VERCEL_OIDC_TOKEN: z.string().optional(),
@@ -50,6 +54,8 @@ export const env = createEnv({
     GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
     VERCEL_OIDC_TOKEN: process.env.VERCEL_OIDC_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
