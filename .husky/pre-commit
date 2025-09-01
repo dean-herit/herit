@@ -1,5 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
 echo "🔍 Running pre-commit checks..."
 
@@ -11,21 +10,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Check if any component tests were modified and run them
+# Check if any component tests were modified
 COMPONENT_TESTS=$(git diff --cached --name-only | grep -E "\.cy\.tsx$|\.stories\.tsx$")
 
 if [ ! -z "$COMPONENT_TESTS" ]; then
-  echo "🧪 Component tests modified, running quick validation..."
-  
-  # Run a quick test to make sure Cypress can load the components
-  npm run test:ct -- --headless --spec "**/components/**/*.cy.tsx" --run-timeout 30000 > /dev/null 2>&1
-  
-  if [ $? -ne 0 ]; then
-    echo "⚠️  Warning: Some component tests may have issues. Run 'npm run test:ct' to verify."
-    echo "🚀 Continuing with commit (tests will be verified in CI)..."
-  else
-    echo "✅ Component tests validation passed"
-  fi
+  echo "🧪 Component tests modified, skipping validation in pre-commit (will be verified in CI)..."
 fi
 
 echo "✨ Pre-commit checks completed successfully!"

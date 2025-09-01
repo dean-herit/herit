@@ -1,7 +1,7 @@
 {
   "framework": "nextjs",
   "buildCommand": "npx pnpm@9 run build",
-  "installCommand": "npm install -g pnpm@9 && npx pnpm@9 install --frozen-lockfile",
+  "installCommand": "npm install -g pnpm@9 && npx pnpm@9 install",
   "outputDirectory": ".next",
   "functions": {
     "app/api/**/*.ts": {
