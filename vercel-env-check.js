@@ -87,6 +87,58 @@ const dependencies = packageJson.default.dependencies || {};
 const devDependencies = packageJson.default.devDependencies || {};
 const allDeps = { ...dependencies, ...devDependencies };
 
+// Check for @heroui package import patterns that might fail in Vercel
+try {
+  const { exec } = await import("child_process");
+  const { promisify } = await import("util");
+  const execAsync = promisify(exec);
+
+  // Check specifically for @heroui packages
+  const { stdout } = await execAsync(
+    "npm ls @heroui/link @heroui/system @heroui/navbar 2>/dev/null || true",
+  );
+
+  if (stdout.includes("extraneous")) {
+    console.warn(
+      "⚠️  Found extraneous @heroui packages that might not be available in Vercel",
+    );
+    console.warn(
+      "    Recommended: Import from '@heroui/react' instead of individual packages",
+    );
+  }
+
+  // Check for problematic import patterns in source files
+  const { exec: exec2 } = await import("child_process");
+  const grepResult = await execAsync(
+    'grep -r "from [\'\\"]@heroui/" components/ app/ --include="*.tsx" --include="*.ts" 2>/dev/null || true',
+  );
+
+  if (grepResult.stdout) {
+    const lines = grepResult.stdout
+      .trim()
+      .split("\n")
+      .filter((line) => line);
+    const problematicImports = lines.filter(
+      (line) =>
+        !line.includes("@heroui/react") &&
+        !line.includes("@heroui/theme") &&
+        line.includes("@heroui/"),
+    );
+
+    if (problematicImports.length > 0) {
+      console.warn(
+        "⚠️  Found direct @heroui package imports that might fail in Vercel:",
+      );
+      problematicImports.forEach((line) => console.warn(`    ${line}`));
+      console.warn(
+        "    Recommended: Use '@heroui/react' for all component imports",
+      );
+    }
+  }
+} catch (error) {
+  console.warn("⚠️  Could not check @heroui import patterns:", error.message);
+}
+
 // Check for Cypress version compatibility
 if (allDeps.cypress) {
   const cypressVersion = allDeps.cypress.replace(/[^\d.]/g, "");
@@ -105,6 +157,111 @@ if (allDeps.cypress) {
       "⚠️  cypress-real-events may have compatibility issues with Cypress v15+",
     );
   }
+}
+
+// Check for import resolution issues with direct import tests
+console.log("🔍 Checking for import resolution issues...");
+
+try {
+  // Test common problematic imports by trying to resolve them
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
+  const problematicImports = [
+    {
+      file: "components/LayoutWrapper.tsx",
+      imports: ["@heroui/link", "@/components/navbar"],
+    },
+    { file: "app/providers.tsx", imports: ["@heroui/react"] },
+    { file: "components/navbar.tsx", imports: ["@heroui/navbar"] },
+  ];
+
+  for (const { file, imports } of problematicImports) {
+    try {
+      const filePath = path.default.resolve(file);
+      const fileExists = await fs.default
+        .access(filePath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (fileExists) {
+        console.log(`🔍 Checking imports in ${file}...`);
+        const content = await fs.default.readFile(filePath, "utf8");
+
+        for (const importName of imports) {
+          if (content.includes(`from "${importName}"`)) {
+            // Try to resolve the module
+            try {
+              if (importName.startsWith("@heroui/")) {
+                // Check if the HeroUI module exists
+                const modulePath = path.default.resolve(
+                  "node_modules",
+                  importName,
+                  "dist",
+                  "index.d.ts",
+                );
+                await fs.default.access(modulePath);
+                console.log(`✅ ${importName} resolves correctly`);
+              } else if (importName.startsWith("@/")) {
+                // Check if local module exists
+                const localPath = importName.replace("@/", "./");
+                const tsPath = path.default.resolve(localPath + ".ts");
+                const tsxPath = path.default.resolve(localPath + ".tsx");
+                const indexPath = path.default.resolve(localPath, "index.ts");
+                const indexTsxPath = path.default.resolve(
+                  localPath,
+                  "index.tsx",
+                );
+
+                const exists = await Promise.all([
+                  fs.default
+                    .access(tsPath)
+                    .then(() => true)
+                    .catch(() => false),
+                  fs.default
+                    .access(tsxPath)
+                    .then(() => true)
+                    .catch(() => false),
+                  fs.default
+                    .access(indexPath)
+                    .then(() => true)
+                    .catch(() => false),
+                  fs.default
+                    .access(indexTsxPath)
+                    .then(() => true)
+                    .catch(() => false),
+                ]);
+
+                if (exists.some((e) => e)) {
+                  console.log(`✅ ${importName} resolves correctly`);
+                } else {
+                  console.error(
+                    `❌ Cannot resolve module: ${importName} in ${file}`,
+                  );
+                  console.error(
+                    `Tried paths: ${tsPath}, ${tsxPath}, ${indexPath}, ${indexTsxPath}`,
+                  );
+                  process.exit(1);
+                }
+              }
+            } catch (error) {
+              console.error(
+                `❌ Cannot resolve module: ${importName} in ${file}`,
+              );
+              console.error(`Error: ${error.message}`);
+              process.exit(1);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️  Could not check ${file}: ${error.message}`);
+    }
+  }
+
+  console.log("✅ Import resolution check passed");
+} catch (error) {
+  console.warn("⚠️  Could not run import resolution check:", error.message);
 }
 
 console.log("✅ Vercel environment check completed");
