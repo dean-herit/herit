@@ -4,9 +4,9 @@
 COMMIT_MSG=$(git log -1 --pretty=%B)
 
 # Check if any component files were in the commit
-COMPONENT_FILES=$(git diff HEAD~1 --name-only | grep "components/.*\.tsx$" | grep -v "\.stories\." | grep -v "\.cy\.")
+COMPONENT_FILES=$(git diff HEAD~1 --name-only | grep "components/.*\.tsx$" | grep -v "\.stories\." | grep -v "\.cy\." || true)
 
-if [ ! -z "$COMPONENT_FILES" ]; then
+if [ -n "$COMPONENT_FILES" ]; then
   echo ""
   echo "🎉 Commit successful!"
   echo ""
