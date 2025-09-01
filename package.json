@@ -44,7 +44,8 @@
     "test:cli": "pnpm cli status && pnpm cli history --limit 5",
     "vercel:check": "node vercel-env-check.js",
     "vercel:build-test": "npm run vercel:check && npm run typecheck && npm run build",
-    "vercel:test": "node scripts/test-vercel-build.js"
+    "vercel:test": "node scripts/test-vercel-build.js",
+    "vercel:ready": "node scripts/check-vercel-readiness.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
