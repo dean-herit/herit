@@ -11,6 +11,7 @@ export function AppleSignInButton() {
   return (
     <Button
       className="w-full"
+      data-testid="Button-ffz7bj9n2"
       size="lg"
       startContent={
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

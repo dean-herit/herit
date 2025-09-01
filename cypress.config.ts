@@ -37,7 +37,11 @@ export default defineConfig({
       bundler: "webpack", // Next.js uses webpack, not vite
     },
     supportFile: "cypress/support/component.ts",
-    specPattern: "components/**/*.cy.{js,jsx,ts,tsx}", // Colocated tests
+    specPattern: [
+      "components/**/*.cy.{js,jsx,ts,tsx}",
+      "app/**/*.cy.{js,jsx,ts,tsx}",
+      "providers/**/*.cy.{js,jsx,ts,tsx}",
+    ], // Colocated tests
     indexHtmlFile: "cypress/support/component-index.html",
   },
 });

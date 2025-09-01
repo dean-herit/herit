@@ -24,6 +24,7 @@ export function GoogleSignInButton({
   return (
     <Button
       className="w-full text-white border-white/50 hover:border-white/70"
+      data-testid="Button-odbnt84wb"
       startContent={<Icon icon="flat-color-icons:google" width={24} />}
       variant="bordered"
       onPress={handleGoogleSignIn}

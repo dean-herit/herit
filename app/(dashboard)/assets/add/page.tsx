@@ -600,6 +600,7 @@ export default function AddAssetV2Page() {
                           ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                           : "hover:border-default-400"
                       }`}
+                      data-testid="Card-bwazpg3xp"
                       onPress={() =>
                         handleFieldChange("category", key as AssetCategory)
                       }
@@ -659,6 +660,7 @@ export default function AddAssetV2Page() {
                             ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                             : "hover:border-default-400"
                         }`}
+                        data-testid="Card-i9d24eo55"
                         onPress={() => {
                           handleFieldChange("asset_type", assetType);
                           handleFieldChange(
@@ -929,7 +931,12 @@ export default function AddAssetV2Page() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-4">
-        <Button isIconOnly variant="light" onPress={() => router.back()}>
+        <Button
+          isIconOnly
+          data-testid="Button-ysvt7a7zn"
+          variant="light"
+          onPress={() => router.back()}
+        >
           <ArrowLeftIcon className="h-5 w-5" />
         </Button>
         <div>
@@ -1007,6 +1014,7 @@ export default function AddAssetV2Page() {
         <CardBody className="py-4">
           <div className="flex justify-between">
             <Button
+              data-testid="Button-oozn8ch0v"
               isDisabled={isLoading}
               variant="bordered"
               onPress={currentStep === 0 ? () => router.back() : handlePrevious}
@@ -1016,6 +1024,7 @@ export default function AddAssetV2Page() {
 
             <Button
               color="primary"
+              data-testid="Button-xh0sk2xip"
               isDisabled={
                 (currentStep === 0 && !formData.category) ||
                 (currentStep === 1 && !formData.asset_type) ||

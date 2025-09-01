@@ -261,6 +261,7 @@ export function SignatureStep({
           <Card
             isPressable
             className="hover:shadow-md transition-shadow cursor-pointer"
+            data-testid="Card-vf7br0xh7"
             onPress={() => handleMethodSelect("text")}
           >
             <CardBody className="p-4">
@@ -306,6 +307,7 @@ export function SignatureStep({
               ? "hover:shadow-md cursor-pointer"
               : "opacity-60 cursor-not-allowed"
           }`}
+          data-testid="Card-zjg8da1v1"
           isPressable={isOpenCVReady && !isProcessing}
           onPress={
             isOpenCVReady && !isProcessing
@@ -341,6 +343,7 @@ export function SignatureStep({
         <input
           ref={fileInputRef}
           accept="image/*"
+          data-testid="input-gpxobz5ez"
           style={{ display: "none" }}
           type="file"
           onChange={handleFileUpload}
@@ -349,7 +352,12 @@ export function SignatureStep({
 
       <div className="flex justify-between pt-6">
         {onBack ? (
-          <Button isDisabled={loading} variant="bordered" onPress={onBack}>
+          <Button
+            data-testid="Button-hlsyuda7y"
+            isDisabled={loading}
+            variant="bordered"
+            onPress={onBack}
+          >
             Back
           </Button>
         ) : (
@@ -383,6 +391,7 @@ export function SignatureStep({
                     ? "border-primary-500 bg-primary-50 shadow-md"
                     : "border-default-200"
                 }`}
+                data-testid="Card-fdzvo836t"
                 onPress={() => handleFontSelect(fontData)}
               >
                 <CardBody className="p-6 flex items-center justify-center min-h-[100px]">
@@ -398,11 +407,16 @@ export function SignatureStep({
           </div>
 
           <div className="flex justify-between pt-6">
-            <Button variant="bordered" onPress={handleBackToMethodSelection}>
+            <Button
+              data-testid="Button-mwmuqcd4g"
+              variant="bordered"
+              onPress={handleBackToMethodSelection}
+            >
               Back
             </Button>
             <Button
               color="primary"
+              data-testid="Button-jhtvxt5gm"
               isDisabled={!signature}
               onPress={handleConfirmSignature}
             >
@@ -442,13 +456,22 @@ export function SignatureStep({
                 <p className="text-default-600 mb-4">
                   Upload a clear photo of your signature on white paper.
                 </p>
-                <Button onPress={handleUploadClick}>Choose File</Button>
+                <Button
+                  data-testid="Button-3fapgqk4z"
+                  onPress={handleUploadClick}
+                >
+                  Choose File
+                </Button>
               </div>
             )}
           </div>
 
           <div className="flex justify-between pt-6">
-            <Button variant="bordered" onPress={handleBackToMethodSelection}>
+            <Button
+              data-testid="Button-pwkjljmu1"
+              variant="bordered"
+              onPress={handleBackToMethodSelection}
+            >
               Back
             </Button>
             <div />
@@ -501,7 +524,11 @@ export function SignatureStep({
       )}
 
       <div className="flex justify-between pt-6">
-        <Button variant="bordered" onPress={handleBackToMethodSelection}>
+        <Button
+          data-testid="Button-eyu6e5clz"
+          variant="bordered"
+          onPress={handleBackToMethodSelection}
+        >
           Start Over
         </Button>
         <Button

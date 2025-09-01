@@ -491,7 +491,12 @@ export function LegalConsentStep({
       {/* Navigation */}
       <div className="flex justify-between pt-6">
         {onBack ? (
-          <Button isDisabled={loading} variant="bordered" onPress={onBack}>
+          <Button
+            data-testid="Button-0v2b2ukzh"
+            isDisabled={loading}
+            variant="bordered"
+            onPress={onBack}
+          >
             Back
           </Button>
         ) : (

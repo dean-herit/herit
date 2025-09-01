@@ -327,7 +327,10 @@ export function CreateRuleModal({
             </ModalHeader>
 
             <ModalBody>
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form
+                data-testid="form-7re89y23r"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
@@ -366,6 +369,7 @@ export function CreateRuleModal({
                           <Input
                             {...field}
                             className="max-w-32"
+                            data-testid="Input-vjculnfb4"
                             label="Priority"
                             max={100}
                             min={1}
@@ -411,6 +415,7 @@ export function CreateRuleModal({
                     <div className="flex justify-between items-center">
                       <h4 className="text-lg font-medium">Rule Conditions</h4>
                       <Button
+                        data-testid="Button-jkpndby5h"
                         size="sm"
                         startContent={<PlusIcon className="w-4 h-4" />}
                         variant="ghost"
@@ -504,6 +509,7 @@ export function CreateRuleModal({
                                 <Button
                                   isIconOnly
                                   color="danger"
+                                  data-testid="Button-0euckudi0"
                                   variant="light"
                                   onPress={() => handleRemoveCondition(index)}
                                 >
@@ -524,6 +530,7 @@ export function CreateRuleModal({
                     <div className="flex justify-between items-center">
                       <h4 className="text-lg font-medium">Asset Allocations</h4>
                       <Button
+                        data-testid="Button-76mtljomm"
                         size="sm"
                         startContent={<PlusIcon className="w-4 h-4" />}
                         variant="ghost"
@@ -599,6 +606,7 @@ export function CreateRuleModal({
                                   <Input
                                     {...field}
                                     className="flex-1"
+                                    data-testid="Input-guoqgsoip"
                                     label="Percentage %"
                                     max={100}
                                     min={0}
@@ -624,6 +632,7 @@ export function CreateRuleModal({
                                   <Input
                                     {...field}
                                     className="flex-1"
+                                    data-testid="Input-cly6dg9ag"
                                     label="Fixed Amount €"
                                     min={0}
                                     type="number"
@@ -643,6 +652,7 @@ export function CreateRuleModal({
                                 <Button
                                   isIconOnly
                                   color="danger"
+                                  data-testid="Button-cd464sxvd"
                                   variant="light"
                                   onPress={() => handleRemoveAllocation(index)}
                                 >
@@ -763,12 +773,20 @@ export function CreateRuleModal({
             </ModalBody>
 
             <ModalFooter>
-              <Button variant="light" onPress={onClose}>
+              <Button
+                data-testid="Button-amt2tcvv0"
+                variant="light"
+                onPress={onClose}
+              >
                 Cancel
               </Button>
 
               {currentStep > 1 && (
-                <Button variant="ghost" onPress={prevStep}>
+                <Button
+                  data-testid="Button-wynb5cknc"
+                  variant="ghost"
+                  onPress={prevStep}
+                >
                   Previous
                 </Button>
               )}
@@ -776,6 +794,7 @@ export function CreateRuleModal({
               {currentStep < 4 ? (
                 <Button
                   color="primary"
+                  data-testid="Button-cc202x55k"
                   isDisabled={
                     (currentStep === 1 && !canProceedToStep2) ||
                     (currentStep === 2 && !canProceedToStep2) ||
@@ -788,6 +807,7 @@ export function CreateRuleModal({
               ) : (
                 <Button
                   color="primary"
+                  data-testid="Button-r5k785ct0"
                   isDisabled={!isValid}
                   isLoading={createRuleMutation.isPending}
                   onPress={() => handleSubmit(onSubmit)()}

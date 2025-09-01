@@ -90,6 +90,7 @@ export function ViewRuleModal({
           <div className="flex justify-between items-center w-full">
             <Button
               color="danger"
+              data-testid="Button-piazc9blb"
               isLoading={deleteRuleMutation.isPending}
               startContent={<TrashIcon className="w-4 h-4" />}
               variant="light"
@@ -99,13 +100,18 @@ export function ViewRuleModal({
             </Button>
 
             <div className="flex gap-2">
-              <Button variant="light" onPress={onClose}>
+              <Button
+                data-testid="Button-nthm6tadh"
+                variant="light"
+                onPress={onClose}
+              >
                 Close
               </Button>
 
               {onEdit && (
                 <Button
                   color="primary"
+                  data-testid="Button-7z3shyaaa"
                   startContent={<PencilIcon className="w-4 h-4" />}
                   onPress={onEdit}
                 >

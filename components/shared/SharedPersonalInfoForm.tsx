@@ -316,6 +316,7 @@ export function SharedPersonalInfoForm({
             </label>
             <div className="flex-1 mx-8 mb-6 mt-4">
               <SharedPhotoUpload
+                data-testid="SharedPhotoUpload-ogos1i4pk"
                 hasExistingPhoto={!!initialPhotoUrl}
                 mode={mode}
                 name={watch("name") || ""}

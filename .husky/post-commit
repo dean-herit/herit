@@ -1,0 +1,58 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Get the last commit message
+COMMIT_MSG=$(git log -1 --pretty=%B)
+
+# Check if any component files were in the commit
+COMPONENT_FILES=$(git diff HEAD~1 --name-only | grep "components/.*\.tsx$" | grep -v "\.stories\." | grep -v "\.cy\.")
+
+if [ ! -z "$COMPONENT_FILES" ]; then
+  echo ""
+  echo "🎉 Commit successful!"
+  echo ""
+  echo "📊 Component Testing Summary:"
+  
+  # Count components modified
+  COMPONENT_COUNT=$(echo "$COMPONENT_FILES" | wc -l | xargs)
+  echo "   📝 ${COMPONENT_COUNT} component(s) modified"
+  
+  # Check if stories/tests exist for each
+  MISSING_STORIES=0
+  MISSING_TESTS=0
+  
+  for file in $COMPONENT_FILES; do
+    component_name=$(basename "$file" .tsx)
+    component_dir=$(dirname "$file")
+    story_file="${component_dir}/${component_name}.stories.tsx"
+    test_file="${component_dir}/${component_name}.cy.tsx"
+    
+    if [ ! -f "$story_file" ]; then
+      MISSING_STORIES=$((MISSING_STORIES + 1))
+    fi
+    
+    if [ ! -f "$test_file" ]; then
+      MISSING_TESTS=$((MISSING_TESTS + 1))
+    fi
+  done
+  
+  if [ $MISSING_STORIES -eq 0 ] && [ $MISSING_TESTS -eq 0 ]; then
+    echo "   ✅ All components have stories and tests"
+  else
+    if [ $MISSING_STORIES -gt 0 ]; then
+      echo "   ⚠️  ${MISSING_STORIES} component(s) missing Storybook stories"
+    fi
+    if [ $MISSING_TESTS -gt 0 ]; then
+      echo "   ⚠️  ${MISSING_TESTS} component(s) missing Cypress tests"  
+    fi
+  fi
+  
+  echo ""
+  echo "🧪 Next Steps:"
+  echo "   • Run 'npm run storybook' to test your components"
+  echo "   • Run 'npm run test:ct' to run component tests"
+  echo "   • Run 'npm run test:e2e' for full integration testing"
+  echo ""
+  echo "📚 Learn more: https://storybook.js.org/docs/react/writing-tests/interaction-testing"
+  echo ""
+fi

@@ -278,6 +278,189 @@ npm run typecheck     # TypeScript validation
 npm run lint          # ESLint validation
 ```
 
+## 🧪 **MANDATORY: Component Testing Workflow** 
+
+### **🚨 CRITICAL RULE: 100% Storybook & Cypress Compliance**
+
+**EVERY React component MUST have:**
+- ✅ **Storybook story** (`.stories.tsx`) 
+- ✅ **Cypress component test** (`.cy.tsx`)
+- ✅ **data-testid attributes** on interactive elements
+
+**This is enforced by ESLint rules and pre-commit hooks. Non-compliant code will not pass CI/CD.**
+
+### **Component Development Checklist**
+
+When creating or modifying components, follow this **mandatory** workflow:
+
+#### 1. **Component Creation** 
+```bash
+# Create component
+touch components/[category]/MyComponent.tsx
+
+# Auto-generate tests (or create manually)
+npx tsx scripts/generate-component-tests.ts
+```
+
+#### 2. **Required Files Structure**
+```
+components/[category]/
+├── MyComponent.tsx           # ✅ Main component
+├── MyComponent.stories.tsx   # ✅ REQUIRED: Storybook stories  
+└── MyComponent.cy.tsx        # ✅ REQUIRED: Cypress tests
+```
+
+#### 3. **Storybook Story Requirements**
+Every `.stories.tsx` file must include:
+- **Default story** with basic rendering
+- **Interactive story** with user interactions
+- **Error/Loading states** (if applicable)
+- **MSW mocking** for API calls
+- **Interaction tests** using `@storybook/test`
+
+```typescript
+// Example story template
+import type { Meta, StoryObj } from "@storybook/react";
+import { within, userEvent, expect, fn } from "@storybook/test";
+import { MyComponent } from "./MyComponent";
+
+const meta: Meta<typeof MyComponent> = {
+  title: "Category/MyComponent",
+  component: MyComponent,
+  args: { onClick: fn() },
+  tags: ["autodocs"],
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole("button")).toBeVisible();
+  },
+};
+```
+
+#### 4. **Cypress Test Requirements**  
+Every `.cy.tsx` file must include:
+- **Rendering tests** (component mounts without errors)
+- **Interaction tests** (user actions work correctly)
+- **Accessibility tests** (ARIA, keyboard navigation)
+- **Responsive tests** (works on mobile/tablet/desktop)
+
+```typescript
+// Example Cypress test template
+import { MyComponent } from "./MyComponent";
+
+describe("MyComponent", () => {
+  it("renders without crashing", () => {
+    cy.mount(<MyComponent />);
+    cy.get('[data-testid*="my-component"]').should("be.visible");
+  });
+  
+  it("handles user interactions", () => {
+    const onClick = cy.stub();
+    cy.mount(<MyComponent onClick={onClick} />);
+    cy.get('[data-testid*="button"]').click();
+    cy.wrap(onClick).should("have.been.called");
+  });
+});
+```
+
+#### 5. **data-testid Requirements**
+All interactive elements MUST have `data-testid` attributes:
+- ✅ Buttons: `data-testid="button-action-name"`  
+- ✅ Inputs: `data-testid="input-field-name"`
+- ✅ Links: `data-testid="link-destination"`
+- ✅ Forms: `data-testid="form-name"`
+
+**ESLint will auto-add these if missing, but always use semantic names!**
+
+### **Testing Commands**
+
+```bash
+# Run all tests
+npm run test:all          # Unit + Component + E2E
+
+# Individual test types
+npm run test:unit         # Vitest unit tests
+npm run test:ct           # Cypress component tests  
+npm run test:e2e          # Cypress E2E tests
+npm run storybook         # Start Storybook dev server
+npm run storybook:test    # Test interactions in Storybook
+
+# Linting (enforces test compliance)
+npm run lint              # ESLint with component test rules
+npm run typecheck         # TypeScript validation
+```
+
+### **MSW Integration for API Mocking**
+
+All components that make API calls must use MSW mocking in stories:
+
+```typescript
+// In .stories.tsx files
+import { http, HttpResponse } from "msw";
+
+export const WithApiData: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/beneficiaries", () => {
+          return HttpResponse.json([mockBeneficiary]);
+        }),
+      ],
+    },
+  },
+};
+```
+
+### **Pre-commit Enforcement**
+
+The following checks run automatically on every commit:
+
+1. **ESLint compliance** - Ensures stories & tests exist
+2. **TypeScript check** - No type errors allowed
+3. **Test execution** - Component tests must pass
+4. **Formatting** - Prettier auto-formatting
+
+**Commits will be rejected if any component lacks required test files.**
+
+### **CI/CD Pipeline**
+
+Our GitHub Actions workflow validates:
+- ✅ All components have stories and tests
+- ✅ Storybook builds successfully
+- ✅ All Cypress tests pass
+- ✅ Coverage thresholds met (>70%)
+- ✅ No ESLint violations
+
+### **Developer Productivity Tools**
+
+- **Auto-generation**: `npx tsx scripts/generate-component-tests.ts`
+- **Live testing**: Storybook with hot reload
+- **Visual debugging**: Cypress Test Runner  
+- **Coverage reports**: Generated after test runs
+
+### **Quick Reference**
+
+| Task | Command | Required |
+|------|---------|----------|
+| Create component story | Auto-generated or manual | ✅ **MANDATORY** |
+| Create component test | Auto-generated or manual | ✅ **MANDATORY** |  
+| Add data-testid | ESLint auto-fix or manual | ✅ **MANDATORY** |
+| Run component tests | `npm run test:ct` | Before commit |
+| Check compliance | `npm run lint` | Before commit |
+
+**❌ BLOCKED ACTIONS:**
+- Cannot commit without component stories
+- Cannot commit without component tests  
+- Cannot deploy without passing tests
+- Cannot merge PR without 100% compliance
+
+---
+
 ### MCP Development Workflow
 
 **Combined MCP Usage:**

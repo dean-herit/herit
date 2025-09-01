@@ -145,7 +145,11 @@ export function DashboardClient() {
             <p className="text-red-600 mb-4">
               Failed to load dashboard data. Please try again.
             </p>
-            <Button color="primary" onPress={() => window.location.reload()}>
+            <Button
+              color="primary"
+              data-testid="Button-thhhfriix"
+              onPress={() => window.location.reload()}
+            >
               Retry
             </Button>
           </CardBody>

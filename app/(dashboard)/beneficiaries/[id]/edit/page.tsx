@@ -69,6 +69,7 @@ export default function EditBeneficiaryPage({
             </p>
             <Button
               color="primary"
+              data-testid="Button-p784gndwv"
               startContent={<ArrowLeftIcon className="h-4 w-4" />}
               onPress={handleCancel}
             >
@@ -86,6 +87,7 @@ export default function EditBeneficiaryPage({
       <div className="mb-6">
         <Button
           className="mb-4"
+          data-testid="Button-kw1ratqcn"
           startContent={<ArrowLeftIcon className="h-4 w-4" />}
           variant="light"
           onPress={handleCancel}
@@ -101,6 +103,7 @@ export default function EditBeneficiaryPage({
 
       {/* Form */}
       <BeneficiaryForm
+        data-testid="BeneficiaryForm-wovi8fhw7"
         initialData={{
           ...beneficiary,
           country: beneficiary.country || "Ireland",

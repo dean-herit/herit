@@ -174,7 +174,11 @@ export default function DocumentManager({
             <p className="text-red-600 mb-4">
               Failed to load documents. Please try again.
             </p>
-            <Button color="primary" onPress={() => window.location.reload()}>
+            <Button
+              color="primary"
+              data-testid="Button-idw9fcvtd"
+              onPress={() => window.location.reload()}
+            >
               Retry
             </Button>
           </CardBody>
@@ -220,6 +224,7 @@ export default function DocumentManager({
             <div className="flex gap-2">
               <Button
                 color="primary"
+                data-testid="Button-voll4rlhc"
                 startContent={<PlusIcon className="w-4 h-4" />}
                 onPress={onUploadOpen}
               >
@@ -345,6 +350,7 @@ export default function DocumentManager({
                     <Tooltip content="Preview">
                       <Button
                         isIconOnly
+                        data-testid="Button-n9ef09c1a"
                         size="sm"
                         variant="light"
                         onPress={() => handlePreviewDocument(doc)}
@@ -356,6 +362,7 @@ export default function DocumentManager({
                     <Tooltip content="Download">
                       <Button
                         isIconOnly
+                        data-testid="Button-8fgohb66x"
                         size="sm"
                         variant="light"
                         onPress={() => handleDownloadDocument(doc)}
@@ -368,6 +375,7 @@ export default function DocumentManager({
                       <Button
                         isIconOnly
                         color="danger"
+                        data-testid="Button-k9em060ae"
                         size="sm"
                         variant="light"
                         onPress={() => handleDeleteDocument(doc.id)}
@@ -400,7 +408,11 @@ export default function DocumentManager({
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={onUploadClose}>
+            <Button
+              data-testid="Button-1sqw68hb6"
+              variant="light"
+              onPress={onUploadClose}
+            >
               Done
             </Button>
           </ModalFooter>
@@ -434,6 +446,7 @@ export default function DocumentManager({
                     </p>
                     <Button
                       className="mt-4"
+                      data-testid="Button-8zuc3ica2"
                       onPress={() => handleDownloadDocument(previewDocument)}
                     >
                       Download to View
@@ -444,12 +457,17 @@ export default function DocumentManager({
             )}
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={onPreviewClose}>
+            <Button
+              data-testid="Button-kxi85hwss"
+              variant="light"
+              onPress={onPreviewClose}
+            >
               Close
             </Button>
             {previewDocument && (
               <Button
                 color="primary"
+                data-testid="Button-ynmury083"
                 onPress={() => handleDownloadDocument(previewDocument)}
               >
                 Download

@@ -102,12 +102,18 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
               <Button
                 className="w-full"
                 color="primary"
+                data-testid="Button-qz719cz74"
                 onPress={handleForceLogout}
               >
                 {errorInfo.action}
               </Button>
               {onRetry && (
-                <Button className="w-full" variant="ghost" onPress={onRetry}>
+                <Button
+                  className="w-full"
+                  data-testid="Button-cuxwy4ncs"
+                  variant="ghost"
+                  onPress={onRetry}
+                >
                   Try Again
                 </Button>
               )}
@@ -134,6 +140,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
             <div className="flex gap-2">
               <Button
                 color="warning"
+                data-testid="Button-n77famagb"
                 size="sm"
                 variant="solid"
                 onPress={() => router.push("/login")}
@@ -141,7 +148,12 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
                 {errorInfo.action}
               </Button>
               {onRetry && (
-                <Button size="sm" variant="ghost" onPress={onRetry}>
+                <Button
+                  data-testid="Button-k6q3yndwl"
+                  size="sm"
+                  variant="ghost"
+                  onPress={onRetry}
+                >
                   Retry
                 </Button>
               )}

@@ -191,6 +191,7 @@ export default function BeneficiariesPage() {
               </p>
               <Button
                 color="primary"
+                data-testid="Button-x80wi1ljq"
                 startContent={<PlusIcon className="h-4 w-4" />}
                 onPress={handleAddBeneficiary}
               >
@@ -216,6 +217,7 @@ export default function BeneficiariesPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   className="flex-1 px-3 py-2 border rounded-lg"
+                  data-testid="input-afm8xflyi"
                   placeholder="Search beneficiaries..."
                   type="text"
                   value={searchParams.search}
@@ -223,6 +225,7 @@ export default function BeneficiariesPage() {
                 />
                 <select
                   className="px-3 py-2 border rounded-lg"
+                  data-testid="select-ni2hxahqp"
                   value={searchParams.relationship_type || ""}
                   onChange={(e) =>
                     handleFilterChange({
@@ -257,6 +260,7 @@ export default function BeneficiariesPage() {
               {totalBeneficiaries > searchParams.pageSize && (
                 <div className="flex justify-center mt-4">
                   <Button
+                    data-testid="Button-4owkupdyn"
                     isDisabled={searchParams.page === 1}
                     variant="flat"
                     onPress={() => handlePageChange(searchParams.page - 1)}
@@ -268,6 +272,7 @@ export default function BeneficiariesPage() {
                     {Math.ceil(totalBeneficiaries / searchParams.pageSize)}
                   </span>
                   <Button
+                    data-testid="Button-66mgr22te"
                     isDisabled={
                       searchParams.page >=
                       Math.ceil(totalBeneficiaries / searchParams.pageSize)

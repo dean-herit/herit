@@ -141,6 +141,7 @@ export function VerticalSteps({
                     },
                     stepClassName,
                   )}
+                  data-testid="Button-8l2h2cvpk"
                   isDisabled={!isClickable}
                   variant="light"
                   onPress={() => handleStepClick(stepIdx)}

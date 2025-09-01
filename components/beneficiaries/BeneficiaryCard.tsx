@@ -132,6 +132,7 @@ export function BeneficiaryCard({
             <DropdownTrigger>
               <Button
                 isIconOnly
+                data-testid="Button-75idmedwj"
                 size="sm"
                 variant="light"
                 onClick={(e) => e.stopPropagation()}
@@ -142,6 +143,7 @@ export function BeneficiaryCard({
             <DropdownMenu aria-label="Beneficiary actions">
               <DropdownItem
                 key="edit"
+                data-testid="DropdownItem-fm4ob2gxm"
                 startContent={<IconEdit size={16} />}
                 onPress={() => onEdit?.(beneficiary)}
               >
@@ -151,6 +153,7 @@ export function BeneficiaryCard({
                 key="delete"
                 className="text-danger"
                 color="danger"
+                data-testid="DropdownItem-qq5ssnwj6"
                 startContent={<IconTrash size={16} />}
                 onPress={() => onDelete?.(beneficiary)}
               >

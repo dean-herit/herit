@@ -41,6 +41,7 @@ export default function TestSharedFormPage() {
                   ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
+              data-testid="button-cf6hfd2bq"
               onClick={() => setMode("onboarding")}
             >
               Onboarding Mode
@@ -51,6 +52,7 @@ export default function TestSharedFormPage() {
                   ? "bg-primary text-white"
                   : "bg-default-100 text-default-600"
               }`}
+              data-testid="button-9cd6u2k56"
               onClick={() => setMode("beneficiary")}
             >
               Beneficiary Mode
@@ -61,6 +63,7 @@ export default function TestSharedFormPage() {
         {/* Form Component */}
         <SharedPersonalInfoFormProvider
           key={mode} // Force re-mount when mode changes
+          data-testid="SharedPersonalInfoFormProvider-3atnhxx8d"
           mode={mode}
           showPhotoUpload={true}
           submitLabel={

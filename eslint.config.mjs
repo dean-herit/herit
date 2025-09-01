@@ -12,6 +12,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
+// Custom plugin for Storybook/Cypress compliance
+import storybookCypressCompliance from "./eslint-plugins/storybook-cypress-compliance.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +38,10 @@ export default defineConfig([globalIgnores([
     "**/coverage",
     "**/.next",
     "**/build",
+    "**/*.stories.tsx",
+    "**/*.cy.tsx",
+    "cypress/**/*",
+    "storybook-static/**/*",
     "!**/.commitlintrc.cjs",
     "!**/.lintstagedrc.cjs",
     "!**/jest.config.js",
@@ -58,6 +64,7 @@ export default defineConfig([globalIgnores([
         "@typescript-eslint": typescriptEslint,
         "jsx-a11y": fixupPluginRules(jsxA11Y),
         prettier: fixupPluginRules(prettier),
+        "storybook-cypress-compliance": storybookCypressCompliance,
     },
 
     languageOptions: {
@@ -147,6 +154,11 @@ export default defineConfig([globalIgnores([
             prev: ["const", "let", "var"],
             next: ["const", "let", "var"],
         }],
+
+        // Storybook/Cypress Compliance Rules
+        "storybook-cypress-compliance/require-component-tests": "error",
+        "storybook-cypress-compliance/require-testid-attributes": "warn",
+        "storybook-cypress-compliance/require-named-export": "warn",
 
     },
 }]);

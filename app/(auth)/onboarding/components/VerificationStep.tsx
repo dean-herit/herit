@@ -446,6 +446,7 @@ export function VerificationStep({
       <div className="flex justify-between pt-6">
         {onBack ? (
           <Button
+            data-testid="Button-k3y61g9wd"
             isDisabled={loading || isLoading}
             variant="bordered"
             onPress={onBack}

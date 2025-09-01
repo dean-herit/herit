@@ -72,6 +72,7 @@ export function BeneficiaryForm({
   return (
     <div className="max-w-6xl mx-auto">
       <SharedPersonalInfoFormProvider
+        data-testid="SharedPersonalInfoFormProvider-awc2lyi9a"
         initialData={convertToSharedData(initialData || {})}
         loading={loading}
         mode="beneficiary"

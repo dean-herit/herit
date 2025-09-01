@@ -140,6 +140,7 @@ export function BeneficiaryList({
                 showControls
                 showShadow
                 color="primary"
+                data-testid="Pagination-za6dgm72w"
                 page={page}
                 total={totalPages}
                 onChange={onPageChange}
@@ -236,6 +237,7 @@ export function BeneficiaryList({
                   <DropdownMenu aria-label="Beneficiary actions">
                     <DropdownItem
                       key="view"
+                      data-testid="DropdownItem-5uyg05ezs"
                       startContent={<IconEye size={16} />}
                       onPress={() => onView?.(item)}
                     >
@@ -243,6 +245,7 @@ export function BeneficiaryList({
                     </DropdownItem>
                     <DropdownItem
                       key="edit"
+                      data-testid="DropdownItem-48i0oah30"
                       startContent={<IconEdit size={16} />}
                       onPress={() => onEdit?.(item)}
                     >
@@ -252,6 +255,7 @@ export function BeneficiaryList({
                       key="delete"
                       className="text-danger"
                       color="danger"
+                      data-testid="DropdownItem-21mtvlq57"
                       startContent={<IconTrash size={16} />}
                       onPress={() => onDelete?.(item)}
                     >

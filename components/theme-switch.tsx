@@ -51,7 +51,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
       })}
     >
       <VisuallyHidden>
-        <input {...getInputProps()} />
+        <input {...getInputProps()} data-testid="input-w57nb7u0k" />
       </VisuallyHidden>
       <div
         {...getWrapperProps()}

@@ -12,6 +12,7 @@ export function GithubSignInButton() {
   return (
     <Button
       className="w-full text-white border-white/50 hover:border-white/70"
+      data-testid="Button-rico54lxk"
       startContent={<Icon className="text-white" icon="fe:github" width={24} />}
       variant="bordered"
       onPress={handleGithubSignIn}

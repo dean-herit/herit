@@ -17,6 +17,11 @@ const nextConfig = {
     optimizePackageImports: ['@heroui/react', '@iconify/react'],
   },
   
+  // Skip ESLint during builds (we run it separately in CI)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
   // Bundle analyzer (only when ANALYZE=true)
   ...(process.env.ANALYZE === 'true' && {
     webpack: (config) => {

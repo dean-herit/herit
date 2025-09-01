@@ -146,6 +146,7 @@ export default function SignupPage() {
 
         <Form
           className="flex flex-col gap-3"
+          data-testid="Form-78zgrpafw"
           validationBehavior="native"
           onSubmit={handleSubmit}
         >
@@ -159,6 +160,7 @@ export default function SignupPage() {
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
                 errorMessage: "text-danger-300",
               }}
+              data-testid="Input-p8hzp4ygq"
               errorMessage={errors.firstName}
               isInvalid={!!errors.firstName}
               label="First Name"
@@ -177,6 +179,7 @@ export default function SignupPage() {
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
                 errorMessage: "text-danger-300",
               }}
+              data-testid="Input-x276tzkfu"
               errorMessage={errors.lastName}
               isInvalid={!!errors.lastName}
               label="Last Name"
@@ -197,6 +200,7 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
+            data-testid="Input-5mpge24f9"
             errorMessage={errors.email}
             isInvalid={!!errors.email}
             label="Email Address"
@@ -217,8 +221,13 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
+            data-testid="Input-700eymxo4"
             endContent={
-              <button type="button" onClick={toggleVisibility}>
+              <button
+                data-testid="button-o88zxmwaf"
+                type="button"
+                onClick={toggleVisibility}
+              >
                 {isVisible ? (
                   <Icon
                     className="text-white pointer-events-none text-2xl"
@@ -252,8 +261,13 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
+            data-testid="Input-555pso95r"
             endContent={
-              <button type="button" onClick={toggleConfirmVisibility}>
+              <button
+                data-testid="button-i5j1w1bds"
+                type="button"
+                onClick={toggleConfirmVisibility}
+              >
                 {isConfirmVisible ? (
                   <Icon
                     className="text-white pointer-events-none text-2xl"

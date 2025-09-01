@@ -67,6 +67,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <Button
               color="primary"
+              data-testid="Button-6ekqkjah5"
               startContent={<RefreshCw className="h-4 w-4" />}
               variant="solid"
               onClick={this.handleRetry}

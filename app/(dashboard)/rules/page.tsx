@@ -124,6 +124,7 @@ export default function RulesPage() {
         <Button
           className="shrink-0"
           color="primary"
+          data-testid="Button-iebd523w1"
           startContent={<PlusIcon className="w-4 h-4" />}
           onPress={() => setIsCreateModalOpen(true)}
         >
@@ -189,6 +190,7 @@ export default function RulesPage() {
             </p>
             <Button
               color="primary"
+              data-testid="Button-c2smc7srd"
               startContent={<PlusIcon className="w-4 h-4" />}
               onPress={() => setIsCreateModalOpen(true)}
             >
@@ -227,6 +229,7 @@ export default function RulesPage() {
                   <div className="flex gap-2 shrink-0">
                     <Button
                       isIconOnly
+                      data-testid="Button-0mtiis96s"
                       size="sm"
                       variant="light"
                       onPress={() => handleViewRule(rule)}
@@ -235,6 +238,7 @@ export default function RulesPage() {
                     </Button>
                     <Button
                       isIconOnly
+                      data-testid="Button-ntftjcni2"
                       size="sm"
                       variant="light"
                       onPress={() => handleEditRule(rule)}
@@ -244,6 +248,7 @@ export default function RulesPage() {
                     <Button
                       isIconOnly
                       color="danger"
+                      data-testid="Button-bpgzvk7cq"
                       isLoading={deleteRuleMutation.isPending}
                       size="sm"
                       variant="light"

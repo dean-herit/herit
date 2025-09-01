@@ -359,6 +359,7 @@ export function PersonalInfoStep({
         <>
           {/* Shared Personal Information Form */}
           <SharedPersonalInfoFormProvider
+            data-testid="SharedPersonalInfoFormProvider-h7k487otg"
             initialData={convertToSharedFormat(initialData)}
             initialPhotoUrl={initialData.profile_photo || undefined}
             isFromOAuth={isFromOAuth}

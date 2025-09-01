@@ -377,6 +377,7 @@ export function SharedPhotoUpload({
                 : "border-default-300 hover:border-default-400"
             }
           `}
+          data-testid="div-jkw0zt1ps"
           role="button"
           tabIndex={0}
           onClick={triggerFileSelect}
@@ -394,6 +395,7 @@ export function SharedPhotoUpload({
             ref={fileInputRef}
             accept="image/*"
             className="hidden"
+            data-testid="input-m9c9s7n1s"
             type="file"
             onChange={handleFileInputChange}
           />
@@ -408,6 +410,7 @@ export function SharedPhotoUpload({
               {!isDragging && (
                 <Button
                   className="font-medium"
+                  data-testid="Button-mpgluhsvg"
                   size="md"
                   variant="bordered"
                   onPress={triggerFileSelect}

@@ -66,10 +66,15 @@ export function EmailSignupForm() {
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form
+      className="space-y-4"
+      data-testid="form-v6460rlcl"
+      onSubmit={handleSubmit}
+    >
       <div className="grid grid-cols-2 gap-3">
         <Input
           isRequired
+          data-testid="Input-oyn7jvuvk"
           errorMessage={errors.firstName}
           isInvalid={!!errors.firstName}
           label="First Name"
@@ -81,6 +86,7 @@ export function EmailSignupForm() {
 
         <Input
           isRequired
+          data-testid="Input-6910kw7o7"
           errorMessage={errors.lastName}
           isInvalid={!!errors.lastName}
           label="Last Name"
@@ -93,6 +99,7 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
+        data-testid="Input-77q8l81vs"
         errorMessage={errors.email}
         isInvalid={!!errors.email}
         label="Email"
@@ -105,9 +112,11 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
+        data-testid="Input-vf6nu2vzm"
         endContent={
           <button
             className="focus:outline-none"
+            data-testid="button-yz403emj6"
             type="button"
             onClick={() => setShowPassword(!showPassword)}
           >
@@ -130,9 +139,11 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
+        data-testid="Input-tdmdy5y7u"
         endContent={
           <button
             className="focus:outline-none"
+            data-testid="button-iyqqiqu98"
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >

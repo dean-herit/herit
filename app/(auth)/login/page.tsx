@@ -99,6 +99,7 @@ export default function LoginPage() {
 
         <Form
           className="flex flex-col gap-3"
+          data-testid="Form-ys1ea7e1p"
           validationBehavior="native"
           onSubmit={handleSubmit}
         >
@@ -110,6 +111,7 @@ export default function LoginPage() {
               inputWrapper:
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
             }}
+            data-testid="Input-t24pxf1dw"
             label="Email Address"
             name="email"
             placeholder="Enter your email"
@@ -126,8 +128,13 @@ export default function LoginPage() {
               inputWrapper:
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
             }}
+            data-testid="Input-0zi8y81dm"
             endContent={
-              <button type="button" onClick={toggleVisibility}>
+              <button
+                data-testid="button-rnkggkvbh"
+                type="button"
+                onClick={toggleVisibility}
+              >
                 {isVisible ? (
                   <Icon
                     className="text-white pointer-events-none text-2xl"

@@ -1,6 +1,11 @@
 {
-  "*.{ts,tsx,js,jsx}": [
+  "components/**/*.tsx": [
+    "node scripts/validate-component-tests.js",
     "eslint --fix",
+    "prettier --write"
+  ],
+  "*.{ts,tsx,js,jsx}": [
+    "eslint --fix", 
     "prettier --write"
   ],
   "*.{json,md,yml,yaml}": [

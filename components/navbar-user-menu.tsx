@@ -66,7 +66,10 @@ export const NavbarUserMenu = () => {
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
-        <button className="mt-1 transition-transform">
+        <button
+          className="mt-1 transition-transform"
+          data-testid="button-269wfst0z"
+        >
           {user.profile_photo_url ? (
             <Avatar
               className="h-8 w-8"
@@ -92,7 +95,12 @@ export const NavbarUserMenu = () => {
           Dashboard
         </DropdownItem>
         <DropdownItem key="settings">Settings</DropdownItem>
-        <DropdownItem key="logout" color="danger" onPress={handleLogout}>
+        <DropdownItem
+          key="logout"
+          color="danger"
+          data-testid="DropdownItem-3slqgrgx1"
+          onPress={handleLogout}
+        >
           Log Out
         </DropdownItem>
       </DropdownMenu>
