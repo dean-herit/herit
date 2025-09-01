@@ -1,0 +1,84 @@
+import { Meta, Canvas, Story, ArgsTable, Source } from '@storybook/blocks';
+
+<Meta title="Design System/Overview" />
+
+# HeroUI Heritage Design System
+
+Welcome to the comprehensive design system for the HeroUI Heritage estate planning platform. This documentation serves as the single source of truth for all design patterns, components, and guidelines.
+
+## Design Principles
+
+### 1. **Trustworthiness**
+Estate planning requires the highest level of trust. Our design emphasizes security, reliability, and professionalism through:
+- Clear visual hierarchy
+- Consistent error states
+- Transparent data handling
+- Professional color palette
+
+### 2. **Accessibility First**
+Every component is designed with accessibility in mind:
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast ratios
+
+### 3. **Irish Legal Compliance**
+Designed specifically for Irish legal requirements:
+- GDPR compliant forms
+- Irish address formatting (Eircode)
+- PPS number validation
+- Currency formatting (EUR)
+
+## Component Architecture
+
+### Base Components
+- **Layout**: Grid system, containers, spacing
+- **Typography**: Headings, body text, captions
+- **Colors**: Primary, secondary, semantic colors
+- **Icons**: Comprehensive icon system
+
+### Form Components
+- **Input Fields**: Text, email, phone, date
+- **Validation**: Real-time validation with Irish-specific rules
+- **File Upload**: Document management with drag-and-drop
+- **Signature**: Digital signature capture
+
+### Business Components
+- **Asset Cards**: Property, financial, personal assets
+- **Beneficiary Cards**: Contact management
+- **Document Manager**: Legal document handling
+- **Dashboard**: Analytics and overview
+
+## Getting Started
+
+To use this design system in your development:
+
+1. **Import Components**:
+```tsx
+import { BeneficiaryCard, AssetCard } from '@/components';
+```
+
+2. **Follow Patterns**:
+Each component story demonstrates proper usage patterns and best practices.
+
+3. **Use Design Tokens**:
+All spacing, colors, and typography use consistent design tokens.
+
+## Testing Standards
+
+Every component in this design system includes:
+- **Storybook Stories**: Interactive documentation and testing
+- **Cypress Tests**: Automated component and integration testing
+- **Visual Regression**: Chromatic integration for design consistency
+- **Accessibility Testing**: Automated a11y validation
+
+## Component Status
+
+Components are marked with the following status indicators:
+- 🟢 **Stable**: Ready for production use
+- 🟡 **Beta**: Under development, may change
+- 🔴 **Deprecated**: Do not use in new features
+
+---
+
+Browse the sidebar to explore individual components, their usage patterns, and implementation details.

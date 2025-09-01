@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { env } from "@/lib/env";
-import { logger } from "@/lib/logger";
+import { env } from "@/app/lib/env";
+import { logger } from "@/app/lib/logger";
 
 interface HealthStatus {
   status: "healthy" | "degraded" | "unhealthy";

@@ -3,7 +3,7 @@ import postgres from "postgres";
 
 import * as schema from "./schema";
 
-import { env } from "@/lib/env";
+import { env } from "@/app/lib/env";
 
 const connectionString = env.POSTGRES_URL;
 

@@ -3,8 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-import { Signature } from "@/types/onboarding";
-import { sanitizeSVG } from "@/lib/svg-sanitizer";
+import { Signature } from "@/app/types/onboarding";
+import { sanitizeSVG } from "@/app/lib/svg-sanitizer";
 
 interface SignatureStampProps {
   signature: Signature;

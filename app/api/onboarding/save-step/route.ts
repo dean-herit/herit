@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { audit } from "@/lib/audit-middleware";
+import { getSession } from "@/app/lib/auth";
+import { audit } from "@/app/lib/audit-middleware";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getSession } from "@/lib/auth";
-import { documentStorage } from "@/lib/document-storage";
+import { getSession } from "@/app/lib/auth";
+import { documentStorage } from "@/app/lib/document-storage";
 
 // GET /api/documents/[id] - Get a specific document URL
 export async function GET(
@@ -17,10 +17,7 @@ export async function GET(
 
     const resolvedParams = await params;
     const documentId = resolvedParams.id;
-    const url = await documentStorage.getDocumentUrl(
-      documentId,
-      session.user.email,
-    );
+    const url = await documentStorage.getDocumentUrl(documentId);
 
     return NextResponse.json({ url });
   } catch (error) {
@@ -51,7 +48,7 @@ export async function DELETE(
     const resolvedParams = await params;
     const documentId = resolvedParams.id;
 
-    await documentStorage.deleteDocument(documentId, session.user.email);
+    await documentStorage.deleteDocument(documentId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

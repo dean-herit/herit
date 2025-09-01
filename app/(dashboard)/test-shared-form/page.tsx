@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { SharedPersonalInfoFormProvider } from "@/components/shared/SharedPersonalInfoFormProvider";
-import { SharedPersonalInfo } from "@/types/shared-personal-info";
+import { SharedPersonalInfoFormProvider } from "@/app/components/shared/SharedPersonalInfoFormProvider";
+import { SharedPersonalInfo } from "@/app/types/shared-personal-info";
 
 export default function TestSharedFormPage() {
   const [mode, setMode] = useState<"onboarding" | "beneficiary">("onboarding");

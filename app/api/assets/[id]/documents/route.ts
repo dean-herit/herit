@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getSession } from "@/lib/auth";
-import { documentStorage } from "@/lib/document-storage";
-import { DocumentUploadSchema } from "@/types/documents";
+import { getSession } from "@/app/lib/auth";
+import { documentStorage } from "@/app/lib/document-storage";
+import { DocumentUploadSchema } from "@/app/types/documents";
 
 // POST /api/assets/[id]/documents - Upload a document
 export async function POST(
@@ -110,12 +110,13 @@ export async function POST(
 
     // Upload document
     try {
-      const document = await documentStorage.uploadDocument(
-        file,
-        assetId,
-        session.user.email,
-        validationResult.data,
-      );
+      const document = await documentStorage.uploadDocument(file, {
+        fileName: file.name,
+        fileType: file.type,
+        category: validationResult.data.category,
+        description: validationResult.data.description,
+        userId: session.user.email,
+      });
 
       console.log("✅ Document uploaded successfully:", document.id);
 
@@ -198,20 +199,16 @@ export async function GET(
       searchTerm: searchParams.get("search") || undefined,
     };
 
-    const documents = await documentStorage.getAssetDocuments(
-      assetId,
-      session.user.email,
-      filter as any,
-    );
+    const documents = await documentStorage.getAssetDocuments(assetId);
 
     // Get document completeness
     const assetTypeParam = searchParams.get("assetType");
     let completeness = null;
 
     if (assetTypeParam) {
-      completeness = await documentStorage.getDocumentCompleteness(
-        assetId,
+      completeness = documentStorage.checkDocumentCompleteness(
         assetTypeParam,
+        documents.map((doc) => doc.category),
       );
     }
 

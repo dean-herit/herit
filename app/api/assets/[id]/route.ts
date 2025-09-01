@@ -3,9 +3,9 @@ import { eq, and } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { assets, users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { IrishAssetFormSchema } from "@/types/assets";
-import { mapAssetTypeToCategory } from "@/lib/asset-type-utils";
+import { getSession } from "@/app/lib/auth";
+import { IrishAssetFormSchema } from "@/app/types/assets";
+import { mapAssetTypeToCategory } from "@/app/lib/asset-type-utils";
 
 export async function GET(
   request: NextRequest,

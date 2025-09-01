@@ -8,8 +8,8 @@ import Image from "next/image";
 
 import { SignatureStamp } from "./SignatureStamp";
 
-import { Signature, SignedConsent } from "@/types/onboarding";
-import { sanitizeSVG } from "@/lib/svg-sanitizer";
+import { Signature, SignedConsent } from "@/app/types/onboarding";
+import { sanitizeSVG } from "@/app/lib/svg-sanitizer";
 
 interface LegalConsentStepProps {
   signature: Signature;

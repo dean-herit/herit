@@ -229,11 +229,11 @@ try {
 
   const problematicImports = [
     {
-      file: "components/LayoutWrapper.tsx",
-      imports: ["@heroui/link", "@/components/navbar"],
+      file: "app/components/layout/LayoutWrapper.tsx",
+      imports: ["@heroui/link", "@/app/components/layout/navbar"],
     },
     { file: "app/providers.tsx", imports: ["@heroui/react"] },
-    { file: "components/navbar.tsx", imports: ["@heroui/navbar"] },
+    { file: "app/components/layout/navbar.tsx", imports: ["@heroui/navbar"] },
   ];
 
   for (const { file, imports } of problematicImports) {

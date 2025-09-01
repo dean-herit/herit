@@ -28,8 +28,8 @@ import {
   useCreateRule,
   useValidateAllocation,
   CreateRuleData,
-} from "@/hooks/useRules";
-import { assetsQueryOptions, willQueryOptions } from "@/lib/query-options";
+} from "@/app/hooks/useRules";
+import { assetsQueryOptions, willQueryOptions } from "@/app/lib/query-options";
 
 // Form validation schema
 const createRuleSchema = z.object({

@@ -24,9 +24,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 
-import { useUpdateRule, useValidateAllocation } from "@/hooks/useRules";
+import { useUpdateRule, useValidateAllocation } from "@/app/hooks/useRules";
 import { InheritanceRule, RuleAllocation } from "@/db/schema";
-import { willQueryOptions, assetsQueryOptions } from "@/lib/query-options";
+import { willQueryOptions, assetsQueryOptions } from "@/app/lib/query-options";
 
 // Validation schema
 const editRuleSchema = z.object({

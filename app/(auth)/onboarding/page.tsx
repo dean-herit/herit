@@ -15,10 +15,10 @@ import { SignatureStep } from "./components/SignatureStep";
 import { LegalConsentStep } from "./components/LegalConsentStep";
 import { VerificationStep } from "./components/VerificationStep";
 
-import { VerticalSteps } from "@/components/ui/VerticalSteps";
-import { useAuth } from "@/hooks/useAuth";
-import { AuthErrorHandler } from "@/components/auth/AuthErrorHandler";
-import { PersonalInfo, Signature } from "@/types/onboarding";
+import { VerticalSteps } from "@/app/components/ui/VerticalSteps";
+import { useAuth } from "@/app/hooks/useAuth";
+import { AuthErrorHandler } from "@/app/components/auth/AuthErrorHandler";
+import { PersonalInfo, Signature } from "@/app/types/onboarding";
 
 export const dynamic = "force-dynamic";
 

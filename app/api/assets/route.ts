@@ -3,12 +3,12 @@ import { eq, desc, asc, like, and, or } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { assets, users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { AssetFormSchema, AssetType } from "@/types/assets";
+import { getSession } from "@/app/lib/auth";
+import { AssetFormSchema, AssetType } from "@/app/types/assets";
 import {
   mapAssetTypeToCategory,
   isValidAssetCategory,
-} from "@/lib/asset-type-utils";
+} from "@/app/lib/asset-type-utils";
 
 export async function GET(request: NextRequest) {
   try {

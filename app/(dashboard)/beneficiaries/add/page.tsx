@@ -6,9 +6,9 @@ import { Button } from "@heroui/react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 
-import { BeneficiaryForm } from "@/components/beneficiaries/BeneficiaryForm";
-import { useCreateBeneficiary } from "@/hooks/useBeneficiaries";
-import { BeneficiaryFormData } from "@/types/beneficiaries";
+import { BeneficiaryForm } from "@/app/components/beneficiaries/BeneficiaryForm";
+import { useCreateBeneficiary } from "@/app/hooks/useBeneficiaries";
+import { BeneficiaryFormData } from "@/app/types/beneficiaries";
 
 export default function AddBeneficiaryPage() {
   const router = useRouter();

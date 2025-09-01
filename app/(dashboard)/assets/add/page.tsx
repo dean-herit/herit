@@ -43,8 +43,8 @@ import {
   IrishPropertyType,
   CryptocurrencyType,
   CryptoWalletType,
-} from "@/types/assets";
-import DocumentUploadZone from "@/components/documents/DocumentUploadZone";
+} from "@/app/types/assets";
+import DocumentUploadZone from "@/app/components/documents/DocumentUploadZone";
 
 // Create a more flexible form state type
 type FormState = {

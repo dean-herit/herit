@@ -17,14 +17,14 @@ import {
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-import { useAuth } from "@/hooks/useAuth";
-import { AuthErrorHandler } from "@/components/auth/AuthErrorHandler";
-import { formatCurrency } from "@/types/assets";
+import { useAuth } from "@/app/hooks/useAuth";
+import { AuthErrorHandler } from "@/app/components/auth/AuthErrorHandler";
+import { formatCurrency } from "@/app/types/assets";
 import {
   useDashboardStats,
   useBeneficiaryCount,
   useWillStatus,
-} from "@/hooks/useDashboard";
+} from "@/app/hooks/useDashboard";
 
 interface DashboardStats {
   totalAssets: number;

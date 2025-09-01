@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users, signatureUsage } from "@/db/schema";
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   console.log("=== CONSENT SIGNATURE API HIT ===");

@@ -18,10 +18,13 @@ import { toast } from "sonner";
 import {
   useBeneficiaries,
   useDeleteBeneficiary,
-} from "@/hooks/useBeneficiaries";
-import { BeneficiaryList } from "@/components/beneficiaries/BeneficiaryList";
-import { BeneficiaryCard } from "@/components/beneficiaries/BeneficiaryCard";
-import { BeneficiaryWithPhoto, RelationshipTypes } from "@/types/beneficiaries";
+} from "@/app/hooks/useBeneficiaries";
+import { BeneficiaryList } from "@/app/components/beneficiaries/BeneficiaryList";
+import { BeneficiaryCard } from "@/app/components/beneficiaries/BeneficiaryCard";
+import {
+  BeneficiaryWithPhoto,
+  RelationshipTypes,
+} from "@/app/types/beneficiaries";
 
 export default function BeneficiariesPage() {
   const router = useRouter();

@@ -13,6 +13,14 @@ export default defineConfig({
   requestTimeout: 10000,
   responseTimeout: 10000,
   reporter: "spec",
+  // Parallel execution settings
+  numTestsKeptInMemory: 5,
+  experimentalMemoryManagement: true,
+  // Record key for Cypress Dashboard (for parallelization)
+  // recordKey: process.env.CYPRESS_RECORD_KEY,
+  // Cross-browser testing configuration
+  chromeWebSecurity: false,
+  userAgent: null, // Let browser set default user agent
   e2e: {
     baseUrl: "http://localhost:3000",
     supportFile: "cypress/support/e2e.ts",

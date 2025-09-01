@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/app/lib/auth";
 import {
   AssetCategory,
   getAllAssetTypes,
   AssetCategoryDefinitions,
   IrishAssetTypeDefinitions,
   CurrencyOptions,
-} from "@/types/assets";
+} from "@/app/types/assets";
 
 export async function GET(request: NextRequest) {
   try {

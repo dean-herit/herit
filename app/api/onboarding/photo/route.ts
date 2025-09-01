@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
-import { getSession } from "@/lib/auth";
+import { getSession } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {

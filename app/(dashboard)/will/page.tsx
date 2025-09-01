@@ -1,6 +1,6 @@
 import { WillClient } from "./WillClient";
 
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/app/lib/auth";
 
 export const dynamic = "force-dynamic";
 

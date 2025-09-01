@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { setAuthCookies } from "@/lib/auth";
-import { audit } from "@/lib/audit-middleware";
+import { setAuthCookies } from "@/app/lib/auth";
+import { audit } from "@/app/lib/audit-middleware";
 
 interface GoogleUser {
   id: string;

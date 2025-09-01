@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
 
-import { AuthUser } from "@/lib/auth";
+import { AuthUser } from "@/app/lib/auth";
 
 interface WillClientProps {
   user: AuthUser;

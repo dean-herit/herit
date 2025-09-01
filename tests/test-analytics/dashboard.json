@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2025-09-01T14:29:28.207Z",
+  "summary": {
+    "totalComponents": 0,
+    "fullyTestedComponents": 0,
+    "testCoverage": {
+      "lines": 78.5,
+      "functions": 82.1,
+      "branches": 71.3,
+      "statements": 79.8
+    },
+    "e2ePassRate": 91.7
+  },
+  "components": [],
+  "apiEndpoints": [
+    {
+      "endpoint": "/api/auth/signin",
+      "method": "POST",
+      "avgResponseTime": 150,
+      "successRate": 98.5,
+      "lastTested": "2025-09-01T14:29:28.195Z",
+      "testCount": 47
+    },
+    {
+      "endpoint": "/api/assets",
+      "method": "GET",
+      "avgResponseTime": 89,
+      "successRate": 100,
+      "lastTested": "2025-09-01T14:29:28.196Z",
+      "testCount": 23
+    },
+    {
+      "endpoint": "/api/beneficiaries",
+      "method": "POST",
+      "avgResponseTime": 210,
+      "successRate": 95.2,
+      "lastTested": "2025-09-01T14:29:28.196Z",
+      "testCount": 31
+    }
+  ],
+  "e2eTests": {
+    "total": 24,
+    "passed": 22,
+    "failed": 1,
+    "skipped": 1,
+    "passRate": 91.7,
+    "avgDuration": 15800
+  },
+  "performance": {
+    "pageLoadTimes": {
+      "/dashboard": {
+        "avg": 1240,
+        "p95": 1890
+      },
+      "/assets": {
+        "avg": 980,
+        "p95": 1450
+      },
+      "/beneficiaries": {
+        "avg": 1100,
+        "p95": 1620
+      }
+    },
+    "interactionTimes": {
+      "button-click": {
+        "avg": 45,
+        "p95": 78
+      },
+      "form-submit": {
+        "avg": 120,
+        "p95": 210
+      },
+      "dropdown-open": {
+        "avg": 32,
+        "p95": 55
+      }
+    },
+    "memoryUsage": {
+      "dashboard": {
+        "avg": 25.4,
+        "max": 45.2
+      },
+      "largeList": {
+        "avg": 32.1,
+        "max": 58.7
+      }
+    }
+  }
+}

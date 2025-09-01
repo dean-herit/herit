@@ -3,8 +3,8 @@ import type { StorybookConfig } from "@storybook/nextjs";
 const config: StorybookConfig = {
   framework: "@storybook/nextjs",
   stories: [
-    "../components/**/*.stories.@(js|jsx|ts|tsx)",
     "../app/**/*.stories.@(js|jsx|ts|tsx)",
+    "../app/stories/**/*.@(stories.@(js|jsx|ts|tsx)|mdx)",
   ],
   addons: [
     "@storybook/addon-essentials",
@@ -21,6 +21,13 @@ const config: StorybookConfig = {
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
   },
+  features: {
+    buildStoriesJson: true,
+  },
+  env: (config) => ({
+    ...config,
+    CHROMATIC_PROJECT_TOKEN: process.env.CHROMATIC_PROJECT_TOKEN || "",
+  }),
 };
 
 export default config;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { refreshTokenRotation } from "@/lib/auth";
+import { refreshTokenRotation } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {

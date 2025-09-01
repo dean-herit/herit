@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { StripeIdentityService } from "@/lib/stripe";
+import { getSession } from "@/app/lib/auth";
+import { StripeIdentityService } from "@/app/lib/stripe";
 
 export async function GET(request: NextRequest) {
   try {

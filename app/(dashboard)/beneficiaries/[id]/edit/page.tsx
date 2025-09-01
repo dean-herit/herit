@@ -6,9 +6,12 @@ import { Button, Card, CardBody, Spinner } from "@heroui/react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 
-import { BeneficiaryForm } from "@/components/beneficiaries/BeneficiaryForm";
-import { useBeneficiary, useUpdateBeneficiary } from "@/hooks/useBeneficiaries";
-import { BeneficiaryFormData } from "@/types/beneficiaries";
+import { BeneficiaryForm } from "@/app/components/beneficiaries/BeneficiaryForm";
+import {
+  useBeneficiary,
+  useUpdateBeneficiary,
+} from "@/app/hooks/useBeneficiaries";
+import { BeneficiaryFormData } from "@/app/types/beneficiaries";
 
 interface EditBeneficiaryPageProps {
   params: Promise<{ id: string }>;

@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Link, Divider, Form, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-import { HeritLogo } from "@/components/HeritLogo";
-import { useAuth } from "@/hooks/useAuth";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { HeritLogo } from "@/app/components/branding/HeritLogo";
+import { useAuth } from "@/app/hooks/useAuth";
+import { GoogleSignInButton } from "@/app/components/auth/GoogleSignInButton";
 
 export const dynamic = "force-dynamic";
 

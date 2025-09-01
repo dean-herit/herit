@@ -33,8 +33,8 @@ import {
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 
-import { AssetCategoryDefinitions, formatCurrency } from "@/types/assets";
-import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
+import { AssetCategoryDefinitions, formatCurrency } from "@/app/types/assets";
+import { useAssets, useDeleteAsset } from "@/app/hooks/useAssets";
 
 export default function AssetsPage() {
   const router = useRouter();

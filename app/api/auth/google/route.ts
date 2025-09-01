@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { clearAuthCookies } from "@/lib/auth";
-import { env } from "@/lib/env";
+import { clearAuthCookies } from "@/app/lib/auth";
+import { env } from "@/app/lib/env";
 
 export async function GET(request: NextRequest) {
   try {

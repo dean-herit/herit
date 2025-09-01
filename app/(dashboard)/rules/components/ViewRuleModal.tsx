@@ -12,7 +12,7 @@ import {
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 import { InheritanceRule, RuleAllocation } from "@/db/schema";
-import { useDeleteRule } from "@/hooks/useRules";
+import { useDeleteRule } from "@/app/hooks/useRules";
 
 interface ViewRuleModalProps {
   isOpen: boolean;

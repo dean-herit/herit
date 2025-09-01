@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword } from "@/app/lib/auth";
 
 async function createTestUserHandler(request: NextRequest) {
   // Only allow in development/test environments

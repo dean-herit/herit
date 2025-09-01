@@ -5,8 +5,8 @@ import { z } from "zod";
 
 import { db } from "@/db/db";
 import { inheritanceRules, ruleAllocations } from "@/db/schema";
-import { requireAuth } from "@/lib/auth";
-import { audit } from "@/lib/audit-middleware";
+import { requireAuth } from "@/app/lib/auth";
+import { audit } from "@/app/lib/audit-middleware";
 
 // Validation schema for rule updates
 const updateRuleSchema = z.object({

@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { audit } from "@/lib/audit-middleware";
-import { onboardingPersonalInfoSchema } from "@/types/shared-personal-info";
+import { getSession } from "@/app/lib/auth";
+import { audit } from "@/app/lib/audit-middleware";
+import { onboardingPersonalInfoSchema } from "@/app/types/shared-personal-info";
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

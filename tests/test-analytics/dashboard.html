@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeroUI Heritage - Test Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; font-size: 1.1rem; }
+        .stats-grid { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: #1e40af; }
+        .stat-label { color: #64748b; text-transform: uppercase; font-size: 0.875rem; font-weight: 500; }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .chart-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+        .component-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        .table-header { 
+            background: #f1f5f9;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .table-content { max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 0.75rem 1rem; }
+        th { font-weight: 600; color: #475569; }
+        tr:hover { background: #f8fafc; }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-good { background: #dcfce7; color: #166534; }
+        .status-warning { background: #fef3c7; color: #92400e; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        .coverage-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .coverage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+            transition: width 0.3s ease;
+        }
+        .timestamp {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Analytics Dashboard</h1>
+            <p>Comprehensive testing insights for HeroUI Heritage estate planning platform</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Fully Tested</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">91.7%</div>
+                <div class="stat-label">E2E Pass Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">78.5%</div>
+                <div class="stat-label">Code Coverage</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Component Test Coverage</div>
+                <canvas id="componentChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">API Endpoint Performance</div>
+                <canvas id="apiChart"></canvas>
+            </div>
+        </div>
+
+        <div class="component-table">
+            <div class="table-header">
+                <h3>Component Testing Status</h3>
+            </div>
+            <div class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Storybook</th>
+                            <th>Cypress</th>
+                            <th>Unit Tests</th>
+                            <th>Coverage</th>
+                            <th>Pass Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="timestamp">
+            Generated on 9/1/2025, 3:29:28 PM | 
+            <a href="dashboard.json">Download JSON Report</a> | 
+            <a href="slack-report.json">Slack Report</a>
+        </div>
+    </div>
+
+    <script>
+        // Component Coverage Chart
+        const componentCtx = document.getElementById('componentChart').getContext('2d');
+        new Chart(componentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Fully Tested', 'Partially Tested', 'Untested'],
+                datasets: [{
+                    data: [
+                        0,
+                        0,
+                        0
+                    ],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // API Performance Chart
+        const apiCtx = document.getElementById('apiChart').getContext('2d');
+        new Chart(apiCtx, {
+            type: 'bar',
+            data: {
+                labels: ["POST /api/auth/signin","GET /api/assets","POST /api/beneficiaries"],
+                datasets: [{
+                    label: 'Response Time (ms)',
+                    data: [150,89,210],
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

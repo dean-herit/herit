@@ -4,7 +4,7 @@ import Stripe from "stripe";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { stripe, StripeIdentityService } from "@/lib/stripe";
+import { stripe, StripeIdentityService } from "@/app/lib/stripe";
 
 export async function POST(request: NextRequest) {
   try {

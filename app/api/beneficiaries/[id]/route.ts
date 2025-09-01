@@ -4,8 +4,8 @@ import { z } from "zod";
 
 import { db } from "@/db/db";
 import { beneficiaries, users } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { beneficiaryFormSchema } from "@/types/beneficiaries";
+import { getSession } from "@/app/lib/auth";
+import { beneficiaryFormSchema } from "@/app/types/beneficiaries";
 
 export async function GET(
   request: NextRequest,

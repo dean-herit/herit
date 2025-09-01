@@ -1,0 +1,49 @@
+{
+  "text": "🧪 Test Analytics Report",
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "🧪 HeroUI Heritage Test Report"
+      }
+    },
+    {
+      "type": "section",
+      "fields": [
+        {
+          "type": "mrkdwn",
+          "text": "*Total Components:* 0"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Fully Tested:* 0 (NaN%)"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*E2E Pass Rate:* 91.7%"
+        },
+        {
+          "type": "mrkdwn",
+          "text": "*Code Coverage:* N/A%"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "📊 *Top Performing APIs:*\n• POST /api/auth/signin: 98.5% success, 150ms avg\n• GET /api/assets: 100% success, 89ms avg\n• POST /api/beneficiaries: 95.2% success, 210ms avg"
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Generated: 9/1/2025, 3:29:28 PM"
+        }
+      ]
+    }
+  ]
+}

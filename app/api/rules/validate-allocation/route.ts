@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { db } from "@/db/db";
 import { assets, inheritanceRules, ruleAllocations } from "@/db/schema";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/app/lib/auth";
 
 // Validation schema for allocation validation
 const validateAllocationSchema = z.object({

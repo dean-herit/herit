@@ -4,12 +4,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
 import Image from "next/image";
 
-import { PersonalInfo, Signature } from "@/types/onboarding";
+import { PersonalInfo, Signature } from "@/app/types/onboarding";
 import { signatureFonts } from "@/config/fonts";
-import { processSignatureImage } from "@/lib/signature-extract";
-import { useOpenCV } from "@/hooks/useOpenCV";
-import { SignatureCanvas } from "@/components/auth/SignatureCanvas";
-import { sanitizeSVG } from "@/lib/svg-sanitizer";
+import { processSignatureImage } from "@/app/lib/signature-extract";
+import { useOpenCV } from "@/app/hooks/useOpenCV";
+import { SignatureCanvas } from "@/app/components/auth/SignatureCanvas";
+import { sanitizeSVG } from "@/app/lib/svg-sanitizer";
 
 interface SignatureStepProps {
   personalInfo: PersonalInfo;

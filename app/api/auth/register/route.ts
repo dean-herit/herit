@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
-import { hashPassword, setAuthCookies } from "@/lib/auth";
-import { withRateLimit } from "@/lib/rate-limit";
+import { hashPassword, setAuthCookies } from "@/app/lib/auth";
+import { withRateLimit } from "@/app/lib/rate-limit";
 
 async function registerHandler(request: NextRequest) {
   try {

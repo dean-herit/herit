@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 
-import { Providers } from "./providers";
+import { Providers } from "./_lib/providers";
 
 import { siteConfig } from "@/config/site";
 import {
@@ -18,7 +18,7 @@ import {
   mrDafoe,
   alexBrush,
 } from "@/config/fonts";
-import { LayoutWrapper } from "@/components/LayoutWrapper";
+import { LayoutWrapper } from "@/app/components/layout/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: {

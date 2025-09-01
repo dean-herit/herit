@@ -4,9 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import { SubmitHandler } from "react-hook-form";
 import { useEffect, useState, useRef } from "react";
 
-import { SharedPersonalInfoFormProvider } from "@/components/shared/SharedPersonalInfoFormProvider";
-import { OnboardingPersonalInfo } from "@/types/shared-personal-info";
-import { PersonalInfo } from "@/types/onboarding";
+import { SharedPersonalInfoFormProvider } from "@/app/components/shared/SharedPersonalInfoFormProvider";
+import { OnboardingPersonalInfo } from "@/app/types/shared-personal-info";
+import { PersonalInfo } from "@/app/types/onboarding";
 
 interface PersonalInfoStepProps {
   initialData: PersonalInfo & {

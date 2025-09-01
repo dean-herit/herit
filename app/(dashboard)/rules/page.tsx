@@ -21,7 +21,7 @@ import { CreateRuleModal } from "./components/CreateRuleModal";
 import { EditRuleModal } from "./components/EditRuleModal";
 import { ViewRuleModal } from "./components/ViewRuleModal";
 
-import { useRules, useDeleteRule } from "@/hooks/useRules";
+import { useRules, useDeleteRule } from "@/app/hooks/useRules";
 import { InheritanceRule, RuleAllocation } from "@/db/schema";
 
 export default function RulesPage() {

@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, beforeAll, afterAll, vi } from "vitest";
-import { server } from "../src/mocks/node";
+import { server } from "./node";
 
 // Establish API mocking before all tests
 beforeAll(() => {
