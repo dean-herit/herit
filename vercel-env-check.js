@@ -73,7 +73,7 @@ const missingEnvVars = criticalEnvVars.filter(
 );
 
 if (missingEnvVars.length > 0) {
-  console.warn(
+  console.log(
     `⚠️  Missing environment variables (these will be needed in production): ${missingEnvVars.join(", ")}`,
   );
 } else {
@@ -99,10 +99,10 @@ try {
   );
 
   if (stdout.includes("extraneous")) {
-    console.warn(
+    console.log(
       "⚠️  Found extraneous @heroui packages that might not be available in Vercel",
     );
-    console.warn(
+    console.log(
       "    Recommended: Import from '@heroui/react' instead of individual packages",
     );
   }
@@ -126,17 +126,17 @@ try {
     );
 
     if (problematicImports.length > 0) {
-      console.warn(
+      console.log(
         "⚠️  Found direct @heroui package imports that might fail in Vercel:",
       );
-      problematicImports.forEach((line) => console.warn(`    ${line}`));
-      console.warn(
+      problematicImports.forEach((line) => console.log(`    ${line}`));
+      console.log(
         "    Recommended: Use '@heroui/react' for all component imports",
       );
     }
   }
 } catch (error) {
-  console.warn("⚠️  Could not check @heroui import patterns:", error.message);
+  console.log("⚠️  Could not check @heroui import patterns:", error.message);
 }
 
 // Check for Cypress version compatibility
@@ -146,14 +146,14 @@ if (allDeps.cypress) {
 
   // Check Testing Library Cypress compatibility
   if (allDeps["@testing-library/cypress"] && majorCypress >= 15) {
-    console.warn(
+    console.log(
       "⚠️  @testing-library/cypress may have compatibility issues with Cypress v15+",
     );
   }
 
   // Check cypress-real-events compatibility
   if (allDeps["cypress-real-events"] && majorCypress >= 15) {
-    console.warn(
+    console.log(
       "⚠️  cypress-real-events may have compatibility issues with Cypress v15+",
     );
   }
@@ -255,13 +255,13 @@ try {
         }
       }
     } catch (error) {
-      console.warn(`⚠️  Could not check ${file}: ${error.message}`);
+      console.log(`⚠️  Could not check ${file}: ${error.message}`);
     }
   }
 
   console.log("✅ Import resolution check passed");
 } catch (error) {
-  console.warn("⚠️  Could not run import resolution check:", error.message);
+  console.log("⚠️  Could not run import resolution check:", error.message);
 }
 
 console.log("✅ Vercel environment check completed");

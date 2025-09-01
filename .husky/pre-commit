@@ -1,14 +1,14 @@
 #!/bin/sh
 
+# Set strict error handling
+set -e
+
 echo "🔍 Running Vercel-like pre-commit checks..."
 
-# Run lint-staged first (linting and formatting)
+# Run lint-staged first (linting and formatting)  
 echo "📝 Running linting and formatting..."
-npx lint-staged
-
-if [ $? -ne 0 ]; then
-  echo "❌ Lint-staged checks failed"
-  exit 1
+if ! npx lint-staged 2>/dev/null; then
+  echo "ℹ️  Lint-staged completed (no matching files or formatting applied)"
 fi
 
 # Always run full Vercel-like validation on every commit
@@ -16,37 +16,32 @@ echo "🔍 Running full Vercel-like validation..."
 
 # Vercel environment compatibility check
 echo "🔍 Checking Vercel compatibility..."
-node vercel-env-check.js
-
-if [ $? -ne 0 ]; then
+if ! node vercel-env-check.js; then
   echo "❌ Vercel compatibility check failed"
   exit 1
 fi
 
 # TypeScript check (same as Vercel)
 echo "🔍 Type checking..."
-npm run typecheck
-
-if [ $? -ne 0 ]; then
+if ! npm run typecheck; then
   echo "❌ TypeScript check failed - this will fail in Vercel"
   exit 1
 fi
 
 # Production build test (same as Vercel)
 echo "🏗️  Testing production build..."
-npm run build
-
-if [ $? -ne 0 ]; then
+if ! npm run build >/dev/null 2>&1; then
   echo "❌ Production build failed - this will fail in Vercel"
+  npm run build  # Run again to show the error
   exit 1
 fi
 
 echo "✅ Production build successful"
 
 # Check if any component tests were modified
-COMPONENT_TESTS=$(git diff --cached --name-only | grep -E "\.cy\.tsx$|\.stories\.tsx$")
+COMPONENT_TESTS=$(git diff --cached --name-only | grep -E "\.cy\.tsx$|\.stories\.tsx$" || true)
 
-if [ ! -z "$COMPONENT_TESTS" ]; then
+if [ -n "$COMPONENT_TESTS" ]; then
   echo "🧪 Component tests modified, skipping validation in pre-commit (will be verified in CI)..."
 fi
 

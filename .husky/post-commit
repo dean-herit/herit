@@ -55,3 +55,5 @@ if [ ! -z "$COMPONENT_FILES" ]; then
   echo "📚 Learn more: https://storybook.js.org/docs/react/writing-tests/interaction-testing"
   echo ""
 fi
+
+exit 0
