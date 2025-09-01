@@ -1,6 +1,6 @@
 import { BeneficiaryCard } from "./BeneficiaryCard";
-
 import { BeneficiaryWithPhoto } from "@/types/beneficiaries";
+import "cypress-real-events/support";
 
 // Mock beneficiary data for testing
 const mockBeneficiary: BeneficiaryWithPhoto = {
@@ -114,7 +114,7 @@ describe("BeneficiaryCard Component", () => {
     cy.contains("JD").should("be.visible");
   });
 
-  it("handles dropdown menu interactions", () => {
+  it("handles dropdown menu interactions with real events", () => {
     const onEdit = cy.stub();
     const onDelete = cy.stub();
 
@@ -127,19 +127,19 @@ describe("BeneficiaryCard Component", () => {
       />,
     );
 
-    // Click dropdown trigger
-    cy.get('[data-testid*="Button"]').should("be.visible").click();
+    // Use real click event for dropdown trigger
+    cy.get('[data-testid*="Button"]').should("be.visible").realClick();
 
     // Should show dropdown menu
     cy.contains("Edit").should("be.visible");
     cy.contains("Delete").should("be.visible");
 
-    // Test edit action
-    cy.get('[data-testid*="DropdownItem"]').contains("Edit").click();
+    // Test edit action with real click
+    cy.get('[data-testid*="DropdownItem"]').contains("Edit").realClick();
     cy.wrap(onEdit).should("have.been.calledWith", mockBeneficiary);
   });
 
-  it("handles delete action", () => {
+  it("handles delete action with real mouse events", () => {
     const onDelete = cy.stub();
 
     cy.mount(
@@ -151,14 +151,17 @@ describe("BeneficiaryCard Component", () => {
       />,
     );
 
-    // Open dropdown and click delete
-    cy.get('[data-testid*="Button"]').click();
-    cy.get('[data-testid*="DropdownItem"]').contains("Delete").click();
+    // Open dropdown with real click and use real mouse hover
+    cy.get('[data-testid*="Button"]').realClick();
+    cy.get('[data-testid*="DropdownItem"]')
+      .contains("Delete")
+      .realHover()
+      .realClick();
 
     cy.wrap(onDelete).should("have.been.calledWith", mockBeneficiary);
   });
 
-  it("handles card click for view action", () => {
+  it("handles card click for view action with real click", () => {
     const onView = cy.stub();
 
     cy.mount(
@@ -170,13 +173,15 @@ describe("BeneficiaryCard Component", () => {
       />,
     );
 
-    // Click on the card
-    cy.get(`[data-testid="beneficiary-card-${mockBeneficiary.id}"]`).click();
+    // Use real click on the card
+    cy.get(
+      `[data-testid="beneficiary-card-${mockBeneficiary.id}"]`,
+    ).realClick();
 
     cy.wrap(onView).should("have.been.calledWith", mockBeneficiary);
   });
 
-  it("prevents card click when dropdown is clicked", () => {
+  it("prevents card click when dropdown is clicked using real events", () => {
     const onView = cy.stub();
 
     cy.mount(
@@ -188,8 +193,8 @@ describe("BeneficiaryCard Component", () => {
       />,
     );
 
-    // Click dropdown button should not trigger onView
-    cy.get('[data-testid*="Button"]').click({ force: true });
+    // Real click on dropdown button should not trigger onView
+    cy.get('[data-testid*="Button"]').realClick();
 
     // onView should not be called
     cy.wrap(onView).should("not.have.been.called");
@@ -291,13 +296,22 @@ describe("BeneficiaryCard Component", () => {
     // Dropdown should have proper aria-label
     cy.get('[aria-label*="actions"]').should("exist");
 
-    // Should be keyboard navigable
-    cy.get(`[data-testid="beneficiary-card-${mockBeneficiary.id}"]`).focus();
-    cy.focused().should("exist");
+    // Should be keyboard navigable with real keyboard events
+    cy.get(`[data-testid="beneficiary-card-${mockBeneficiary.id}"]`)
+      .realClick()
+      .should("be.focused");
 
-    // Tab to dropdown
-    cy.focused().tab();
+    // Tab to dropdown with real Tab key
+    cy.realPress("Tab");
     cy.focused().should("contain.attr", "role", "button");
+
+    // Test Enter key activation
+    cy.realPress("Enter");
+    cy.contains("Edit").should("be.visible");
+
+    // Test Escape key to close dropdown
+    cy.realPress("Escape");
+    cy.contains("Edit").should("not.exist");
   });
 
   it("maintains responsive layout", () => {

@@ -26,6 +26,9 @@ export default defineConfig({
         "db:seed": require("./cypress/tasks/db-tasks").seed,
         "db:clean": require("./cypress/tasks/db-tasks").clean,
         "db:verify-audit": require("./cypress/tasks/db-tasks").verifyAudit,
+        "db:get-user-assets": require("./cypress/tasks/db-tasks").getUserAssets,
+        "db:get-user-beneficiaries": require("./cypress/tasks/db-tasks")
+          .getUserBeneficiaries,
       });
 
       return config;

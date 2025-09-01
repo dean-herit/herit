@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
-import { within } from "@storybook/test";
-
+import { within, userEvent, expect, fn } from "@storybook/test";
+import { http, HttpResponse } from "msw";
 import { EmailLoginForm } from "./EmailLoginForm";
 
 const meta: Meta<typeof EmailLoginForm> = {
@@ -14,10 +13,18 @@ const meta: Meta<typeof EmailLoginForm> = {
         component: "Email-based user login form with validation",
       },
     },
+    msw: {
+      handlers: [
+        http.post("/api/auth/signin/credentials", () => {
+          return HttpResponse.json({
+            user: { id: "1", email: "test@example.com" },
+          });
+        }),
+      ],
+    },
   },
-  // Add common args here based on component analysis
   args: {
-    // Add form-specific args here
+    onSubmit: fn(),
   },
   tags: ["autodocs"],
 };
@@ -27,29 +34,35 @@ type Story = StoryObj<typeof meta>;
 
 // Default story
 export const Default: Story = {
-  // Add default story configuration
-
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Add basic interaction tests
-    // Verify component renders
-    // expect(canvas.getByRole("")).toBeVisible();
+    // Verify form renders with email and password inputs
+    expect(canvas.getByLabelText(/email/i)).toBeVisible();
+    expect(canvas.getByLabelText(/password/i)).toBeVisible();
+    expect(canvas.getByRole("button", { name: /sign in/i })).toBeVisible();
   },
 };
 
 // Interactive story
 export const Interactive: Story = {
-  args: {
-    // Add interactive story args
-  },
-
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
-    // Add interaction tests
-    // Test user interactions
-    // await userEvent.click(canvas.getByRole("button"));
+    // Fill out the form
+    const emailInput = canvas.getByLabelText(/email/i);
+    const passwordInput = canvas.getByLabelText(/password/i);
+    const submitButton = canvas.getByRole("button", { name: /sign in/i });
+
+    await userEvent.type(emailInput, "test@example.com");
+    await userEvent.type(passwordInput, "password123");
+    await userEvent.click(submitButton);
+
+    // Verify form submission
+    expect(args.onSubmit).toHaveBeenCalledWith({
+      email: "test@example.com",
+      password: "password123",
+    });
   },
 };
 
@@ -58,7 +71,23 @@ export const Interactive: Story = {
 // Error state
 export const WithError: Story = {
   args: {
-    error: "Something went wrong",
+    error: "Invalid credentials. Please try again.",
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        http.post("/api/auth/signin/credentials", () => {
+          return HttpResponse.json(
+            { error: "Invalid credentials" },
+            { status: 401 },
+          );
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText(/invalid credentials/i)).toBeVisible();
   },
 };
 

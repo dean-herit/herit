@@ -1,23 +1,63 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
-import { within } from "@storybook/test";
-
+import { within, userEvent, expect, fn } from "@storybook/test";
+import { http, HttpResponse } from "msw";
 import { DashboardClient } from "./DashboardClient";
+
+const mockDashboardData = {
+  stats: {
+    totalAssets: 3,
+    totalValue: 250000,
+    beneficiaries: 2,
+    documents: 5,
+  },
+  recentAssets: [
+    { id: "1", name: "Family Home", type: "property", value: 150000 },
+    { id: "2", name: "Savings Account", type: "financial", value: 75000 },
+  ],
+  recentBeneficiaries: [
+    {
+      id: "1",
+      name: "John Doe",
+      relationship: "son",
+      allocation_percentage: 60,
+    },
+    {
+      id: "2",
+      name: "Jane Doe",
+      relationship: "daughter",
+      allocation_percentage: 40,
+    },
+  ],
+};
 
 const meta: Meta<typeof DashboardClient> = {
   title: "Dashboard/DashboardClient",
   component: DashboardClient,
   parameters: {
-    layout: "centered",
+    layout: "fullscreen",
     docs: {
       description: {
-        component: "DashboardClient component",
+        component: "Main dashboard showing estate overview and statistics",
       },
     },
-  },
-  // Add common args here based on component analysis
-  args: {
-    // Add common args based on component props
+    msw: {
+      handlers: [
+        http.get("/api/dashboard/stats", () => {
+          return HttpResponse.json(mockDashboardData.stats);
+        }),
+        http.get("/api/assets", () => {
+          return HttpResponse.json(mockDashboardData.recentAssets);
+        }),
+        http.get("/api/beneficiaries", () => {
+          return HttpResponse.json(mockDashboardData.recentBeneficiaries);
+        }),
+        http.get("/api/auth/session", () => {
+          return HttpResponse.json({
+            user: { id: "1", email: "user@example.com" },
+          });
+        }),
+      ],
+    },
   },
   tags: ["autodocs"],
 };
@@ -27,32 +67,107 @@ type Story = StoryObj<typeof meta>;
 
 // Default story
 export const Default: Story = {
-  // Add default story configuration
-
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Add basic interaction tests
-    // Verify component renders
-    // expect(canvas.getByRole("")).toBeVisible();
+    // Verify dashboard stats cards render
+    expect(canvas.getByText(/total assets/i)).toBeVisible();
+    expect(canvas.getByText(/total value/i)).toBeVisible();
+    expect(canvas.getByText(/beneficiaries/i)).toBeVisible();
+
+    // Verify stats values
+    expect(canvas.getByText("3")).toBeVisible(); // total assets
+    expect(canvas.getByText("€250,000")).toBeVisible(); // total value
+    expect(canvas.getByText("2")).toBeVisible(); // beneficiaries
   },
 };
 
 // Interactive story
 export const Interactive: Story = {
-  args: {
-    // Add interactive story args
-  },
-
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Add interaction tests
-    // Test user interactions
-    // await userEvent.click(canvas.getByRole("button"));
+    // Test navigation buttons
+    const addAssetButton = canvas.getByRole("button", { name: /add asset/i });
+    const addBeneficiaryButton = canvas.getByRole("button", {
+      name: /add beneficiary/i,
+    });
+
+    expect(addAssetButton).toBeVisible();
+    expect(addBeneficiaryButton).toBeVisible();
+
+    // Test clicking navigation buttons
+    await userEvent.click(addAssetButton);
+    await userEvent.click(addBeneficiaryButton);
+
+    // Test recent items navigation
+    const firstAssetLink = canvas.getByText("Family Home");
+    await userEvent.click(firstAssetLink);
   },
 };
 
-// Error state (if applicable)
+// Loading state
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/dashboard/stats", () => {
+          return new Promise(() => {}); // Never resolves
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByTestId("dashboard-loading")).toBeVisible();
+  },
+};
 
-// Loading state (if applicable)
+// Error state
+export const WithError: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/dashboard/stats", () => {
+          return HttpResponse.json(
+            { error: "Failed to load dashboard" },
+            { status: 500 },
+          );
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText(/error loading dashboard/i)).toBeVisible();
+  },
+};
+
+// Empty state
+export const EmptyState: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/dashboard/stats", () => {
+          return HttpResponse.json({
+            totalAssets: 0,
+            totalValue: 0,
+            beneficiaries: 0,
+            documents: 0,
+          });
+        }),
+        http.get("/api/assets", () => {
+          return HttpResponse.json([]);
+        }),
+        http.get("/api/beneficiaries", () => {
+          return HttpResponse.json([]);
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByText(/no assets yet/i)).toBeVisible();
+    expect(canvas.getByText(/no beneficiaries yet/i)).toBeVisible();
+  },
+};
