@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { Spinner } from "@heroui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -14,14 +15,14 @@ function MockAuthErrorHandler({
   onRetry?: () => void;
 }) {
   return (
-    <div data-testid="auth-error-handler" className="p-6 text-center">
+    <div className="p-6 text-center" data-testid="auth-error-handler">
       <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
         <p data-testid="error-message">{error}</p>
       </div>
       <button
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         data-testid="retry-button"
         onClick={onRetry}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
         Retry
       </button>
@@ -75,14 +76,16 @@ function ProtectedRouteForTesting({
   if (showLoading) {
     return (
       <div
+        aria-label="Loading authentication status"
         className="min-h-screen bg-background flex items-center justify-center"
         data-testid="loading-state"
         role="status"
-        aria-label="Loading authentication status"
       >
         <div className="flex flex-col items-center gap-4">
-          <Spinner color="primary" size="lg" data-testid="loading-spinner" />
-          <p className="text-default-600" data-testid="loading-message">Loading...</p>
+          <Spinner color="primary" data-testid="loading-spinner" size="lg" />
+          <p className="text-default-600" data-testid="loading-message">
+            Loading...
+          </p>
         </div>
       </div>
     );
@@ -91,8 +94,9 @@ function ProtectedRouteForTesting({
   // Simulate unauthenticated redirect
   if (!isAuthenticated) {
     onRedirectToLogin();
+
     return (
-      <div data-testid="redirect-indicator" className="hidden">
+      <div className="hidden" data-testid="redirect-indicator">
         Redirecting to login...
       </div>
     );
@@ -101,15 +105,16 @@ function ProtectedRouteForTesting({
   // Simulate onboarding redirect
   if (requireOnboarding && user && !user.onboarding_completed) {
     onRedirectToOnboarding();
+
     return (
-      <div data-testid="onboarding-redirect-indicator" className="hidden">
+      <div className="hidden" data-testid="onboarding-redirect-indicator">
         Redirecting to onboarding...
       </div>
     );
   }
 
   return (
-    <div data-testid="protected-content" className="min-h-screen">
+    <div className="min-h-screen" data-testid="protected-content">
       {children}
     </div>
   );
@@ -135,7 +140,7 @@ describe("ProtectedRoute Component", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -150,23 +155,26 @@ describe("ProtectedRoute Component", () => {
           >
             {testContent}
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="protected-content"]').should("be.visible");
-      cy.get('[data-testid="protected-content"]').should("contain", "Protected Dashboard Content");
+      cy.get('[data-testid="protected-content"]').should(
+        "contain",
+        "Protected Dashboard Content",
+      );
     });
 
     it("shows loading state while session is loading", () => {
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting
-            isSessionLoading={true}
             isAuthenticated={false}
+            isSessionLoading={true}
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]').should("be.visible");
@@ -185,7 +193,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get("@onRedirectToLogin").should("have.been.called");
@@ -204,11 +212,14 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Dashboard After Onboarding</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="protected-content"]').should("be.visible");
-      cy.get('[data-testid="protected-content"]').should("contain", "Dashboard After Onboarding");
+      cy.get('[data-testid="protected-content"]').should(
+        "contain",
+        "Dashboard After Onboarding",
+      );
     });
 
     it("redirects to onboarding when required but not completed", () => {
@@ -223,7 +234,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Dashboard Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get("@onRedirectToOnboarding").should("have.been.called");
@@ -235,7 +246,7 @@ describe("ProtectedRoute Component", () => {
   describe("Error States", () => {
     it("displays auth error handler when auth error occurs", () => {
       const errorMessage = "Invalid token. Please log in again.";
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting
@@ -244,7 +255,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -255,44 +266,53 @@ describe("ProtectedRoute Component", () => {
 
     it("handles session timeout errors", () => {
       const timeoutError = "Session expired. Please log in again.";
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting authError={timeoutError}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", "Session expired");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Session expired",
+      );
     });
 
     it("handles network connectivity issues", () => {
       const networkError = "Network error: Unable to verify authentication";
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting authError={networkError}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", "Network error");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Network error",
+      );
     });
 
     it("handles server authentication errors", () => {
       const serverError = "Authentication server unavailable";
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting authError={serverError}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", "server unavailable");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "server unavailable",
+      );
     });
 
     it("allows retry on authentication errors", () => {
@@ -304,7 +324,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').click();
@@ -322,7 +342,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -337,7 +357,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="protected-content"]');
@@ -349,11 +369,19 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting isSessionLoading={true}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="loading-state"]').should("have.attr", "role", "status");
-      cy.get('[data-testid="loading-state"]').should("have.attr", "aria-label", "Loading authentication status");
+      cy.get('[data-testid="loading-state"]').should(
+        "have.attr",
+        "role",
+        "status",
+      );
+      cy.get('[data-testid="loading-state"]').should(
+        "have.attr",
+        "aria-label",
+        "Loading authentication status",
+      );
       cy.get('[data-testid="loading-message"]').should("be.visible");
     });
 
@@ -363,7 +391,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting authError="Authentication failed">
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -379,7 +407,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').focus().should("be.focused");
@@ -391,18 +419,18 @@ describe("ProtectedRoute Component", () => {
       const TestStateTransition = () => {
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState<string | null>(null);
-        
+
         React.useEffect(() => {
           setTimeout(() => {
             setLoading(false);
             setError("Auth failed");
           }, 100);
         }, []);
-        
+
         return (
           <ProtectedRouteForTesting
-            isSessionLoading={loading}
             authError={error}
+            isSessionLoading={loading}
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
@@ -412,7 +440,7 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestStateTransition />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]').should("be.visible");
@@ -430,7 +458,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -439,16 +467,17 @@ describe("ProtectedRoute Component", () => {
     it("should handle rapid auth state changes", () => {
       const TestRapidChanges = () => {
         const [isAuth, setIsAuth] = useState(false);
-        
+
         React.useEffect(() => {
           const interval = setInterval(() => {
-            setIsAuth(prev => !prev);
+            setIsAuth((prev) => !prev);
           }, 50);
-          
+
           setTimeout(() => clearInterval(interval), 500);
+
           return () => clearInterval(interval);
         }, []);
-        
+
         return (
           <ProtectedRouteForTesting
             isAuthenticated={isAuth}
@@ -462,7 +491,7 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestRapidChanges />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.wait(600);
@@ -478,7 +507,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]').should("be.visible");
@@ -495,12 +524,15 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
         cy.get('[data-testid="protected-content"]').should("be.visible");
-        cy.get('[data-testid="protected-content"]').should("have.class", "min-h-screen");
+        cy.get('[data-testid="protected-content"]').should(
+          "have.class",
+          "min-h-screen",
+        );
       });
     });
 
@@ -510,7 +542,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting isSessionLoading={true}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -521,7 +553,7 @@ describe("ProtectedRoute Component", () => {
         .should("have.class", "flex")
         .should("have.class", "items-center")
         .should("have.class", "justify-center");
-      
+
       cy.get('[data-testid="loading-spinner"]').should("be.visible");
       cy.get('[data-testid="loading-message"]').should("be.visible");
     });
@@ -532,7 +564,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting authError="Authentication failed">
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const viewports = [
@@ -543,7 +575,7 @@ describe("ProtectedRoute Component", () => {
 
       viewports.forEach(({ width, height }) => {
         cy.viewport(width, height);
-        
+
         cy.get('[data-testid="auth-error-handler"]').should("be.visible");
         cy.get('[data-testid="retry-button"]').should("be.visible");
       });
@@ -553,17 +585,17 @@ describe("ProtectedRoute Component", () => {
   describe("Integration Scenarios", () => {
     it("should integrate with authentication flow", () => {
       let authAttempts = 0;
-      
+
       const TestAuthFlow = () => {
         const [isAuth, setIsAuth] = useState(false);
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState<string | null>(null);
-        
+
         const simulateAuth = () => {
           authAttempts++;
           setLoading(true);
           setError(null);
-          
+
           setTimeout(() => {
             setLoading(false);
             if (authAttempts <= 2) {
@@ -573,16 +605,16 @@ describe("ProtectedRoute Component", () => {
             }
           }, 100);
         };
-        
+
         React.useEffect(() => {
           simulateAuth();
         }, []);
-        
+
         return (
           <ProtectedRouteForTesting
+            authError={error}
             isAuthenticated={isAuth}
             isSessionLoading={loading}
-            authError={error}
             onRetryAuth={simulateAuth}
           >
             <div>Dashboard Content</div>
@@ -593,20 +625,20 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestAuthFlow />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should start with loading
       cy.get('[data-testid="loading-state"]').should("be.visible");
-      
+
       // Should show error after first attempt
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
-      
+
       // Retry should work
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="loading-state"]').should("be.visible");
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
-      
+
       // Third attempt should succeed
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -614,8 +646,11 @@ describe("ProtectedRoute Component", () => {
 
     it("should handle onboarding flow integration", () => {
       const TestOnboardingFlow = () => {
-        const [user, setUser] = useState({ id: "1", onboarding_completed: false });
-        
+        const [user, setUser] = useState({
+          id: "1",
+          onboarding_completed: false,
+        });
+
         return (
           <div>
             <ProtectedRouteForTesting
@@ -639,13 +674,13 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestOnboardingFlow />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should redirect to onboarding initially
       cy.get("@onRedirectToOnboarding").should("have.been.called");
       cy.get('[data-testid="protected-content"]').should("not.exist");
-      
+
       // Complete onboarding
       cy.get('[data-testid="complete-onboarding"]').click();
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -653,8 +688,10 @@ describe("ProtectedRoute Component", () => {
 
     it("should handle route protection scenarios", () => {
       const TestRouteProtection = () => {
-        const [routeLevel, setRouteLevel] = useState<"public" | "auth" | "onboarded">("public");
-        
+        const [routeLevel, setRouteLevel] = useState<
+          "public" | "auth" | "onboarded"
+        >("public");
+
         const getRouteProps = () => {
           switch (routeLevel) {
             case "public":
@@ -662,14 +699,14 @@ describe("ProtectedRoute Component", () => {
             case "auth":
               return { isAuthenticated: true, requireOnboarding: false };
             case "onboarded":
-              return { 
-                isAuthenticated: true, 
+              return {
+                isAuthenticated: true,
                 requireOnboarding: true,
-                user: { id: "1", onboarding_completed: true }
+                user: { id: "1", onboarding_completed: true },
               };
           }
         };
-        
+
         return (
           <div>
             <ProtectedRouteForTesting
@@ -698,16 +735,16 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestRouteProtection />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Public route should redirect to login
       cy.get("@onRedirectToLogin").should("have.been.called");
-      
+
       // Auth route should work
       cy.get('[data-testid="set-auth"]').click();
       cy.get('[data-testid="protected-content"]').should("be.visible");
-      
+
       // Onboarded route should work
       cy.get('[data-testid="set-onboarded"]').click();
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -722,8 +759,16 @@ describe("ProtectedRoute Component", () => {
             <h1>Dashboard</h1>
             <nav>
               <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Settings</a></li>
+                <li>
+                  <a data-testid="a-7na4zb3x0" href="#">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a data-testid="a-trnpz5k9m" href="#">
+                    Settings
+                  </a>
+                </li>
               </ul>
             </nav>
           </header>
@@ -731,7 +776,7 @@ describe("ProtectedRoute Component", () => {
             <section>
               <p>Main dashboard content</p>
               <div>
-                <button>Action Button</button>
+                <button data-testid="button-ehwmntcoo">Action Button</button>
               </div>
             </section>
           </main>
@@ -743,7 +788,7 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting isAuthenticated={true}>
             {complexContent}
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="protected-content"]').should("be.visible");
@@ -758,12 +803,12 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting
-            isSessionLoading={true}
             authError="Loading error"
+            isSessionLoading={true}
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Error should take precedence over loading
@@ -802,7 +847,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should still render content when user is undefined
@@ -813,29 +858,29 @@ describe("ProtectedRoute Component", () => {
   describe("Security", () => {
     it("should sanitize error messages", () => {
       const maliciousError = '<script>alert("xss")</script>Auth failed';
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting authError={maliciousError}>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-message"]').should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
 
     it("should prevent content exposure during auth check", () => {
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting
-            isSessionLoading={true}
             isAuthenticated={false}
+            isSessionLoading={true}
           >
             <div data-testid="sensitive-content">Sensitive Information</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Sensitive content should never be rendered during loading
@@ -852,7 +897,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div data-testid="admin-panel">Admin Panel</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="admin-panel"]').should("not.exist");
@@ -870,7 +915,7 @@ describe("ProtectedRoute Component", () => {
           >
             <div data-testid="premium-features">Premium Features</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="premium-features"]').should("not.exist");
@@ -881,20 +926,20 @@ describe("ProtectedRoute Component", () => {
       const TestTamperingAttempt = () => {
         const [authState, setAuthState] = useState({
           isAuthenticated: false,
-          user: null as any
+          user: null as any,
         });
-        
+
         // Simulate tampering attempt
         React.useEffect(() => {
           setTimeout(() => {
             // Attempt to bypass auth by setting authenticated but no user
             setAuthState({
               isAuthenticated: true,
-              user: null
+              user: null,
             });
           }, 100);
         }, []);
-        
+
         return (
           <ProtectedRouteForTesting
             isAuthenticated={authState.isAuthenticated}
@@ -911,12 +956,12 @@ describe("ProtectedRoute Component", () => {
       cy.mount(
         <TestWrapper>
           <TestTamperingAttempt />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should initially redirect to login
       cy.get("@onRedirectToLogin").should("have.been.called");
-      
+
       // After tampering attempt, should still show content (null user is handled gracefully)
       cy.get('[data-testid="secure-content"]').should("be.visible");
     });
@@ -925,16 +970,18 @@ describe("ProtectedRoute Component", () => {
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="protected-route"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
-      cy.get('[data-testid="protected-route"], [data-testid="protected-content"]').should("be.visible");
+
+      cy.get(
+        '[data-testid="protected-route"], [data-testid="protected-content"]',
+      ).should("be.visible");
     });
 
     it("should be accessible", () => {
@@ -943,10 +990,12 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
-      TestUtils.testAccessibility('[data-testid="protected-route"], [data-testid="protected-content"]');
+
+      TestUtils.testAccessibility(
+        '[data-testid="protected-route"], [data-testid="protected-content"]',
+      );
     });
 
     it("should handle responsive layouts", () => {
@@ -955,11 +1004,13 @@ describe("ProtectedRoute Component", () => {
           <ProtectedRouteForTesting>
             <div>Protected Content</div>
           </ProtectedRouteForTesting>
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="protected-route"], [data-testid="protected-content"]').should('be.visible');
+        cy.get(
+          '[data-testid="protected-route"], [data-testid="protected-content"]',
+        ).should("be.visible");
       });
     });
   });

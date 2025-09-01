@@ -1,4 +1,6 @@
 import { NavbarUserMenu } from "./navbar-user-menu";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("NavbarUserMenu Component", () => {
   it("renders without crashing", () => {

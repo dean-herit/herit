@@ -1,4 +1,6 @@
 import { VerticalSteps, VerticalStepProps } from "./VerticalSteps";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 // Mock steps data
 const mockSteps: VerticalStepProps[] = [

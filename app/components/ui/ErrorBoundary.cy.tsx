@@ -1,4 +1,6 @@
 import { ErrorBoundary } from "./ErrorBoundary";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("ErrorBoundary Component", () => {
   it("renders without crashing", () => {

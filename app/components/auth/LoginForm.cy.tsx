@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { Button, Card, CardBody, Divider } from "@heroui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -10,10 +11,10 @@ function MockGoogleSignInButton() {
   return (
     <Button
       className="w-full justify-center"
-      variant="bordered"
-      size="lg"
       role="button"
-      startContent={<div className="w-5 h-5 bg-blue-500 rounded"></div>}
+      size="lg"
+      startContent={<div className="w-5 h-5 bg-blue-500 rounded" />}
+      variant="bordered"
     >
       Continue with Google
     </Button>
@@ -58,11 +59,11 @@ function LoginFormForTesting({
   };
 
   return (
-    <div data-testid="login-form" className="w-full max-w-md mx-auto space-y-6">
+    <div className="w-full max-w-md mx-auto space-y-6" data-testid="login-form">
       {/* Error Display */}
       {authError && (
-        <Card 
-          className="border-danger-200 bg-danger-50" 
+        <Card
+          className="border-danger-200 bg-danger-50"
           data-testid="auth-error"
         >
           <CardBody className="p-4">
@@ -76,7 +77,10 @@ function LoginFormForTesting({
         <Card className="w-full">
           <CardBody className="space-y-4 p-6">
             <div className="text-center space-y-2">
-              <h2 data-testid="auth-title" className="text-2xl font-bold text-foreground">
+              <h2
+                className="text-2xl font-bold text-foreground"
+                data-testid="auth-title"
+              >
                 Welcome
               </h2>
               <p className="text-sm text-foreground-600">
@@ -88,8 +92,8 @@ function LoginFormForTesting({
               <Button
                 className="w-full"
                 color="primary"
-                size="lg"
                 data-testid="email-auth-button"
+                size="lg"
                 onPress={() => setShowEmailAuth(true)}
               >
                 Continue with Email
@@ -112,17 +116,17 @@ function LoginFormForTesting({
             <div className="text-center space-x-1 text-xs text-foreground-500">
               <span>By continuing, you agree to our</span>
               <a
-                href="/terms"
                 className="text-primary underline hover:no-underline"
                 data-testid="terms-link"
+                href="/terms"
               >
                 Terms of Service
               </a>
               <span>and</span>
               <a
-                href="/privacy"
                 className="text-primary underline hover:no-underline"
                 data-testid="privacy-link"
+                href="/privacy"
               >
                 Privacy Policy
               </a>
@@ -136,9 +140,9 @@ function LoginFormForTesting({
             <div className="flex items-center space-x-3">
               <Button
                 className="text-foreground-600"
-                variant="light"
-                size="sm"
                 data-testid="back-button"
+                size="sm"
+                variant="light"
                 onPress={() => setShowEmailAuth(false)}
               >
                 Back to other sign-in options
@@ -204,7 +208,7 @@ describe("LoginForm Component", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -212,7 +216,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="login-form"]').should("be.visible");
@@ -224,7 +228,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-auth-button"]').click();
@@ -237,11 +241,11 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting onModeChange={callbacks.onChange} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-auth-button"]').click();
-      
+
       // Switch to signup
       cy.get('[data-testid="signup-tab"]').click();
       cy.get("@onChange").should("have.been.calledWith", "signup");
@@ -257,7 +261,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-auth-button"]').click();
@@ -273,7 +277,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError={loginError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error"]').should("be.visible");
@@ -285,14 +289,17 @@ describe("LoginForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <LoginFormForTesting signupError={signupError} onModeChange={callbacks.onChange} />
-        </TestWrapper>
+          <LoginFormForTesting
+            signupError={signupError}
+            onModeChange={callbacks.onChange}
+          />
+        </TestWrapper>,
       );
 
       // Switch to signup mode first
       cy.get('[data-testid="email-auth-button"]').click();
       cy.get('[data-testid="signup-tab"]').click();
-      
+
       cy.get('[data-testid="auth-error"]').should("be.visible");
       cy.get('[data-testid="auth-error"]').should("contain", signupError);
     });
@@ -301,7 +308,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="Network error: Please check your connection" />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error"]').should("contain", "Network error");
@@ -311,17 +318,20 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="Server temporarily unavailable. Please try again." />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="auth-error"]').should("contain", "Server temporarily unavailable");
+      cy.get('[data-testid="auth-error"]').should(
+        "contain",
+        "Server temporarily unavailable",
+      );
     });
 
     it("handles empty error states", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="" signupError="" />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error"]').should("not.exist");
@@ -333,7 +343,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="login-form"]');
@@ -343,7 +353,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-auth-button"]').focus().should("be.focused");
@@ -355,12 +365,12 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="Test error" />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Title should be properly structured
       cy.get('[data-testid="auth-title"]').should("match", "h2");
-      
+
       // Links should have proper attributes
       cy.get('[data-testid="terms-link"]').should("have.attr", "href");
       cy.get('[data-testid="privacy-link"]').should("have.attr", "href");
@@ -374,7 +384,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="login-form"]').should("be.visible");
@@ -384,7 +394,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting onModeChange={callbacks.onChange} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-auth-button"]').click();
@@ -404,7 +414,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -418,11 +428,11 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
-      
+
       cy.get('[data-testid="login-form"]')
         .should("be.visible")
         .should("have.class", "max-w-md");
@@ -432,10 +442,10 @@ describe("LoginForm Component", () => {
   describe("Integration Scenarios", () => {
     it("should integrate with authentication flow", () => {
       let currentError = null;
-      
+
       const TestIntegration = () => {
         const [error, setError] = useState(currentError);
-        
+
         return (
           <div>
             <LoginFormForTesting
@@ -455,7 +465,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Test error integration
@@ -467,7 +477,7 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="login-form"]').within(() => {
@@ -481,12 +491,12 @@ describe("LoginForm Component", () => {
     it("handles simultaneous login and signup errors", () => {
       cy.mount(
         <TestWrapper>
-          <LoginFormForTesting 
-            loginError="Login failed" 
+          <LoginFormForTesting
+            loginError="Login failed"
             signupError="Signup failed"
             onModeChange={callbacks.onChange}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Should show login error initially
@@ -500,9 +510,7 @@ describe("LoginForm Component", () => {
 
     it("handles rapid component remounting", () => {
       const TestWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>
-          {show && <LoginFormForTesting />}
-        </TestWrapper>
+        <TestWrapper>{show && <LoginFormForTesting />}</TestWrapper>
       );
 
       cy.mount(<TestWrapper show={true} />);
@@ -519,24 +527,24 @@ describe("LoginForm Component", () => {
   describe("Security", () => {
     it("should sanitize error messages", () => {
       const maliciousError = '<script>alert("xss")</script>Login failed';
-      
+
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError={maliciousError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error"]').should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
 
     it("should prevent XSS in dynamic content", () => {
       const xssAttempt = 'javascript:alert("xss")';
-      
+
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError={xssAttempt} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error"]').should("contain", xssAttempt);
@@ -546,13 +554,13 @@ describe("LoginForm Component", () => {
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="login-form"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="login-form"]').should("be.visible");
     });
 
@@ -560,9 +568,9 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="login-form"]');
     });
 
@@ -570,11 +578,11 @@ describe("LoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="login-form"]').should('be.visible');
+        cy.get('[data-testid="login-form"]').should("be.visible");
       });
     });
   });

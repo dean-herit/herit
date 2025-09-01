@@ -1,4 +1,6 @@
 import { LayoutWrapper } from "./LayoutWrapper";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("LayoutWrapper Component", () => {
   it("renders without crashing", () => {

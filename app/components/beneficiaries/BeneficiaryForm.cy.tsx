@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { BeneficiaryForm } from "./BeneficiaryForm";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("BeneficiaryForm Component", () => {
   beforeEach(() => {

@@ -39,7 +39,6 @@ export default defineConfig([globalIgnores([
     "**/.next",
     "**/build",
     "**/*.stories.tsx",
-    "**/*.cy.tsx",
     "cypress/**/*",
     "storybook-static/**/*",
     "!**/.commitlintrc.cjs",
@@ -159,6 +158,11 @@ export default defineConfig([globalIgnores([
         "storybook-cypress-compliance/require-component-tests": "error",
         "storybook-cypress-compliance/require-testid-attributes": "warn",
         "storybook-cypress-compliance/require-named-export": "warn",
+        
+        // AI-Powered Test Generation Rules (Item 1 Complete) - Set to off initially to avoid conflicts
+        "storybook-cypress-compliance/require-enhanced-test-structure": "off",
+        "storybook-cypress-compliance/require-test-utils-import": "off", 
+        "storybook-cypress-compliance/prefer-ai-generated-tests": "off",
 
     },
 }]);

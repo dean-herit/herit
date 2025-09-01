@@ -1,4 +1,5 @@
 import React from "react";
+
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
 // Test-specific SignatureStamp without external dependencies
@@ -73,7 +74,9 @@ function SignatureStampForTesting({
       {!isSigned ? (
         <button
           className={`relative inline-flex flex-col items-center transition-all duration-200 group ${
-            !disabled ? "hover:opacity-70 cursor-pointer" : "opacity-50 cursor-not-allowed"
+            !disabled
+              ? "hover:opacity-70 cursor-pointer"
+              : "opacity-50 cursor-not-allowed"
           }`}
           data-testid="sign-button"
           disabled={disabled}
@@ -134,7 +137,7 @@ describe("SignatureStamp Component", () => {
   const templateSignature = TestUtils.createMockSignature("template");
   const drawnSignature = TestUtils.createMockSignature("drawn");
   const uploadedSignature = TestUtils.createMockSignature("uploaded");
-  
+
   // Create reusable callbacks inside beforeEach to avoid stub creation outside test context
   let callbacks: ReturnType<typeof TestUtils.createMockCallbacks>;
 
@@ -147,15 +150,19 @@ describe("SignatureStamp Component", () => {
     it("renders click-to-sign interface", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
+          data-testid="SignatureStampForTesting-osgdniied"
           isSigned={false}
+          signature={templateSignature}
           onClick={callbacks.onClick}
-        />
+        />,
       );
 
       cy.get('[data-testid="signature-stamp"]').should("be.visible");
       cy.get('[data-testid="sign-button"]').should("be.visible");
-      cy.get('[data-testid="sign-instruction"]').should("contain", "* Click to sign");
+      cy.get('[data-testid="sign-instruction"]').should(
+        "contain",
+        "* Click to sign",
+      );
       cy.get('[data-testid="signature-line"]').should("be.visible");
       cy.get('[data-testid="signed-signature"]').should("not.exist");
     });
@@ -163,10 +170,11 @@ describe("SignatureStamp Component", () => {
     it("handles click interactions", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
+          data-testid="SignatureStampForTesting-kbv2vt0xh"
           isSigned={false}
+          signature={templateSignature}
           onClick={callbacks.onClick}
-        />
+        />,
       );
 
       cy.get('[data-testid="sign-button"]').click();
@@ -176,25 +184,30 @@ describe("SignatureStamp Component", () => {
     it("shows loading state", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
-          isSigned={false}
+          data-testid="SignatureStampForTesting-7guzm9kby"
           isLoading={true}
+          isSigned={false}
+          signature={templateSignature}
           onClick={callbacks.onClick}
-        />
+        />,
       );
 
-      cy.get('[data-testid="sign-instruction"]').should("contain", "Saving signature...");
+      cy.get('[data-testid="sign-instruction"]').should(
+        "contain",
+        "Saving signature...",
+      );
       cy.get('[data-testid="loading-spinner"]').should("be.visible");
     });
 
     it("handles disabled state", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
-          isSigned={false}
+          data-testid="SignatureStampForTesting-1ghb909db"
           disabled={true}
+          isSigned={false}
+          signature={templateSignature}
           onClick={callbacks.onClick}
-        />
+        />,
       );
 
       cy.get('[data-testid="sign-button"]')
@@ -211,39 +224,46 @@ describe("SignatureStamp Component", () => {
     it("renders template signature", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
           isSigned={true}
+          signature={templateSignature}
           userName="John Doe"
-        />
+        />,
       );
 
       cy.get('[data-testid="signed-signature"]').should("be.visible");
-      cy.get('[data-testid="template-signature"]').should("be.visible").should("contain", templateSignature.data);
-      cy.get('[data-testid="user-name-display"]').should("contain", "John Doe").should("have.class", "uppercase");
+      cy.get('[data-testid="template-signature"]')
+        .should("be.visible")
+        .should("contain", templateSignature.data);
+      cy.get('[data-testid="user-name-display"]')
+        .should("contain", "John Doe")
+        .should("have.class", "uppercase");
       cy.get('[data-testid="sign-button"]').should("not.exist");
     });
 
     it("renders drawn signature", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={drawnSignature}
           isSigned={true}
+          signature={drawnSignature}
           userName="Jane Smith"
-        />
+        />,
       );
 
       cy.get('[data-testid="drawn-signature"]').should("be.visible");
       cy.get('[data-testid="drawn-signature"] svg').should("exist");
-      cy.get('[data-testid="user-name-display"]').should("contain", "Jane Smith");
+      cy.get('[data-testid="user-name-display"]').should(
+        "contain",
+        "Jane Smith",
+      );
     });
 
     it("renders uploaded signature", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={uploadedSignature}
           isSigned={true}
+          signature={uploadedSignature}
           userName="Bob Wilson"
-        />
+        />,
       );
 
       cy.get('[data-testid="uploaded-signature"]')
@@ -254,9 +274,9 @@ describe("SignatureStamp Component", () => {
     it("renders without user name", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
           isSigned={true}
-        />
+          signature={templateSignature}
+        />,
       );
 
       cy.get('[data-testid="signed-signature"]').should("be.visible");
@@ -273,9 +293,9 @@ describe("SignatureStamp Component", () => {
 
       cy.mount(
         <SignatureStampForTesting
-          signature={legacySignature}
           isSigned={true}
-        />
+          signature={legacySignature}
+        />,
       );
 
       cy.get('[data-testid="legacy-signature"]')
@@ -291,15 +311,12 @@ describe("SignatureStamp Component", () => {
       };
 
       cy.mount(
-        <SignatureStampForTesting
-          signature={maliciousSVG}
-          isSigned={true}
-        />
+        <SignatureStampForTesting isSigned={true} signature={maliciousSVG} />,
       );
 
       cy.get('[data-testid="drawn-signature"]').within(() => {
-        cy.get('script').should("not.exist");
-        cy.get('svg').should("exist");
+        cy.get("script").should("not.exist");
+        cy.get("svg").should("exist");
       });
     });
   });
@@ -308,9 +325,9 @@ describe("SignatureStamp Component", () => {
     it("applies correct CSS classes", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
           isSigned={true}
-        />
+          signature={templateSignature}
+        />,
       );
 
       cy.get('[data-testid="template-signature"]')
@@ -325,15 +342,18 @@ describe("SignatureStamp Component", () => {
     it("maintains responsive layout", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
           isSigned={true}
+          signature={templateSignature}
           userName="John Doe"
-        />
+        />,
       );
 
       TestUtils.testResponsiveLayout(() => {
         cy.get('[data-testid="signature-stamp"]').should("be.visible");
-        cy.get('[data-testid="signed-signature-line"]').should("have.class", "w-64");
+        cy.get('[data-testid="signed-signature-line"]').should(
+          "have.class",
+          "w-64",
+        );
       });
     });
   });
@@ -342,14 +362,15 @@ describe("SignatureStamp Component", () => {
     it("supports keyboard navigation", () => {
       cy.mount(
         <SignatureStampForTesting
-          signature={templateSignature}
+          data-testid="SignatureStampForTesting-8rwgd2kh0"
           isSigned={false}
+          signature={templateSignature}
           onClick={callbacks.onClick}
-        />
+        />,
       );
 
       TestUtils.testAccessibility('[data-testid="signature-stamp"]');
-      
+
       cy.get('[data-testid="sign-button"]').focus();
       cy.get('[data-testid="sign-button"]').should("be.focused");
     });
@@ -360,13 +381,12 @@ describe("SignatureStamp Component", () => {
       const emptySignature = { ...templateSignature, data: "" };
 
       cy.mount(
-        <SignatureStampForTesting
-          signature={emptySignature}
-          isSigned={true}
-        />
+        <SignatureStampForTesting isSigned={true} signature={emptySignature} />,
       );
 
-      cy.get('[data-testid="template-signature"]').should("be.visible").should("be.empty");
+      cy.get('[data-testid="template-signature"]')
+        .should("be.visible")
+        .should("be.empty");
     });
 
     it("handles long signature text", () => {
@@ -376,10 +396,7 @@ describe("SignatureStamp Component", () => {
       };
 
       cy.mount(
-        <SignatureStampForTesting
-          signature={longSignature}
-          isSigned={true}
-        />
+        <SignatureStampForTesting isSigned={true} signature={longSignature} />,
       );
 
       cy.get('[data-testid="template-signature"]')
@@ -395,11 +412,12 @@ describe("SignatureStamp Component", () => {
 
       const TestWrapper = () => {
         const [signed, setSigned] = React.useState(currentSigned);
-        
+
         return (
           <SignatureStampForTesting
-            signature={templateSignature}
+            data-testid="SignatureStampForTesting-22pbn4aco"
             isSigned={signed}
+            signature={templateSignature}
             onClick={() => {
               setSigned(true);
               currentSigned = true;
@@ -412,10 +430,10 @@ describe("SignatureStamp Component", () => {
 
       // Start unsigned
       cy.get('[data-testid="sign-button"]').should("be.visible");
-      
+
       // Click to sign
       cy.get('[data-testid="sign-button"]').click();
-      
+
       // Should now be signed
       cy.get('[data-testid="signed-signature"]').should("be.visible");
       cy.get('[data-testid="sign-button"]').should("not.exist");

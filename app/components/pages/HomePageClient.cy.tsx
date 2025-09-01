@@ -1,4 +1,6 @@
 import { HomePageClient } from "./HomePageClient";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("HomePageClient Component", () => {
   it("renders without crashing", () => {

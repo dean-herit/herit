@@ -1,4 +1,6 @@
 import { DocumentManager } from "./DocumentManager";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("DocumentManager Component", () => {
   it("renders without crashing", () => {

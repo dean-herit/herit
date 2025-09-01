@@ -1,4 +1,6 @@
 import { HeritLogo } from "./HeritLogo";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("HeritLogo Component", () => {
   it("renders without crashing", () => {

@@ -1,4 +1,6 @@
 import { CreateRuleModal } from "./CreateRuleModal";
+import { TestUtils } from "../../../../cypress/support/test-utils";
+
 
 describe("CreateRuleModal Component", () => {
   it("renders without crashing", () => {

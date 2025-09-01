@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, Input } from "@heroui/react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -35,7 +36,7 @@ function EmailSignupFormForTesting({
   // Set initial error if provided
   React.useEffect(() => {
     if (initialError) {
-      setErrors(prev => ({ ...prev, general: initialError }));
+      setErrors((prev) => ({ ...prev, general: initialError }));
     }
   }, [initialError]);
 
@@ -67,6 +68,7 @@ function EmailSignupFormForTesting({
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -78,82 +80,78 @@ function EmailSignupFormForTesting({
     e.preventDefault();
     if (validateForm()) {
       const { confirmPassword, ...signupData } = formData;
+
       onSubmit(signupData);
     }
   };
 
   return (
-    <div data-testid="email-signup-container" className="w-full max-w-md mx-auto">
+    <div
+      className="w-full max-w-md mx-auto"
+      data-testid="email-signup-container"
+    >
       {errors.general && (
-        <div 
-          data-testid="general-error"
+        <div
           className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+          data-testid="general-error"
         >
           {errors.general}
         </div>
       )}
 
       <form
-        onSubmit={handleSubmit}
         className="space-y-4"
         data-testid="email-signup-form"
+        onSubmit={handleSubmit}
       >
         <div className="grid grid-cols-2 gap-3" data-testid="name-fields-grid">
           <Input
             isRequired
+            data-testid="firstName-input"
+            errorMessage={errors.firstName}
+            isInvalid={!!errors.firstName}
             label="First Name"
             placeholder="First name"
             value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            errorMessage={errors.firstName}
-            isInvalid={!!errors.firstName}
-            data-testid="firstName-input"
             variant="bordered"
+            onChange={(e) => handleChange("firstName", e.target.value)}
           />
 
           <Input
             isRequired
+            data-testid="lastName-input"
+            errorMessage={errors.lastName}
+            isInvalid={!!errors.lastName}
             label="Last Name"
             placeholder="Last name"
             value={formData.lastName}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-            errorMessage={errors.lastName}
-            isInvalid={!!errors.lastName}
-            data-testid="lastName-input"
             variant="bordered"
+            onChange={(e) => handleChange("lastName", e.target.value)}
           />
         </div>
 
         <Input
           isRequired
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
-          value={formData.email}
-          onChange={(e) => handleChange("email", e.target.value)}
+          data-testid="email-input"
           errorMessage={errors.email}
           isInvalid={!!errors.email}
-          data-testid="email-input"
+          label="Email"
+          placeholder="Enter your email"
+          type="email"
+          value={formData.email}
           variant="bordered"
+          onChange={(e) => handleChange("email", e.target.value)}
         />
 
         <Input
           isRequired
-          type={showPassword ? "text" : "password"}
-          label="Password"
-          placeholder="Create a password"
-          value={formData.password}
-          onChange={(e) => handleChange("password", e.target.value)}
-          errorMessage={errors.password}
-          isInvalid={!!errors.password}
           data-testid="password-input"
-          variant="bordered"
           endContent={
             <button
               className="focus:outline-none"
+              data-testid="toggle-password"
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              data-testid="toggle-password"
             >
               {showPassword ? (
                 <EyeSlashIcon className="w-5 h-5 text-default-400" />
@@ -162,25 +160,25 @@ function EmailSignupFormForTesting({
               )}
             </button>
           }
+          errorMessage={errors.password}
+          isInvalid={!!errors.password}
+          label="Password"
+          placeholder="Create a password"
+          type={showPassword ? "text" : "password"}
+          value={formData.password}
+          variant="bordered"
+          onChange={(e) => handleChange("password", e.target.value)}
         />
 
         <Input
           isRequired
-          type={showConfirmPassword ? "text" : "password"}
-          label="Confirm Password"
-          placeholder="Confirm your password"
-          value={formData.confirmPassword}
-          onChange={(e) => handleChange("confirmPassword", e.target.value)}
-          errorMessage={errors.confirmPassword}
-          isInvalid={!!errors.confirmPassword}
           data-testid="confirmPassword-input"
-          variant="bordered"
           endContent={
             <button
               className="focus:outline-none"
+              data-testid="toggle-confirm-password"
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              data-testid="toggle-confirm-password"
             >
               {showConfirmPassword ? (
                 <EyeSlashIcon className="w-5 h-5 text-default-400" />
@@ -189,15 +187,23 @@ function EmailSignupFormForTesting({
               )}
             </button>
           }
+          errorMessage={errors.confirmPassword}
+          isInvalid={!!errors.confirmPassword}
+          label="Confirm Password"
+          placeholder="Confirm your password"
+          type={showConfirmPassword ? "text" : "password"}
+          value={formData.confirmPassword}
+          variant="bordered"
+          onChange={(e) => handleChange("confirmPassword", e.target.value)}
         />
 
         <Button
-          type="submit"
-          color="primary"
           className="w-full"
-          size="lg"
-          isLoading={isLoading}
+          color="primary"
           data-testid="submit-button"
+          isLoading={isLoading}
+          size="lg"
+          type="submit"
         >
           Create Account
         </Button>
@@ -226,7 +232,7 @@ describe("EmailSignupForm Component", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -234,7 +240,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-signup-container"]').should("be.visible");
@@ -248,7 +254,7 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]')
         .should("be.visible")
         .and("contain", "Create Account");
-      
+
       // Password toggle buttons
       cy.get('[data-testid="toggle-password"]').should("be.visible");
       cy.get('[data-testid="toggle-confirm-password"]').should("be.visible");
@@ -257,8 +263,11 @@ describe("EmailSignupForm Component", () => {
     it("handles form input and submission with valid data", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-oiluwac7w"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -280,32 +289,60 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Test password field toggle
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "text");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
 
       // Test confirm password field toggle
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
       cy.get('[data-testid="toggle-confirm-password"]').click();
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "text");
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
       cy.get('[data-testid="toggle-confirm-password"]').click();
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
 
     it("shows loading state correctly", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting isLoading={true} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="submit-button"]').should("have.attr", "data-loading", "true");
+      cy.get('[data-testid="submit-button"]').should(
+        "have.attr",
+        "data-loading",
+        "true",
+      );
     });
   });
 
@@ -313,24 +350,46 @@ describe("EmailSignupForm Component", () => {
     it("validates empty form submission", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-vewdx03ii"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get("@onSubmit").should("not.have.been.called");
-      
-      cy.get('[data-testid="firstName-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="lastName-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+
+      cy.get('[data-testid="firstName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="lastName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates required first name", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-6x203nti5"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="lastName-input"]').type("Doe");
@@ -340,14 +399,21 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="firstName-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="firstName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates required last name", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-hmzop6yxh"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -357,14 +423,21 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="lastName-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="lastName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates invalid email format", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-7qmfyupdm"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -375,14 +448,21 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates password minimum length", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-ad21wsq8w"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -393,14 +473,21 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates password confirmation match", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-yoga05m5m"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -411,16 +498,20 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("displays general error messages", () => {
       const errorMessage = "Email already exists";
-      
+
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting initialError={errorMessage} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="general-error"]').should("be.visible");
@@ -431,20 +522,26 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting initialError="Network error: Please check your connection" />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="general-error"]').should("contain", "Network error");
+      cy.get('[data-testid="general-error"]').should(
+        "contain",
+        "Network error",
+      );
     });
 
     it("handles server errors gracefully", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting initialError="Server temporarily unavailable. Please try again." />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="general-error"]').should("contain", "Server temporarily unavailable");
+      cy.get('[data-testid="general-error"]').should(
+        "contain",
+        "Server temporarily unavailable",
+      );
     });
   });
 
@@ -453,7 +550,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="email-signup-container"]');
@@ -463,7 +560,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').focus().should("be.focused");
@@ -487,57 +584,111 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-signup-form"]').should("match", "form");
-      cy.get('[data-testid="firstName-input"]').should("have.attr", "type", "text");
-      cy.get('[data-testid="lastName-input"]').should("have.attr", "type", "text");
-      cy.get('[data-testid="email-input"]').should("have.attr", "type", "email");
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="submit-button"]').should("have.attr", "type", "submit");
-      cy.get('[data-testid="toggle-password"]').should("have.attr", "type", "button");
-      cy.get('[data-testid="toggle-confirm-password"]').should("have.attr", "type", "button");
+      cy.get('[data-testid="firstName-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
+      cy.get('[data-testid="lastName-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "type",
+        "email",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="submit-button"]').should(
+        "have.attr",
+        "type",
+        "submit",
+      );
+      cy.get('[data-testid="toggle-password"]').should(
+        "have.attr",
+        "type",
+        "button",
+      );
+      cy.get('[data-testid="toggle-confirm-password"]').should(
+        "have.attr",
+        "type",
+        "button",
+      );
     });
 
     it("provides proper error feedback for screen readers", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="submit-button"]').click();
-      
-      cy.get('[data-testid="firstName-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="lastName-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+
+      cy.get('[data-testid="firstName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="lastName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("maintains proper form structure for screen readers", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="name-fields-grid"]').should("have.class", "grid-cols-2");
+      cy.get('[data-testid="name-fields-grid"]').should(
+        "have.class",
+        "grid-cols-2",
+      );
       cy.get('[data-testid="email-signup-form"]').within(() => {
-        cy.get('input[required]').should("have.length", 5);
+        cy.get("input[required]").should("have.length", 5);
       });
     });
   });
 
   describe("Performance", () => {
     it("should render quickly", () => {
-      TestUtils.measureRenderTime('[data-testid="email-signup-container"]', 1000);
+      TestUtils.measureRenderTime(
+        '[data-testid="email-signup-container"]',
+        1000,
+      );
 
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-signup-container"]').should("be.visible");
@@ -546,31 +697,47 @@ describe("EmailSignupForm Component", () => {
     it("should handle rapid input changes across all fields", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-jpfx92eql"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       // Rapidly type and clear inputs across all fields
       for (let i = 0; i < 5; i++) {
         cy.get('[data-testid="firstName-input"]').clear().type(`John${i}`);
         cy.get('[data-testid="lastName-input"]').clear().type(`Doe${i}`);
-        cy.get('[data-testid="email-input"]').clear().type(`test${i}@example.com`);
+        cy.get('[data-testid="email-input"]')
+          .clear()
+          .type(`test${i}@example.com`);
         cy.get('[data-testid="password-input"]').clear().type(`password${i}`);
-        cy.get('[data-testid="confirmPassword-input"]').clear().type(`password${i}`);
+        cy.get('[data-testid="confirmPassword-input"]')
+          .clear()
+          .type(`password${i}`);
       }
 
       cy.get('[data-testid="firstName-input"]').should("have.value", "John4");
       cy.get('[data-testid="lastName-input"]').should("have.value", "Doe4");
-      cy.get('[data-testid="email-input"]').should("have.value", "test4@example.com");
-      cy.get('[data-testid="password-input"]').should("have.value", "password4");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.value", "password4");
+      cy.get('[data-testid="email-input"]').should(
+        "have.value",
+        "test4@example.com",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.value",
+        "password4",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.value",
+        "password4",
+      );
     });
 
     it("should handle rapid password visibility toggles", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Rapidly toggle both password visibility buttons
@@ -579,15 +746,26 @@ describe("EmailSignupForm Component", () => {
         cy.get('[data-testid="toggle-confirm-password"]').click();
       }
 
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
 
     it("should handle rapid form submissions", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-9d4w8tnhr"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       // Fill form once
@@ -611,7 +789,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -630,7 +808,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -638,25 +816,34 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="email-signup-container"]')
         .should("be.visible")
         .should("have.class", "max-w-md");
-      
-      cy.get('[data-testid="name-fields-grid"]').should("have.class", "grid-cols-2");
+
+      cy.get('[data-testid="name-fields-grid"]').should(
+        "have.class",
+        "grid-cols-2",
+      );
       cy.get('[data-testid="submit-button"]').should("have.class", "w-full");
-      cy.get('[data-testid="email-signup-form"]').should("have.class", "space-y-4");
+      cy.get('[data-testid="email-signup-form"]').should(
+        "have.class",
+        "space-y-4",
+      );
     });
 
     it("handles grid layout properly on tablet", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(768, 1024); // Tablet
 
-      cy.get('[data-testid="name-fields-grid"]').should("have.class", "grid-cols-2");
+      cy.get('[data-testid="name-fields-grid"]').should(
+        "have.class",
+        "grid-cols-2",
+      );
       cy.get('[data-testid="firstName-input"]').should("be.visible");
       cy.get('[data-testid="lastName-input"]').should("be.visible");
-      
+
       // Check that grid spacing is maintained
       cy.get('[data-testid="name-fields-grid"]').should("have.class", "gap-3");
     });
@@ -665,12 +852,15 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(1200, 800); // Desktop
 
-      cy.get('[data-testid="email-signup-form"]').should("have.class", "space-y-4");
+      cy.get('[data-testid="email-signup-form"]').should(
+        "have.class",
+        "space-y-4",
+      );
       cy.get('[data-testid="name-fields-grid"]').should("have.class", "gap-3");
     });
   });
@@ -678,15 +868,15 @@ describe("EmailSignupForm Component", () => {
   describe("Integration Scenarios", () => {
     it("should integrate with registration flow", () => {
       let formSubmitted = false;
-      
+
       const TestIntegration = () => {
         const [error, setError] = useState<string | null>(null);
         const [loading, setLoading] = useState(false);
-        
+
         const handleSubmit = async (formData: any) => {
           setLoading(true);
           formSubmitted = true;
-          
+
           // Simulate API call
           setTimeout(() => {
             if (formData.email === "taken@test.com") {
@@ -695,13 +885,14 @@ describe("EmailSignupForm Component", () => {
             setLoading(false);
           }, 100);
         };
-        
+
         return (
           <div>
-            <EmailSignupFormForTesting 
-              onSubmit={handleSubmit}
-              isLoading={loading}
+            <EmailSignupFormForTesting
+              data-testid="EmailSignupFormForTesting-v0bfhyva8"
               initialError={error}
+              isLoading={loading}
+              onSubmit={handleSubmit}
             />
             <button
               data-testid="simulate-error"
@@ -716,7 +907,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Test successful submission flow
@@ -739,14 +930,11 @@ describe("EmailSignupForm Component", () => {
     it("should handle form reset scenarios", () => {
       const TestFormReset = () => {
         const [key, setKey] = useState(0);
-        
+
         return (
           <div>
             <EmailSignupFormForTesting key={key} />
-            <button
-              data-testid="reset-form"
-              onClick={() => setKey(key + 1)}
-            >
+            <button data-testid="reset-form" onClick={() => setKey(key + 1)}>
               Reset Form
             </button>
           </div>
@@ -756,16 +944,16 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestFormReset />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
       cy.get('[data-testid="lastName-input"]').type("Doe");
       cy.get('[data-testid="email-input"]').type("test@example.com");
       cy.get('[data-testid="password-input"]').type("password123");
-      
+
       cy.get('[data-testid="reset-form"]').click();
-      
+
       cy.get('[data-testid="firstName-input"]').should("have.value", "");
       cy.get('[data-testid="lastName-input"]').should("have.value", "");
       cy.get('[data-testid="email-input"]').should("have.value", "");
@@ -786,7 +974,8 @@ describe("EmailSignupForm Component", () => {
 
         return (
           <div>
-            <EmailSignupFormForTesting 
+            <EmailSignupFormForTesting
+              data-testid="EmailSignupFormForTesting-izhk0riu1"
               onSubmit={(data) => {
                 // Pass through password for testing
                 setPassword(data.password);
@@ -800,7 +989,7 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestWithPasswordStrength />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="password-input"]').type("weak");
@@ -809,7 +998,9 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="password-input"]').clear().type("mediumpass");
       cy.get('[data-testid="password-strength"]').should("contain", "medium");
 
-      cy.get('[data-testid="password-input"]').clear().type("verystrongpassword");
+      cy.get('[data-testid="password-input"]')
+        .clear()
+        .type("verystrongpassword");
       cy.get('[data-testid="password-strength"]').should("contain", "strong");
     });
   });
@@ -822,8 +1013,11 @@ describe("EmailSignupForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-9fyjvjwl2"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type(longName);
@@ -848,8 +1042,11 @@ describe("EmailSignupForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-rut3mv68c"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type(specialName);
@@ -870,8 +1067,11 @@ describe("EmailSignupForm Component", () => {
     it("handles whitespace-only names", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-7hvgmbvhu"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("   ");
@@ -882,14 +1082,16 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="firstName-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="firstName-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("handles rapid component remounting", () => {
       const TestMountWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>
-          {show && <EmailSignupFormForTesting />}
-        </TestWrapper>
+        <TestWrapper>{show && <EmailSignupFormForTesting />}</TestWrapper>
       );
 
       cy.mount(<TestMountWrapper show={true} />);
@@ -906,24 +1108,27 @@ describe("EmailSignupForm Component", () => {
   describe("Security", () => {
     it("should sanitize error messages", () => {
       const maliciousError = '<script>alert("xss")</script>Registration failed';
-      
+
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting initialError={maliciousError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="general-error"]').should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
 
     it("should prevent XSS in form inputs", () => {
       const xssAttempt = 'javascript:alert("xss")';
-      
+
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-2a8qe6ljf"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type(xssAttempt);
@@ -934,41 +1139,68 @@ describe("EmailSignupForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("have.been.called");
-      cy.window().its('alert').should('not.have.been.called');
+      cy.window().its("alert").should("not.have.been.called");
     });
 
     it("should handle password visibility toggle securely", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="password-input"]').type("sensitivepassword");
       cy.get('[data-testid="confirmPassword-input"]').type("sensitivepassword");
-      
+
       // Passwords should be hidden by default
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
-      
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+
       // Toggle to show passwords
       cy.get('[data-testid="toggle-password"]').click();
       cy.get('[data-testid="toggle-confirm-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "text");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "text");
-      
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
+
       // Toggle back to hide
       cy.get('[data-testid="toggle-password"]').click();
       cy.get('[data-testid="toggle-confirm-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="confirmPassword-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="confirmPassword-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
 
     it("should not submit confirmPassword in final payload", () => {
       cy.mount(
         <TestWrapper>
-          <EmailSignupFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailSignupFormForTesting
+            data-testid="EmailSignupFormForTesting-x2nhrsbjr"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="firstName-input"]').type("John");
@@ -988,7 +1220,8 @@ describe("EmailSignupForm Component", () => {
 
       cy.get("@onSubmit").should((stub) => {
         const callArgs = stub.getCall(0).args[0];
-        expect(callArgs).to.not.have.property('confirmPassword');
+
+        expect(callArgs).to.not.have.property("confirmPassword");
       });
     });
   });
@@ -996,13 +1229,13 @@ describe("EmailSignupForm Component", () => {
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="email-signup-form"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="email-signup-form"]').should("be.visible");
     });
 
@@ -1010,9 +1243,9 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="email-signup-form"]');
     });
 
@@ -1020,11 +1253,11 @@ describe("EmailSignupForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailSignupFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="email-signup-form"]').should('be.visible');
+        cy.get('[data-testid="email-signup-form"]').should("be.visible");
       });
     });
   });

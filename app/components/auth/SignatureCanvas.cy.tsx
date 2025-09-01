@@ -1,4 +1,6 @@
 import { SignatureCanvas } from "./SignatureCanvas";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("SignatureCanvas Component", () => {
   it("renders without crashing", () => {
@@ -74,6 +76,7 @@ describe("SignatureCanvas Component", () => {
 
   it("maintains responsive layout and touch targets", () => {
     const onSignatureChange = cy.stub();
+
     cy.mount(<SignatureCanvas onSignatureChange={onSignatureChange} />);
 
     // Test different viewport sizes
@@ -100,6 +103,7 @@ describe("SignatureCanvas Component", () => {
         .and(($btn) => {
           const btn = $btn[0];
           const rect = btn.getBoundingClientRect();
+
           expect(rect.width).to.be.at.least(44); // iOS minimum touch target
           expect(rect.height).to.be.at.least(44);
         });
@@ -108,6 +112,7 @@ describe("SignatureCanvas Component", () => {
 
   it("handles keyboard navigation for accessibility", () => {
     const onSignatureChange = cy.stub();
+
     cy.mount(<SignatureCanvas onSignatureChange={onSignatureChange} />);
 
     // Tab to clear button
@@ -134,10 +139,11 @@ describe("SignatureCanvas Component", () => {
 
   it("validates signature completeness", () => {
     const onSignatureChange = cy.stub();
+
     cy.mount(
       <SignatureCanvas
-        onSignatureChange={onSignatureChange}
         minStrokeLength={3}
+        onSignatureChange={onSignatureChange}
       />,
     );
 

@@ -1,6 +1,8 @@
 import React from "react";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../cypress/support/test-utils";
+
 import ErrorComponent from "./error";
 
 // Test-specific ErrorComponent wrapper
@@ -29,17 +31,20 @@ describe("Error Component", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
     it("renders error message and try again button", () => {
       const testError = new Error("Something went wrong");
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-component"]').should("be.visible");
@@ -50,11 +55,14 @@ describe("Error Component", () => {
 
     it("calls reset callback when try again button is clicked", () => {
       const testError = new Error("Test error");
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="button-1kbh9c27y"]').click();
@@ -63,15 +71,18 @@ describe("Error Component", () => {
 
     it("logs error to console on component mount", () => {
       const testError = new Error("Console log test error");
-      
+
       cy.window().then((win) => {
-        cy.spy(win.console, 'error').as('consoleError');
+        cy.spy(win.console, "error").as("consoleError");
       });
 
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get("@consoleError").should("have.been.calledWith", testError);
@@ -79,11 +90,14 @@ describe("Error Component", () => {
 
     it("handles different error types and messages", () => {
       const customError = new Error("Custom error message for testing");
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={customError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={customError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -95,8 +109,11 @@ describe("Error Component", () => {
     it("handles missing error object gracefully", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={undefined as any} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={undefined as any}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -105,29 +122,36 @@ describe("Error Component", () => {
 
     it("handles missing reset callback gracefully", () => {
       const testError = new Error("Test error");
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={undefined as any} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={undefined as any}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
       cy.get('[data-testid="button-1kbh9c27y"]').should("be.visible");
-      
+
       // Should not throw error when clicked
       cy.get('[data-testid="button-1kbh9c27y"]').click();
     });
 
     it("handles complex error objects", () => {
       const complexError = new Error("Network error");
+
       complexError.cause = "Connection timeout";
       complexError.stack = "Error stack trace...";
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={complexError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={complexError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -137,20 +161,20 @@ describe("Error Component", () => {
     it("handles multiple rapid error occurrences", () => {
       const error1 = new Error("First error");
       const error2 = new Error("Second error");
-      
+
       cy.mount(
         <TestWrapper>
           <ErrorComponentForTesting error={error1} reset={callbacks.onRetry} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
-      
+
       // Remount with different error
       cy.mount(
         <TestWrapper>
           <ErrorComponentForTesting error={error2} reset={callbacks.onRetry} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -163,8 +187,11 @@ describe("Error Component", () => {
     it("should be accessible", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="error-component"]');
@@ -173,8 +200,11 @@ describe("Error Component", () => {
     it("supports keyboard navigation", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="button-1kbh9c27y"]').focus().should("be.focused");
@@ -185,23 +215,33 @@ describe("Error Component", () => {
     it("has proper semantic structure", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       // Check heading structure
       cy.get("h2").should("contain", "Something went wrong!");
       cy.get("h2").should("be.visible");
-      
+
       // Check button semantics
-      cy.get('[data-testid="button-1kbh9c27y"]').should("have.prop", "tagName", "BUTTON");
+      cy.get('[data-testid="button-1kbh9c27y"]').should(
+        "have.prop",
+        "tagName",
+        "BUTTON",
+      );
     });
 
     it("provides clear user guidance", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       // User should understand what happened and what they can do
@@ -216,8 +256,11 @@ describe("Error Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-component"]').should("be.visible");
@@ -225,14 +268,18 @@ describe("Error Component", () => {
 
     it("handles large error objects efficiently", () => {
       const largeError = new Error("Error with large stack trace");
+
       largeError.stack = "a".repeat(10000); // Large stack trace
-      
+
       TestUtils.measureRenderTime('[data-testid="error-component"]', 2000);
 
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={largeError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={largeError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-component"]').should("be.visible");
@@ -241,8 +288,11 @@ describe("Error Component", () => {
     it("handles rapid reset button clicks efficiently", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       // Rapidly click reset button
@@ -259,8 +309,11 @@ describe("Error Component", () => {
     it("should work on all screen sizes", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -273,28 +326,36 @@ describe("Error Component", () => {
     it("maintains proper spacing on mobile", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568);
-      
+
       cy.get('[data-testid="error-component"]').should("be.visible");
       cy.contains("Something went wrong!").should("be.visible");
       cy.get('[data-testid="button-1kbh9c27y"]').should("be.visible");
     });
 
     it("handles long error messages on narrow screens", () => {
-      const longError = new Error("This is a very long error message that might wrap on smaller screens");
-      
+      const longError = new Error(
+        "This is a very long error message that might wrap on smaller screens",
+      );
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={longError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={longError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568);
-      
+
       cy.contains("Something went wrong!").should("be.visible");
       cy.get('[data-testid="button-1kbh9c27y"]').should("be.visible");
     });
@@ -308,14 +369,14 @@ describe("Error Component", () => {
 
         const handleReset = () => {
           setHasError(false);
-          setErrorCount(count => count + 1);
+          setErrorCount((count) => count + 1);
         };
 
         if (hasError) {
           return (
-            <ErrorComponentForTesting 
-              error={new Error("Integration test error")} 
-              reset={handleReset} 
+            <ErrorComponentForTesting
+              error={new Error("Integration test error")}
+              reset={handleReset}
             />
           );
         }
@@ -336,7 +397,7 @@ describe("Error Component", () => {
       cy.mount(
         <TestWrapper>
           <TestIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Initially no error
@@ -353,32 +414,39 @@ describe("Error Component", () => {
     });
 
     it("handles error reporting service integration", () => {
-      const reportError = cy.stub().as('reportError');
+      const reportError = cy.stub().as("reportError");
       const testError = new Error("Service integration test");
-      
+
       cy.window().then((win) => {
         win.errorReportingService = { report: reportError };
       });
 
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       // Error should be logged to console (existing behavior)
-      cy.window().its('console.error').should('exist');
+      cy.window().its("console.error").should("exist");
     });
 
     it("works within Next.js app router context", () => {
       // Simulate Next.js error boundary behavior
       const testError = new Error("App router error");
+
       testError.digest = "NEXT_REDIRECT"; // Next.js specific error property
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={testError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={testError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -391,13 +459,17 @@ describe("Error Component", () => {
     it("handles circular reference errors", () => {
       const circularError = new Error("Circular reference test");
       const obj: any = { error: circularError };
+
       obj.self = obj;
       circularError.cause = obj;
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={circularError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={circularError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -406,11 +478,14 @@ describe("Error Component", () => {
 
     it("handles error objects without message", () => {
       const emptyError = new Error("");
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={emptyError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={emptyError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -419,11 +494,14 @@ describe("Error Component", () => {
 
     it("handles non-Error objects passed as error", () => {
       const stringError = "String error" as any;
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={stringError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={stringError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -434,9 +512,9 @@ describe("Error Component", () => {
       const TestWrapper = ({ show }: { show: boolean }) => (
         <div>
           {show && (
-            <ErrorComponentForTesting 
-              error={new Error("Remount test")} 
-              reset={callbacks.onRetry} 
+            <ErrorComponentForTesting
+              error={new Error("Remount test")}
+              reset={callbacks.onRetry}
             />
           )}
         </div>
@@ -455,26 +533,36 @@ describe("Error Component", () => {
 
   describe("Security", () => {
     it("safely handles malicious error messages", () => {
-      const xssError = new Error('<script>alert("xss")</script>Malicious error');
-      
+      const xssError = new Error(
+        '<script>alert("xss")</script>Malicious error',
+      );
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={xssError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={xssError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
 
     it("safely handles error properties with XSS attempts", () => {
       const maliciousError = new Error("Test error");
-      (maliciousError as any).maliciousProp = '<img src="x" onerror="alert(1)">';
-      
+
+      (maliciousError as any).maliciousProp =
+        '<img src="x" onerror="alert(1)">';
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={maliciousError} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={maliciousError}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
@@ -485,11 +573,14 @@ describe("Error Component", () => {
       const maliciousReset = () => {
         (window as any).maliciousCode = "injected";
       };
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={maliciousReset} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={maliciousReset}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="button-1kbh9c27y"]').click();
@@ -498,51 +589,65 @@ describe("Error Component", () => {
 
     it("handles error stack traces safely", () => {
       const errorWithStack = new Error("Stack trace test");
-      errorWithStack.stack = '<script>alert("stack xss")</script>Stack trace content';
-      
+
+      errorWithStack.stack =
+        '<script>alert("stack xss")</script>Stack trace content';
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={errorWithStack} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={errorWithStack}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
 
       cy.contains("Something went wrong!").should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
   });
 
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="error-component"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="error-component"]').should("be.visible");
     });
 
     it("should be accessible", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="error-component"]');
     });
 
     it("should handle responsive layouts", () => {
       cy.mount(
         <TestWrapper>
-          <ErrorComponentForTesting error={new Error("Test")} reset={callbacks.onRetry} />
-        </TestWrapper>
+          <ErrorComponentForTesting
+            error={new Error("Test")}
+            reset={callbacks.onRetry}
+          />
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="error-component"]').should('be.visible');
+        cy.get('[data-testid="error-component"]').should("be.visible");
       });
     });
   });

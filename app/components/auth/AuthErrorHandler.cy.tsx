@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -51,10 +52,10 @@ function AuthErrorHandlerForTesting({
 
   const handleRetry = async () => {
     if (isRetrying) return;
-    
+
     setIsRetrying(true);
-    setRetryAttempts(prev => prev + 1);
-    
+    setRetryAttempts((prev) => prev + 1);
+
     try {
       await onRetry?.();
     } catch (err) {
@@ -74,7 +75,8 @@ function AuthErrorHandlerForTesting({
     const errorMessages: Record<string, any> = {
       token_invalid: {
         title: "Authentication Error",
-        description: "Your session token is corrupted or invalid. Please log in again.",
+        description:
+          "Your session token is corrupted or invalid. Please log in again.",
         action: "Login Again",
         severity: "critical",
       },
@@ -92,13 +94,15 @@ function AuthErrorHandlerForTesting({
       },
       user_not_found: {
         title: "Account Error",
-        description: "Your account could not be found. Please contact support or try logging in again.",
+        description:
+          "Your account could not be found. Please contact support or try logging in again.",
         action: "Login Again",
         severity: "critical",
       },
       network_error: {
         title: "Network Error",
-        description: "Unable to connect to the server. Please check your internet connection.",
+        description:
+          "Unable to connect to the server. Please check your internet connection.",
         action: "Retry",
         severity: "error",
       },
@@ -110,18 +114,21 @@ function AuthErrorHandlerForTesting({
       },
     };
 
-    return errorMessages[errorType] || {
-      title: "Error",
-      description: typeof errorType === 'string' ? errorType : "An error occurred",
-      action: "OK",
-      severity: severity || "error",
-    };
+    return (
+      errorMessages[errorType] || {
+        title: "Error",
+        description:
+          typeof errorType === "string" ? errorType : "An error occurred",
+        action: "OK",
+        severity: severity || "error",
+      }
+    );
   };
 
   const errorInfo = getErrorConfig(error);
   const finalSeverity = severity || errorInfo.severity;
 
-  const baseClasses = `auth-error-handler ${className || ''}`;
+  const baseClasses = `auth-error-handler ${className || ""}`;
   const ariaProps = {
     role: "alert" as const,
     "aria-live": "assertive" as const,
@@ -156,9 +163,9 @@ function AuthErrorHandlerForTesting({
                 {errorInfo.title}
               </h2>
               <p
+                aria-describedby="error-description"
                 className="text-default-600 text-sm"
                 data-testid="error-message"
-                aria-describedby="error-description"
               >
                 {errorInfo.description}
               </p>
@@ -166,41 +173,43 @@ function AuthErrorHandlerForTesting({
             <div className="space-y-2">
               {onForceLogout && (
                 <button
+                  aria-label="Force logout and return to login page"
                   className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md"
                   data-testid="force-logout-button"
                   onClick={handleForceLogout}
-                  aria-label="Force logout and return to login page"
                 >
                   {errorInfo.action}
                 </button>
               )}
               {onLogin && (
                 <button
+                  aria-label="Navigate to login page"
                   className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md"
                   data-testid="login-button"
                   onClick={handleLogin}
-                  aria-label="Navigate to login page"
                 >
                   {errorInfo.action}
                 </button>
               )}
               {onRetry && (
                 <button
+                  aria-label="Retry authentication"
                   className="w-full bg-transparent border border-default-300 px-4 py-2 rounded-md"
                   data-testid="retry-button"
-                  onClick={handleRetry}
                   disabled={isRetrying}
-                  aria-label="Retry authentication"
+                  onClick={handleRetry}
                 >
-                  {isRetrying ? "Retrying..." : `Try Again ${retryAttempts > 0 ? `(${retryAttempts})` : ''}`}
+                  {isRetrying
+                    ? "Retrying..."
+                    : `Try Again ${retryAttempts > 0 ? `(${retryAttempts})` : ""}`}
                 </button>
               )}
               {onReportError && (
                 <button
+                  aria-label="Report this error"
                   className="w-full bg-transparent text-default-600 px-4 py-2 rounded-md text-sm"
                   data-testid="report-error-button"
                   onClick={handleReportError}
-                  aria-label="Report this error"
                 >
                   Report Error
                 </button>
@@ -219,7 +228,9 @@ function AuthErrorHandlerForTesting({
     info: "border-primary-200 bg-primary-50 text-primary-800",
   };
 
-  const colorClass = inlineColorClasses[finalSeverity as keyof typeof inlineColorClasses] || inlineColorClasses.error;
+  const colorClass =
+    inlineColorClasses[finalSeverity as keyof typeof inlineColorClasses] ||
+    inlineColorClasses.error;
 
   return (
     <div
@@ -231,68 +242,83 @@ function AuthErrorHandlerForTesting({
         {showIcon && (
           <div
             className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-              finalSeverity === 'warning' ? 'text-warning-600' :
-              finalSeverity === 'info' ? 'text-primary-600' : 'text-danger-600'
+              finalSeverity === "warning"
+                ? "text-warning-600"
+                : finalSeverity === "info"
+                  ? "text-primary-600"
+                  : "text-danger-600"
             }`}
             data-testid="warning-icon"
           >
-            {finalSeverity === 'info' ? 'ℹ️' : '⚠️'}
+            {finalSeverity === "info" ? "ℹ️" : "⚠️"}
           </div>
         )}
         <div className="flex-1">
           <h3
             className={`font-medium mb-1 ${
-              finalSeverity === 'warning' ? 'text-warning-800' :
-              finalSeverity === 'info' ? 'text-primary-800' : 'text-danger-800'
+              finalSeverity === "warning"
+                ? "text-warning-800"
+                : finalSeverity === "info"
+                  ? "text-primary-800"
+                  : "text-danger-800"
             }`}
             data-testid="error-title"
           >
             {errorInfo.title}
           </h3>
           <p
+            aria-describedby="error-description"
             className={`text-sm mb-3 ${
-              finalSeverity === 'warning' ? 'text-warning-700' :
-              finalSeverity === 'info' ? 'text-primary-700' : 'text-danger-700'
+              finalSeverity === "warning"
+                ? "text-warning-700"
+                : finalSeverity === "info"
+                  ? "text-primary-700"
+                  : "text-danger-700"
             }`}
             data-testid="error-message"
-            aria-describedby="error-description"
           >
             {errorInfo.description}
           </p>
           <div className="flex gap-2">
             {onLogin && (
               <button
+                aria-label="Navigate to login page"
                 className={`px-3 py-1 text-sm rounded ${
-                  finalSeverity === 'warning' ? 'bg-warning text-warning-foreground' :
-                  finalSeverity === 'info' ? 'bg-primary text-primary-foreground' : 'bg-danger text-danger-foreground'
+                  finalSeverity === "warning"
+                    ? "bg-warning text-warning-foreground"
+                    : finalSeverity === "info"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-danger text-danger-foreground"
                 }`}
                 data-testid="login-button"
                 onClick={handleLogin}
-                aria-label="Navigate to login page"
               >
                 {errorInfo.action}
               </button>
             )}
             {onRetry && (
               <button
+                aria-label="Retry authentication"
                 className={`bg-transparent border px-3 py-1 text-sm rounded ${
-                  finalSeverity === 'warning' ? 'border-warning-300' :
-                  finalSeverity === 'info' ? 'border-primary-300' : 'border-danger-300'
+                  finalSeverity === "warning"
+                    ? "border-warning-300"
+                    : finalSeverity === "info"
+                      ? "border-primary-300"
+                      : "border-danger-300"
                 }`}
                 data-testid="retry-button"
-                onClick={handleRetry}
                 disabled={isRetrying}
-                aria-label="Retry authentication"
+                onClick={handleRetry}
               >
                 {isRetrying ? "Retrying..." : "Retry"}
               </button>
             )}
             {onReportError && (
               <button
+                aria-label="Report this error"
                 className="bg-transparent border border-default-300 px-3 py-1 text-sm rounded text-default-600"
                 data-testid="report-error-button"
                 onClick={handleReportError}
-                aria-label="Report this error"
               >
                 Report
               </button>
@@ -325,10 +351,10 @@ describe("AuthErrorHandler", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     onReportError = cy.stub().as("onReportError");
-    
+
     cy.intercept("POST", "/api/auth/logout", { statusCode: 200 }).as("logout");
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -336,7 +362,7 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <AuthErrorHandlerForTesting error={null} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid*="error"]').should("not.exist");
@@ -350,17 +376,23 @@ describe("AuthErrorHandler", () => {
             onForceLogout={callbacks.onForceLogout}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="critical-error-overlay"]').should("be.visible");
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
-      cy.get('[data-testid="error-title"]').should("contain", "Authentication Error");
-      cy.get('[data-testid="error-message"]').should("contain", "session token is corrupted");
-      
+      cy.get('[data-testid="error-title"]').should(
+        "contain",
+        "Authentication Error",
+      );
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "session token is corrupted",
+      );
+
       cy.get('[data-testid="force-logout-button"]').click();
       cy.get("@onForceLogout").should("have.been.called");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get("@onRetry").should("have.been.called");
     });
@@ -373,14 +405,20 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
       cy.get('[data-testid="critical-error-overlay"]').should("not.exist");
-      cy.get('[data-testid="error-title"]').should("contain", "Session Expired");
-      cy.get('[data-testid="error-message"]').should("contain", "session has expired");
-      
+      cy.get('[data-testid="error-title"]').should(
+        "contain",
+        "Session Expired",
+      );
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "session has expired",
+      );
+
       cy.get('[data-testid="login-button"]').click();
       cy.get("@onLogin").should("have.been.called");
     });
@@ -392,12 +430,15 @@ describe("AuthErrorHandler", () => {
             error="token_missing"
             onLogin={callbacks.onLogin}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
       cy.get('[data-testid="error-title"]').should("contain", "Not Logged In");
-      cy.get('[data-testid="error-message"]').should("contain", "need to log in");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "need to log in",
+      );
       cy.get('[data-testid="retry-button"]').should("not.exist");
     });
 
@@ -408,12 +449,15 @@ describe("AuthErrorHandler", () => {
             error="user_not_found"
             onForceLogout={callbacks.onForceLogout}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="critical-error-overlay"]').should("be.visible");
       cy.get('[data-testid="error-title"]').should("contain", "Account Error");
-      cy.get('[data-testid="error-message"]').should("contain", "account could not be found");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "account could not be found",
+      );
     });
 
     it("handles custom error messages", () => {
@@ -424,12 +468,15 @@ describe("AuthErrorHandler", () => {
             severity="error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
       cy.get('[data-testid="error-title"]').should("contain", "Error");
-      cy.get('[data-testid="error-message"]').should("contain", "Custom authentication error occurred");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Custom authentication error occurred",
+      );
     });
 
     it("shows retry attempts counter", () => {
@@ -439,14 +486,14 @@ describe("AuthErrorHandler", () => {
             error="network_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').should("contain", "Retry");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="retry-button"]').should("contain", "(1)");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="retry-button"]').should("contain", "(2)");
     });
@@ -460,11 +507,14 @@ describe("AuthErrorHandler", () => {
             error="network_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-title"]').should("contain", "Network Error");
-      cy.get('[data-testid="error-message"]').should("contain", "Unable to connect to the server");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Unable to connect to the server",
+      );
     });
 
     it("handles server error correctly", () => {
@@ -474,11 +524,14 @@ describe("AuthErrorHandler", () => {
             error="server_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-title"]').should("contain", "Server Error");
-      cy.get('[data-testid="error-message"]').should("contain", "authentication server is temporarily unavailable");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "authentication server is temporarily unavailable",
+      );
     });
 
     it("applies correct severity styling", () => {
@@ -495,10 +548,13 @@ describe("AuthErrorHandler", () => {
               error="Test error message"
               severity={severity as any}
             />
-          </TestWrapper>
+          </TestWrapper>,
         );
 
-        cy.get('[data-testid="auth-error-handler"]').should("have.class", className);
+        cy.get('[data-testid="auth-error-handler"]').should(
+          "have.class",
+          className,
+        );
       });
     });
 
@@ -510,7 +566,7 @@ describe("AuthErrorHandler", () => {
             severity="info"
             showIcon={true}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="warning-icon"]').should("contain", "ℹ️");
@@ -522,7 +578,7 @@ describe("AuthErrorHandler", () => {
             severity="warning"
             showIcon={true}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="warning-icon"]').should("contain", "⚠️");
@@ -531,11 +587,8 @@ describe("AuthErrorHandler", () => {
     it("can hide icons when showIcon is false", () => {
       cy.mount(
         <TestWrapper>
-          <AuthErrorHandlerForTesting
-            error="token_invalid"
-            showIcon={false}
-          />
-        </TestWrapper>
+          <AuthErrorHandlerForTesting error="token_invalid" showIcon={false} />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-icon"]').should("not.exist");
@@ -550,7 +603,7 @@ describe("AuthErrorHandler", () => {
             modal={true}
             onLogin={callbacks.onLogin}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="critical-error-overlay"]').should("be.visible");
@@ -567,7 +620,7 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="auth-error-handler"]');
@@ -578,26 +631,33 @@ describe("AuthErrorHandler", () => {
         <TestWrapper>
           <AuthErrorHandlerForTesting
             error="token_invalid"
-            onRetry={callbacks.onRetry}
             onForceLogout={callbacks.onForceLogout}
+            onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]')
         .should("have.attr", "role", "alert")
         .should("have.attr", "aria-live", "assertive")
         .should("have.attr", "aria-atomic", "true");
-      
-      cy.get('[data-testid="error-message"]')
-        .should("have.attr", "aria-describedby", "error-description");
-      
+
+      cy.get('[data-testid="error-message"]').should(
+        "have.attr",
+        "aria-describedby",
+        "error-description",
+      );
+
       cy.get('[data-testid="retry-button"]')
         .should("have.attr", "aria-label", "Retry authentication")
         .should("be.focusable");
-      
+
       cy.get('[data-testid="force-logout-button"]')
-        .should("have.attr", "aria-label", "Force logout and return to login page")
+        .should(
+          "have.attr",
+          "aria-label",
+          "Force logout and return to login page",
+        )
         .should("be.focusable");
     });
 
@@ -609,10 +669,12 @@ describe("AuthErrorHandler", () => {
             onForceLogout={callbacks.onForceLogout}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="force-logout-button"]').focus().should("be.focused");
+      cy.get('[data-testid="force-logout-button"]')
+        .focus()
+        .should("be.focused");
       cy.realPress("Tab");
       cy.get('[data-testid="retry-button"]').should("be.focused");
       cy.realPress("Enter");
@@ -627,7 +689,7 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="login-button"]').focus().should("be.focused");
@@ -644,7 +706,7 @@ describe("AuthErrorHandler", () => {
             error="network_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').focus();
@@ -655,15 +717,15 @@ describe("AuthErrorHandler", () => {
     it("handles focus management during state transitions", () => {
       const TestFocusManagement = () => {
         const [error, setError] = useState<string | null>("token_expired");
-        
+
         return (
           <div>
             <AuthErrorHandlerForTesting
               error={error}
-              onRetry={() => setError(null)}
               onLogin={callbacks.onLogin}
+              onRetry={() => setError(null)}
             />
-            <button 
+            <button
               data-testid="trigger-error"
               onClick={() => setError("network_error")}
             >
@@ -676,13 +738,13 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestFocusManagement />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').focus();
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="auth-error-handler"]').should("not.exist");
-      
+
       cy.get('[data-testid="trigger-error"]').click();
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
     });
@@ -699,7 +761,7 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -712,7 +774,7 @@ describe("AuthErrorHandler", () => {
             error="network_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]')
@@ -732,13 +794,13 @@ describe("AuthErrorHandler", () => {
             error="server_error"
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="retry-button"]').should("contain", "Retrying...");
       cy.get('[data-testid="retry-button"]').should("be.disabled");
-      
+
       cy.wait(150);
       cy.get('[data-testid="retry-button"]').should("not.be.disabled");
     });
@@ -746,26 +808,32 @@ describe("AuthErrorHandler", () => {
     it("handles rapid error type changes", () => {
       const TestRapidChanges = () => {
         const [error, setError] = useState("token_expired");
-        
+
         React.useEffect(() => {
-          const errors = ["token_expired", "network_error", "server_error", "token_invalid"];
+          const errors = [
+            "token_expired",
+            "network_error",
+            "server_error",
+            "token_invalid",
+          ];
           let index = 0;
-          
+
           const interval = setInterval(() => {
             index = (index + 1) % errors.length;
             setError(errors[index]);
           }, 100);
-          
+
           setTimeout(() => clearInterval(interval), 500);
+
           return () => clearInterval(interval);
         }, []);
-        
+
         return (
           <AuthErrorHandlerForTesting
             error={error}
-            onRetry={callbacks.onRetry}
-            onLogin={callbacks.onLogin}
             onForceLogout={callbacks.onForceLogout}
+            onLogin={callbacks.onLogin}
+            onRetry={callbacks.onRetry}
           />
         );
       };
@@ -773,7 +841,7 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestRapidChanges />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -791,7 +859,7 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -811,7 +879,7 @@ describe("AuthErrorHandler", () => {
             onForceLogout={callbacks.onForceLogout}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -823,13 +891,17 @@ describe("AuthErrorHandler", () => {
         .should("have.class", "flex")
         .should("have.class", "items-center")
         .should("have.class", "justify-center");
-      
+
       cy.get('[data-testid="auth-error-handler"]')
         .should("be.visible")
         .should("have.class", "max-w-md");
-      
-      cy.get('[data-testid="force-logout-button"]').should("be.visible").should("not.be.covered");
-      cy.get('[data-testid="retry-button"]').should("be.visible").should("not.be.covered");
+
+      cy.get('[data-testid="force-logout-button"]')
+        .should("be.visible")
+        .should("not.be.covered");
+      cy.get('[data-testid="retry-button"]')
+        .should("be.visible")
+        .should("not.be.covered");
     });
 
     it("handles inline error layout on different screen sizes", () => {
@@ -841,22 +913,26 @@ describe("AuthErrorHandler", () => {
             onLogin={callbacks.onLogin}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const viewports = [
-        { width: 320, height: 568 },  // Mobile
+        { width: 320, height: 568 }, // Mobile
         { width: 768, height: 1024 }, // Tablet
         { width: 1200, height: 800 }, // Desktop
       ];
 
       viewports.forEach(({ width, height }) => {
         cy.viewport(width, height);
-        
+
         cy.get('[data-testid="auth-error-handler"]').should("be.visible");
         cy.get('[data-testid="error-message"]').should("be.visible");
-        cy.get('[data-testid="login-button"]').should("be.visible").should("not.be.covered");
-        cy.get('[data-testid="retry-button"]').should("be.visible").should("not.be.covered");
+        cy.get('[data-testid="login-button"]')
+          .should("be.visible")
+          .should("not.be.covered");
+        cy.get('[data-testid="retry-button"]')
+          .should("be.visible")
+          .should("not.be.covered");
       });
     });
   });
@@ -865,14 +941,17 @@ describe("AuthErrorHandler", () => {
     it("integrates with authentication retry flows", () => {
       const TestAuthIntegration = () => {
         const [authAttempt, setAuthAttempt] = useState(0);
-        const [currentError, setCurrentError] = useState<string | null>("token_expired");
+        const [currentError, setCurrentError] = useState<string | null>(
+          "token_expired",
+        );
         const [isRetrying, setIsRetrying] = useState(false);
-        
+
         const handleRetry = async () => {
           setIsRetrying(true);
           const newAttempt = authAttempt + 1;
+
           setAuthAttempt(newAttempt);
-          
+
           setTimeout(() => {
             setIsRetrying(false);
             if (newAttempt <= 2) {
@@ -884,20 +963,24 @@ describe("AuthErrorHandler", () => {
             }
           }, 100);
         };
-        
+
         if (isRetrying) {
-          return <div data-testid="auth-loading">Retrying authentication...</div>;
+          return (
+            <div data-testid="auth-loading">Retrying authentication...</div>
+          );
         }
-        
+
         if (!currentError) {
-          return <div data-testid="auth-success">Authentication successful!</div>;
+          return (
+            <div data-testid="auth-success">Authentication successful!</div>
+          );
         }
-        
+
         return (
           <AuthErrorHandlerForTesting
             error={currentError}
-            onRetry={handleRetry}
             onLogin={callbacks.onLogin}
+            onRetry={handleRetry}
           />
         );
       };
@@ -905,21 +988,24 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestAuthIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", "session has expired");
-      
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "session has expired",
+      );
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="auth-loading"]').should("be.visible");
       cy.get('[data-testid="error-title"]').should("contain", "Network Error");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="error-title"]').should("contain", "Network Error");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="error-title"]').should("contain", "Server Error");
-      
+
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="auth-success"]').should("be.visible");
     });
@@ -927,21 +1013,21 @@ describe("AuthErrorHandler", () => {
     it("integrates with error reporting system", () => {
       const TestErrorReporting = () => {
         const [reportSubmitted, setReportSubmitted] = useState(false);
-        
+
         const handleReportError = () => {
           setReportSubmitted(true);
           onReportError();
         };
-        
+
         if (reportSubmitted) {
           return <div data-testid="report-success">Error report submitted</div>;
         }
-        
+
         return (
           <AuthErrorHandlerForTesting
             error="server_error"
-            onRetry={callbacks.onRetry}
             onReportError={handleReportError}
+            onRetry={callbacks.onRetry}
           />
         );
       };
@@ -949,37 +1035,41 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestErrorReporting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-title"]').should("contain", "Server Error");
-      cy.get('[data-testid="report-error-button"]').should("be.visible").click();
-      
+      cy.get('[data-testid="report-error-button"]')
+        .should("be.visible")
+        .click();
+
       cy.get("@onReportError").should("have.been.called");
       cy.get('[data-testid="report-success"]').should("be.visible");
     });
 
     it("handles session management integration", () => {
       const TestSessionIntegration = () => {
-        const [sessionState, setSessionState] = useState<"valid" | "expired" | "invalid">("expired");
+        const [sessionState, setSessionState] = useState<
+          "valid" | "expired" | "invalid"
+        >("expired");
         const [error, setError] = useState<string | null>("token_expired");
-        
+
         const handleLogin = () => {
           setSessionState("valid");
           setError(null);
           callbacks.onLogin();
         };
-        
+
         const handleExpire = () => {
           setSessionState("expired");
           setError("token_expired");
         };
-        
+
         const handleInvalidate = () => {
           setSessionState("invalid");
           setError("token_invalid");
         };
-        
+
         return (
           <div>
             <div data-testid="session-status">Session: {sessionState}</div>
@@ -989,12 +1079,12 @@ describe("AuthErrorHandler", () => {
             <button data-testid="invalidate-session" onClick={handleInvalidate}>
               Invalidate Session
             </button>
-            
+
             {error && (
               <AuthErrorHandlerForTesting
                 error={error}
-                onLogin={handleLogin}
                 onForceLogout={callbacks.onForceLogout}
+                onLogin={handleLogin}
               />
             )}
           </div>
@@ -1004,18 +1094,24 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestSessionIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="session-status"]').should("contain", "expired");
-      cy.get('[data-testid="error-title"]').should("contain", "Session Expired");
-      
+      cy.get('[data-testid="error-title"]').should(
+        "contain",
+        "Session Expired",
+      );
+
       cy.get('[data-testid="login-button"]').click();
       cy.get('[data-testid="session-status"]').should("contain", "valid");
       cy.get('[data-testid="auth-error-handler"]').should("not.exist");
-      
+
       cy.get('[data-testid="invalidate-session"]').click();
-      cy.get('[data-testid="error-title"]').should("contain", "Authentication Error");
+      cy.get('[data-testid="error-title"]').should(
+        "contain",
+        "Authentication Error",
+      );
       cy.get('[data-testid="critical-error-overlay"]').should("be.visible");
     });
   });
@@ -1024,11 +1120,8 @@ describe("AuthErrorHandler", () => {
     it("handles empty and null error messages", () => {
       cy.mount(
         <TestWrapper>
-          <AuthErrorHandlerForTesting
-            error=""
-            onRetry={callbacks.onRetry}
-          />
-        </TestWrapper>
+          <AuthErrorHandlerForTesting error="" onRetry={callbacks.onRetry} />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -1036,7 +1129,9 @@ describe("AuthErrorHandler", () => {
     });
 
     it("handles extremely long error messages", () => {
-      const longError = "A".repeat(500) + " This is an extremely long error message that tests the component's ability to handle very large amounts of text.";
+      const longError =
+        "A".repeat(500) +
+        " This is an extremely long error message that tests the component's ability to handle very large amounts of text.";
 
       cy.mount(
         <TestWrapper>
@@ -1044,10 +1139,12 @@ describe("AuthErrorHandler", () => {
             error={longError}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", longError).should("be.visible");
+      cy.get('[data-testid="error-message"]')
+        .should("contain", longError)
+        .should("be.visible");
       cy.get('[data-testid="retry-button"]').should("be.visible");
     });
 
@@ -1075,18 +1172,22 @@ describe("AuthErrorHandler", () => {
 
     it("handles callback function changes during runtime", () => {
       let callbackCount = 0;
-      
+
       const TestCallbackChanges = () => {
         const [callbacks, setCallbacks] = useState({
-          onRetry: () => { callbackCount += 1; },
+          onRetry: () => {
+            callbackCount += 1;
+          },
         });
-        
+
         const updateCallbacks = () => {
           setCallbacks({
-            onRetry: () => { callbackCount += 10; }
+            onRetry: () => {
+              callbackCount += 10;
+            },
           });
         };
-        
+
         return (
           <div>
             <AuthErrorHandlerForTesting
@@ -1104,12 +1205,12 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <TestCallbackChanges />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="callback-count"]').should("contain", "1");
-      
+
       cy.get('[data-testid="update-callbacks"]').click();
       cy.get('[data-testid="retry-button"]').click();
       cy.get('[data-testid="callback-count"]').should("contain", "11");
@@ -1120,10 +1221,10 @@ describe("AuthErrorHandler", () => {
         <TestWrapper>
           <AuthErrorHandlerForTesting
             error="token_expired"
-            onRetry={undefined}
             onLogin={undefined}
+            onRetry={undefined}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
@@ -1136,10 +1237,10 @@ describe("AuthErrorHandler", () => {
         <TestWrapper>
           <AuthErrorHandlerForTesting
             error="token_invalid"
-            onRetry={callbacks.onRetry}
             onReportError={onReportError}
+            onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').should("be.visible");
@@ -1151,26 +1252,28 @@ describe("AuthErrorHandler", () => {
 
   describe("Security", () => {
     it("sanitizes HTML content in error messages", () => {
-      const maliciousError = '<script>alert("xss")</script><img src="x" onerror="alert(\'xss\')" />Session expired';
+      const maliciousError =
+        '<script>alert("xss")</script><img src="x" onerror="alert(\'xss\')" />Session expired';
 
       cy.mount(
         <TestWrapper>
           <AuthErrorHandlerForTesting error={maliciousError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-message"]').should("be.visible");
-      cy.get('script').should("not.exist");
-      cy.get('img[onerror]').should("not.exist");
+      cy.get("script").should("not.exist");
+      cy.get("img[onerror]").should("not.exist");
     });
 
     it("prevents XSS through dangerous URL schemes", () => {
-      const dangerousError = 'Click <a href="javascript:alert(\'xss\');">here</a> to retry';
+      const dangerousError =
+        "Click <a href=\"javascript:alert('xss');\">here</a> to retry";
 
       cy.mount(
         <TestWrapper>
           <AuthErrorHandlerForTesting error={dangerousError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-message"]').should("be.visible");
@@ -1192,11 +1295,11 @@ describe("AuthErrorHandler", () => {
             error="token_expired"
             onRetry={maliciousRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="retry-button"]').click();
-      
+
       cy.window().then((win) => {
         expect((win as any).dangerousAction).to.be.undefined;
       });
@@ -1208,15 +1311,18 @@ describe("AuthErrorHandler", () => {
       cy.mount(
         <TestWrapper>
           <AuthErrorHandlerForTesting error={encodedError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="error-message"]').should("contain", "Error:").should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get('[data-testid="error-message"]')
+        .should("contain", "Error:")
+        .should("be.visible");
+      cy.get("script").should("not.exist");
     });
 
     it("prevents information leakage through error messages", () => {
-      const sensitiveError = "Database connection failed: postgres://admin:password123@localhost:5432/app";
+      const sensitiveError =
+        "Database connection failed: postgres://admin:password123@localhost:5432/app";
 
       cy.mount(
         <TestWrapper>
@@ -1224,28 +1330,31 @@ describe("AuthErrorHandler", () => {
             error={sensitiveError}
             onRetry={callbacks.onRetry}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="error-message"]').should("be.visible");
       // In a real implementation, sensitive details would be sanitized
-      cy.get('[data-testid="error-message"]').should("contain", "Database connection failed");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Database connection failed",
+      );
     });
   });
 
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="auth-error-handler"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <AuthErrorHandlerForTesting
             error="token_expired"
             onLogin={callbacks.onLogin}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="auth-error-handler"]').should("be.visible");
     });
 
@@ -1256,9 +1365,9 @@ describe("AuthErrorHandler", () => {
             error="token_expired"
             onLogin={callbacks.onLogin}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="auth-error-handler"]');
     });
 
@@ -1269,11 +1378,11 @@ describe("AuthErrorHandler", () => {
             error="token_expired"
             onLogin={callbacks.onLogin}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="auth-error-handler"]').should('be.visible');
+        cy.get('[data-testid="auth-error-handler"]').should("be.visible");
       });
     });
   });

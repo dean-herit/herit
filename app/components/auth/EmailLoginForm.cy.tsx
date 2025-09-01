@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, Input } from "@heroui/react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -19,17 +20,22 @@ function EmailLoginFormForTesting({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
 
   // Set initial error if provided
   React.useEffect(() => {
     if (initialError) {
-      setErrors(prev => ({ ...prev, general: initialError }));
+      setErrors((prev) => ({ ...prev, general: initialError }));
     }
   }, [initialError]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; general?: string } = {};
+    const newErrors: { email?: string; password?: string; general?: string } =
+      {};
 
     if (!email) {
       newErrors.email = "Email is required";
@@ -44,6 +50,7 @@ function EmailLoginFormForTesting({
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -55,49 +62,45 @@ function EmailLoginFormForTesting({
   };
 
   return (
-    <div data-testid="email-login-container" className="w-full max-w-md mx-auto">
+    <div
+      className="w-full max-w-md mx-auto"
+      data-testid="email-login-container"
+    >
       {errors.general && (
-        <div 
-          data-testid="general-error"
+        <div
           className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+          data-testid="general-error"
         >
           {errors.general}
         </div>
       )}
-      
+
       <form
-        onSubmit={handleSubmit}
         className="space-y-4"
         data-testid="email-login-form"
+        onSubmit={handleSubmit}
       >
         <Input
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           isRequired
+          data-testid="email-input"
           errorMessage={errors.email}
           isInvalid={!!errors.email}
-          data-testid="email-input"
+          label="Email"
+          placeholder="Enter your email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <Input
-          type={showPassword ? "text" : "password"}
-          label="Password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           isRequired
-          errorMessage={errors.password}
-          isInvalid={!!errors.password}
           data-testid="password-input"
           endContent={
             <button
               className="focus:outline-none"
+              data-testid="toggle-password"
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              data-testid="toggle-password"
             >
               {showPassword ? (
                 <EyeSlashIcon className="w-5 h-5 text-default-400" />
@@ -106,14 +109,21 @@ function EmailLoginFormForTesting({
               )}
             </button>
           }
+          errorMessage={errors.password}
+          isInvalid={!!errors.password}
+          label="Password"
+          placeholder="Enter your password"
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <Button
-          type="submit"
-          color="primary"
           className="w-full"
-          isLoading={isLoading}
+          color="primary"
           data-testid="submit-button"
+          isLoading={isLoading}
+          type="submit"
         >
           Sign In
         </Button>
@@ -142,7 +152,7 @@ describe("EmailLoginForm Component", () => {
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -150,7 +160,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-login-container"]').should("be.visible");
@@ -166,39 +176,62 @@ describe("EmailLoginForm Component", () => {
     it("handles form input and submission with valid data", () => {
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-hxhxubbhu"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type("test@example.com");
       cy.get('[data-testid="password-input"]').type("password123");
       cy.get('[data-testid="submit-button"]').click();
 
-      cy.get("@onSubmit").should("have.been.calledWith", "test@example.com", "password123");
+      cy.get("@onSubmit").should(
+        "have.been.calledWith",
+        "test@example.com",
+        "password123",
+      );
     });
 
     it("toggles password visibility", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "text");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
 
     it("shows loading state correctly", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting isLoading={true} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="submit-button"]').should("have.attr", "data-loading", "true");
+      cy.get('[data-testid="submit-button"]').should(
+        "have.attr",
+        "data-loading",
+        "true",
+      );
     });
   });
 
@@ -206,22 +239,36 @@ describe("EmailLoginForm Component", () => {
     it("validates empty form submission", () => {
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-f57zitvvt"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get("@onSubmit").should("not.have.been.called");
-      
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates invalid email format", () => {
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-q8r13svmu"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type("invalid-email");
@@ -229,14 +276,21 @@ describe("EmailLoginForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("validates password minimum length", () => {
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-q7xfunl9b"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type("test@example.com");
@@ -244,16 +298,20 @@ describe("EmailLoginForm Component", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get("@onSubmit").should("not.have.been.called");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
 
     it("displays general error messages", () => {
       const errorMessage = "Invalid credentials. Please try again.";
-      
+
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting initialError={errorMessage} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="general-error"]').should("be.visible");
@@ -264,20 +322,26 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting initialError="Network error: Please check your connection" />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="general-error"]').should("contain", "Network error");
+      cy.get('[data-testid="general-error"]').should(
+        "contain",
+        "Network error",
+      );
     });
 
     it("handles server errors gracefully", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting initialError="Server temporarily unavailable. Please try again." />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
-      cy.get('[data-testid="general-error"]').should("contain", "Server temporarily unavailable");
+      cy.get('[data-testid="general-error"]').should(
+        "contain",
+        "Server temporarily unavailable",
+      );
     });
   });
 
@@ -286,7 +350,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="email-login-container"]');
@@ -296,7 +360,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').focus().should("be.focused");
@@ -312,38 +376,65 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-login-form"]').should("match", "form");
-      cy.get('[data-testid="email-input"]').should("have.attr", "type", "email");
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      cy.get('[data-testid="submit-button"]').should("have.attr", "type", "submit");
-      cy.get('[data-testid="toggle-password"]').should("have.attr", "type", "button");
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "type",
+        "email",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+      cy.get('[data-testid="submit-button"]').should(
+        "have.attr",
+        "type",
+        "submit",
+      );
+      cy.get('[data-testid="toggle-password"]').should(
+        "have.attr",
+        "type",
+        "button",
+      );
     });
 
     it("provides proper error feedback for screen readers", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="submit-button"]').click();
-      
-      cy.get('[data-testid="email-input"]').should("have.attr", "aria-invalid", "true");
-      cy.get('[data-testid="password-input"]').should("have.attr", "aria-invalid", "true");
+
+      cy.get('[data-testid="email-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "aria-invalid",
+        "true",
+      );
     });
   });
 
   describe("Performance", () => {
     it("should render quickly", () => {
-      TestUtils.measureRenderTime('[data-testid="email-login-container"]', 1000);
+      TestUtils.measureRenderTime(
+        '[data-testid="email-login-container"]',
+        1000,
+      );
 
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-login-container"]').should("be.visible");
@@ -352,25 +443,36 @@ describe("EmailLoginForm Component", () => {
     it("should handle rapid input changes", () => {
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-nz5x1md17"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       // Rapidly type and clear input
       for (let i = 0; i < 5; i++) {
-        cy.get('[data-testid="email-input"]').clear().type(`test${i}@example.com`);
+        cy.get('[data-testid="email-input"]')
+          .clear()
+          .type(`test${i}@example.com`);
         cy.get('[data-testid="password-input"]').clear().type(`password${i}`);
       }
 
-      cy.get('[data-testid="email-input"]').should("have.value", "test4@example.com");
-      cy.get('[data-testid="password-input"]').should("have.value", "password4");
+      cy.get('[data-testid="email-input"]').should(
+        "have.value",
+        "test4@example.com",
+      );
+      cy.get('[data-testid="password-input"]').should(
+        "have.value",
+        "password4",
+      );
     });
 
     it("should handle rapid password visibility toggles", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Rapidly toggle password visibility
@@ -378,7 +480,11 @@ describe("EmailLoginForm Component", () => {
         cy.get('[data-testid="toggle-password"]').click();
       }
 
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
   });
 
@@ -387,7 +493,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -403,7 +509,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -411,16 +517,19 @@ describe("EmailLoginForm Component", () => {
       cy.get('[data-testid="email-login-container"]')
         .should("be.visible")
         .should("have.class", "max-w-md");
-      
+
       cy.get('[data-testid="submit-button"]').should("have.class", "w-full");
-      cy.get('[data-testid="email-login-form"]').should("have.class", "space-y-4");
+      cy.get('[data-testid="email-login-form"]').should(
+        "have.class",
+        "space-y-4",
+      );
     });
 
     it("handles form elements properly on tablet", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(768, 1024); // Tablet
@@ -434,15 +543,15 @@ describe("EmailLoginForm Component", () => {
   describe("Integration Scenarios", () => {
     it("should integrate with authentication flow", () => {
       let formSubmitted = false;
-      
+
       const TestIntegration = () => {
         const [error, setError] = useState<string | null>(null);
         const [loading, setLoading] = useState(false);
-        
+
         const handleSubmit = async (email: string, password: string) => {
           setLoading(true);
           formSubmitted = true;
-          
+
           // Simulate API call
           setTimeout(() => {
             if (email === "error@test.com") {
@@ -451,13 +560,14 @@ describe("EmailLoginForm Component", () => {
             setLoading(false);
           }, 100);
         };
-        
+
         return (
           <div>
-            <EmailLoginFormForTesting 
-              onSubmit={handleSubmit}
-              isLoading={loading}
+            <EmailLoginFormForTesting
+              data-testid="EmailLoginFormForTesting-51iku7prg"
               initialError={error}
+              isLoading={loading}
+              onSubmit={handleSubmit}
             />
             <button
               data-testid="simulate-error"
@@ -472,7 +582,7 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Test successful submission flow
@@ -492,14 +602,11 @@ describe("EmailLoginForm Component", () => {
     it("should handle form reset scenarios", () => {
       const TestFormReset = () => {
         const [key, setKey] = useState(0);
-        
+
         return (
           <div>
             <EmailLoginFormForTesting key={key} />
-            <button
-              data-testid="reset-form"
-              onClick={() => setKey(key + 1)}
-            >
+            <button data-testid="reset-form" onClick={() => setKey(key + 1)}>
               Reset Form
             </button>
           </div>
@@ -509,14 +616,14 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <TestFormReset />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type("test@example.com");
       cy.get('[data-testid="password-input"]').type("password123");
-      
+
       cy.get('[data-testid="reset-form"]').click();
-      
+
       cy.get('[data-testid="email-input"]').should("have.value", "");
       cy.get('[data-testid="password-input"]').should("have.value", "");
     });
@@ -529,15 +636,22 @@ describe("EmailLoginForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-wlihmwxks"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type(longEmail);
       cy.get('[data-testid="password-input"]').type(longPassword);
       cy.get('[data-testid="submit-button"]').click();
 
-      cy.get("@onSubmit").should("have.been.calledWith", longEmail, longPassword);
+      cy.get("@onSubmit").should(
+        "have.been.calledWith",
+        longEmail,
+        longPassword,
+      );
     });
 
     it("handles special characters in input", () => {
@@ -546,22 +660,27 @@ describe("EmailLoginForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-k6wbs0w6w"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type(specialEmail);
       cy.get('[data-testid="password-input"]').type(specialPassword);
       cy.get('[data-testid="submit-button"]').click();
 
-      cy.get("@onSubmit").should("have.been.calledWith", specialEmail, specialPassword);
+      cy.get("@onSubmit").should(
+        "have.been.calledWith",
+        specialEmail,
+        specialPassword,
+      );
     });
 
     it("handles rapid component remounting", () => {
       const TestMountWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>
-          {show && <EmailLoginFormForTesting />}
-        </TestWrapper>
+        <TestWrapper>{show && <EmailLoginFormForTesting />}</TestWrapper>
       );
 
       cy.mount(<TestMountWrapper show={true} />);
@@ -578,66 +697,85 @@ describe("EmailLoginForm Component", () => {
   describe("Security", () => {
     it("should sanitize error messages", () => {
       const maliciousError = '<script>alert("xss")</script>Login failed';
-      
+
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting initialError={maliciousError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="general-error"]').should("be.visible");
-      cy.get('script').should("not.exist");
+      cy.get("script").should("not.exist");
     });
 
     it("should prevent XSS in form inputs", () => {
       const xssAttempt = 'javascript:alert("xss")';
-      
+
       cy.mount(
         <TestWrapper>
-          <EmailLoginFormForTesting onSubmit={callbacks.onSubmit} />
-        </TestWrapper>
+          <EmailLoginFormForTesting
+            data-testid="EmailLoginFormForTesting-4ybc3ugvo"
+            onSubmit={callbacks.onSubmit}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="email-input"]').type(xssAttempt);
       cy.get('[data-testid="password-input"]').type("password123");
       cy.get('[data-testid="submit-button"]').click();
 
-      cy.get("@onSubmit").should("have.been.calledWith", xssAttempt, "password123");
-      cy.window().its('alert').should('not.have.been.called');
+      cy.get("@onSubmit").should(
+        "have.been.calledWith",
+        xssAttempt,
+        "password123",
+      );
+      cy.window().its("alert").should("not.have.been.called");
     });
 
     it("should handle password visibility toggle securely", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="password-input"]').type("sensitivepassword");
-      
+
       // Password should be hidden by default
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
-      
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
+
       // Toggle to show password
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "text");
-      
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "text",
+      );
+
       // Toggle back to hide
       cy.get('[data-testid="toggle-password"]').click();
-      cy.get('[data-testid="password-input"]').should("have.attr", "type", "password");
+      cy.get('[data-testid="password-input"]').should(
+        "have.attr",
+        "type",
+        "password",
+      );
     });
   });
 
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="email-login-form"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="email-login-form"]').should("be.visible");
     });
 
@@ -645,9 +783,9 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="email-login-form"]');
     });
 
@@ -655,11 +793,11 @@ describe("EmailLoginForm Component", () => {
       cy.mount(
         <TestWrapper>
           <EmailLoginFormForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="email-login-form"]').should('be.visible');
+        cy.get('[data-testid="email-login-form"]').should("be.visible");
       });
     });
   });

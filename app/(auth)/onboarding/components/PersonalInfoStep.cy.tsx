@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import "cypress-real-events/support";
 import { TestUtils } from "../../../../cypress/support/test-utils";
 
@@ -29,93 +30,93 @@ function MockSharedPersonalInfoFormProvider({
 
       {/* Show OAuth indicator */}
       {isFromOAuth && (
-        <p data-testid="oauth-indicator" className="text-sm text-blue-600 mb-4">
+        <p className="text-sm text-blue-600 mb-4" data-testid="oauth-indicator">
           Pre-filled from your Google account
         </p>
       )}
 
-      <form onSubmit={handleSubmit} data-testid="personal-info-form">
+      <form data-testid="personal-info-form" onSubmit={handleSubmit}>
         <div className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium">
+            <label className="block text-sm font-medium" htmlFor="name">
               Full Name
             </label>
             <input
-              id="name"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               data-testid="input-name"
+              id="name"
               type="text"
               value={formData.name || ""}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium">
+            <label className="block text-sm font-medium" htmlFor="email">
               Email
             </label>
             <input
-              id="email"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               data-testid="input-email"
+              id="email"
               type="email"
               value={formData.email || ""}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium">
+            <label className="block text-sm font-medium" htmlFor="phone">
               Phone
             </label>
             <input
-              id="phone"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               data-testid="input-phone"
+              id="phone"
               type="text"
               value={formData.phone || ""}
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
 
           <div>
             <label
-              htmlFor="address_line_1"
               className="block text-sm font-medium"
+              htmlFor="address_line_1"
             >
               Address
             </label>
             <input
-              id="address_line_1"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               data-testid="input-address"
+              id="address_line_1"
               type="text"
               value={formData.address_line_1 || ""}
               onChange={(e) =>
                 setFormData({ ...formData, address_line_1: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
 
           <div>
-            <label htmlFor="city" className="block text-sm font-medium">
+            <label className="block text-sm font-medium" htmlFor="city">
               City
             </label>
             <input
-              id="city"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               data-testid="input-city"
+              id="city"
               type="text"
               value={formData.city || ""}
               onChange={(e) =>
                 setFormData({ ...formData, city: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
 
@@ -134,20 +135,20 @@ function MockSharedPersonalInfoFormProvider({
         <div className="flex gap-3 pt-6">
           {showCancelButton && (
             <button
-              type="button"
-              data-testid="cancel-button"
-              onClick={onCancel}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              data-testid="cancel-button"
+              type="button"
+              onClick={onCancel}
             >
               Back
             </button>
           )}
 
           <button
-            type="submit"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
             data-testid="submit-button"
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
+            type="submit"
           >
             {loading ? "Saving..." : submitLabel}
           </button>
@@ -292,15 +293,16 @@ function PersonalInfoStepForTesting({
         <>
           {/* Form */}
           <MockSharedPersonalInfoFormProvider
+            data-testid="MockSharedPersonalInfoFormProvider-dhuaz2lje"
             initialData={convertToSharedFormat(initialData)}
-            onSubmit={handleSharedFormSubmit}
-            onCancel={onBack}
+            isFromOAuth={isFromOAuth}
             loading={isLoading}
-            submitLabel="Continue"
+            mode="onboarding"
             showCancelButton={!!onBack}
             showPhotoUpload={true}
-            mode="onboarding"
-            isFromOAuth={isFromOAuth}
+            submitLabel="Continue"
+            onCancel={onBack}
+            onSubmit={handleSharedFormSubmit}
           />
 
           {/* Error Display */}
@@ -312,9 +314,9 @@ function PersonalInfoStepForTesting({
               <div className="flex items-center">
                 <svg
                   className="w-4 h-4 mr-2"
+                  data-testid="error-icon"
                   fill="currentColor"
                   viewBox="0 0 20 20"
-                  data-testid="error-icon"
                 >
                   <path
                     clipRule="evenodd"
@@ -358,7 +360,7 @@ describe("PersonalInfoStep", () => {
 
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
-    
+
     cy.intercept("POST", "/api/onboarding/personal-info", {
       statusCode: 200,
       body: { success: true },
@@ -367,7 +369,7 @@ describe("PersonalInfoStep", () => {
       "logEvent",
     );
     // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
+    Object.values(callbacks).forEach((stub) => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
@@ -375,18 +377,18 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting dataLoading={true} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]').should("be.visible");
       cy.get('[data-testid="loading-spinner"]').should("be.visible");
       cy.get('[data-testid="loading-message-primary"]').should(
         "contain",
-        "Loading your information..."
+        "Loading your information...",
       );
       cy.get('[data-testid="loading-message-secondary"]').should(
         "contain",
-        "Preparing your personal information form"
+        "Preparing your personal information form",
       );
 
       cy.get('[data-testid="shared-form-provider"]').should("not.exist");
@@ -396,16 +398,20 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-zxx58e2k5"
             initialData={{}}
             onChange={callbacks.onChange}
             onComplete={callbacks.onComplete}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
       cy.get('[data-testid="shared-form-provider"]').should("be.visible");
-      cy.get('[data-testid="form-title"]').should("contain", "Personal Information");
+      cy.get('[data-testid="form-title"]').should(
+        "contain",
+        "Personal Information",
+      );
 
       cy.get('[data-testid="input-name"]').should("be.visible");
       cy.get('[data-testid="input-email"]').should("be.visible");
@@ -428,25 +434,29 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting initialData={initialData} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="oauth-indicator"]').should(
         "contain",
-        "Pre-filled from your Google account"
+        "Pre-filled from your Google account",
       );
       cy.get('[data-testid="input-name"]').should("have.value", "John Doe");
-      cy.get('[data-testid="input-email"]').should("have.value", "john.doe@gmail.com");
+      cy.get('[data-testid="input-email"]').should(
+        "have.value",
+        "john.doe@gmail.com",
+      );
     });
 
     it("handles form submission successfully", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-5lz5iyjos"
             onChange={callbacks.onChange}
             onComplete={callbacks.onComplete}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -467,7 +477,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').type("Jane Smith");
@@ -491,16 +501,26 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-tj6gacijs"
             initialData={initialData}
             onChange={callbacks.onChange}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').should("have.value", "John Doe");
-      cy.get('[data-testid="input-email"]').should("have.value", "john@example.com");
-      cy.get('[data-testid="input-phone"]').should("have.value", "+353871234567");
-      cy.get('[data-testid="input-address"]').should("have.value", "123 Main St");
+      cy.get('[data-testid="input-email"]').should(
+        "have.value",
+        "john@example.com",
+      );
+      cy.get('[data-testid="input-phone"]').should(
+        "have.value",
+        "+353871234567",
+      );
+      cy.get('[data-testid="input-address"]').should(
+        "have.value",
+        "123 Main St",
+      );
       cy.get('[data-testid="input-city"]').should("have.value", "Dublin");
 
       cy.get('[data-testid="submit-button"]').click();
@@ -533,19 +553,19 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
-            initialData={initialData}
             dataLoading={true}
+            initialData={initialData}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-message-primary"]').should(
         "contain",
-        "Loading your Google profile information..."
+        "Loading your Google profile information...",
       );
       cy.get('[data-testid="loading-message-secondary"]').should(
         "contain",
-        "Pre-filling with your Google account details"
+        "Pre-filling with your Google account details",
       );
     });
 
@@ -568,29 +588,37 @@ describe("PersonalInfoStep", () => {
         },
       ];
 
-      loadingScenarios.forEach(({ initialData, expectedPrimary, expectedSecondary }) => {
-        cy.mount(
-          <TestWrapper>
-            <PersonalInfoStepForTesting
-              initialData={initialData}
-              dataLoading={true}
-            />
-          </TestWrapper>
-        );
+      loadingScenarios.forEach(
+        ({ initialData, expectedPrimary, expectedSecondary }) => {
+          cy.mount(
+            <TestWrapper>
+              <PersonalInfoStepForTesting
+                dataLoading={true}
+                initialData={initialData}
+              />
+            </TestWrapper>,
+          );
 
-        cy.get('[data-testid="loading-message-primary"]').should("contain", expectedPrimary);
-        cy.get('[data-testid="loading-message-secondary"]').should("contain", expectedSecondary);
-      });
+          cy.get('[data-testid="loading-message-primary"]').should(
+            "contain",
+            expectedPrimary,
+          );
+          cy.get('[data-testid="loading-message-secondary"]').should(
+            "contain",
+            expectedSecondary,
+          );
+        },
+      );
     });
 
     it("handles data loading and form rendering transitions", () => {
       const TestDataTransition = () => {
         const [loading, setLoading] = useState(true);
-        
+
         React.useEffect(() => {
           setTimeout(() => setLoading(false), 200);
         }, []);
-        
+
         return (
           <PersonalInfoStepForTesting
             dataLoading={loading}
@@ -602,14 +630,14 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestDataTransition />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]').should("be.visible");
       cy.get('[data-testid="shared-form-provider"]').should("not.exist");
-      
+
       cy.wait(250);
-      
+
       cy.get('[data-testid="loading-state"]').should("not.exist");
       cy.get('[data-testid="shared-form-provider"]').should("be.visible");
       cy.get('[data-testid="input-name"]').should("have.value", "John Doe");
@@ -623,7 +651,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting mockApiError={apiError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').type("Jane Smith");
@@ -631,7 +659,10 @@ describe("PersonalInfoStep", () => {
       cy.get('[data-testid="submit-button"]').click();
 
       cy.get('[data-testid="error-display"]').should("be.visible");
-      cy.get('[data-testid="error-title"]').should("contain", "Failed to save personal information");
+      cy.get('[data-testid="error-title"]').should(
+        "contain",
+        "Failed to save personal information",
+      );
       cy.get('[data-testid="error-message"]').should("contain", apiError);
       cy.get('[data-testid="error-icon"]').should("be.visible");
     });
@@ -642,7 +673,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting mockApiError={networkError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -651,7 +682,10 @@ describe("PersonalInfoStep", () => {
       });
 
       cy.get('[data-testid="submit-button"]').click();
-      cy.get('[data-testid="error-message"]').should("contain", "Network timeout");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Network timeout",
+      );
     });
 
     it("handles validation errors from server", () => {
@@ -660,7 +694,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting mockApiError={validationError} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -669,18 +703,22 @@ describe("PersonalInfoStep", () => {
       });
 
       cy.get('[data-testid="submit-button"]').click();
-      cy.get('[data-testid="error-message"]').should("contain", "Invalid PPS number");
+      cy.get('[data-testid="error-message"]').should(
+        "contain",
+        "Invalid PPS number",
+      );
     });
 
     it("allows retry after error", () => {
       const TestErrorRetry = () => {
         const [error, setError] = useState("Initial error");
         const [submitCount, setSubmitCount] = useState(0);
-        
+
         const handleSubmit = () => {
           const newCount = submitCount + 1;
+
           setSubmitCount(newCount);
-          
+
           if (newCount <= 1) {
             setError("Submit failed");
           } else {
@@ -688,9 +726,10 @@ describe("PersonalInfoStep", () => {
             callbacks.onComplete();
           }
         };
-        
+
         return (
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-3j3hrldty"
             mockApiError={error}
             onChange={handleSubmit}
             onComplete={callbacks.onComplete}
@@ -701,7 +740,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestErrorRetry />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -711,7 +750,7 @@ describe("PersonalInfoStep", () => {
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="error-display"]').should("be.visible");
-      
+
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="error-display"]').should("not.exist");
       cy.get("@onComplete").should("have.been.called");
@@ -723,7 +762,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testAccessibility('[data-testid="personal-info-step"]');
@@ -733,7 +772,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('label[for="name"]').should("exist");
@@ -742,23 +781,33 @@ describe("PersonalInfoStep", () => {
       cy.get('label[for="address_line_1"]').should("exist");
       cy.get('label[for="city"]').should("exist");
 
-      cy.get('#name').should("have.attr", "data-testid", "input-name");
-      cy.get('#email').should("have.attr", "data-testid", "input-email");
-      cy.get('#phone').should("have.attr", "data-testid", "input-phone");
+      cy.get("#name").should("have.attr", "data-testid", "input-name");
+      cy.get("#email").should("have.attr", "data-testid", "input-email");
+      cy.get("#phone").should("have.attr", "data-testid", "input-phone");
 
-      cy.get('[data-testid="personal-info-form"]').should("have.prop", "tagName", "FORM");
-      cy.get('[data-testid="submit-button"]').should("have.attr", "type", "submit");
+      cy.get('[data-testid="personal-info-form"]').should(
+        "have.prop",
+        "tagName",
+        "FORM",
+      );
+      cy.get('[data-testid="submit-button"]').should(
+        "have.attr",
+        "type",
+        "submit",
+      );
     });
 
     it("supports keyboard navigation properly", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').focus().should("be.focused");
-      cy.get('[data-testid="input-name"]').type("Test Name").should("have.value", "Test Name");
+      cy.get('[data-testid="input-name"]')
+        .type("Test Name")
+        .should("have.value", "Test Name");
 
       cy.get('[data-testid="input-email"]').focus().should("be.focused");
       cy.get('[data-testid="input-email"]').type("test@example.com");
@@ -772,7 +821,7 @@ describe("PersonalInfoStep", () => {
     it("provides proper focus management during loading states", () => {
       const TestFocusManagement = () => {
         const [loading, setLoading] = useState(false);
-        
+
         const handleSubmit = () => {
           setLoading(true);
           setTimeout(() => {
@@ -780,9 +829,10 @@ describe("PersonalInfoStep", () => {
             callbacks.onComplete();
           }, 200);
         };
-        
+
         return (
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-nqrpbh9g5"
             loading={loading}
             onChange={handleSubmit}
             onComplete={callbacks.onComplete}
@@ -793,7 +843,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestFocusManagement />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -804,7 +854,7 @@ describe("PersonalInfoStep", () => {
       cy.get('[data-testid="submit-button"]').focus();
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="submit-button"]').should("be.disabled");
-      
+
       cy.wait(250);
       cy.get('[data-testid="submit-button"]').should("not.be.disabled");
     });
@@ -813,13 +863,13 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting dataLoading={true} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="loading-state"]')
         .should("have.attr", "role", "status")
         .should("have.attr", "aria-live", "polite");
-      
+
       cy.get('[data-testid="loading-message-primary"]').should("be.visible");
     });
   });
@@ -831,7 +881,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
@@ -841,14 +891,15 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const rapidInput = "A".repeat(50);
+
       cy.get('[data-testid="input-name"]')
         .type(rapidInput, { delay: 0 })
         .should("have.value", rapidInput);
-      
+
       cy.get('[data-testid="input-email"]')
         .type("test@example.com", { delay: 0 })
         .should("have.value", "test@example.com");
@@ -858,14 +909,15 @@ describe("PersonalInfoStep", () => {
       const TestPerformance = () => {
         const [renderCount, setRenderCount] = useState(0);
         const [formData, setFormData] = useState({});
-        
+
         React.useEffect(() => {
-          setRenderCount(prev => prev + 1);
+          setRenderCount((prev) => prev + 1);
         });
-        
+
         return (
           <div>
             <PersonalInfoStepForTesting
+              data-testid="PersonalInfoStepForTesting-rscxcdzzm"
               initialData={formData}
               onChange={setFormData}
             />
@@ -883,7 +935,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestPerformance />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="trigger-update"]').click();
@@ -896,7 +948,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.testResponsiveLayout(() => {
@@ -913,7 +965,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -921,11 +973,11 @@ describe("PersonalInfoStep", () => {
       cy.get('[data-testid="personal-info-form"]')
         .should("be.visible")
         .should("have.css", "width");
-      
+
       cy.get('[data-testid="input-name"]')
         .should("be.visible")
         .should("have.css", "width");
-      
+
       cy.get('[data-testid="submit-button"]')
         .should("be.visible")
         .should("not.be.covered");
@@ -936,14 +988,15 @@ describe("PersonalInfoStep", () => {
         first_name: "A very long first name that might cause layout issues",
         last_name: "An equally long last name for testing purposes",
         email: "averylong.email.address.for.testing@example.com",
-        address_line_1: "A very long address line that might wrap to multiple lines",
+        address_line_1:
+          "A very long address line that might wrap to multiple lines",
         city: "A city with a very long name",
       };
 
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting initialData={longData} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.viewport(320, 568); // Mobile
@@ -960,7 +1013,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting onBack={callbacks.onBack} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="cancel-button"]').should("be.visible");
@@ -973,15 +1026,15 @@ describe("PersonalInfoStep", () => {
       const TestOnboardingFlow = () => {
         const [currentStep, setCurrentStep] = useState(0);
         const [personalData, setPersonalData] = useState({});
-        
+
         const handleComplete = () => {
           setCurrentStep(1);
         };
-        
+
         const handleBack = () => {
           setCurrentStep(0);
         };
-        
+
         if (currentStep === 1) {
           return (
             <div data-testid="next-step">
@@ -992,9 +1045,10 @@ describe("PersonalInfoStep", () => {
             </div>
           );
         }
-        
+
         return (
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-326yd77ol"
             initialData={personalData}
             onChange={setPersonalData}
             onComplete={handleComplete}
@@ -1005,7 +1059,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestOnboardingFlow />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -1015,7 +1069,7 @@ describe("PersonalInfoStep", () => {
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="next-step"]').should("be.visible");
-      
+
       cy.get('[data-testid="back-to-personal"]').click();
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
       cy.get('[data-testid="input-name"]').should("have.value", "Jane Smith");
@@ -1024,7 +1078,7 @@ describe("PersonalInfoStep", () => {
     it("handles OAuth pre-filling integration", () => {
       const TestOAuthIntegration = () => {
         const [oauthData, setOAuthData] = useState(null);
-        
+
         const simulateOAuthCallback = () => {
           setOAuthData({
             first_name: "Google",
@@ -1034,14 +1088,18 @@ describe("PersonalInfoStep", () => {
             auth_provider: "google",
           });
         };
-        
+
         return (
           <div>
-            <button data-testid="simulate-oauth" onClick={simulateOAuthCallback}>
+            <button
+              data-testid="simulate-oauth"
+              onClick={simulateOAuthCallback}
+            >
               Simulate OAuth
             </button>
             {oauthData && (
               <PersonalInfoStepForTesting
+                data-testid="PersonalInfoStepForTesting-rhbtqsyie"
                 initialData={oauthData}
                 onChange={callbacks.onChange}
                 onComplete={callbacks.onComplete}
@@ -1054,13 +1112,16 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestOAuthIntegration />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="simulate-oauth"]').click();
       cy.get('[data-testid="oauth-indicator"]').should("be.visible");
       cy.get('[data-testid="input-name"]').should("have.value", "Google User");
-      cy.get('[data-testid="input-email"]').should("have.value", "google.user@gmail.com");
+      cy.get('[data-testid="input-email"]').should(
+        "have.value",
+        "google.user@gmail.com",
+      );
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get("@onChange").should("have.been.called");
@@ -1071,10 +1132,11 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-3bu8bnv24"
             onChange={callbacks.onChange}
             onComplete={callbacks.onComplete}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -1102,7 +1164,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
@@ -1122,7 +1184,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting initialData={emptyData} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').should("have.value", "");
@@ -1141,7 +1203,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting initialData={nullData} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').should("have.value", "");
@@ -1153,7 +1215,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const longName = "A".repeat(500);
@@ -1165,14 +1227,15 @@ describe("PersonalInfoStep", () => {
       cy.get('[data-testid="input-address"]').type(longAddress);
 
       cy.get('[data-testid="input-name"]').should("contain.value", "AAA");
-      cy.get('[data-testid="input-email"]').should("contain.value", "@example.com");
+      cy.get('[data-testid="input-email"]').should(
+        "contain.value",
+        "@example.com",
+      );
     });
 
     it("handles rapid component mounting and unmounting", () => {
       const TestMountWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>
-          {show && <PersonalInfoStepForTesting />}
-        </TestWrapper>
+        <TestWrapper>{show && <PersonalInfoStepForTesting />}</TestWrapper>
       );
 
       cy.mount(<TestMountWrapper show={true} />);
@@ -1187,17 +1250,24 @@ describe("PersonalInfoStep", () => {
 
     it("handles callback function changes", () => {
       let callCount = 0;
-      
+
       const TestCallbackChanges = () => {
-        const [callback, setCallback] = useState(() => () => { callCount += 1; });
-        
+        const [callback, setCallback] = useState(() => () => {
+          callCount += 1;
+        });
+
         const updateCallback = () => {
-          setCallback(() => () => { callCount += 10; });
+          setCallback(() => () => {
+            callCount += 10;
+          });
         };
-        
+
         return (
           <div>
-            <PersonalInfoStepForTesting onChange={callback} />
+            <PersonalInfoStepForTesting
+              data-testid="PersonalInfoStepForTesting-o9bs2783o"
+              onChange={callback}
+            />
             <button data-testid="update-callback" onClick={updateCallback}>
               Update Callback
             </button>
@@ -1209,7 +1279,7 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <TestCallbackChanges />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       TestUtils.fillForm({
@@ -1219,7 +1289,7 @@ describe("PersonalInfoStep", () => {
 
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="call-count"]').should("contain", "1");
-      
+
       cy.get('[data-testid="update-callback"]').click();
       cy.get('[data-testid="submit-button"]').click();
       cy.get('[data-testid="call-count"]').should("contain", "11");
@@ -1228,26 +1298,30 @@ describe("PersonalInfoStep", () => {
 
   describe("Security", () => {
     it("sanitizes user input to prevent XSS", () => {
-      const maliciousInput = '<script>alert("xss")</script><img src="x" onerror="alert(\'xss\')" />';
+      const maliciousInput =
+        '<script>alert("xss")</script><img src="x" onerror="alert(\'xss\')" />';
 
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').type(maliciousInput);
       cy.get('[data-testid="input-email"]').type(maliciousInput);
 
-      cy.get('script').should("not.exist");
-      cy.get('img[onerror]').should("not.exist");
+      cy.get("script").should("not.exist");
+      cy.get("img[onerror]").should("not.exist");
     });
 
     it("validates data before submission", () => {
       cy.mount(
         <TestWrapper>
-          <PersonalInfoStepForTesting onChange={callbacks.onChange} />
-        </TestWrapper>
+          <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-nh0o7lj46"
+            onChange={callbacks.onChange}
+          />
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="input-name"]').type("Valid Name");
@@ -1269,14 +1343,15 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting
+            data-testid="PersonalInfoStepForTesting-zq8ix463a"
             initialData={sensitiveData}
             onChange={callbacks.onChange}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.get('[data-testid="submit-button"]').click();
-      
+
       // Verify sensitive data is handled properly (not exposed in DOM)
       cy.get("@onChange").should("have.been.called");
     });
@@ -1287,13 +1362,13 @@ describe("PersonalInfoStep", () => {
           <PersonalInfoStepForTesting
             initialData={{ email: "sensitive@example.com" }}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       cy.window().then((win) => {
         // Spy on console methods to ensure no sensitive data is logged
-        cy.spy(win.console, 'log').as('consoleLog');
-        cy.spy(win.console, 'error').as('consoleError');
+        cy.spy(win.console, "log").as("consoleLog");
+        cy.spy(win.console, "error").as("consoleError");
       });
 
       TestUtils.fillForm({
@@ -1301,22 +1376,25 @@ describe("PersonalInfoStep", () => {
       });
 
       cy.get('[data-testid="submit-button"]').click();
-      
+
       // Console should not contain sensitive information
-      cy.get('@consoleLog').should('not.have.been.calledWith', Cypress.sinon.match(/sensitive@example.com/));
+      cy.get("@consoleLog").should(
+        "not.have.been.calledWith",
+        Cypress.sinon.match(/sensitive@example.com/),
+      );
     });
   });
 
   describe("Quality Checks", () => {
     it("should meet performance standards", () => {
       TestUtils.measureRenderTime('[data-testid="personal-info-step"]', 2000);
-      
+
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
     });
 
@@ -1324,9 +1402,9 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testAccessibility('[data-testid="personal-info-step"]');
     });
 
@@ -1334,11 +1412,11 @@ describe("PersonalInfoStep", () => {
       cy.mount(
         <TestWrapper>
           <PersonalInfoStepForTesting />
-        </TestWrapper>
+        </TestWrapper>,
       );
-      
+
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="personal-info-step"]').should('be.visible');
+        cy.get('[data-testid="personal-info-step"]').should("be.visible");
       });
     });
   });

@@ -1,6 +1,9 @@
 import { BeneficiaryCard } from "./BeneficiaryCard";
+
 import { BeneficiaryWithPhoto } from "@/app/types/beneficiaries";
+
 import "cypress-real-events/support";
+
 
 // Mock beneficiary data for testing
 const mockBeneficiary: BeneficiaryWithPhoto = {

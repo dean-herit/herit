@@ -1,4 +1,6 @@
 import { BeneficiaryPhotoInput } from "./BeneficiaryPhotoInput";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("BeneficiaryPhotoInput Component", () => {
   it("renders without crashing", () => {

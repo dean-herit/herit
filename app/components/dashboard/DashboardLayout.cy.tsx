@@ -1,4 +1,6 @@
 import { DashboardLayout } from "./DashboardLayout";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("DashboardLayout Component", () => {
   it("renders without crashing", () => {

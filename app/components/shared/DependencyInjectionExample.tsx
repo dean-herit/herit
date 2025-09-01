@@ -3,7 +3,7 @@
  * Demonstrates how to make components more testable by injecting dependencies
  */
 
-import React from 'react';
+import React from "react";
 
 // =============================================================================
 // SERVICES (DEPENDENCIES TO INJECT)
@@ -28,26 +28,30 @@ export interface StorageService {
 // Default implementations (production services)
 const defaultAuthService: AuthService = {
   getCurrentUser: async () => {
-    const response = await fetch('/api/auth/me');
+    const response = await fetch("/api/auth/me");
+
     if (!response.ok) return null;
+
     return response.json();
   },
   logout: async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch("/api/auth/logout", { method: "POST" });
   },
 };
 
 const defaultApiService: ApiService = {
   post: async (url, data) => {
     const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+
     return response.json();
   },
   get: async (url) => {
     const response = await fetch(url);
+
     return response.json();
   },
 };
@@ -104,7 +108,9 @@ interface UserProfileProps {
 
 export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
   const { authService, apiService, storageService } = useServices();
-  const [user, setUser] = React.useState<{ id: string; name: string } | null>(null);
+  const [user, setUser] = React.useState<{ id: string; name: string } | null>(
+    null,
+  );
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -116,18 +122,19 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Use injected auth service
       const currentUser = await authService.getCurrentUser();
+
       setUser(currentUser);
-      
+
       // Store in local storage using injected storage service
       if (currentUser) {
-        storageService.setItem('lastUser', currentUser.name);
+        storageService.setItem("lastUser", currentUser.name);
       }
     } catch (err) {
-      setError('Failed to load user profile');
-      console.error('User load error:', err);
+      setError("Failed to load user profile");
+      console.error("User load error:", err);
     } finally {
       setLoading(false);
     }
@@ -136,18 +143,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      
+
       // Use injected auth service
       await authService.logout();
-      
+
       // Clear storage using injected service
-      storageService.removeItem('lastUser');
-      
+      storageService.removeItem("lastUser");
+
       setUser(null);
       onLogout?.();
     } catch (err) {
-      setError('Logout failed');
-      console.error('Logout error:', err);
+      setError("Logout failed");
+      console.error("Logout error:", err);
     } finally {
       setLoading(false);
     }
@@ -158,17 +165,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
     try {
       setLoading(true);
-      
+
       // Use injected API service
-      const updatedUser = await apiService.post('/api/user/profile', {
+      const updatedUser = await apiService.post("/api/user/profile", {
         name: newName,
       });
-      
+
       setUser(updatedUser);
-      storageService.setItem('lastUser', updatedUser.name);
+      storageService.setItem("lastUser", updatedUser.name);
     } catch (err) {
-      setError('Failed to update profile');
-      console.error('Profile update error:', err);
+      setError("Failed to update profile");
+      console.error("Profile update error:", err);
     } finally {
       setLoading(false);
     }
@@ -176,20 +183,25 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
   if (loading) {
     return (
-      <div data-testid="loading-state" className="flex justify-center p-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex justify-center p-4" data-testid="loading-state">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div data-testid="error-state" className="p-4 bg-red-50 border border-red-200 rounded">
-        <p className="text-red-700" data-testid="error-message">{error}</p>
+      <div
+        className="p-4 bg-red-50 border border-red-200 rounded"
+        data-testid="error-state"
+      >
+        <p className="text-red-700" data-testid="error-message">
+          {error}
+        </p>
         <button
+          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           data-testid="retry-button"
           onClick={loadUser}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
           Retry
         </button>
@@ -199,34 +211,41 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
   if (!user) {
     return (
-      <div data-testid="no-user-state" className="p-4">
+      <div className="p-4" data-testid="no-user-state">
         <p>Please log in to view your profile.</p>
       </div>
     );
   }
 
   return (
-    <div data-testid="user-profile" className="p-4 bg-white border rounded shadow">
+    <div
+      className="p-4 bg-white border rounded shadow"
+      data-testid="user-profile"
+    >
       <h2 className="text-xl font-semibold mb-4">User Profile</h2>
-      
+
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name:</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Name:
+          </label>
           <div className="flex gap-2 mt-1">
             <input
-              data-testid="name-input"
-              type="text"
-              defaultValue={user.name}
               className="flex-1 border border-gray-300 rounded px-3 py-2"
+              data-testid="name-input"
+              defaultValue={user.name}
+              type="text"
             />
             <button
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               data-testid="update-name-button"
+              disabled={loading}
               onClick={(e) => {
-                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                const input = e.currentTarget
+                  .previousElementSibling as HTMLInputElement;
+
                 updateProfile(input.value);
               }}
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
             >
               Update
             </button>
@@ -241,12 +260,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
         <div className="pt-4 border-t">
           <button
-            data-testid="logout-button"
-            onClick={handleLogout}
-            disabled={loading}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+            data-testid="logout-button"
+            disabled={loading}
+            onClick={handleLogout}
           >
-            {loading ? 'Logging out...' : 'Logout'}
+            {loading ? "Logging out..." : "Logout"}
           </button>
         </div>
       </div>
@@ -260,22 +279,26 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
 export const useUserData = () => {
   const { authService, storageService } = useServices();
-  const [user, setUser] = React.useState<{ id: string; name: string } | null>(null);
+  const [user, setUser] = React.useState<{ id: string; name: string } | null>(
+    null,
+  );
   const [loading, setLoading] = React.useState(false);
 
   const loadUser = React.useCallback(async () => {
     setLoading(true);
     try {
       const currentUser = await authService.getCurrentUser();
+
       setUser(currentUser);
-      
+
       // Cache in storage
       if (currentUser) {
-        storageService.setItem('user-cache', JSON.stringify(currentUser));
+        storageService.setItem("user-cache", JSON.stringify(currentUser));
       }
     } catch (error) {
       // Try to load from cache
-      const cached = storageService.getItem('user-cache');
+      const cached = storageService.getItem("user-cache");
+
       if (cached) {
         setUser(JSON.parse(cached));
       }

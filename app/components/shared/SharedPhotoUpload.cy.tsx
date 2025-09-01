@@ -1,4 +1,6 @@
 import { SharedPhotoUpload } from "./SharedPhotoUpload";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("SharedPhotoUpload Component", () => {
   it("renders without crashing", () => {

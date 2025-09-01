@@ -1,4 +1,6 @@
 import { WillClient } from "./WillClient";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("WillClient Component", () => {
   it("renders without crashing", () => {

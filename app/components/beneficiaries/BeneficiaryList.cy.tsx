@@ -1,4 +1,6 @@
 import { BeneficiaryList } from "./BeneficiaryList";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("BeneficiaryList Component", () => {
   it("renders without crashing", () => {

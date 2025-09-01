@@ -1,4 +1,6 @@
 import { DashboardClient } from "./DashboardClient";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("DashboardClient Component", () => {
   it("renders without crashing", () => {

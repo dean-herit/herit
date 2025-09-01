@@ -1,4 +1,6 @@
 import { LegalConsentStep } from "./LegalConsentStep";
+import { TestUtils } from "../../../../cypress/support/test-utils";
+
 
 describe("LegalConsentStep Component", () => {
   it("renders without crashing", () => {

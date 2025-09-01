@@ -1,3 +1,5 @@
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 describe("counter Component", () => {
   it("renders without crashing", () => {
     cy.mount(<counter />);

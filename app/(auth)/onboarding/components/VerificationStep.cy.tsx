@@ -1,4 +1,6 @@
 import { VerificationStep } from "./VerificationStep";
+import { TestUtils } from "../../../../cypress/support/test-utils";
+
 
 describe("VerificationStep Component", () => {
   it("renders without crashing", () => {

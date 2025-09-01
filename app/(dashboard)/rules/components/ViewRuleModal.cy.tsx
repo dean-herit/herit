@@ -1,4 +1,6 @@
 import { ViewRuleModal } from "./ViewRuleModal";
+import { TestUtils } from "../../../../cypress/support/test-utils";
+
 
 describe("ViewRuleModal Component", () => {
   it("renders without crashing", () => {

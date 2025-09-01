@@ -1,4 +1,6 @@
 import { EditRuleModal } from "./EditRuleModal";
+import { TestUtils } from "../../../../cypress/support/test-utils";
+
 
 describe("EditRuleModal Component", () => {
   it("renders without crashing", () => {

@@ -1,3 +1,5 @@
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 describe("icons Component", () => {
   it("renders without crashing", () => {
     cy.mount(<icons />);

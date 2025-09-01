@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { SharedPersonalInfoForm } from "./SharedPersonalInfoForm";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("SharedPersonalInfoForm Component", () => {
   beforeEach(() => {

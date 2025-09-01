@@ -1,4 +1,6 @@
 import { DocumentUploadZone } from "./DocumentUploadZone";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("DocumentUploadZone Component", () => {
   it("renders without crashing", () => {

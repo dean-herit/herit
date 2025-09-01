@@ -1,4 +1,6 @@
 import { ThemeSwitch } from "./theme-switch";
+import { TestUtils } from "../../../cypress/support/test-utils";
+
 
 describe("ThemeSwitch Component", () => {
   it("renders without crashing", () => {

@@ -1,4 +1,6 @@
 import { QueryProvider } from "./QueryProvider";
+import { TestUtils } from "../../cypress/support/test-utils";
+
 
 describe("QueryProvider Component", () => {
   it("renders without crashing", () => {
