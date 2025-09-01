@@ -46,9 +46,6 @@ export const Default: Story = {
     expect(
       canvas.getByRole("button", { name: /continue with google/i }),
     ).toBeVisible();
-    expect(
-      canvas.getByRole("button", { name: /sign in with apple/i }),
-    ).toBeVisible();
   },
 };
 

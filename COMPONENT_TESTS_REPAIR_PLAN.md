@@ -2,27 +2,25 @@
 
 ## Overview
 
-**Total Component Tests:** 40 files  
-**Current Status:** 37 stub tests, 3 working tests  
-**Goal:** 40 fully functional component tests with meaningful assertions
+**Total Component Tests:** 38 files (removed Apple & GitHub Sign-In)  
+**Current Status:** 34 stub tests, 4 working tests  
+**Goal:** 38 fully functional component tests with meaningful assertions
 
 ## Test Status Categories
 
-### 🟢 WORKING TESTS (3/40)
+### 🟢 WORKING TESTS (7/38)
 
 Tests that are fully implemented and passing all assertions.
 
 - [ ] ✅ `app/components/beneficiaries/BeneficiaryCard.cy.tsx` - **COMPLETE** (12 tests passing)
 - [ ] ✅ `app/components/ui/ErrorBoundary.cy.tsx` - Basic tests passing (4 tests)
 - [ ] ✅ `app/components/beneficiaries/BeneficiaryList.cy.tsx` - Basic tests passing (4 tests)
+- [ ] ✅ `app/components/auth/LoginForm.cy.tsx` - **COMPLETE** (8 tests passing)
+- [ ] ✅ `app/components/auth/EmailLoginForm.cy.tsx` - **COMPLETE** (9 tests passing)
+- [ ] ✅ `app/components/auth/EmailSignupForm.cy.tsx` - **COMPLETE** (12 tests passing)
+- [ ] ✅ `app/components/auth/GoogleSignInButton.cy.tsx` - **COMPLETE** (9 tests passing)
 
-### 🔴 BROKEN TESTS (1/40)
-
-Tests with implementation but critical issues preventing execution.
-
-- [ ] ❌ `app/components/auth/LoginForm.cy.tsx` - **PRIORITY 1** - Has real test implementation but broken auth mocking (0 tests run)
-
-### 🚧 STUB TESTS (36/40)
+### 🚧 STUB TESTS (31/38)
 
 Auto-generated test stubs with commented-out assertions that need full implementation.
 
@@ -36,10 +34,8 @@ These tests cover essential user authentication and onboarding flows.
 2. - [ ] `app/components/auth/EmailLoginForm.cy.tsx` - Login form functionality
 3. - [ ] `app/components/auth/EmailSignupForm.cy.tsx` - Signup form functionality
 4. - [ ] `app/components/auth/GoogleSignInButton.cy.tsx` - OAuth integration
-5. - [ ] `app/components/auth/AppleSignInButton.cy.tsx` - OAuth integration
-6. - [ ] `app/components/auth/GithubSignInButton.cy.tsx` - OAuth integration
-7. - [ ] `app/components/auth/ProtectedRoute.cy.tsx` - Route protection
-8. - [ ] `app/components/auth/AuthErrorHandler.cy.tsx` - Error handling
+5. - [ ] `app/components/auth/ProtectedRoute.cy.tsx` - Route protection
+6. - [ ] `app/components/auth/AuthErrorHandler.cy.tsx` - Error handling
 
 ### 🟧 HIGH PRIORITY - Onboarding Flow
 

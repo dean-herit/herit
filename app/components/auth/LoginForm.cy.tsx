@@ -18,20 +18,6 @@ function MockGoogleSignInButton() {
   );
 }
 
-function MockAppleSignInButton() {
-  return (
-    <Button
-      className="w-full justify-center bg-black text-white"
-      variant="solid"
-      size="lg"
-      role="button"
-      startContent={<div className="w-5 h-5 bg-white rounded"></div>}
-    >
-      Sign in with Apple
-    </Button>
-  );
-}
-
 // Mock email forms for testing (no useAuth dependency)
 function MockEmailLoginForm() {
   return (
@@ -106,7 +92,6 @@ function LoginFormForTesting({
 
               <div className="space-y-2">
                 <MockGoogleSignInButton />
-                <MockAppleSignInButton />
               </div>
             </div>
 
@@ -204,7 +189,6 @@ describe("LoginForm Component", () => {
     // Mock external API calls that auth buttons might make
     cy.intercept("GET", "/api/auth/session", { statusCode: 401 }).as("session");
     cy.intercept("POST", "/api/auth/google", { statusCode: 200 }).as("google");
-    cy.intercept("POST", "/api/auth/apple", { statusCode: 200 }).as("apple");
   });
 
   it("renders default authentication options", () => {
@@ -224,9 +208,6 @@ describe("LoginForm Component", () => {
       .should("be.visible");
     cy.get('[role="button"]')
       .contains("Continue with Google")
-      .should("be.visible");
-    cy.get('[role="button"]')
-      .contains("Sign in with Apple")
       .should("be.visible");
 
     // Should show terms and privacy links
@@ -348,9 +329,6 @@ describe("LoginForm Component", () => {
     cy.realPress("Tab");
     cy.focused().should("contain", "Continue with Google");
 
-    cy.realPress("Tab");
-    cy.focused().should("contain", "Sign in with Apple");
-
     // Tab to footer links
     cy.realPress("Tab");
     cy.focused().should("contain", "Terms of Service");
@@ -367,7 +345,7 @@ describe("LoginForm Component", () => {
     );
 
     // Check ARIA labels and roles
-    cy.get('[role="button"]').should("have.length", 2);
+    cy.get('[role="button"]').should("have.length", 1);
 
     // Links should be accessible
     cy.get('[data-testid="a-terms"]').should("have.attr", "href");

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button, Card, CardBody, Divider } from "@heroui/react";
 
 import { GoogleSignInButton } from "./GoogleSignInButton";
-import { AppleSignInButton } from "./AppleSignInButton";
 import { EmailLoginForm } from "./EmailLoginForm";
 import { EmailSignupForm } from "./EmailSignupForm";
 
@@ -100,7 +99,6 @@ export function LoginForm() {
           {/* OAuth Providers */}
           <div className="space-y-3">
             <GoogleSignInButton />
-            <AppleSignInButton />
           </div>
         </div>
       )}
