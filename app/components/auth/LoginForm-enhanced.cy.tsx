@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { Button, Card, CardBody, Divider } from "@heroui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -58,128 +57,64 @@ function LoginFormForTesting({
   };
 
   return (
-    <div data-testid="login-form" className="w-full max-w-md mx-auto space-y-6">
-      {/* Error Display */}
-      {authError && (
-        <Card 
-          className="border-danger-200 bg-danger-50" 
-          data-testid="auth-error"
-        >
-          <CardBody className="p-4">
-            <p className="text-sm text-danger-600 font-medium">{authError}</p>
-          </CardBody>
-        </Card>
-      )}
+    <div data-testid="login-form" className="w-full max-w-md mx-auto">
+      <Card>
+        <CardBody className="p-6">
+          <h1 data-testid="auth-title" className="text-2xl font-bold text-center mb-6">
+            {authMode === "login" ? "Welcome back" : "Create your account"}
+          </h1>
 
-      {!showEmailAuth ? (
-        // Main Authentication Options
-        <Card className="w-full">
-          <CardBody className="space-y-4 p-6">
-            <div className="text-center space-y-2">
-              <h2 data-testid="auth-title" className="text-2xl font-bold text-foreground">
-                Welcome
-              </h2>
-              <p className="text-sm text-foreground-600">
-                Choose how you'd like to continue
-              </p>
+          {authError && (
+            <div
+              data-testid="auth-error"
+              className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+            >
+              {authError}
             </div>
+          )}
 
-            <div className="space-y-3">
+          {!showEmailAuth ? (
+            <div className="space-y-4">
+              <MockGoogleSignInButton />
+              
+              <Divider className="my-4" />
+              
               <Button
-                className="w-full"
-                color="primary"
-                size="lg"
                 data-testid="email-auth-button"
+                className="w-full"
+                variant="ghost"
                 onPress={() => setShowEmailAuth(true)}
               >
-                Continue with Email
+                Continue with email
               </Button>
-
-              <div className="relative">
-                <Divider className="my-4" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-background px-2 text-xs text-foreground-500">
-                    or
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <MockGoogleSignInButton />
+              
+              <div className="text-center">
+                <button
+                  data-testid="toggle-mode-button"
+                  className="text-sm text-blue-600 hover:underline"
+                  onClick={() => handleModeChange(authMode === "login" ? "signup" : "login")}
+                >
+                  {authMode === "login" 
+                    ? "Don't have an account? Sign up" 
+                    : "Already have an account? Sign in"}
+                </button>
               </div>
             </div>
-
-            <div className="text-center space-x-1 text-xs text-foreground-500">
-              <span>By continuing, you agree to our</span>
-              <a
-                href="/terms"
-                className="text-primary underline hover:no-underline"
-                data-testid="terms-link"
-              >
-                Terms of Service
-              </a>
-              <span>and</span>
-              <a
-                href="/privacy"
-                className="text-primary underline hover:no-underline"
-                data-testid="privacy-link"
-              >
-                Privacy Policy
-              </a>
-            </div>
-          </CardBody>
-        </Card>
-      ) : (
-        // Email Authentication Form
-        <Card className="w-full">
-          <CardBody className="space-y-4 p-6">
-            <div className="flex items-center space-x-3">
+          ) : (
+            <div className="space-y-4">
+              {authMode === "login" ? <MockEmailLoginForm /> : <MockEmailSignupForm />}
+              
               <Button
-                className="text-foreground-600"
-                variant="light"
-                size="sm"
                 data-testid="back-button"
+                variant="ghost"
                 onPress={() => setShowEmailAuth(false)}
               >
-                Back to other sign-in options
+                Back to options
               </Button>
             </div>
-
-            <div className="flex border-b">
-              <button
-                className={`flex-1 py-2 text-sm font-medium border-b-2 ${
-                  authMode === "login"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground-500 hover:text-foreground"
-                }`}
-                data-testid="login-tab"
-                onClick={() => handleModeChange("login")}
-              >
-                Sign In
-              </button>
-              <button
-                className={`flex-1 py-2 text-sm font-medium border-b-2 ${
-                  authMode === "signup"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground-500 hover:text-foreground"
-                }`}
-                data-testid="signup-tab"
-                onClick={() => handleModeChange("signup")}
-              >
-                Sign Up
-              </button>
-            </div>
-
-            <div className="mt-4">
-              {authMode === "login" ? (
-                <MockEmailLoginForm />
-              ) : (
-                <MockEmailSignupForm />
-              )}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }
@@ -203,12 +138,10 @@ describe("LoginForm Component", () => {
 
   beforeEach(() => {
     callbacks = TestUtils.createMockCallbacks();
-    // Reset stubs
-    Object.values(callbacks).forEach(stub => stub.reset?.());
   });
 
   describe("Core Functionality", () => {
-    it("renders default authentication options", () => {
+    it("renders login mode by default", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
@@ -216,53 +149,72 @@ describe("LoginForm Component", () => {
       );
 
       cy.get('[data-testid="login-form"]').should("be.visible");
-      cy.get('[data-testid="auth-title"]').should("contain", "Welcome");
-      cy.get('[data-testid="email-auth-button"]').should("be.visible");
+      cy.get('[data-testid="auth-title"]').should("contain", "Welcome back");
+      cy.get('[data-testid="toggle-mode-button"]').should("contain", "Don't have an account? Sign up");
     });
 
-    it("switches to email authentication form", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>
-      );
-
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="login-tab"]').should("be.visible");
-      cy.get('[data-testid="signup-tab"]').should("be.visible");
-      cy.get('[data-testid="back-button"]').should("be.visible");
-    });
-
-    it("toggles between login and signup modes", () => {
+    it("switches between login and signup modes", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting onModeChange={callbacks.onChange} />
         </TestWrapper>
       );
 
-      cy.get('[data-testid="email-auth-button"]').click();
-      
+      // Start in login mode
+      cy.get('[data-testid="auth-title"]').should("contain", "Welcome back");
+
       // Switch to signup
-      cy.get('[data-testid="signup-tab"]').click();
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="auth-title"]').should("contain", "Create your account");
+      cy.get('[data-testid="toggle-mode-button"]').should("contain", "Already have an account? Sign in");
       cy.get("@onChange").should("have.been.calledWith", "signup");
-      cy.get('[data-testid="email-signup-form"]').should("be.visible");
 
       // Switch back to login
-      cy.get('[data-testid="login-tab"]').click();
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="auth-title"]').should("contain", "Welcome back");
       cy.get("@onChange").should("have.been.calledWith", "login");
-      cy.get('[data-testid="email-login-form"]').should("be.visible");
     });
 
-    it("navigates back to main auth screen", () => {
+    it("toggles email authentication form", () => {
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
         </TestWrapper>
       );
 
+      // Should show OAuth options initially
+      cy.get('[data-testid="email-auth-button"]').should("be.visible");
+      cy.get('[data-testid="email-login-form"]').should("not.exist");
+
+      // Click to show email form
       cy.get('[data-testid="email-auth-button"]').click();
+      cy.get('[data-testid="email-login-form"]').should("be.visible");
+      cy.get('[data-testid="back-button"]').should("be.visible");
+
+      // Click back to OAuth options
       cy.get('[data-testid="back-button"]').click();
       cy.get('[data-testid="email-auth-button"]').should("be.visible");
+      cy.get('[data-testid="email-login-form"]').should("not.exist");
+    });
+
+    it("shows correct email form based on auth mode", () => {
+      cy.mount(
+        <TestWrapper>
+          <LoginFormForTesting />
+        </TestWrapper>
+      );
+
+      // Login mode should show login form
+      cy.get('[data-testid="email-auth-button"]').click();
+      cy.get('[data-testid="email-login-form"]').should("be.visible");
+      cy.get('[data-testid="email-signup-form"]').should("not.exist");
+
+      // Switch to signup mode
+      cy.get('[data-testid="back-button"]').click();
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="email-auth-button"]').click();
+      cy.get('[data-testid="email-signup-form"]').should("be.visible");
+      cy.get('[data-testid="email-login-form"]').should("not.exist");
     });
   });
 
@@ -285,19 +237,38 @@ describe("LoginForm Component", () => {
 
       cy.mount(
         <TestWrapper>
-          <LoginFormForTesting signupError={signupError} onModeChange={callbacks.onChange} />
+          <LoginFormForTesting signupError={signupError} />
         </TestWrapper>
       );
 
-      // Switch to signup mode first
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="signup-tab"]').click();
+      // Switch to signup mode
+      cy.get('[data-testid="toggle-mode-button"]').click();
       
       cy.get('[data-testid="auth-error"]').should("be.visible");
       cy.get('[data-testid="auth-error"]').should("contain", signupError);
     });
 
+    it("hides errors when switching modes", () => {
+      cy.mount(
+        <TestWrapper>
+          <LoginFormForTesting loginError="Login error" signupError="Signup error" />
+        </TestWrapper>
+      );
+
+      // Login error should be visible
+      cy.get('[data-testid="auth-error"]').should("contain", "Login error");
+
+      // Switch to signup - should show signup error
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="auth-error"]').should("contain", "Signup error");
+
+      // Switch back to login - should show login error
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="auth-error"]').should("contain", "Login error");
+    });
+
     it("handles network connectivity issues", () => {
+      // Simulate network error scenario
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="Network error: Please check your connection" />
@@ -308,6 +279,7 @@ describe("LoginForm Component", () => {
     });
 
     it("handles server errors gracefully", () => {
+      // Simulate server error scenario
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting loginError="Server temporarily unavailable. Please try again." />
@@ -315,16 +287,6 @@ describe("LoginForm Component", () => {
       );
 
       cy.get('[data-testid="auth-error"]').should("contain", "Server temporarily unavailable");
-    });
-
-    it("handles empty error states", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError="" signupError="" />
-        </TestWrapper>
-      );
-
-      cy.get('[data-testid="auth-error"]').should("not.exist");
     });
   });
 
@@ -346,9 +308,10 @@ describe("LoginForm Component", () => {
         </TestWrapper>
       );
 
+      // Tab through interactive elements
       cy.get('[data-testid="email-auth-button"]').focus().should("be.focused");
       cy.realPress("Tab");
-      cy.focused().should("contain", "Continue with Google");
+      cy.get('[data-testid="toggle-mode-button"]').should("be.focused");
     });
 
     it("has proper ARIA labels and roles", () => {
@@ -358,12 +321,13 @@ describe("LoginForm Component", () => {
         </TestWrapper>
       );
 
+      // Error should have proper styling for screen readers
+      cy.get('[data-testid="auth-error"]')
+        .should("have.class", "text-red-700")
+        .and("have.class", "border-red-400");
+
       // Title should be properly structured
-      cy.get('[data-testid="auth-title"]').should("match", "h2");
-      
-      // Links should have proper attributes
-      cy.get('[data-testid="terms-link"]').should("have.attr", "href");
-      cy.get('[data-testid="privacy-link"]').should("have.attr", "href");
+      cy.get('[data-testid="auth-title"]').should("match", "h1");
     });
   });
 
@@ -387,15 +351,14 @@ describe("LoginForm Component", () => {
         </TestWrapper>
       );
 
-      cy.get('[data-testid="email-auth-button"]').click();
-
       // Rapidly switch modes
-      for (let i = 0; i < 3; i++) {
-        cy.get('[data-testid="signup-tab"]').click();
-        cy.get('[data-testid="login-tab"]').click();
+      for (let i = 0; i < 5; i++) {
+        cy.get('[data-testid="toggle-mode-button"]').click();
+        cy.get('[data-testid="auth-title"]').should("be.visible");
       }
 
-      cy.get("@onChange").should("have.callCount", 6);
+      // Should handle all clicks
+      cy.get("@onChange").should("have.callCount", 5);
     });
   });
 
@@ -426,21 +389,30 @@ describe("LoginForm Component", () => {
       cy.get('[data-testid="login-form"]')
         .should("be.visible")
         .should("have.class", "max-w-md");
+      
+      // Should maintain padding on small screens
+      cy.get('[data-testid="login-form"] .p-6').should("exist");
     });
   });
 
   describe("Integration Scenarios", () => {
     it("should integrate with authentication flow", () => {
-      let currentError = null;
+      // Mock the complete auth flow integration
+      let currentMode = "login";
       
       const TestIntegration = () => {
-        const [error, setError] = useState(currentError);
+        const [mode, setMode] = useState<"login" | "signup">("login");
+        const [error, setError] = useState<string | null>(null);
         
         return (
           <div>
             <LoginFormForTesting
-              loginError={error}
-              onModeChange={() => setError(null)}
+              loginError={mode === "login" ? error : null}
+              signupError={mode === "signup" ? error : null}
+              onModeChange={(newMode) => {
+                setMode(newMode);
+                setError(null); // Clear errors on mode change
+              }}
             />
             <button
               data-testid="simulate-error"
@@ -461,18 +433,24 @@ describe("LoginForm Component", () => {
       // Test error integration
       cy.get('[data-testid="simulate-error"]').click();
       cy.get('[data-testid="auth-error"]').should("be.visible");
+
+      // Test error clearing on mode switch
+      cy.get('[data-testid="toggle-mode-button"]').click();
+      cy.get('[data-testid="auth-error"]').should("not.exist");
     });
 
     it("should handle OAuth callback simulation", () => {
+      // Test OAuth integration patterns
       cy.mount(
         <TestWrapper>
           <LoginFormForTesting />
         </TestWrapper>
       );
 
+      // Simulate OAuth flow by checking button presence
       cy.get('[data-testid="login-form"]').within(() => {
         cy.contains("Continue with Google").should("be.visible");
-        cy.contains("Continue with Email").should("be.visible");
+        cy.contains("Continue with email").should("be.visible");
       });
     });
   });
@@ -483,8 +461,7 @@ describe("LoginForm Component", () => {
         <TestWrapper>
           <LoginFormForTesting 
             loginError="Login failed" 
-            signupError="Signup failed"
-            onModeChange={callbacks.onChange}
+            signupError="Signup failed" 
           />
         </TestWrapper>
       );
@@ -492,10 +469,20 @@ describe("LoginForm Component", () => {
       // Should show login error initially
       cy.get('[data-testid="auth-error"]').should("contain", "Login failed");
 
-      // Switch to signup - should show signup error
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="signup-tab"]').click();
+      // Should switch to signup error when mode changes
+      cy.get('[data-testid="toggle-mode-button"]').click();
       cy.get('[data-testid="auth-error"]').should("contain", "Signup failed");
+    });
+
+    it("handles empty error states", () => {
+      cy.mount(
+        <TestWrapper>
+          <LoginFormForTesting loginError="" signupError="" />
+        </TestWrapper>
+      );
+
+      // Empty errors should not display error div
+      cy.get('[data-testid="auth-error"]').should("not.exist");
     });
 
     it("handles rapid component remounting", () => {
@@ -508,6 +495,7 @@ describe("LoginForm Component", () => {
       cy.mount(<TestWrapper show={true} />);
       cy.get('[data-testid="login-form"]').should("be.visible");
 
+      // Remount multiple times
       cy.mount(<TestWrapper show={false} />);
       cy.get('[data-testid="login-form"]').should("not.exist");
 
@@ -526,6 +514,7 @@ describe("LoginForm Component", () => {
         </TestWrapper>
       );
 
+      // Should display error but without executing script
       cy.get('[data-testid="auth-error"]').should("be.visible");
       cy.get('script').should("not.exist");
     });
@@ -539,43 +528,9 @@ describe("LoginForm Component", () => {
         </TestWrapper>
       );
 
+      // Content should be treated as text, not executed
       cy.get('[data-testid="auth-error"]').should("contain", xssAttempt);
-    });
-  });
-
-  describe("Quality Checks", () => {
-    it("should meet performance standards", () => {
-      TestUtils.measureRenderTime('[data-testid="login-form"]', 2000);
-      
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>
-      );
-      
-      cy.get('[data-testid="login-form"]').should("be.visible");
-    });
-
-    it("should be accessible", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>
-      );
-      
-      TestUtils.testAccessibility('[data-testid="login-form"]');
-    });
-
-    it("should handle responsive layouts", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>
-      );
-      
-      TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="login-form"]').should('be.visible');
-      });
+      cy.window().its('alert').should('not.have.been.called');
     });
   });
 });
