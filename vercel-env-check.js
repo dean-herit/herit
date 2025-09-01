@@ -66,17 +66,73 @@ if (packageJson.default.type === "module") {
 // Check for critical environment variables
 console.log("🔍 Checking environment variables...");
 
-const criticalEnvVars = ["POSTGRES_URL", "SESSION_SECRET", "REFRESH_SECRET"];
+const criticalEnvVars = ["POSTGRES_URL", "SESSION_SECRET"];
+const optionalEnvVars = [
+  "REFRESH_SECRET",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+];
 
-const missingEnvVars = criticalEnvVars.filter(
+const missingCriticalVars = criticalEnvVars.filter(
   (varName) => !process.env[varName],
 );
 
-if (missingEnvVars.length > 0) {
+const missingOptionalVars = optionalEnvVars.filter(
+  (varName) => !process.env[varName],
+);
+
+// For build testing, check if we have a .env.local file
+const fs = await import("fs/promises");
+const path = await import("path");
+const envLocalPath = path.default.resolve(".env.local");
+const hasEnvLocal = await fs.default
+  .access(envLocalPath)
+  .then(() => true)
+  .catch(() => false);
+
+// Check if we're in strict mode (for pre-commit checks)
+const strictMode = process.env.VERCEL_ENV_CHECK_STRICT === "true";
+
+if (missingCriticalVars.length > 0) {
+  if (strictMode) {
+    // In strict mode, this is a hard failure
+    console.error(
+      `❌ CRITICAL: Missing required environment variables: ${missingCriticalVars.join(", ")}`,
+    );
+    console.error(
+      `   These variables are REQUIRED for the build to succeed in Vercel.`,
+    );
+    console.error(`   The build WILL FAIL in Vercel without these variables!`);
+    process.exit(1);
+  } else {
+    // In normal mode, warn but don't fail (for local development)
+    console.log(
+      `⚠️  WARNING: Missing required environment variables: ${missingCriticalVars.join(", ")}`,
+    );
+    console.log(`   These variables are REQUIRED for Vercel deployment.`);
+
+    if (!hasEnvLocal) {
+      console.log(
+        `   No .env.local file found. Copy .env.example to .env.local and fill in values.`,
+      );
+    }
+
+    console.log(`   ⚠️  Build will FAIL in Vercel without these variables!`);
+  }
+
+  // In CI or production-like environments, always fail
+  if (process.env.CI || process.env.VERCEL) {
+    process.exit(1);
+  }
+}
+
+if (missingOptionalVars.length > 0) {
   console.log(
-    `⚠️  Missing environment variables (these will be needed in production): ${missingEnvVars.join(", ")}`,
+    `⚠️  Missing optional environment variables: ${missingOptionalVars.join(", ")}`,
   );
-} else {
+}
+
+if (missingCriticalVars.length === 0) {
   console.log("✅ All critical environment variables are set");
 }
 
