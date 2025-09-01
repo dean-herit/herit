@@ -3,6 +3,9 @@
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": ".next",
+  "env": {
+    "PNPM_VERSION": "9.0.0"
+  },
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 30
