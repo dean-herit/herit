@@ -176,6 +176,18 @@ HeroUI Heritage - Estate planning and asset management platform built with Next.
 
 ## MCP Configuration
 
+### Vercel CLI Debug Commands (2024)
+
+For debugging failed deployments and accessing build logs:
+
+- `vercel inspect --logs <deployment-url>` - Shows build logs for an existing deployment
+- `vercel deploy --logs` - Deploys and shows build logs in real-time  
+- `vercel logs <deployment-url>` - Shows runtime logs for deployments in ready state
+- `vercel ls` - List recent deployments with status
+- Add `--json` flag to any log command for JSON output (useful with jq)
+
+**Note:** For failed deployments, use `vercel inspect --logs` rather than `vercel logs` (which only works for ready deployments).
+
 ### Playwright MCP Server
 
 The Playwright MCP server provides visual testing and component interaction capabilities.
