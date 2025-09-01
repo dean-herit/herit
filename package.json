@@ -41,7 +41,9 @@
     "test:e2e:headed": "cypress run --headed --e2e",
     "test:all": "pnpm test:unit && pnpm test:ct && pnpm test:e2e",
     "cli": "tsx tools/cli.ts",
-    "test:cli": "pnpm cli status && pnpm cli history --limit 5"
+    "test:cli": "pnpm cli status && pnpm cli history --limit 5",
+    "vercel:check": "node vercel-env-check.js",
+    "vercel:build-test": "npm run vercel:check && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

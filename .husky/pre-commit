@@ -1,13 +1,61 @@
 #!/bin/sh
 
-echo "🔍 Running pre-commit checks..."
+echo "🔍 Running Vercel-like pre-commit checks..."
 
-# Run lint-staged (includes component test validation)
+# Check if critical files were modified that could break the build
+CRITICAL_FILES=$(git diff --cached --name-only | grep -E "\.(config|env)\.(js|ts|mjs)$|package\.json$|tsconfig\.json$|next\.config\.js$|tailwind\.config\.js$|postcss\.config\.js$")
+
+# Run lint-staged first (linting and formatting)
+echo "📝 Running linting and formatting..."
 npx lint-staged
 
 if [ $? -ne 0 ]; then
   echo "❌ Lint-staged checks failed"
   exit 1
+fi
+
+# If critical files were modified, run a production-like build test
+if [ ! -z "$CRITICAL_FILES" ]; then
+  echo "⚙️  Critical configuration files modified, running production build test..."
+  echo "Modified files: $CRITICAL_FILES"
+  
+  # Vercel environment compatibility check
+  echo "🔍 Checking Vercel compatibility..."
+  node vercel-env-check.js
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ Vercel compatibility check failed"
+    exit 1
+  fi
+  
+  # TypeScript check (same as Vercel)
+  echo "🔍 Type checking..."
+  npm run typecheck
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ TypeScript check failed - this will fail in Vercel"
+    exit 1
+  fi
+  
+  # Production build test (same as Vercel)
+  echo "🏗️  Testing production build..."
+  npm run build
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ Production build failed - this will fail in Vercel"
+    exit 1
+  fi
+  
+  echo "✅ Production build successful"
+else
+  # For non-critical changes, just run typecheck
+  echo "🔍 Running TypeScript check..."
+  npm run typecheck
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ TypeScript check failed"
+    exit 1
+  fi
 fi
 
 # Check if any component tests were modified
