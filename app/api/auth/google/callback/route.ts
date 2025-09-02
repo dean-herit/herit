@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { users } from "@/db/schema";
 import { setAuthCookies } from "@/app/lib/auth";
 import { audit } from "@/app/lib/audit-middleware";
+import { processGoogleProfilePhoto } from "@/app/lib/photo-utils";
 
 interface GoogleUser {
   id: string;
@@ -293,9 +294,16 @@ export async function GET(request: NextRequest) {
           updateFields.auth_provider_id = googleUser.id;
         }
 
-        // Update profile photo if not set
+        // Update profile photo if not set - download and store non-placeholder photos
         if (!existingUser.profile_photo_url && googleUser.picture) {
-          updateFields.profile_photo_url = googleUser.picture;
+          const processedPhotoUrl = await processGoogleProfilePhoto(
+            googleUser.picture,
+            existingUser.id,
+            existingUser.email
+          );
+          if (processedPhotoUrl) {
+            updateFields.profile_photo_url = processedPhotoUrl;
+          }
         }
 
         // Update first/last name if not set
@@ -364,14 +372,14 @@ export async function GET(request: NextRequest) {
       } else {
         userType = "new";
 
-        // Create new user with all available Google data
+        // Create new user first to get the ID
         const [newUser] = await db
           .insert(users)
           .values({
             email: googleUser.email,
             first_name: googleUser.given_name || null,
             last_name: googleUser.family_name || null,
-            profile_photo_url: googleUser.picture || null,
+            profile_photo_url: null, // Will be updated below if photo exists
             auth_provider: "google",
             auth_provider_id: googleUser.id,
             onboarding_status: "not_started",
@@ -381,6 +389,23 @@ export async function GET(request: NextRequest) {
 
         userId = newUser.id;
         needsOnboarding = true;
+
+        // Now process and update the Google profile photo if it exists
+        if (googleUser.picture) {
+          const processedPhotoUrl = await processGoogleProfilePhoto(
+            googleUser.picture,
+            newUser.id,
+            googleUser.email
+          );
+          
+          // Update user with processed photo URL if we got a valid photo
+          if (processedPhotoUrl) {
+            await db
+              .update(users)
+              .set({ profile_photo_url: processedPhotoUrl })
+              .where(eq(users.id, newUser.id));
+          }
+        }
 
         // Log new user creation with OAuth pre-population data
         await audit.logDataChange(
