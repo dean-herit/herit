@@ -315,14 +315,20 @@ export function SharedPersonalInfoForm({
               Profile Photo {mode === "beneficiary" ? "(Optional)" : ""}
             </label>
             <div className="flex-1 mx-8 mb-6 mt-4">
-              <SharedPhotoUpload
-                data-testid="SharedPhotoUpload-ogos1i4pk"
-                hasExistingPhoto={!!initialPhotoUrl}
-                mode={mode}
-                name={watch("name") || ""}
-                value=""
-                onChange={() => {}}
-                onMarkForDeletion={setIsPhotoMarkedForDeletion}
+              <Controller
+                control={control}
+                name="photo_url"
+                render={({ field }) => (
+                  <SharedPhotoUpload
+                    data-testid="SharedPhotoUpload-ogos1i4pk"
+                    hasExistingPhoto={!!initialPhotoUrl}
+                    mode={mode}
+                    name={watch("name") || ""}
+                    value={field.value || initialPhotoUrl || ""}
+                    onChange={field.onChange}
+                    onMarkForDeletion={setIsPhotoMarkedForDeletion}
+                  />
+                )}
               />
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@heroui/react";
+import { useEffect } from "react";
 
 import { SharedPersonalInfoForm } from "./SharedPersonalInfoForm";
 
@@ -53,9 +54,22 @@ export function SharedPersonalInfoFormProvider({
     resolver: zodResolver(schema),
     defaultValues: {
       country: "Ireland",
+      ...initialData, // Merge initialData with default values
     } as any, // Use any to handle the dynamic schema types
     mode: "onBlur",
   });
+
+  // Reset form when initialData changes (for OAuth pre-population)
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      console.log("SharedPersonalInfoFormProvider: Resetting form with initialData:", initialData);
+      console.log("SharedPersonalInfoFormProvider: Mode:", mode, "OAuth?", isFromOAuth);
+      methods.reset({
+        country: "Ireland",
+        ...initialData,
+      });
+    }
+  }, [initialData, methods]);
 
   const handleSubmit = methods.handleSubmit(async (data) => {
     try {
