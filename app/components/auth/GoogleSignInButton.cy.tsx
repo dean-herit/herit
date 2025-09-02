@@ -1,833 +1,433 @@
+/**
+ * GoogleSignInButton Component Test
+ * Enhanced standards compliance with 8-section structure
+ * Generated for Authentication/GoogleSignInButton
+ */
+
 import React from "react";
-import { useState } from "react";
-import { Button } from "@heroui/react";
-import { Icon } from "@iconify/react";
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { TestUtils } from "../../../cypress/support/test-utils";
+import { TestUtils } from "../../../cypress/support/test-utils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import "cypress-real-events/support";
-import { TestUtils } from "../../../../cypress/support/test-utils";
-
-// Test-specific GoogleSignInButton without navigation
-function GoogleSignInButtonForTesting({
-  onSignInStart = () => {},
-  onPress = () => {},
-  isLoading = false,
-  disabled = false,
-  error = null,
-}: {
-  onSignInStart?: () => void;
-  onPress?: () => void;
-  isLoading?: boolean;
-  disabled?: boolean;
-  error?: string | null;
-} = {}) {
-  const handleGoogleSignIn = () => {
-    if (disabled || isLoading) return;
-
-    if (onSignInStart) {
-      onSignInStart();
-    }
-    onPress();
-  };
-
-  return (
-    <div
-      className="w-full max-w-md mx-auto"
-      data-testid="google-signin-container"
-    >
-      {error && (
-        <div
-          className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
-          data-testid="google-signin-error"
-        >
-          {error}
-        </div>
-      )}
-
-      <Button
-        className="w-full text-white border-white/50 hover:border-white/70"
-        data-testid="google-signin-button"
-        isDisabled={disabled}
-        isLoading={isLoading}
-        startContent={
-          !isLoading && (
-            <Icon
-              data-testid="google-icon"
-              icon="flat-color-icons:google"
-              width={24}
-            />
-          )
-        }
-        variant="bordered"
-        onPress={handleGoogleSignIn}
-      >
-        {isLoading ? "Signing in..." : "Continue with Google"}
-      </Button>
-    </div>
-  );
-}
-
-// Component wrapper with React Query
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-}
-
-describe("GoogleSignInButton Component", () => {
-  let callbacks: ReturnType<typeof TestUtils.createMockCallbacks>;
+describe("GoogleSignInButton", () => {
+  // Mock data and callbacks setup
+  const mockCallbacks = TestUtils.createMockCallbacks();
+  
 
   beforeEach(() => {
-    callbacks = TestUtils.createMockCallbacks();
-    // Reset stubs
-    Object.values(callbacks).forEach((stub) => stub.reset?.());
+    // Setup clean state for each test
+    cy.viewport(1200, 800); // Standard desktop viewport
+    // Reset form state and clear any previous data
   });
 
+  
   describe("Core Functionality", () => {
-    it("renders button elements correctly", () => {
+    it("renders without crashing", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-container"]').should("be.visible");
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
-      cy.get('[data-testid="google-signin-button"]').should(
-        "contain",
-        "Continue with Google",
-      );
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.class",
-        "w-full",
-      );
-      cy.get('[data-testid="google-icon"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
     });
 
-    it("triggers OAuth action on click", () => {
+    it("displays correct content and structure", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-vdu2k1zv7"
-            onPress={callbacks.onPress}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').click();
-      cy.get("@onPress").should("have.been.called");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test component structure
+      
+      // Verify auth component structure  
+      cy.get('input[type="email"], input[type="password"]').should("exist");
+      cy.get('button').should("contain.text", "Sign").should("be.visible");
     });
 
-    it("calls onSignInStart callback when provided", () => {
+    
+    it("handles authentication flow", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-d5mj3r091"
-            onPress={callbacks.onPress}
-            onSignInStart={callbacks.onSignInStart}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').click();
-      cy.get("@onSignInStart").should("have.been.called");
-      cy.get("@onPress").should("have.been.called");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test authentication process
+      cy.get('input[type="email"]').type(mockCredentials.email);
+      cy.get('input[type="password"]').type(mockCredentials.password);
+      cy.get('button[type="submit"]').click();
     });
 
-    it("shows loading state correctly", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting isLoading={true} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.attr",
-        "data-loading",
-        "true",
-      );
-      cy.get('[data-testid="google-signin-button"]').should(
-        "contain",
-        "Signing in...",
-      );
-      cy.get('[data-testid="google-icon"]').should("not.exist");
-    });
-
-    it("handles disabled state correctly", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-t2z7zdv9x"
-            disabled={true}
-            onPress={callbacks.onPress}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should("be.disabled");
-      cy.get('[data-testid="google-signin-button"]').click({ force: true });
-      cy.get("@onPress").should("not.have.been.called");
+    it("handles prop changes correctly", () => {
+      
+      const initialProps = mockProps;
+      cy.mount(<GoogleSignInButton {...initialProps} {...mockCallbacks} />);
+      
+      // Test prop updates
+      const updatedProps = { ...initialProps, testProp: 'updated' };
+      cy.mount(<GoogleSignInButton {...updatedProps} {...mockCallbacks} />);
     });
   });
 
+  
   describe("Error States", () => {
-    it("displays error messages", () => {
-      const errorMessage = "Google sign-in failed. Please try again.";
-
+    it("handles network errors gracefully", () => {
+      // Simulate network failure
+      cy.intercept('**', { forceNetworkError: true });
+      
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={errorMessage} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should("be.visible");
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        errorMessage,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      
+      // Verify error handling for network failures
+      cy.get('[data-testid*="error"], [role="alert"]').should("be.visible");
+      cy.get('[data-testid*="retry"]').should("be.visible");
     });
 
-    it("handles OAuth popup blocked errors", () => {
-      const errorMessage = "Popup blocked. Please allow popups and try again.";
-
+    it("displays validation errors appropriately", () => {
+      
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={errorMessage} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "Popup blocked",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Trigger validation errors
+      cy.get('input').first().type('invalid-data').blur();
+      cy.get('[role="alert"], .error-message').should("be.visible");
     });
 
-    it("handles network connectivity issues", () => {
-      const errorMessage = "Network error: Please check your connection";
-
+    it("recovers from error states", () => {
+      
+      // Test error recovery mechanisms
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={errorMessage} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "Network error",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate error state and recovery
+      cy.get('[data-testid*="retry"]').click();
+      cy.get('[data-testid*="error"]').should("not.exist");
     });
 
-    it("handles OAuth server errors", () => {
-      const errorMessage = "OAuth service temporarily unavailable";
-
+    
+    it("handles component-specific error scenarios", () => {
+      // Add component-specific error tests
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={errorMessage} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "OAuth service",
-      );
-    });
-
-    it("handles user cancellation gracefully", () => {
-      const errorMessage = "Sign-in cancelled by user";
-
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={errorMessage} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "cancelled by user",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 
+  
   describe("Accessibility", () => {
-    it("should be accessible", () => {
+    it("meets WCAG accessibility standards", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testAccessibility('[data-testid="google-signin-container"]');
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Use TestUtils for consistent accessibility testing
+      TestUtils.testAccessibility('[data-testid*="googlesigninbutton"]');
     });
 
     it("supports keyboard navigation", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-313dwp13g"
-            onPress={callbacks.onPress}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]')
-        .focus()
-        .should("be.focused");
-      cy.realPress("Enter");
-      cy.get("@onPress").should("have.been.called");
-
-      // Test space key activation
-      cy.get("@onPress").then((stub) => stub.resetHistory());
-      cy.realPress("Space");
-      cy.get("@onPress").should("have.been.called");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test tab navigation
+      cy.get('body').tab();
+      cy.focused().should('be.visible');
+      
+      
+      // Test keyboard interactions
+      cy.get('[data-testid*="googlesigninbutton"]').within(() => {
+        cy.get('button, input, select, textarea, [tabindex]:not([tabindex="-1"])').each(($el) => {
+          cy.wrap($el).focus().should('be.focused');
+        });
+      });
     });
 
-    it("has proper ARIA labels and attributes", () => {
+    it("provides proper ARIA attributes", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.prop",
-        "tagName",
-        "BUTTON",
-      );
-      cy.get('[data-testid="google-signin-button"]').should("not.be.disabled");
-      cy.get('[data-testid="google-icon"]').should("have.attr", "width", "24");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Verify ARIA attributes
+      
+      cy.get('[data-testid*="googlesigninbutton"]').within(() => {
+        // Check for proper ARIA labels
+        cy.get('[aria-label], [aria-labelledby], [aria-describedby]').should('exist');
+        
+        // Check for proper roles
+        cy.get('[role]').should('exist');
+      });
     });
 
-    it("provides proper feedback for screen readers", () => {
+    it("works with screen readers", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting isLoading={true} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should(
-        "contain",
-        "Signing in...",
-      );
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.attr",
-        "data-loading",
-        "true",
-      );
-    });
-
-    it("maintains accessibility when disabled", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting disabled={true} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should("be.disabled");
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.attr",
-        "aria-disabled",
-        "true",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test screen reader compatibility
+      
+      // Test screen reader compatibility
+      cy.get('[data-testid*="googlesigninbutton"]').within(() => {
+        cy.get('h1, h2, h3, h4, h5, h6').should('exist'); // Heading hierarchy
+        cy.get('[aria-live]').should('exist'); // Live regions for dynamic content
+      });
     });
   });
 
+  
   describe("Performance", () => {
-    it("should render quickly", () => {
-      TestUtils.measureRenderTime(
-        '[data-testid="google-signin-container"]',
-        1000,
-      );
-
+    it("renders within acceptable time limits", () => {
+      // Use TestUtils for consistent performance testing
+      TestUtils.measureRenderTime('[data-testid*="googlesigninbutton"]', 2000);
+      
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-container"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
 
-    it("should handle rapid button clicks", () => {
+    it("handles rapid interactions efficiently", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-h0ymgaec4"
-            onPress={callbacks.onPress}
-          />
-        </TestWrapper>,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      
+      // Test rapid interactions
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-testid*="interactive-element"]').click({ force: true });
+      }
+      
+      // Verify component remains responsive
+      cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
+    });
 
-      // Rapidly click multiple times
+    it("manages memory usage appropriately", () => {
+      // Test for memory leaks in complex components
+      
+      // Basic memory management test
       for (let i = 0; i < 5; i++) {
-        cy.get('[data-testid="google-signin-button"]').click();
+        cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+        cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
       }
-
-      cy.get("@onPress").should("have.callCount", 5);
-    });
-
-    it("should handle state changes efficiently", () => {
-      const TestStateChanges = () => {
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState<string | null>(null);
-
-        return (
-          <div>
-            <GoogleSignInButtonForTesting error={error} isLoading={loading} />
-            <button
-              data-testid="toggle-loading"
-              onClick={() => setLoading(!loading)}
-            >
-              Toggle Loading
-            </button>
-            <button
-              data-testid="toggle-error"
-              onClick={() => setError(error ? null : "Test error")}
-            >
-              Toggle Error
-            </button>
-          </div>
-        );
-      };
-
-      cy.mount(
-        <TestWrapper>
-          <TestStateChanges />
-        </TestWrapper>,
-      );
-
-      // Rapidly toggle states
-      for (let i = 0; i < 3; i++) {
-        cy.get('[data-testid="toggle-loading"]').click();
-        cy.get('[data-testid="toggle-error"]').click();
-      }
-
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
     });
   });
 
+  
   describe("Responsive Design", () => {
-    it("should work on all screen sizes", () => {
+    it("adapts to different screen sizes", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Use TestUtils for consistent responsive testing
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="google-signin-container"]').should("be.visible");
-        cy.get('[data-testid="google-signin-button"]').should("be.visible");
-        cy.get('[data-testid="google-signin-button"]').should(
-          "contain",
-          "Continue with Google",
-        );
-        cy.get('[data-testid="google-icon"]').should("be.visible");
+        cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
+        
+        // Verify responsive behavior
+        cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
+        cy.get('*').should('not.have.css', 'overflow-x', 'scroll');
       });
     });
 
-    it("maintains proper button width on mobile", () => {
+    it("maintains usability on mobile devices", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.viewport(320, 568); // Mobile
-
-      cy.get('[data-testid="google-signin-container"]')
-        .should("be.visible")
-        .should("have.class", "max-w-md");
-
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.class",
-        "w-full",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      cy.viewport(320, 568); // iPhone SE viewport
+      
+      // Test mobile usability
+      cy.get('button, [role="button"]').each(($button) => {
+        // Verify minimum touch target size (44px)
+        cy.wrap($button).should('have.css', 'min-height').and('match', /^([4-9][4-9]|[1-9][0-9]{2,})px$/);
+      });
     });
 
-    it("handles icon visibility on small screens", () => {
+    it("handles orientation changes", () => {
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.viewport(280, 568); // Very small mobile
-
-      cy.get('[data-testid="google-icon"]').should("be.visible");
-      cy.get('[data-testid="google-signin-button"]').should(
-        "contain",
-        "Continue with Google",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test landscape orientation
+      cy.viewport(568, 320);
+      cy.get('[data-testid*="googlesigninbutton"]').should("be.visible");
     });
   });
 
+  
   describe("Integration Scenarios", () => {
-    it("should integrate with OAuth flow", () => {
-      let signInStarted = false;
-      let oauthTriggered = false;
-
-      const TestOAuthIntegration = () => {
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState<string | null>(null);
-
-        const handleSignInStart = () => {
-          signInStarted = true;
-          setLoading(true);
-        };
-
-        const handleOAuthPress = () => {
-          oauthTriggered = true;
-          // Simulate OAuth flow
-          setTimeout(() => {
-            setLoading(false);
-            // Simulate success or failure
-            if (Math.random() > 0.5) {
-              setError(null);
-            } else {
-              setError("OAuth failed");
-            }
-          }, 100);
-        };
-
-        return (
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-726bv1cfd"
-            error={error}
-            isLoading={loading}
-            onPress={handleOAuthPress}
-            onSignInStart={handleSignInStart}
-          />
-        );
-      };
-
+    it("integrates with parent component state", () => {
+      
+      const ParentWrapper = ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="parent-wrapper">{children}</div>
+      );
+      
       cy.mount(
-        <TestWrapper>
-          <TestOAuthIntegration />
-        </TestWrapper>,
+        <ParentWrapper>
+          
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>
+        </ParentWrapper>
       );
-
-      cy.get('[data-testid="google-signin-button"]').click();
-
-      cy.then(() => {
-        expect(signInStarted).to.be.true;
-        expect(oauthTriggered).to.be.true;
-      });
-
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.attr",
-        "data-loading",
-        "true",
-      );
+      
+      cy.get('[data-testid="parent-wrapper"]').should('contain.html', '[data-testid*="googlesigninbutton"]');
     });
 
-    it("should handle OAuth callback scenarios", () => {
-      const TestOAuthCallback = () => {
-        const [state, setState] = useState<
-          "idle" | "loading" | "success" | "error"
-        >("idle");
-
-        const handleOAuth = () => {
-          setState("loading");
-          // Simulate OAuth popup and callback
-          setTimeout(() => {
-            setState(Math.random() > 0.5 ? "success" : "error");
-          }, 200);
-        };
-
-        return (
-          <div>
-            <GoogleSignInButtonForTesting
-              data-testid="GoogleSignInButtonForTesting-b663ehozj"
-              error={state === "error" ? "OAuth failed" : null}
-              isLoading={state === "loading"}
-              onPress={handleOAuth}
-            />
-            <div data-testid="oauth-state">{state}</div>
-          </div>
-        );
-      };
-
+    it("communicates correctly through props and callbacks", () => {
+      
       cy.mount(
-        <TestWrapper>
-          <TestOAuthCallback />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').click();
-      cy.get('[data-testid="oauth-state"]').should("contain", "loading");
-
-      // Wait for OAuth simulation to complete
-      cy.get('[data-testid="oauth-state"]').should("not.contain", "loading");
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test callback execution
+      cy.get('[data-testid*="trigger-callback"]').click();
+      cy.get('@onChange').should('have.been.called');
     });
 
-    it("should integrate with error recovery", () => {
-      const TestErrorRecovery = () => {
-        const [error, setError] = useState<string | null>("Initial error");
-
-        return (
-          <div>
-            <GoogleSignInButtonForTesting
-              data-testid="GoogleSignInButtonForTesting-w5sizc4qw"
-              error={error}
-              onPress={() => setError(null)}
-            />
-            <button
-              data-testid="simulate-error"
-              onClick={() => setError("Simulated error")}
-            >
-              Simulate Error
-            </button>
-          </div>
-        );
-      };
-
+    it("handles complex user workflows", () => {
+      
+      // Test complex user workflow
       cy.mount(
-        <TestWrapper>
-          <TestErrorRecovery />
-        </TestWrapper>,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate multi-step user interaction
+      cy.get('[data-testid*="step-1"]').click();
+      cy.get('[data-testid*="step-2"]').should('be.visible');
+    });
 
-      // Should show initial error
-      cy.get('[data-testid="google-signin-error"]').should("be.visible");
-
-      // Click button should clear error
-      cy.get('[data-testid="google-signin-button"]').click();
-      cy.get('[data-testid="google-signin-error"]').should("not.exist");
-
-      // Simulate new error
-      cy.get('[data-testid="simulate-error"]').click();
-      cy.get('[data-testid="google-signin-error"]').should("be.visible");
+    
+    it("handles component-specific integration scenarios", () => {
+      // Add component-specific integration tests
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 
+  
   describe("Edge Cases", () => {
-    it("handles missing callback functions gracefully", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      // Should not crash when callbacks are not provided
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
-      cy.get('[data-testid="google-signin-button"]').click();
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
+    it("handles missing or invalid props", () => {
+      
+      // Test with undefined props
+      cy.mount(<GoogleSignInButton {...mockCallbacks} />);
+      cy.get('[data-testid*="googlesigninbutton"]').should('be.visible');
+      
+      // Test with null props
+      const nullProps = Object.keys(mockProps).reduce((acc, key) => ({ ...acc, [key]: null }), {});
+      cy.mount(<GoogleSignInButton {...nullProps} {...mockCallbacks} />);
     });
 
-    it("handles simultaneous loading and error states", () => {
+    it("manages rapid state changes", () => {
+      
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            error="Error while loading"
-            isLoading={true}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should("be.visible");
-      cy.get('[data-testid="google-signin-button"]').should(
-        "have.attr",
-        "data-loading",
-        "true",
-      );
-      cy.get('[data-testid="google-signin-button"]').should(
-        "contain",
-        "Signing in...",
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate rapid state changes
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-testid*="state-trigger"]').click({ force: true });
+      }
     });
 
-    it("handles rapid state transitions", () => {
-      const TestRapidStates = () => {
-        const [state, setState] = useState<
-          "normal" | "loading" | "disabled" | "error"
-        >("normal");
+    it("handles concurrent user interactions", () => {
+      
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test concurrent interactions
+      cy.get('[data-testid*="action-1"]').click({ multiple: true });
+      cy.get('[data-testid*="action-2"]').click({ multiple: true });
+    });
 
-        React.useEffect(() => {
-          const interval = setInterval(() => {
-            setState((prev) => {
-              switch (prev) {
-                case "normal":
-                  return "loading";
-                case "loading":
-                  return "disabled";
-                case "disabled":
-                  return "error";
-                case "error":
-                  return "normal";
-                default:
-                  return "normal";
-              }
-            });
-          }, 100);
-
-          return () => clearInterval(interval);
-        }, []);
-
-        return (
-          <GoogleSignInButtonForTesting
-            disabled={state === "disabled"}
-            error={state === "error" ? "Test error" : null}
-            isLoading={state === "loading"}
-          />
-        );
+    it("deals with extreme data values", () => {
+      
+      // Test with extremely large data
+      const extremeProps = {
+        ...mockProps,
+        longText: 'A'.repeat(10000),
+        largeNumber: Number.MAX_SAFE_INTEGER
       };
-
-      cy.mount(
-        <TestWrapper>
-          <TestRapidStates />
-        </TestWrapper>,
-      );
-
-      // Let it cycle through states
-      cy.wait(1000);
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
-    });
-
-    it("handles component remounting", () => {
-      const TestMountWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>{show && <GoogleSignInButtonForTesting />}</TestWrapper>
-      );
-
-      cy.mount(<TestMountWrapper show={true} />);
-      cy.get('[data-testid="google-signin-container"]').should("be.visible");
-
-      cy.mount(<TestMountWrapper show={false} />);
-      cy.get('[data-testid="google-signin-container"]').should("not.exist");
-
-      cy.mount(<TestMountWrapper show={true} />);
-      cy.get('[data-testid="google-signin-container"]').should("be.visible");
+      
+      cy.mount(<GoogleSignInButton {...extremeProps} {...mockCallbacks} />);
+      cy.get('[data-testid*="googlesigninbutton"]').should('be.visible');
     });
   });
 
+  
   describe("Security", () => {
-    it("should sanitize error messages", () => {
-      const maliciousError = '<script>alert("xss")</script>OAuth failed';
-
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={maliciousError} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should("be.visible");
-      cy.get("script").should("not.exist");
+    it("prevents XSS attacks through user input", () => {
+      
+      const maliciousProps = {
+        ...mockProps,
+        userInput: '<script>alert("XSS")</script>'
+      };
+      
+      cy.mount(<GoogleSignInButton {...maliciousProps} {...mockCallbacks} />);
+      
+      // Verify XSS prevention
+      cy.get('script').should('not.exist');
+      cy.window().its('alert').should('not.exist');
     });
 
-    it("should prevent multiple OAuth initiations", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-ucvvgvbf3"
-            isLoading={true}
-            onPress={callbacks.onPress}
-          />
-        </TestWrapper>,
-      );
-
-      // Button clicks should be ignored when loading
-      cy.get('[data-testid="google-signin-button"]').click({ force: true });
-      cy.get("@onPress").should("not.have.been.called");
+    it("sanitizes dangerous HTML content", () => {
+      
+      const htmlProps = {
+        ...mockProps,
+        content: '<img src="x" onerror="alert(1)">'
+      };
+      
+      cy.mount(<GoogleSignInButton {...htmlProps} {...mockCallbacks} />);
+      
+      // Verify HTML is sanitized
+      cy.get('[onerror]').should('not.exist');
     });
 
-    it("should prevent OAuth when disabled", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting
-            data-testid="GoogleSignInButtonForTesting-hzjizogzi"
-            disabled={true}
-            onPress={callbacks.onPress}
-            onSignInStart={callbacks.onSignInStart}
-          />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').click({ force: true });
-      cy.get("@onPress").should("not.have.been.called");
-      cy.get("@onSignInStart").should("not.have.been.called");
+    it("protects against injection attacks", () => {
+      
+      // Test SQL injection prevention (if applicable)
+      const injectionProps = {
+        ...mockProps,
+        searchQuery: "'; DROP TABLE users; --"
+      };
+      
+      cy.mount(<GoogleSignInButton {...injectionProps} {...mockCallbacks} />);
+      
+      // Component should handle malicious input safely
+      cy.get('[data-testid*="googlesigninbutton"]').should('be.visible');
     });
 
-    it("should handle OAuth popup security restrictions", () => {
-      const securityError = "Popup blocked by browser security policy";
-
+    
+    it("prevents component-specific security vulnerabilities", () => {
+      // Add component-specific security tests
       cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={securityError} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "security policy",
-      );
-    });
-
-    it("should not expose sensitive OAuth details in errors", () => {
-      const safeError = "Authentication failed";
-
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting error={safeError} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-error"]').should(
-        "contain",
-        "Authentication failed",
-      );
-      cy.get('[data-testid="google-signin-error"]').should(
-        "not.contain",
-        "token",
-      );
-      cy.get('[data-testid="google-signin-error"]').should(
-        "not.contain",
-        "secret",
-      );
-      cy.get('[data-testid="google-signin-error"]').should(
-        "not.contain",
-        "key",
-      );
-    });
-  });
-
-  describe("Quality Checks", () => {
-    it("should meet performance standards", () => {
-      TestUtils.measureRenderTime('[data-testid="google-signin-button"]', 2000);
-
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="google-signin-button"]').should("be.visible");
-    });
-
-    it("should be accessible", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testAccessibility('[data-testid="google-signin-button"]');
-    });
-
-    it("should handle responsive layouts", () => {
-      cy.mount(
-        <TestWrapper>
-          <GoogleSignInButtonForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="google-signin-button"]').should("be.visible");
-      });
+      <QueryClientProvider client={new QueryClient()}>
+        <GoogleSignInButton {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 });

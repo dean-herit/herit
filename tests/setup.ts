@@ -42,5 +42,8 @@ vi.mock("next/image", () => ({
   },
 }));
 
+// Backend API test setup for comprehensive API route testing
+import './vitest-setup';
+
 // Mock environment variables
 // These are set in vitest.config.ts instead

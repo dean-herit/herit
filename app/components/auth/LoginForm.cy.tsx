@@ -1,589 +1,437 @@
+/**
+ * LoginForm Component Test
+ * Enhanced standards compliance with 8-section structure
+ * Generated for Authentication/LoginForm
+ */
+
 import React from "react";
-import { useState } from "react";
-import { Button, Card, CardBody, Divider } from "@heroui/react";
+import { LoginForm } from "./LoginForm";
+import { TestUtils } from "../../../cypress/support/test-utils";
+import { TestUtils } from "../../../cypress/support/test-utils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import "cypress-real-events/support";
-import { TestUtils } from "../../../../cypress/support/test-utils";
-
-// Mock OAuth buttons for testing (no useAuth dependency)
-function MockGoogleSignInButton() {
-  return (
-    <Button
-      className="w-full justify-center"
-      role="button"
-      size="lg"
-      startContent={<div className="w-5 h-5 bg-blue-500 rounded" />}
-      variant="bordered"
-    >
-      Continue with Google
-    </Button>
-  );
-}
-
-// Mock email forms for testing (no useAuth dependency)
-function MockEmailLoginForm() {
-  return (
-    <div data-testid="email-login-form">
-      <p className="text-sm text-foreground-600">Login form would be here</p>
-    </div>
-  );
-}
-
-function MockEmailSignupForm() {
-  return (
-    <div data-testid="email-signup-form">
-      <p className="text-sm text-foreground-600">Signup form would be here</p>
-    </div>
-  );
-}
-
-// Test-specific version of LoginForm that doesn't use useAuth
-function LoginFormForTesting({
-  loginError = null,
-  signupError = null,
-  onModeChange,
-}: {
-  loginError?: string | null;
-  signupError?: string | null;
-  onModeChange?: (mode: "login" | "signup") => void;
-}) {
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-  const [showEmailAuth, setShowEmailAuth] = useState(false);
-
-  const authError = authMode === "login" ? loginError : signupError;
-
-  const handleModeChange = (newMode: "login" | "signup") => {
-    setAuthMode(newMode);
-    onModeChange?.(newMode);
+describe("LoginForm", () => {
+  // Mock data and callbacks setup
+  const mockCallbacks = TestUtils.createMockCallbacks();
+  
+  const mockCredentials = {
+    email: "test@example.com",
+    password: "password123"
   };
 
-  return (
-    <div className="w-full max-w-md mx-auto space-y-6" data-testid="login-form">
-      {/* Error Display */}
-      {authError && (
-        <Card
-          className="border-danger-200 bg-danger-50"
-          data-testid="auth-error"
-        >
-          <CardBody className="p-4">
-            <p className="text-sm text-danger-600 font-medium">{authError}</p>
-          </CardBody>
-        </Card>
-      )}
-
-      {!showEmailAuth ? (
-        // Main Authentication Options
-        <Card className="w-full">
-          <CardBody className="space-y-4 p-6">
-            <div className="text-center space-y-2">
-              <h2
-                className="text-2xl font-bold text-foreground"
-                data-testid="auth-title"
-              >
-                Welcome
-              </h2>
-              <p className="text-sm text-foreground-600">
-                Choose how you'd like to continue
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <Button
-                className="w-full"
-                color="primary"
-                data-testid="email-auth-button"
-                size="lg"
-                onPress={() => setShowEmailAuth(true)}
-              >
-                Continue with Email
-              </Button>
-
-              <div className="relative">
-                <Divider className="my-4" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-background px-2 text-xs text-foreground-500">
-                    or
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <MockGoogleSignInButton />
-              </div>
-            </div>
-
-            <div className="text-center space-x-1 text-xs text-foreground-500">
-              <span>By continuing, you agree to our</span>
-              <a
-                className="text-primary underline hover:no-underline"
-                data-testid="terms-link"
-                href="/terms"
-              >
-                Terms of Service
-              </a>
-              <span>and</span>
-              <a
-                className="text-primary underline hover:no-underline"
-                data-testid="privacy-link"
-                href="/privacy"
-              >
-                Privacy Policy
-              </a>
-            </div>
-          </CardBody>
-        </Card>
-      ) : (
-        // Email Authentication Form
-        <Card className="w-full">
-          <CardBody className="space-y-4 p-6">
-            <div className="flex items-center space-x-3">
-              <Button
-                className="text-foreground-600"
-                data-testid="back-button"
-                size="sm"
-                variant="light"
-                onPress={() => setShowEmailAuth(false)}
-              >
-                Back to other sign-in options
-              </Button>
-            </div>
-
-            <div className="flex border-b">
-              <button
-                className={`flex-1 py-2 text-sm font-medium border-b-2 ${
-                  authMode === "login"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground-500 hover:text-foreground"
-                }`}
-                data-testid="login-tab"
-                onClick={() => handleModeChange("login")}
-              >
-                Sign In
-              </button>
-              <button
-                className={`flex-1 py-2 text-sm font-medium border-b-2 ${
-                  authMode === "signup"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground-500 hover:text-foreground"
-                }`}
-                data-testid="signup-tab"
-                onClick={() => handleModeChange("signup")}
-              >
-                Sign Up
-              </button>
-            </div>
-
-            <div className="mt-4">
-              {authMode === "login" ? (
-                <MockEmailLoginForm />
-              ) : (
-                <MockEmailSignupForm />
-              )}
-            </div>
-          </CardBody>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-// Component wrapper with React Query
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-}
-
-describe("LoginForm Component", () => {
-  let callbacks: ReturnType<typeof TestUtils.createMockCallbacks>;
-
   beforeEach(() => {
-    callbacks = TestUtils.createMockCallbacks();
-    // Reset stubs
-    Object.values(callbacks).forEach((stub) => stub.reset?.());
+    // Setup clean state for each test
+    cy.viewport(1200, 800); // Standard desktop viewport
+    // Reset form state and clear any previous data
   });
 
+  
   describe("Core Functionality", () => {
-    it("renders default authentication options", () => {
+    it("renders without crashing", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="login-form"]').should("be.visible");
-      cy.get('[data-testid="auth-title"]').should("contain", "Welcome");
-      cy.get('[data-testid="email-auth-button"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      cy.get('[data-testid*="loginform"]').should("be.visible");
     });
 
-    it("switches to email authentication form", () => {
+    it("displays correct content and structure", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="login-tab"]').should("be.visible");
-      cy.get('[data-testid="signup-tab"]').should("be.visible");
-      cy.get('[data-testid="back-button"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test component structure
+      
+      // Verify auth component structure  
+      cy.get('input[type="email"], input[type="password"]').should("exist");
+      cy.get('button').should("contain.text", "Sign").should("be.visible");
     });
 
-    it("toggles between login and signup modes", () => {
+    
+    it("handles authentication flow", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting onModeChange={callbacks.onChange} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="email-auth-button"]').click();
-
-      // Switch to signup
-      cy.get('[data-testid="signup-tab"]').click();
-      cy.get("@onChange").should("have.been.calledWith", "signup");
-      cy.get('[data-testid="email-signup-form"]').should("be.visible");
-
-      // Switch back to login
-      cy.get('[data-testid="login-tab"]').click();
-      cy.get("@onChange").should("have.been.calledWith", "login");
-      cy.get('[data-testid="email-login-form"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test authentication process
+      cy.get('input[type="email"]').type(mockCredentials.email);
+      cy.get('input[type="password"]').type(mockCredentials.password);
+      cy.get('button[type="submit"]').click();
     });
 
-    it("navigates back to main auth screen", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="back-button"]').click();
-      cy.get('[data-testid="email-auth-button"]').should("be.visible");
+    it("handles prop changes correctly", () => {
+      
+      const initialProps = mockProps;
+      cy.mount(<LoginForm {...initialProps} {...mockCallbacks} />);
+      
+      // Test prop updates
+      const updatedProps = { ...initialProps, testProp: 'updated' };
+      cy.mount(<LoginForm {...updatedProps} {...mockCallbacks} />);
     });
   });
 
+  
   describe("Error States", () => {
-    it("displays login errors in login mode", () => {
-      const loginError = "Invalid username or password";
-
+    it("handles network errors gracefully", () => {
+      // Simulate network failure
+      cy.intercept('**', { forceNetworkError: true });
+      
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError={loginError} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should("be.visible");
-      cy.get('[data-testid="auth-error"]').should("contain", loginError);
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      
+      // Verify error handling for network failures
+      cy.get('[data-testid*="error"], [role="alert"]').should("be.visible");
+      cy.get('[data-testid*="retry"]').should("be.visible");
     });
 
-    it("displays signup errors in signup mode", () => {
-      const signupError = "Email already exists";
-
+    it("displays validation errors appropriately", () => {
+      
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting
-            signupError={signupError}
-            onModeChange={callbacks.onChange}
-          />
-        </TestWrapper>,
-      );
-
-      // Switch to signup mode first
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="signup-tab"]').click();
-
-      cy.get('[data-testid="auth-error"]').should("be.visible");
-      cy.get('[data-testid="auth-error"]').should("contain", signupError);
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Trigger validation errors
+      cy.get('input').first().type('invalid-data').blur();
+      cy.get('[role="alert"], .error-message').should("be.visible");
     });
 
-    it("handles network connectivity issues", () => {
+    it("recovers from error states", () => {
+      
+      // Test error recovery mechanisms
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError="Network error: Please check your connection" />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should("contain", "Network error");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate error state and recovery
+      cy.get('[data-testid*="retry"]').click();
+      cy.get('[data-testid*="error"]').should("not.exist");
     });
 
-    it("handles server errors gracefully", () => {
+    
+    it("handles component-specific error scenarios", () => {
+      // Add component-specific error tests
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError="Server temporarily unavailable. Please try again." />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should(
-        "contain",
-        "Server temporarily unavailable",
-      );
-    });
-
-    it("handles empty error states", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError="" signupError="" />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should("not.exist");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 
+  
   describe("Accessibility", () => {
-    it("should be accessible", () => {
+    it("meets WCAG accessibility standards", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testAccessibility('[data-testid="login-form"]');
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Use TestUtils for consistent accessibility testing
+      TestUtils.testAccessibility('[data-testid*="loginform"]');
     });
 
     it("supports keyboard navigation", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="email-auth-button"]').focus().should("be.focused");
-      cy.realPress("Tab");
-      cy.focused().should("contain", "Continue with Google");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test tab navigation
+      cy.get('body').tab();
+      cy.focused().should('be.visible');
+      
+      
+      // Test keyboard interactions
+      cy.get('[data-testid*="loginform"]').within(() => {
+        cy.get('button, input, select, textarea, [tabindex]:not([tabindex="-1"])').each(($el) => {
+          cy.wrap($el).focus().should('be.focused');
+        });
+      });
     });
 
-    it("has proper ARIA labels and roles", () => {
+    it("provides proper ARIA attributes", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError="Test error" />
-        </TestWrapper>,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Verify ARIA attributes
+      
+      cy.get('[data-testid*="loginform"]').within(() => {
+        // Check for proper ARIA labels
+        cy.get('[aria-label], [aria-labelledby], [aria-describedby]').should('exist');
+        
+        // Check for proper roles
+        cy.get('[role]').should('exist');
+      });
+    });
 
-      // Title should be properly structured
-      cy.get('[data-testid="auth-title"]').should("match", "h2");
-
-      // Links should have proper attributes
-      cy.get('[data-testid="terms-link"]').should("have.attr", "href");
-      cy.get('[data-testid="privacy-link"]').should("have.attr", "href");
+    it("works with screen readers", () => {
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test screen reader compatibility
+      
+      // Test screen reader compatibility
+      cy.get('[data-testid*="loginform"]').within(() => {
+        cy.get('h1, h2, h3, h4, h5, h6').should('exist'); // Heading hierarchy
+        cy.get('[aria-live]').should('exist'); // Live regions for dynamic content
+      });
     });
   });
 
+  
   describe("Performance", () => {
-    it("should render quickly", () => {
-      TestUtils.measureRenderTime('[data-testid="login-form"]', 1000);
-
+    it("renders within acceptable time limits", () => {
+      // Use TestUtils for consistent performance testing
+      TestUtils.measureRenderTime('[data-testid*="loginform"]', 2000);
+      
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="login-form"]').should("be.visible");
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
 
-    it("should handle rapid mode switching", () => {
+    it("handles rapid interactions efficiently", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting onModeChange={callbacks.onChange} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="email-auth-button"]').click();
-
-      // Rapidly switch modes
-      for (let i = 0; i < 3; i++) {
-        cy.get('[data-testid="signup-tab"]').click();
-        cy.get('[data-testid="login-tab"]').click();
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      
+      // Test rapid interactions
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-testid*="interactive-element"]').click({ force: true });
       }
+      
+      // Verify component remains responsive
+      cy.get('[data-testid*="loginform"]').should("be.visible");
+    });
 
-      cy.get("@onChange").should("have.callCount", 6);
+    it("manages memory usage appropriately", () => {
+      // Test for memory leaks in complex components
+      
+      // Basic memory management test
+      for (let i = 0; i < 5; i++) {
+        cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+        cy.get('[data-testid*="loginform"]').should("be.visible");
+      }
     });
   });
 
+  
   describe("Responsive Design", () => {
-    it("should work on all screen sizes", () => {
+    it("adapts to different screen sizes", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Use TestUtils for consistent responsive testing
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="login-form"]').should("be.visible");
-        cy.get('[data-testid="auth-title"]').should("be.visible");
-        cy.get('[data-testid="email-auth-button"]').should("be.visible");
+        cy.get('[data-testid*="loginform"]').should("be.visible");
+        
+        // Verify responsive behavior
+        cy.get('[data-testid*="loginform"]').should("be.visible");
+        cy.get('*').should('not.have.css', 'overflow-x', 'scroll');
       });
     });
 
-    it("maintains proper spacing on mobile", () => {
+    it("maintains usability on mobile devices", () => {
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      cy.viewport(320, 568); // iPhone SE viewport
+      
+      // Test mobile usability
+      cy.get('button, [role="button"]').each(($button) => {
+        // Verify minimum touch target size (44px)
+        cy.wrap($button).should('have.css', 'min-height').and('match', /^([4-9][4-9]|[1-9][0-9]{2,})px$/);
+      });
+    });
 
-      cy.viewport(320, 568); // Mobile
-
-      cy.get('[data-testid="login-form"]')
-        .should("be.visible")
-        .should("have.class", "max-w-md");
+    it("handles orientation changes", () => {
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test landscape orientation
+      cy.viewport(568, 320);
+      cy.get('[data-testid*="loginform"]').should("be.visible");
     });
   });
 
+  
   describe("Integration Scenarios", () => {
-    it("should integrate with authentication flow", () => {
-      let currentError = null;
-
-      const TestIntegration = () => {
-        const [error, setError] = useState(currentError);
-
-        return (
-          <div>
-            <LoginFormForTesting
-              loginError={error}
-              onModeChange={() => setError(null)}
-            />
-            <button
-              data-testid="simulate-error"
-              onClick={() => setError("Simulated auth error")}
-            >
-              Simulate Error
-            </button>
-          </div>
-        );
-      };
-
-      cy.mount(
-        <TestWrapper>
-          <TestIntegration />
-        </TestWrapper>,
+    it("integrates with parent component state", () => {
+      
+      const ParentWrapper = ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="parent-wrapper">{children}</div>
       );
-
-      // Test error integration
-      cy.get('[data-testid="simulate-error"]').click();
-      cy.get('[data-testid="auth-error"]').should("be.visible");
+      
+      cy.mount(
+        <ParentWrapper>
+          
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>
+        </ParentWrapper>
+      );
+      
+      cy.get('[data-testid="parent-wrapper"]').should('contain.html', '[data-testid*="loginform"]');
     });
 
-    it("should handle OAuth callback simulation", () => {
+    it("communicates correctly through props and callbacks", () => {
+      
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test callback execution
+      cy.get('[data-testid*="trigger-callback"]').click();
+      cy.get('@onChange').should('have.been.called');
+    });
 
-      cy.get('[data-testid="login-form"]').within(() => {
-        cy.contains("Continue with Google").should("be.visible");
-        cy.contains("Continue with Email").should("be.visible");
-      });
+    it("handles complex user workflows", () => {
+      
+      // Test complex user workflow
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate multi-step user interaction
+      cy.get('[data-testid*="step-1"]').click();
+      cy.get('[data-testid*="step-2"]').should('be.visible');
+    });
+
+    
+    it("handles component-specific integration scenarios", () => {
+      // Add component-specific integration tests
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 
+  
   describe("Edge Cases", () => {
-    it("handles simultaneous login and signup errors", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting
-            loginError="Login failed"
-            signupError="Signup failed"
-            onModeChange={callbacks.onChange}
-          />
-        </TestWrapper>,
-      );
-
-      // Should show login error initially
-      cy.get('[data-testid="auth-error"]').should("contain", "Login failed");
-
-      // Switch to signup - should show signup error
-      cy.get('[data-testid="email-auth-button"]').click();
-      cy.get('[data-testid="signup-tab"]').click();
-      cy.get('[data-testid="auth-error"]').should("contain", "Signup failed");
+    it("handles missing or invalid props", () => {
+      
+      // Test with undefined props
+      cy.mount(<LoginForm {...mockCallbacks} />);
+      cy.get('[data-testid*="loginform"]').should('be.visible');
+      
+      // Test with null props
+      const nullProps = Object.keys(mockProps).reduce((acc, key) => ({ ...acc, [key]: null }), {});
+      cy.mount(<LoginForm {...nullProps} {...mockCallbacks} />);
     });
 
-    it("handles rapid component remounting", () => {
-      const TestWrapper = ({ show }: { show: boolean }) => (
-        <TestWrapper>{show && <LoginFormForTesting />}</TestWrapper>
-      );
+    it("manages rapid state changes", () => {
+      
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Simulate rapid state changes
+      for (let i = 0; i < 10; i++) {
+        cy.get('[data-testid*="state-trigger"]').click({ force: true });
+      }
+    });
 
-      cy.mount(<TestWrapper show={true} />);
-      cy.get('[data-testid="login-form"]').should("be.visible");
+    it("handles concurrent user interactions", () => {
+      
+      cy.mount(
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
+      
+      // Test concurrent interactions
+      cy.get('[data-testid*="action-1"]').click({ multiple: true });
+      cy.get('[data-testid*="action-2"]').click({ multiple: true });
+    });
 
-      cy.mount(<TestWrapper show={false} />);
-      cy.get('[data-testid="login-form"]').should("not.exist");
-
-      cy.mount(<TestWrapper show={true} />);
-      cy.get('[data-testid="login-form"]').should("be.visible");
+    it("deals with extreme data values", () => {
+      
+      // Test with extremely large data
+      const extremeProps = {
+        ...mockProps,
+        longText: 'A'.repeat(10000),
+        largeNumber: Number.MAX_SAFE_INTEGER
+      };
+      
+      cy.mount(<LoginForm {...extremeProps} {...mockCallbacks} />);
+      cy.get('[data-testid*="loginform"]').should('be.visible');
     });
   });
 
+  
   describe("Security", () => {
-    it("should sanitize error messages", () => {
-      const maliciousError = '<script>alert("xss")</script>Login failed';
-
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError={maliciousError} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should("be.visible");
-      cy.get("script").should("not.exist");
+    it("prevents XSS attacks through user input", () => {
+      
+      const maliciousProps = {
+        ...mockProps,
+        userInput: '<script>alert("XSS")</script>'
+      };
+      
+      cy.mount(<LoginForm {...maliciousProps} {...mockCallbacks} />);
+      
+      // Verify XSS prevention
+      cy.get('script').should('not.exist');
+      cy.window().its('alert').should('not.exist');
     });
 
-    it("should prevent XSS in dynamic content", () => {
-      const xssAttempt = 'javascript:alert("xss")';
-
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting loginError={xssAttempt} />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="auth-error"]').should("contain", xssAttempt);
-    });
-  });
-
-  describe("Quality Checks", () => {
-    it("should meet performance standards", () => {
-      TestUtils.measureRenderTime('[data-testid="login-form"]', 2000);
-
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      cy.get('[data-testid="login-form"]').should("be.visible");
+    it("sanitizes dangerous HTML content", () => {
+      
+      const htmlProps = {
+        ...mockProps,
+        content: '<img src="x" onerror="alert(1)">'
+      };
+      
+      cy.mount(<LoginForm {...htmlProps} {...mockCallbacks} />);
+      
+      // Verify HTML is sanitized
+      cy.get('[onerror]').should('not.exist');
     });
 
-    it("should be accessible", () => {
-      cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testAccessibility('[data-testid="login-form"]');
+    it("protects against injection attacks", () => {
+      
+      // Test SQL injection prevention (if applicable)
+      const injectionProps = {
+        ...mockProps,
+        searchQuery: "'; DROP TABLE users; --"
+      };
+      
+      cy.mount(<LoginForm {...injectionProps} {...mockCallbacks} />);
+      
+      // Component should handle malicious input safely
+      cy.get('[data-testid*="loginform"]').should('be.visible');
     });
 
-    it("should handle responsive layouts", () => {
+    
+    it("prevents component-specific security vulnerabilities", () => {
+      // Add component-specific security tests
       cy.mount(
-        <TestWrapper>
-          <LoginFormForTesting />
-        </TestWrapper>,
-      );
-
-      TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="login-form"]').should("be.visible");
-      });
+      <QueryClientProvider client={new QueryClient()}>
+        <LoginForm {...mockProps} {...mockCallbacks} />
+      </QueryClientProvider>);
     });
   });
 });

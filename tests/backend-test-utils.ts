@@ -471,6 +471,59 @@ export function sanitizeForSnapshot(data: any): any {
 }
 
 // =============================================================================
+// AUTHENTICATION MOCKING
+// =============================================================================
+
+export interface MockSession {
+  user: User;
+  isAuthenticated: true;
+}
+
+export interface MockNoSession {
+  user: null;
+  isAuthenticated: false;
+  error?: string;
+}
+
+export type MockSessionResult = MockSession | MockNoSession;
+
+export function mockAuthenticatedSession(user?: Partial<User>): MockSession {
+  return {
+    user: createMockUser(user),
+    isAuthenticated: true,
+  };
+}
+
+export function mockUnauthenticatedSession(error = 'token_missing'): MockNoSession {
+  return {
+    user: null,
+    isAuthenticated: false,
+    error,
+  };
+}
+
+// Mock the Next.js auth functions
+export function mockAuth(sessionResult: MockSessionResult): void {
+  // Mock the getSession function from auth.ts
+  vi.doMock('@/app/lib/auth', async () => {
+    const actual = await vi.importActual('@/app/lib/auth');
+    return {
+      ...actual,
+      getSession: vi.fn().mockResolvedValue(sessionResult),
+    };
+  });
+
+  // Mock the cookies() function from Next.js
+  vi.doMock('next/headers', () => ({
+    cookies: vi.fn().mockImplementation(() => ({
+      get: vi.fn().mockReturnValue({ value: sessionResult.isAuthenticated ? 'mock-token' : undefined }),
+      set: vi.fn(),
+      delete: vi.fn(),
+    })),
+  }));
+}
+
+// =============================================================================
 // EXPORTED NAMESPACE
 // =============================================================================
 
@@ -490,6 +543,11 @@ export const BackendTestUtils = {
   createMockUser,
   createMockAsset,
   createMockBeneficiary,
+  
+  // Authentication
+  mockAuthenticatedSession,
+  mockUnauthenticatedSession,
+  mockAuth,
   
   // External Services
   mockStripeSuccess,
