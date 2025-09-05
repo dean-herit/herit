@@ -103,11 +103,10 @@ export function BeneficiaryList({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="beneficiary-list">
       <div className="flex flex-col sm:flex-row gap-4 items-end">
         <Input
           className="flex-1"
-          data-testid="beneficiary-search"
           placeholder="Search beneficiaries..."
           startContent={<IconSearch size={18} />}
           value={searchValue}
@@ -116,7 +115,7 @@ export function BeneficiaryList({
 
         <Select
           className="w-full sm:w-48"
-          data-testid="beneficiary-filter"
+          data-testid="beneficiary-button"
           placeholder="All relationships"
           selectedKeys={selectedRelationship ? [selectedRelationship] : []}
           onChange={(e) => handleRelationshipFilter(e.target.value)}
@@ -140,7 +139,7 @@ export function BeneficiaryList({
                 showControls
                 showShadow
                 color="primary"
-                data-testid="Pagination-za6dgm72w"
+                data-testid="beneficiary-button"
                 page={page}
                 total={totalPages}
                 onChange={onPageChange}
@@ -237,7 +236,7 @@ export function BeneficiaryList({
                   <DropdownMenu aria-label="Beneficiary actions">
                     <DropdownItem
                       key="view"
-                      data-testid="DropdownItem-5uyg05ezs"
+                      data-testid="beneficiary-button"
                       startContent={<IconEye size={16} />}
                       onPress={() => onView?.(item)}
                     >
@@ -245,7 +244,7 @@ export function BeneficiaryList({
                     </DropdownItem>
                     <DropdownItem
                       key="edit"
-                      data-testid="DropdownItem-48i0oah30"
+                      data-testid="beneficiary-button"
                       startContent={<IconEdit size={16} />}
                       onPress={() => onEdit?.(item)}
                     >
@@ -255,7 +254,7 @@ export function BeneficiaryList({
                       key="delete"
                       className="text-danger"
                       color="danger"
-                      data-testid="DropdownItem-21mtvlq57"
+                      data-testid="beneficiary-button"
                       startContent={<IconTrash size={16} />}
                       onPress={() => onDelete?.(item)}
                     >

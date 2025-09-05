@@ -24,7 +24,7 @@ export default function EditAssetPage() {
           </p>
           <Button
             color="primary"
-            data-testid="Button-wp0a6jdlt"
+            data-testid="asset-button"
             startContent={<ArrowLeftIcon className="h-4 w-4" />}
             onPress={() => router.push("/assets")}
           >

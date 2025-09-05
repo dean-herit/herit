@@ -77,7 +77,7 @@ export function VerticalSteps({
   };
 
   return (
-    <nav aria-label="Progress" className="max-w-fit">
+    <nav aria-label="Progress" className="max-w-fit" data-testid="vertical-steps">
       <ol className={cn("flex flex-col", className)}>
         {steps?.map((step, stepIdx) => {
           const status =
@@ -141,7 +141,7 @@ export function VerticalSteps({
                     },
                     stepClassName,
                   )}
-                  data-testid="Button-8l2h2cvpk"
+                  data-testid="button"
                   isDisabled={!isClickable}
                   variant="light"
                   onPress={() => handleStepClick(stepIdx)}

@@ -51,12 +51,24 @@ vi.mock('@/app/lib/env', () => ({
 }));
 
 const mockDb = vi.mocked(db);
+// Helper function to create proper ResultQueryMeta structure
+const createMockQueryResult = (rows: any[]) => {
+  const result = rows as any;
+  result.columns = [];
+  result.count = rows.length;
+  result.command = 'SELECT';
+  result.statement = {} as any; // Statement type from Drizzle
+  result.state = 'success' as const;
+  return result;
+};
 const mockLogger = vi.mocked(logger);
 
 describe("/api/test-db", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset environment variables
+    // Set NODE_ENV for testing
+    delete process.env.NODE_ENV;
     process.env.NODE_ENV = 'test';
   });
 
@@ -67,7 +79,7 @@ describe("/api/test-db", () => {
   describe("Core Functionality", () => {
     
     it("handles GET requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
+      mockDb.execute.mockResolvedValueOnce(createMockQueryResult([{ success: true }]));
       
       const request = new NextRequest('http://localhost:3000/api/test-db', {
         method: 'GET',
@@ -82,7 +94,7 @@ describe("/api/test-db", () => {
     
 
     it("processes operations correctly", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
+      mockDb.execute.mockResolvedValueOnce(createMockQueryResult([{ success: true }]));
       
       const request = new NextRequest('http://localhost:3000/api/test-db', {
         method: 'GET',
@@ -156,7 +168,7 @@ describe("/api/test-db", () => {
 
   describe("Performance", () => {
     it("responds within acceptable time", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ result: 'success' }]);
+      mockDb.execute.mockResolvedValueOnce(createMockQueryResult([{ result: 'success' }]));
       
       const request = new NextRequest('http://localhost:3000/api/test-db', {
         method: 'GET',
@@ -173,7 +185,7 @@ describe("/api/test-db", () => {
 
   describe("Database Integrity", () => {
     it("maintains data consistency", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ id: 1, success: true }]);
+      mockDb.execute.mockResolvedValueOnce(createMockQueryResult([{ id: 1, success: true }]));
       
       const request = new NextRequest('http://localhost:3000/api/test-db', {
         method: 'GET',
@@ -190,7 +202,7 @@ describe("/api/test-db", () => {
 
   describe("Integration Scenarios", () => {
     it("handles complex workflow", async () => {
-      mockDb.execute.mockResolvedValue([{ workflow: 'success' }]);
+      mockDb.execute.mockResolvedValue(createMockQueryResult([{ workflow: 'success' }]));
       
       const request = new NextRequest('http://localhost:3000/api/test-db', {
         method: 'GET',
@@ -227,7 +239,7 @@ describe("/api/test-db", () => {
     });
 
     it("handles concurrent requests", async () => {
-      mockDb.execute.mockResolvedValue([{ concurrent: 'success' }]);
+      mockDb.execute.mockResolvedValue(createMockQueryResult([{ concurrent: 'success' }]));
       
       const requests = Array(3).fill(0).map(() => 
         new NextRequest('http://localhost:3000/api/test-db', { method: 'GET' })

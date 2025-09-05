@@ -1,182 +1,107 @@
 /**
- * /api/assets/[id]/documents API Route Test - REAL IMPLEMENTATION
- * Enhanced 8-section test structure with production-grade validation
- * Auto-generated Phase 1 real implementation
- * Complexity: 6/10
- * Priority: medium
+ * /api/assets/[id]/documents API Route Test - REAL AUTHENTICATION
+ * Migrated to TestAuthManager for real JWT tokens and database sessions
+ * Auto-migrated from complex mocking system
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Import the actual route handlers
 import * as routeHandlers from '@/app/api/assets/[id]/documents/route';
 
-// Real testing utilities
-import { db } from '@/db/db';
-import { logger } from '@/app/lib/logger';
-
-// Mock external dependencies
-vi.mock('@/db/db', () => ({
-  db: {
-    execute: vi.fn(),
-    query: {
-      users: { findFirst: vi.fn(), findMany: vi.fn() },
-      assets: { findFirst: vi.fn(), findMany: vi.fn() },
-      beneficiaries: { findFirst: vi.fn(), findMany: vi.fn() },
-      documents: { findFirst: vi.fn(), findMany: vi.fn() },
-    },
-    insert: vi.fn().mockReturnValue({ returning: vi.fn() }),
-    update: vi.fn().mockReturnValue({ where: vi.fn().mockReturnValue({ returning: vi.fn() }) }),
-    delete: vi.fn().mockReturnValue({ where: vi.fn() }),
-  },
-}));
-
-vi.mock('@/app/lib/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
-
-vi.mock('@/app/lib/env', () => ({
-  env: {
-    NODE_ENV: 'test',
-    SESSION_SECRET: 'test-session-secret-32-chars-long',
-    GOOGLE_CLIENT_ID: 'test-google-client-id',
-    GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
-    GITHUB_CLIENT_ID: 'test-github-client-id',
-    GITHUB_CLIENT_SECRET: 'test-github-client-secret',
-  },
-}));
-
-const mockDb = vi.mocked(db);
-const mockLogger = vi.mocked(logger);
+// Real authentication testing utilities
+import { setupApiTestHooks, setupAuthenticatedTest, setupUnauthenticatedTest, TestAssertions, createAuthenticatedRequest } from '../../../../test-setup-real-auth';
+import { TestDatabaseUtils } from '../../../../test-database-utils';
 
 describe("/api/assets/[id]/documents", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Reset environment variables
-    process.env.NODE_ENV = 'test';
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  // Setup authentication test hooks with real JWT tokens
+  setupApiTestHooks();
 
   describe("Core Functionality", () => {
-    
-    it("handles GET requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
+    it("handles GET requests with valid authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
+      // Create a real asset first
+      const asset = await TestDatabaseUtils.createTestAsset(authContext.user.id, {
+        name: 'Test Asset for Documents',
+        asset_type: 'financial',
+        value: 10000
+      });
+      
+      const url = `http://localhost:3000/api/assets/${asset.id}/documents`;
+      const request = new NextRequest(url, {
         method: 'GET',
+        headers: {
+          'Cookie': `herit_access_token=${authContext.accessToken}; herit_refresh_token=${authContext.refreshToken}`
+        }
       });
 
-      const response = await routeHandlers.GET(request);
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: asset.id }) });
       
-      expect(response.status).toBeLessThan(400);
-    });
-    
-    it("handles POST requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
+      TestAssertions.expectSuccessfulResponse(response);
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test: 'data' }),
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      expect(response.status).toBeLessThan(400);
-    });
-    
-    
-
-    it("processes operations correctly", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      expect(response).toBeDefined();
-      expect(response.status).toBeLessThan(500);
+      const data = await response.json();
+      expect(data).toBeDefined();
     });
   });
 
   describe("Error States", () => {
-    it("handles database failures gracefully", async () => {
-      const dbError = new Error('Database connection failed');
-      mockDb.execute.mockRejectedValueOnce(dbError);
+    it("returns proper error for unauthenticated requests", async () => {
+      await setupUnauthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      expect(response.status).toBeGreaterThanOrEqual(400);
-    });
-
-    it("validates request parameters", async () => {
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invalid: 'data' }),
-      });
-
-      if (routeHandlers.GET) {
-        const response = await routeHandlers.GET(request);
-        expect(response).toBeDefined();
-      }
+      const testUrl = 'http://localhost:3000/api/assets/test-id/documents';
+      const getRequest = new NextRequest(testUrl, { method: 'GET' });
+      const getResponse = await routeHandlers.GET(getRequest, { params: Promise.resolve({ id: 'test-id' }) });
+      expect(getResponse.status).toBeGreaterThanOrEqual(400);
     });
   });
 
   describe("Security", () => {
-    it("validates authentication when required", async () => {
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
+    it("requires valid JWT authentication", async () => {
+      await setupUnauthenticatedTest();
       
-      // Test passes if route handles auth appropriately
-      expect(response).toBeDefined();
+      const testUrl = 'http://localhost:3000/api/assets/test-id/documents';
+      const request = new NextRequest(testUrl, { method: 'GET' });
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: 'test-id' }) });
+      expect(response.status).toBeGreaterThanOrEqual(400);
     });
 
-    it("prevents injection attacks", async () => {
-      const maliciousData = {
-        name: "'; DROP TABLE users; --",
-        value: "<script>alert('xss')</script>"
-      };
+    it("validates JWT signature integrity", async () => {
+      await setupUnauthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(maliciousData),
+      const testUrl = 'http://localhost:3000/api/assets/test-id/documents';
+      const request = new NextRequest(testUrl, {
+        method: 'GET',
+        headers: {
+          'Cookie': 'herit_access_token=invalid-token'
+        }
       });
-
-      if (routeHandlers.GET) {
-        const response = await routeHandlers.GET(request);
-        expect(response).toBeDefined();
-      }
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: 'test-id' }) });
+      expect(response.status).toBeGreaterThanOrEqual(400);
     });
   });
 
   describe("Performance", () => {
-    it("responds within acceptable time", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ result: 'success' }]);
+    it("responds within acceptable time with real authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
+      // Create a real asset first
+      const asset = await TestDatabaseUtils.createTestAsset(authContext.user.id, {
+        name: 'Test Asset for Documents',
+        asset_type: 'financial',
+        value: 10000
+      });
+      
+      const url = `http://localhost:3000/api/assets/${asset.id}/documents`;
+      const request = new NextRequest(url, {
         method: 'GET',
+        headers: {
+          'Cookie': `herit_access_token=${authContext.accessToken}; herit_refresh_token=${authContext.refreshToken}`
+        }
       });
 
       const startTime = performance.now();
-      const response = await routeHandlers.GET(request);
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: asset.id }) });
       const responseTime = performance.now() - startTime;
       
       expect(response).toBeDefined();
@@ -185,43 +110,72 @@ describe("/api/assets/[id]/documents", () => {
   });
 
   describe("Database Integrity", () => {
-    it("maintains data consistency", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ id: 1, success: true }]);
+    it("maintains data consistency with real database operations", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
+      // Create a real asset first
+      const asset = await TestDatabaseUtils.createTestAsset(authContext.user.id, {
+        name: 'Test Asset for Documents',
+        asset_type: 'financial',
+        value: 10000
       });
-
-      const response = await routeHandlers.GET(request);
+      
+      const url = `http://localhost:3000/api/assets/${asset.id}/documents`;
+      const request = new NextRequest(url, {
+        method: 'GET',
+        headers: {
+          'Cookie': `herit_access_token=${authContext.accessToken}; herit_refresh_token=${authContext.refreshToken}`
+        }
+      });
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: asset.id }) });
       
       expect(response).toBeDefined();
-      if (response.status < 400) {
-        expect(mockDb.execute).toHaveBeenCalled();
-      }
     });
   });
 
   describe("Integration Scenarios", () => {
-    it("handles complex workflow", async () => {
-      mockDb.execute.mockResolvedValue([{ workflow: 'success' }]);
+    it("integrates with authentication workflow", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
+      // Create a real asset first
+      const asset = await TestDatabaseUtils.createTestAsset(authContext.user.id, {
+        name: 'Test Asset for Documents',
+        asset_type: 'financial',
+        value: 10000
       });
-
-      const response = await routeHandlers.GET(request);
+      
+      const url = `http://localhost:3000/api/assets/${asset.id}/documents`;
+      const request = new NextRequest(url, {
+        method: 'GET',
+        headers: {
+          'Cookie': `herit_access_token=${authContext.accessToken}; herit_refresh_token=${authContext.refreshToken}`
+        }
+      });
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: asset.id }) });
       
       expect(response).toBeDefined();
     });
   });
 
   describe("Compliance", () => {
-    it("meets API standards", async () => {
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
+    it("meets API standards with proper authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
+      
+      // Create a real asset first
+      const asset = await TestDatabaseUtils.createTestAsset(authContext.user.id, {
+        name: 'Test Asset for Documents',
+        asset_type: 'financial',
+        value: 10000
       });
-
-      const response = await routeHandlers.GET(request);
+      
+      const url = `http://localhost:3000/api/assets/${asset.id}/documents`;
+      const request = new NextRequest(url, {
+        method: 'GET',
+        headers: {
+          'Cookie': `herit_access_token=${authContext.accessToken}; herit_refresh_token=${authContext.refreshToken}`
+        }
+      });
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: asset.id }) });
       
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(Response);
@@ -229,30 +183,14 @@ describe("/api/assets/[id]/documents", () => {
   });
 
   describe("Edge Cases", () => {
-    it("handles empty requests", async () => {
-      const request = new NextRequest('http://localhost:3000/api/assets/[id]/documents', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
+    it("handles edge cases appropriately", async () => {
+      // Test with invalid asset ID
+      await setupUnauthenticatedTest();
+      const testUrl = 'http://localhost:3000/api/assets/invalid-id/documents';
+      const request = new NextRequest(testUrl, { method: 'GET' });
+      const response = await routeHandlers.GET(request, { params: Promise.resolve({ id: 'invalid-id' }) });
       expect(response).toBeDefined();
-    });
-
-    it("handles concurrent requests", async () => {
-      mockDb.execute.mockResolvedValue([{ concurrent: 'success' }]);
-      
-      const requests = Array(3).fill(0).map(() => 
-        new NextRequest('http://localhost:3000/api/assets/[id]/documents', { method: 'GET' })
-      );
-
-      const responses = await Promise.all(
-        requests.map(req => routeHandlers.GET(req))
-      );
-      
-      responses.forEach(response => {
-        expect(response).toBeDefined();
-      });
+      expect(response.status).toBeGreaterThanOrEqual(400);
     });
   });
 });

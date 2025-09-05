@@ -9,8 +9,9 @@
 // ***********************************************
 
 /// <reference types="cypress" />
+import { TestAuthManager } from '../../tests/test-auth-utils';
 
-// Advanced authentication commands
+// Real Authentication Commands - using actual JWT tokens and database
 Cypress.Commands.add("login", (email: string, password: string) => {
   cy.session([email, password], () => {
     cy.visit("/login");
@@ -21,17 +22,41 @@ Cypress.Commands.add("login", (email: string, password: string) => {
   });
 });
 
-// Login via API for faster tests
-Cypress.Commands.add("loginWithAPI", (email: string, password: string) => {
-  cy.request({
-    method: "POST",
-    url: "/api/auth/signin/credentials",
-    body: { email, password },
-  }).then((response) => {
-    expect(response.status).to.eq(200);
-    // Set session cookie from response
-    cy.setCookie("next-auth.session-token", response.body.sessionToken);
+// Real Authentication - creates user with actual JWT tokens
+Cypress.Commands.add("loginAsTestUser", (userType: 'standard' | 'admin' | 'onboarding' = 'standard') => {
+  cy.task('createAuthenticatedTestUser', { userType }).then((authContext: any) => {
+    // Set real authentication cookies
+    cy.setCookie('herit_access_token', authContext.accessToken);
+    cy.setCookie('herit_refresh_token', authContext.refreshToken);
+    
+    // Store user context for test cleanup
+    Cypress.env('testUserId', authContext.user.id);
+    Cypress.env('testUserEmail', authContext.user.email);
   });
+});
+
+// Login with specific user data  
+Cypress.Commands.add("loginAsCustomTestUser", (userData: {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  onboarding_completed?: boolean;
+  verification_completed?: boolean;
+}) => {
+  cy.task('createAuthenticatedTestUser', { userData }).then((authContext: any) => {
+    cy.setCookie('herit_access_token', authContext.accessToken);
+    cy.setCookie('herit_refresh_token', authContext.refreshToken);
+    
+    Cypress.env('testUserId', authContext.user.id);
+    Cypress.env('testUserEmail', authContext.user.email);
+  });
+});
+
+// Clear authentication
+Cypress.Commands.add("logout", () => {
+  cy.clearCookie('herit_access_token');
+  cy.clearCookie('herit_refresh_token');
+  cy.visit('/');
 });
 
 // Setup test user with onboarding completed
@@ -373,7 +398,15 @@ declare global {
   namespace Cypress {
     interface Chainable {
       login(email: string, password: string): Chainable<void>;
-      loginWithAPI(email: string, password: string): Chainable<void>;
+      loginAsTestUser(userType?: 'standard' | 'admin' | 'onboarding'): Chainable<void>;
+      loginAsCustomTestUser(userData: {
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+        onboarding_completed?: boolean;
+        verification_completed?: boolean;
+      }): Chainable<void>;
+      logout(): Chainable<void>;
       setupTestUser(userData: {
         email: string;
         password?: string;

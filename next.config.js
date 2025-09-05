@@ -22,6 +22,16 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // TypeScript validation during builds
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // SWC minification is enabled by default in Next.js 13+
+  
+  // Reduce build output verbosity
+  productionBrowserSourceMaps: false,
+
   // Bundle analyzer (only when ANALYZE=true)
   ...(process.env.ANALYZE === "true" && {
     webpack: async (config) => {

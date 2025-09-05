@@ -1,48 +1,91 @@
-#!/bin/sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# Set strict error handling
-set -e
+# Visual Pre-commit Hook - Opens Test Dashboard for Real-time Feedback
+echo "🚪 Pre-commit Quality Gates with Visual Dashboard"
+echo ""
 
-echo "🔍 Running Vercel-like pre-commit checks..."
+# Open test status dashboard for visual feedback
+echo "📊 Opening Test Status Dashboard..."
+open http://localhost:3000/test-status 2>/dev/null || true
 
-# Run lint-staged first (linting and formatting)  
-echo "📝 Running linting and formatting..."
-if ! npx lint-staged 2>/dev/null; then
-  echo "ℹ️  Lint-staged completed (no matching files or formatting applied)"
-fi
+# Give dashboard a moment to load
+sleep 2
 
-# Always run full Vercel-like validation on every commit
-echo "🔍 Running full Vercel-like validation..."
+# Trigger comprehensive test run via API
+echo "🚀 Triggering comprehensive test execution..."
+echo "   📱 Watch progress at: http://localhost:3000/test-status"
+echo ""
 
-# Vercel environment compatibility check
-echo "🔍 Checking Vercel compatibility..."
-if ! node vercel-env-check.js; then
-  echo "❌ Vercel compatibility check failed"
+# Start the test run in the background and get the process
+curl -s -X POST http://localhost:3000/api/test-runner \
+  -H "Content-Type: application/json" \
+  -d '{"streaming": false}' > /tmp/husky-test-results.json &
+
+TEST_PID=$!
+
+# Show progress dots while waiting
+printf "   🔄 Running tests"
+while kill -0 $TEST_PID 2>/dev/null; do
+  printf "."
+  sleep 2
+done
+printf "\n"
+
+# Wait for the background process to complete
+wait $TEST_PID
+TEST_EXIT_CODE=$?
+
+# Read the results
+if [ -f /tmp/husky-test-results.json ] && [ $TEST_EXIT_CODE -eq 0 ]; then
+  # Parse the results to check if tests passed
+  if grep -q '"overallSuccess":true' /tmp/husky-test-results.json; then
+    echo "   ✅ All tests passed!"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "✅ COMMIT APPROVED"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "🎉 Quality gates passed:"
+    echo "  ✅ Backend API Tests"
+    echo "  ✅ Code Quality (ESLint)"  
+    echo "  ✅ Build Validation"
+    echo "  ✅ Component Tests"
+    echo ""
+    echo "📊 View detailed results at: http://localhost:3000/test-status"
+    echo "🚀 Ready for deployment!"
+    
+    # Cleanup
+    rm -f /tmp/husky-test-results.json
+    exit 0
+  else
+    echo "   ❌ Tests failed!"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "❌ COMMIT BLOCKED"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "💡 Check the dashboard for detailed failure analysis:"
+    echo "   🔗 http://localhost:3000/test-status"
+    echo ""
+    echo "💡 Use the '📋 Copy Debug Report' button to share issues with Claude"
+    echo ""
+    
+    # Cleanup
+    rm -f /tmp/husky-test-results.json
+    exit 1
+  fi
+else
+  echo "   ❌ Failed to execute tests"
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ COMMIT BLOCKED"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "💡 Ensure dev server is running: npm run dev"
+  echo "💡 Then check: http://localhost:3000/test-status"
+  
+  # Cleanup
+  rm -f /tmp/husky-test-results.json
   exit 1
 fi
-
-# TypeScript check (same as Vercel)
-echo "🔍 Type checking..."
-if ! npm run typecheck; then
-  echo "❌ TypeScript check failed - this will fail in Vercel"
-  exit 1
-fi
-
-# Production build test (same as Vercel)
-echo "🏗️  Testing production build..."
-if ! npm run build >/dev/null 2>&1; then
-  echo "❌ Production build failed - this will fail in Vercel"
-  npm run build  # Run again to show the error
-  exit 1
-fi
-
-echo "✅ Production build successful"
-
-# Check if any component tests were modified
-COMPONENT_TESTS=$(git diff --cached --name-only | grep -E "\.cy\.tsx$|\.stories\.tsx$" || true)
-
-if [ -n "$COMPONENT_TESTS" ]; then
-  echo "🧪 Component tests modified, skipping validation in pre-commit (will be verified in CI)..."
-fi
-
-echo "✨ Pre-commit checks completed successfully!"

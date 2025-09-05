@@ -84,7 +84,7 @@ export function SignatureStamp({
             transition-all duration-200 group
             ${!disabled ? "hover:opacity-70 cursor-pointer" : "opacity-50 cursor-not-allowed"}
           `}
-          data-testid="button-e2u5vmvll"
+          data-testid="auth-button"
           disabled={disabled}
           onClick={onClick}
         >

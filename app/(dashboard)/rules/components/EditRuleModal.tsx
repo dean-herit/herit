@@ -311,7 +311,10 @@ export function EditRuleModal({
             ))}
           </div>
 
-          <form data-testid="form-4qisa5ljj" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            data-testid="rule-button-edit"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             {/* Step 1: Basic Information */}
             {currentStep === 0 && (
               <div className="space-y-4">
@@ -353,7 +356,7 @@ export function EditRuleModal({
                       <Input
                         {...field}
                         className="flex-1"
-                        data-testid="Input-wu3dq8fqe"
+                        data-testid="rule-input-edit"
                         errorMessage={errors.priority?.message}
                         isInvalid={!!errors.priority}
                         label="Priority"
@@ -394,7 +397,7 @@ export function EditRuleModal({
                   <h3 className="text-lg font-semibold">Rule Conditions</h3>
                   <Button
                     color="primary"
-                    data-testid="Button-m80x4z966"
+                    data-testid="rule-button-edit"
                     size="sm"
                     startContent={<PlusIcon className="w-4 h-4" />}
                     variant="flat"
@@ -486,7 +489,7 @@ export function EditRuleModal({
                             {...field}
                             isRequired
                             className="flex-1"
-                            data-testid="Input-wgfemyn1w"
+                            data-testid="rule-input-edit"
                             errorMessage={
                               errors.conditions?.[index]?.value?.message
                             }
@@ -517,7 +520,7 @@ export function EditRuleModal({
                         isIconOnly
                         className="mt-6"
                         color="danger"
-                        data-testid="Button-bt59a57oq"
+                        data-testid="rule-button-edit"
                         isDisabled={conditionFields.length <= 1}
                         size="sm"
                         variant="light"
@@ -538,7 +541,7 @@ export function EditRuleModal({
                   <h3 className="text-lg font-semibold">Asset Allocations</h3>
                   <Button
                     color="primary"
-                    data-testid="Button-4bfhbwbz1"
+                    data-testid="rule-button-edit"
                     size="sm"
                     startContent={<PlusIcon className="w-4 h-4" />}
                     variant="flat"
@@ -668,7 +671,7 @@ export function EditRuleModal({
                           <Input
                             {...field}
                             className="w-32"
-                            data-testid="Input-tg494kd4c"
+                            data-testid="rule-input-edit"
                             endContent="%"
                             errorMessage={
                               errors.allocations?.[index]?.allocation_percentage
@@ -698,7 +701,7 @@ export function EditRuleModal({
                         isIconOnly
                         className="mt-6"
                         color="danger"
-                        data-testid="Button-3th1pr3li"
+                        data-testid="rule-button-edit"
                         isDisabled={allocationFields.length <= 1}
                         size="sm"
                         variant="light"
@@ -869,7 +872,7 @@ export function EditRuleModal({
         <ModalFooter>
           <div className="flex justify-between items-center w-full">
             <Button
-              data-testid="Button-9ytgsze6s"
+              data-testid="rule-button-edit"
               startContent={<XMarkIcon className="w-4 h-4" />}
               variant="light"
               onPress={onClose}
@@ -880,7 +883,7 @@ export function EditRuleModal({
             <div className="flex gap-2">
               {currentStep > 0 && (
                 <Button
-                  data-testid="Button-a2i53pcjw"
+                  data-testid="rule-button-edit"
                   variant="flat"
                   onPress={prevStep}
                 >
@@ -891,7 +894,7 @@ export function EditRuleModal({
               {currentStep < steps.length - 1 ? (
                 <Button
                   color="primary"
-                  data-testid="Button-l8uq4irn6"
+                  data-testid="rule-button-edit"
                   onPress={nextStep}
                 >
                   Next
@@ -899,7 +902,7 @@ export function EditRuleModal({
               ) : (
                 <Button
                   color="primary"
-                  data-testid="Button-r7ogmzpgj"
+                  data-testid="rule-button-edit"
                   isDisabled={validationResult && !validationResult.is_valid}
                   isLoading={isSubmitting || updateRuleMutation.isPending}
                   onPress={() => handleSubmit(onSubmit)()}

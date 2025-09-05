@@ -147,7 +147,7 @@ export function DashboardClient() {
             </p>
             <Button
               color="primary"
-              data-testid="Button-thhhfriix"
+              data-testid="button"
               onPress={() => window.location.reload()}
             >
               Retry

@@ -1,258 +1,491 @@
 /**
- * /api/onboarding/save-step API Route Test - REAL IMPLEMENTATION
+ * /api/onboarding/save-step API Route Test - REAL AUTHENTICATION
  * Enhanced 8-section test structure with production-grade validation
- * Auto-generated Phase 1 real implementation
+ * Migrated to TestAuthManager for real JWT tokens and database sessions
  * Complexity: 6/10
  * Priority: medium
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Import the actual route handlers
 import * as routeHandlers from '@/app/api/onboarding/save-step/route';
 
-// Real testing utilities
-import { db } from '@/db/db';
-import { logger } from '@/app/lib/logger';
-
-// Mock external dependencies
-vi.mock('@/db/db', () => ({
-  db: {
-    execute: vi.fn(),
-    query: {
-      users: { findFirst: vi.fn(), findMany: vi.fn() },
-      assets: { findFirst: vi.fn(), findMany: vi.fn() },
-      beneficiaries: { findFirst: vi.fn(), findMany: vi.fn() },
-      documents: { findFirst: vi.fn(), findMany: vi.fn() },
-    },
-    insert: vi.fn().mockReturnValue({ returning: vi.fn() }),
-    update: vi.fn().mockReturnValue({ where: vi.fn().mockReturnValue({ returning: vi.fn() }) }),
-    delete: vi.fn().mockReturnValue({ where: vi.fn() }),
-  },
-}));
-
-vi.mock('@/app/lib/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
-
-vi.mock('@/app/lib/env', () => ({
-  env: {
-    NODE_ENV: 'test',
-    SESSION_SECRET: 'test-session-secret-32-chars-long',
-    GOOGLE_CLIENT_ID: 'test-google-client-id',
-    GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
-    GITHUB_CLIENT_ID: 'test-github-client-id',
-    GITHUB_CLIENT_SECRET: 'test-github-client-secret',
-  },
-}));
-
-const mockDb = vi.mocked(db);
-const mockLogger = vi.mocked(logger);
+// Real authentication testing utilities
+import { setupApiTestHooks, setupAuthenticatedTest, setupUnauthenticatedTest, TestAssertions, createAuthenticatedRequest } from '../../../test-setup-real-auth';
 
 describe("/api/onboarding/save-step", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Reset environment variables
-    process.env.NODE_ENV = 'test';
-  });
+  // Setup authentication test hooks with real JWT tokens
+  setupApiTestHooks();
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  const url = 'http://localhost:3000/api/onboarding/save-step';
 
   describe("Core Functionality", () => {
-    
-    it("handles GET requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      expect(response.status).toBeLessThan(400);
-    });
-    
-    it("handles POST requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
+    it("handles POST requests with valid authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test: 'data' }),
-      });
+        body: JSON.stringify({
+          step: 0,
+          data: {
+            first_name: 'Test',
+            last_name: 'User',
+            phone_number: '+353871234567',
+            date_of_birth: '1990-01-01',
+            address_line_1: '123 Test Street',
+            city: 'Dublin',
+            county: 'Dublin',
+            eircode: 'D01 X123'
+          }
+        }),
+      }, authContext);
 
       const response = await routeHandlers.POST(request);
       
-      expect(response.status).toBeLessThan(400);
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.step).toBe(0);
     });
     
-    
+    it("saves step completion data correctly", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 1, // Signature step
+          data: null
+        }),
+      }, authContext);
 
-    it("processes operations correctly", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
+      const response = await routeHandlers.POST(request);
       
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.step).toBe(1);
+      expect(data.nextStep).toBe(2);
+    });
 
-      const response = await routeHandlers.GET(request);
+    it("handles final step completion", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 3, // Final verification step
+          data: null
+        }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
       
-      expect(response).toBeDefined();
-      expect(response.status).toBeLessThan(500);
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.step).toBe(3);
+      expect(data.nextStep).toBe('complete');
     });
   });
 
   describe("Error States", () => {
-    it("handles database failures gracefully", async () => {
-      const dbError = new Error('Database connection failed');
-      mockDb.execute.mockRejectedValueOnce(dbError);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      expect(response.status).toBeGreaterThanOrEqual(400);
-    });
-
-    it("validates request parameters", async () => {
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
+    it("returns 401 for unauthenticated requests", async () => {
+      await setupUnauthenticatedTest();
+      const request = new NextRequest(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invalid: 'data' }),
+        body: JSON.stringify({ step: 0, data: {} }),
       });
 
-      if (routeHandlers.POST) {
-        const response = await routeHandlers.POST(request);
-        expect(response).toBeDefined();
-      }
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(401);
+      const data = await response.json();
+      expect(data.error).toBe('Authentication required');
+    });
+
+    it("validates step number range", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 5, data: {} }), // Invalid step
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data.error).toBe('Invalid step number. Must be 0-3');
+    });
+
+    it("validates step number type", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 'invalid', data: {} }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data.error).toBe('Invalid step number. Must be 0-3');
     });
   });
 
   describe("Security", () => {
-    it("validates authentication when required", async () => {
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
-      
-      // Test passes if route handles auth appropriately
-      expect(response).toBeDefined();
-    });
-
-    it("prevents injection attacks", async () => {
-      const maliciousData = {
-        name: "'; DROP TABLE users; --",
-        value: "<script>alert('xss')</script>"
-      };
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
+    it("requires valid JWT authentication", async () => {
+      await setupUnauthenticatedTest();
+      const request = new NextRequest(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(maliciousData),
+        body: JSON.stringify({ step: 0, data: {} }),
       });
 
-      if (routeHandlers.POST) {
-        const response = await routeHandlers.POST(request);
-        expect(response).toBeDefined();
-      }
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(401);
+      const data = await response.json();
+      expect(data.error).toBe('Authentication required');
+    });
+
+    it("validates JWT signature integrity", async () => {
+      await setupUnauthenticatedTest();
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': 'herit_access_token=invalid-token'
+        },
+        body: JSON.stringify({ step: 0, data: {} }),
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(401);
+    });
+
+    it("prevents data injection through step data", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const maliciousData = {
+        first_name: "'; DROP TABLE users; --",
+        last_name: "<script>alert('xss')</script>",
+        address_line_1: "SELECT * FROM users WHERE id = 1; --"
+      };
+      
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 0, data: maliciousData }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      // Should handle malicious input safely
+      TestAssertions.expectSuccessfulResponse(response);
     });
   });
 
   describe("Performance", () => {
-    it("responds within acceptable time", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ result: 'success' }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
+    it("responds within acceptable time with real authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 1, data: null }),
+      }, authContext);
 
       const startTime = performance.now();
-      const response = await routeHandlers.GET(request);
+      const response = await routeHandlers.POST(request);
       const responseTime = performance.now() - startTime;
       
-      expect(response).toBeDefined();
+      TestAssertions.expectSuccessfulResponse(response);
       expect(responseTime).toBeLessThan(2000); // 2 second limit
+    });
+
+    it("handles concurrent requests efficiently", async () => {
+      const authContext = await setupAuthenticatedTest();
+      
+      const requests = Array(3).fill(0).map((_, index) => 
+        createAuthenticatedRequest(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step: index % 4, data: null }), // Different steps
+        }, authContext)
+      );
+
+      const startTime = performance.now();
+      const responses = await Promise.all(
+        requests.map(req => routeHandlers.POST(req))
+      );
+      const responseTime = performance.now() - startTime;
+      
+      responses.forEach(response => {
+        TestAssertions.expectSuccessfulResponse(response);
+      });
+      expect(responseTime).toBeLessThan(3000); // 3 second limit for concurrent requests
     });
   });
 
   describe("Database Integrity", () => {
-    it("maintains data consistency", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ id: 1, success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
+    it("maintains user data consistency with real database operations", async () => {
+      const authContext = await setupAuthenticatedTest({
+        first_name: 'Original',
+        last_name: 'Name',
+        onboarding_completed: false,
+        personal_info_completed: false
       });
-
-      const response = await routeHandlers.GET(request);
       
-      expect(response).toBeDefined();
-      if (response.status < 400) {
-        expect(mockDb.execute).toHaveBeenCalled();
-      }
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 0,
+          data: {
+            first_name: 'Updated',
+            last_name: 'Name',
+            phone_number: '+353871234567'
+          }
+        }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.step).toBe(0);
+    });
+
+    it("creates proper audit trail for step completions", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 2, data: null }), // Legal consent step
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      // Verify audit logging occurred (response indicates success)
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.message).toContain('Step 2 completed successfully');
     });
   });
 
   describe("Integration Scenarios", () => {
-    it("handles complex workflow", async () => {
-      mockDb.execute.mockResolvedValue([{ workflow: 'success' }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
+    it("integrates with onboarding progression workflow", async () => {
+      const authContext = await setupAuthenticatedTest({
+        onboarding_completed: false,
+        personal_info_completed: false,
+        signature_completed: false,
+        legal_consent_completed: false,
+        verification_completed: false
       });
-
-      const response = await routeHandlers.GET(request);
       
-      expect(response).toBeDefined();
+      // Complete personal info step
+      const step0Request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 0,
+          data: {
+            first_name: 'Test',
+            last_name: 'User',
+            phone_number: '+353871234567',
+            date_of_birth: '1990-01-01'
+          }
+        }),
+      }, authContext);
+
+      const step0Response = await routeHandlers.POST(step0Request);
+      TestAssertions.expectSuccessfulResponse(step0Response);
+      
+      const step0Data = await step0Response.json();
+      expect(step0Data.success).toBe(true);
+      expect(step0Data.nextStep).toBe(1);
+    });
+
+    it("handles step progression through onboarding flow", async () => {
+      const authContext = await setupAuthenticatedTest();
+      
+      // Test multiple step completions in sequence
+      const steps = [1, 2, 3]; // signature, legal_consent, verification
+      
+      for (const step of steps) {
+        const request = createAuthenticatedRequest(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step, data: null }),
+        }, authContext);
+
+        const response = await routeHandlers.POST(request);
+        TestAssertions.expectSuccessfulResponse(response);
+        
+        const data = await response.json();
+        expect(data.success).toBe(true);
+        expect(data.step).toBe(step);
+      }
     });
   });
 
   describe("Compliance", () => {
-    it("meets API standards", async () => {
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
+    it("meets API standards with proper authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 1, data: null }),
+      }, authContext);
 
-      const response = await routeHandlers.GET(request);
+      const response = await routeHandlers.POST(request);
       
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(Response);
+      TestAssertions.expectSuccessfulResponse(response);
+    });
+
+    it("follows REST API conventions", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 0, data: {} }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.headers.get('Content-Type')).toContain('application/json');
+      TestAssertions.expectSuccessfulResponse(response);
     });
   });
 
   describe("Edge Cases", () => {
-    it("handles empty requests", async () => {
-      const request = new NextRequest('http://localhost:3000/api/onboarding/save-step', {
-        method: 'GET',
-      });
+    it("handles requests with malformed JSON", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+         body: '{"malformed": json}',
+      }, authContext);
 
-      const response = await routeHandlers.GET(request);
+      const response = await routeHandlers.POST(request);
       
-      expect(response).toBeDefined();
+      expect(response.status).toBe(500);
+      const data = await response.json();
+      expect(data.error).toBe('Internal server error');
     });
 
-    it("handles concurrent requests", async () => {
-      mockDb.execute.mockResolvedValue([{ concurrent: 'success' }]);
+    it("handles requests with missing step parameter", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: {} }), // Missing step
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
       
-      const requests = Array(3).fill(0).map(() => 
-        new NextRequest('http://localhost:3000/api/onboarding/save-step', { method: 'GET' })
-      );
+      expect(response.status).toBe(400);
+      const data = await response.json();
+      expect(data.error).toBe('Invalid step number. Must be 0-3');
+    });
+
+    it("handles null data for non-personal info steps", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 1, data: null }), // Signature step with null data
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      const data = await response.json();
+      expect(data.success).toBe(true);
+    });
+  });
+
+
+  describe("Token Management", () => {
+    it("validates access token structure and claims", async () => {
+      const authContext = await setupAuthenticatedTest();
+      const request = createAuthenticatedRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ step: 1, data: null }),
+      }, authContext);
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.message).toContain('Step 1 completed successfully');
+    });
+
+    it("maintains session consistency across step saves", async () => {
+      const authContext = await setupAuthenticatedTest();
+      
+      // Make multiple requests with the same auth context
+      const requests = [
+        createAuthenticatedRequest(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step: 1, data: null }),
+        }, authContext),
+        createAuthenticatedRequest(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step: 2, data: null }),
+        }, authContext)
+      ];
 
       const responses = await Promise.all(
-        requests.map(req => routeHandlers.GET(req))
+        requests.map(req => routeHandlers.POST(req))
       );
       
       responses.forEach(response => {
-        expect(response).toBeDefined();
+        TestAssertions.expectSuccessfulResponse(response);
       });
+
+      const data1 = await responses[0].json();
+      const data2 = await responses[1].json();
+      
+      expect(data1.success).toBe(true);
+      expect(data2.success).toBe(true);
+    });
+
+    it("handles expired tokens appropriately", async () => {
+      await setupUnauthenticatedTest();
+      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ0ZXN0IiwiZXhwIjoxfQ.invalid';
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': `herit_access_token=${expiredToken}`
+        },
+        body: JSON.stringify({ step: 0, data: {} }),
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(401);
+      const data = await response.json();
+      expect(data.error).toBe('Authentication required');
     });
   });
 });

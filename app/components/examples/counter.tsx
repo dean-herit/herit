@@ -8,7 +8,7 @@ export const Counter = () => {
 
   return (
     <Button
-      data-testid="Button-w8fsyakcw"
+      data-testid="counter"
       radius="full"
       onPress={() => setCount(count + 1)}
     >

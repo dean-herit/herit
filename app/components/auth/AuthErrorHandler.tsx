@@ -23,11 +23,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
       // Clear authentication cookies
       await fetch("/api/auth/logout", { method: "POST" });
 
-      // Clear any cached data
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        sessionStorage.clear();
-      }
+      // Clear any cached data (local storage removed from architecture)
 
       // Redirect to login with error context
       router.push(`/login?error=auth_${error}`);
@@ -84,7 +80,10 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
   // For critical errors, show full-screen overlay
   if (errorInfo.severity === "critical") {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        data-testid="auth-error-handler"
+      >
         <Card className="w-full max-w-md">
           <CardBody className="text-center p-6 space-y-4">
             <div className="flex justify-center">
@@ -102,7 +101,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
               <Button
                 className="w-full"
                 color="primary"
-                data-testid="Button-qz719cz74"
+                data-testid="auth-button"
                 onPress={handleForceLogout}
               >
                 {errorInfo.action}
@@ -110,7 +109,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
               {onRetry && (
                 <Button
                   className="w-full"
-                  data-testid="Button-cuxwy4ncs"
+                  data-testid="auth-button"
                   variant="ghost"
                   onPress={onRetry}
                 >
@@ -126,7 +125,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
 
   // For non-critical errors, show inline message
   return (
-    <Card className="border-warning-200 bg-warning-50">
+    <Card className="border-warning-200 bg-warning-50" data-testid="auth-error-handler">
       <CardBody className="p-4">
         <div className="flex items-start gap-3">
           <ExclamationTriangleIcon className="h-5 w-5 text-warning-600 mt-0.5 flex-shrink-0" />
@@ -140,7 +139,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
             <div className="flex gap-2">
               <Button
                 color="warning"
-                data-testid="Button-n77famagb"
+                data-testid="auth-button"
                 size="sm"
                 variant="solid"
                 onPress={() => router.push("/login")}
@@ -149,7 +148,7 @@ export function AuthErrorHandler({ error, onRetry }: AuthErrorHandlerProps) {
               </Button>
               {onRetry && (
                 <Button
-                  data-testid="Button-k6q3yndwl"
+                  data-testid="auth-button"
                   size="sm"
                   variant="ghost"
                   onPress={onRetry}

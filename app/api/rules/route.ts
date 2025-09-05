@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 import { Engine } from "json-rules-engine";
 import { z } from "zod";
 
 import { db } from "@/db/db";
-import { inheritanceRules, ruleAllocations } from "@/db/schema";
-import { requireAuth } from "@/app/lib/auth";
+import { inheritanceRules, ruleAllocations, users } from "@/db/schema";
+import { getSession } from "@/app/lib/auth";
 import { audit } from "@/app/lib/audit-middleware";
 
 // Validation schema for rule creation
@@ -39,9 +39,27 @@ const createRuleSchema = z.object({
 
 type CreateRuleRequest = z.infer<typeof createRuleSchema>;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const session = await getSession();
+
+    if (!session.isAuthenticated) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     // Get all rules for the user with their allocations
     const rules = await db
@@ -95,7 +113,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireAuth();
+    const session = await getSession();
+
+    if (!session.isAuthenticated) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
 
     const body = await request.json();
     const validatedData = createRuleSchema.parse(body);

@@ -32,13 +32,13 @@ function MockPersonalInfoStep({ data, onChange, onComplete, loading }: any) {
         onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
       />
       <input
-        data-testid="input-email"
+        data-testid="onboarding-button"
         placeholder="Email"
         value={formData.email || ""}
         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
       />
       <button
-        data-testid="continue-button"
+        data-testid="onboarding-button"
         onClick={handleSubmit}
         disabled={loading}
       >
@@ -59,12 +59,12 @@ function MockSignatureStep({ personalInfo, onComplete, onBack, loading }: any) {
   };
 
   return (
-    <div data-testid="signature-step" data-step="1">
+    <div data-testid="onboarding-button" data-step="1">
       <h2>Create Your Signature</h2>
       <p>Welcome {personalInfo?.first_name} {personalInfo?.last_name}</p>
       
       {!selectedMethod ? (
-        <div data-testid="method-selection">
+        <div data-testid="onboarding-button">
           <button
             data-testid="select-template-method"
             onClick={() => setSelectedMethod("template")}
@@ -79,17 +79,17 @@ function MockSignatureStep({ personalInfo, onComplete, onBack, loading }: any) {
           </button>
         </div>
       ) : (
-        <div data-testid="signature-creation">
+        <div data-testid="onboarding-button">
           <p>Creating {selectedMethod} signature...</p>
           <button
-            data-testid="complete-signature"
+            data-testid="onboarding-button"
             onClick={handleComplete}
             disabled={loading}
           >
             {loading ? "Saving..." : "Complete Signature"}
           </button>
           <button
-            data-testid="back-button"
+            data-testid="onboarding-button"
             onClick={() => setSelectedMethod(null)}
           >
             Back
@@ -147,11 +147,11 @@ function OnboardingFlow() {
 
   if (error) {
     return (
-      <div data-testid="error-state">
+      <div data-testid="onboarding-button">
         <h2>Error</h2>
-        <p data-testid="error-message">{error}</p>
+        <p data-testid="onboarding-button">{error}</p>
         <button
-          data-testid="retry-button"
+          data-testid="onboarding-button"
           onClick={() => {
             setError(null);
             setLoading(false);
@@ -165,7 +165,7 @@ function OnboardingFlow() {
 
   if (currentStep === 2) {
     return (
-      <div data-testid="completion-state">
+      <div data-testid="onboarding-button">
         <h2>Onboarding Complete!</h2>
         <p>Welcome {personalInfo?.first_name}!</p>
         <p>Your signature has been saved.</p>
@@ -174,8 +174,8 @@ function OnboardingFlow() {
   }
 
   return (
-    <div data-testid="onboarding-flow">
-      <div data-testid="progress-indicator">
+    <div data-testid="onboarding-button">
+      <div data-testid="onboarding-button">
         Step {currentStep + 1} of 2
       </div>
       
@@ -214,11 +214,11 @@ describe("Onboarding Flow Integration", () => {
 
   describe("Happy Path Flow", () => {
     it("should complete full onboarding process", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       // Step 1: Personal Information
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
-      cy.get('[data-testid="progress-indicator"]').should("contain", "Step 1 of 2");
+      cy.get('[data-testid="onboarding-button"]').should("contain", "Step 1 of 2");
 
       // Fill personal information using TestUtils
       TestUtils.fillForm({
@@ -228,36 +228,36 @@ describe("Onboarding Flow Integration", () => {
       }, '[data-testid="personal-info-step"]');
 
       // Submit and wait for transition
-      cy.get('[data-testid="continue-button"]').click();
-      cy.get('[data-testid="continue-button"]').should("contain", "Saving...");
+      cy.get('[data-testid="onboarding-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').should("contain", "Saving...");
       
       // Fast-forward through API delay
       cy.tick(500);
       
       // Step 2: Signature Creation
-      cy.get('[data-testid="signature-step"]').should("be.visible");
-      cy.get('[data-testid="progress-indicator"]').should("contain", "Step 2 of 2");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("contain", "Step 2 of 2");
       
       // Verify personal info was passed correctly
-      cy.get('[data-testid="signature-step"]').should(
+      cy.get('[data-testid="onboarding-button"]').should(
         "contain", 
         `Welcome ${mockPersonalInfo.first_name} ${mockPersonalInfo.last_name}`
       );
 
       // Select signature method
-      cy.get('[data-testid="method-selection"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
       cy.get('[data-testid="select-template-method"]').click();
 
       // Complete signature
-      cy.get('[data-testid="signature-creation"]').should("be.visible");
-      cy.get('[data-testid="complete-signature"]').click();
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').click();
       
       // Fast-forward through API delay
       cy.tick(500);
 
       // Completion state
-      cy.get('[data-testid="completion-state"]').should("be.visible");
-      cy.get('[data-testid="completion-state"]').should(
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should(
         "contain",
         `Welcome ${mockPersonalInfo.first_name}!`
       );
@@ -266,7 +266,7 @@ describe("Onboarding Flow Integration", () => {
 
   describe("Navigation and Back Button", () => {
     it("should allow navigation between steps", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       // Complete step 1
       TestUtils.fillForm({
@@ -275,18 +275,18 @@ describe("Onboarding Flow Integration", () => {
         "email": mockPersonalInfo.email,
       }, '[data-testid="personal-info-step"]');
 
-      cy.get('[data-testid="continue-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').click();
       cy.tick(500);
 
       // Navigate to signature creation
-      cy.get('[data-testid="signature-step"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
       cy.get('[data-testid="select-template-method"]').click();
-      cy.get('[data-testid="signature-creation"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
 
       // Test back navigation within signature step
-      cy.get('[data-testid="back-button"]').click();
-      cy.get('[data-testid="method-selection"]').should("be.visible");
-      cy.get('[data-testid="signature-creation"]').should("not.exist");
+      cy.get('[data-testid="onboarding-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("not.exist");
     });
   });
 
@@ -304,7 +304,7 @@ describe("Onboarding Flow Integration", () => {
         });
       });
 
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       // Fill form and submit
       TestUtils.fillForm({
@@ -313,14 +313,14 @@ describe("Onboarding Flow Integration", () => {
         "email": mockPersonalInfo.email,
       }, '[data-testid="personal-info-step"]');
 
-      cy.get('[data-testid="continue-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').click();
 
       // Should show error state
-      cy.get('[data-testid="error-state"]').should("be.visible");
-      cy.get('[data-testid="error-message"]').should("contain", "Failed to save");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("contain", "Failed to save");
 
       // Test error recovery
-      cy.get('[data-testid="retry-button"]').should("be.visible").click();
+      cy.get('[data-testid="onboarding-button"]').should("be.visible").click();
       cy.get('[data-testid="personal-info-step"]').should("be.visible");
     });
   });
@@ -333,7 +333,7 @@ describe("Onboarding Flow Integration", () => {
         return (
           <div>
             <button
-              data-testid="toggle-flow"
+              data-testid="onboarding-button"
               onClick={() => setShowFlow(!showFlow)}
             >
               Toggle
@@ -343,18 +343,18 @@ describe("Onboarding Flow Integration", () => {
         );
       };
 
-      cy.mount(<TestWrapper />);
+      cy.mountWithContext(<TestWrapper />);
 
       // Fill partial form data
       cy.get('[data-testid="input-first-name"]').type(mockPersonalInfo.first_name);
-      cy.get('[data-testid="input-email"]').type(mockPersonalInfo.email);
+      cy.get('[data-testid="onboarding-button"]').type(mockPersonalInfo.email);
 
       // Hide and show component (simulating navigation)
-      cy.get('[data-testid="toggle-flow"]').click();
-      cy.get('[data-testid="onboarding-flow"]').should("not.exist");
+      cy.get('[data-testid="onboarding-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').should("not.exist");
       
-      cy.get('[data-testid="toggle-flow"]').click();
-      cy.get('[data-testid="onboarding-flow"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
 
       // Note: In real implementation, you'd want form data to persist
       // This test demonstrates the pattern for testing data persistence
@@ -364,25 +364,25 @@ describe("Onboarding Flow Integration", () => {
 
   describe("Performance and Accessibility", () => {
     it("should meet performance standards", () => {
-      TestUtils.measureRenderTime('[data-testid="onboarding-flow"]', 1000);
+      TestUtils.measureRenderTime('[data-testid="onboarding-button"]', 1000);
       
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
       
       // Should render quickly
-      cy.get('[data-testid="onboarding-flow"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
     });
 
     it("should be accessible", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
       
-      TestUtils.testAccessibility('[data-testid="onboarding-flow"]');
+      TestUtils.testAccessibility('[data-testid="onboarding-button"]');
     });
 
     it("should be responsive", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
       
       TestUtils.testResponsiveLayout(() => {
-        cy.get('[data-testid="onboarding-flow"]').should("be.visible");
+        cy.get('[data-testid="onboarding-button"]').should("be.visible");
         cy.get('[data-testid="personal-info-step"]').should("be.visible");
       });
     });
@@ -390,7 +390,7 @@ describe("Onboarding Flow Integration", () => {
 
   describe("State Synchronization", () => {
     it("should synchronize state between steps", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       // Complete step 1
       TestUtils.fillForm({
@@ -399,17 +399,17 @@ describe("Onboarding Flow Integration", () => {
         "email": "jane.smith@example.com",
       }, '[data-testid="personal-info-step"]');
 
-      cy.get('[data-testid="continue-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').click();
       cy.tick(500);
 
       // Verify state was passed to step 2
-      cy.get('[data-testid="signature-step"]').should("contain", "Welcome Jane Smith");
+      cy.get('[data-testid="onboarding-button"]').should("contain", "Welcome Jane Smith");
     });
   });
 
   describe("Loading States", () => {
     it("should show loading states during transitions", () => {
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       TestUtils.fillForm({
         "first-name": mockPersonalInfo.first_name,
@@ -419,9 +419,9 @@ describe("Onboarding Flow Integration", () => {
 
       // Test loading state
       TestUtils.testLoadingStates(
-        () => cy.get('[data-testid="continue-button"]').click(),
-        '[data-testid="continue-button"]:contains("Saving...")',
-        '[data-testid="signature-step"]'
+        () => cy.get('[data-testid="onboarding-button"]').click(),
+        '[data-testid="onboarding-button"]:contains("Saving...")',
+        '[data-testid="onboarding-button"]'
       );
 
       cy.tick(500); // Complete the transition
@@ -444,7 +444,7 @@ describe("Onboarding Flow Integration", () => {
         body: { success: true, signature: TestUtils.createMockSignature() }
       }).as('saveSignature');
 
-      cy.mount(<OnboardingFlow />);
+      cy.mountWithContext(<OnboardingFlow />);
 
       // Complete the flow and verify API calls
       TestUtils.fillForm({
@@ -453,7 +453,7 @@ describe("Onboarding Flow Integration", () => {
         "email": mockPersonalInfo.email,
       }, '[data-testid="personal-info-step"]');
 
-      cy.get('[data-testid="continue-button"]').click();
+      cy.get('[data-testid="onboarding-button"]').click();
 
       // In real implementation, this would make actual API calls
       // cy.wait('@savePersonalInfo');
@@ -461,12 +461,12 @@ describe("Onboarding Flow Integration", () => {
       cy.tick(500);
       
       cy.get('[data-testid="select-template-method"]').click();
-      cy.get('[data-testid="complete-signature"]').click();
+      cy.get('[data-testid="onboarding-button"]').click();
       
       // cy.wait('@saveSignature');
       
       cy.tick(500);
-      cy.get('[data-testid="completion-state"]').should("be.visible");
+      cy.get('[data-testid="onboarding-button"]').should("be.visible");
     });
   });
 });

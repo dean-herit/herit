@@ -64,6 +64,7 @@ export function BeneficiaryCard({
     <Card
       isPressable
       className="w-full hover:shadow-lg transition-shadow cursor-pointer"
+      data-cy="beneficiary-card"
       data-testid={`beneficiary-card-${beneficiary.id}`}
       onPress={() => onView?.(beneficiary)}
     >
@@ -128,39 +129,46 @@ export function BeneficiaryCard({
             </div>
           </div>
 
-          <Dropdown placement="bottom-end">
-            <DropdownTrigger>
-              <Button
-                isIconOnly
-                data-testid="Button-75idmedwj"
-                size="sm"
-                variant="light"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <IconDotsVertical size={18} />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Beneficiary actions">
-              <DropdownItem
-                key="edit"
-                data-testid="DropdownItem-fm4ob2gxm"
-                startContent={<IconEdit size={16} />}
-                onPress={() => onEdit?.(beneficiary)}
-              >
-                Edit
-              </DropdownItem>
-              <DropdownItem
-                key="delete"
-                className="text-danger"
-                color="danger"
-                data-testid="DropdownItem-qq5ssnwj6"
-                startContent={<IconTrash size={16} />}
-                onPress={() => onDelete?.(beneficiary)}
-              >
-                Delete
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          {(onEdit || onDelete || onView) && (
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Button
+                  isIconOnly
+                  aria-haspopup="menu"
+                  data-testid="beneficiary-button"
+                  size="sm"
+                  variant="light"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <IconDotsVertical size={18} />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Beneficiary actions">
+                {onEdit && (
+                  <DropdownItem
+                    key="edit"
+                    data-testid="beneficiary-button"
+                    startContent={<IconEdit size={16} />}
+                    onPress={() => onEdit(beneficiary)}
+                  >
+                    Edit
+                  </DropdownItem>
+                )}
+                {onDelete && (
+                  <DropdownItem
+                    key="delete"
+                    className="text-danger"
+                    color="danger"
+                    data-testid="beneficiary-button"
+                    startContent={<IconTrash size={16} />}
+                    onPress={() => onDelete(beneficiary)}
+                  >
+                    Delete
+                  </DropdownItem>
+                )}
+              </DropdownMenu>
+            </Dropdown>
+          )}
         </div>
 
         {beneficiary.conditions && (

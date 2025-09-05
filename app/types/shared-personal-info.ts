@@ -119,13 +119,16 @@ export const sharedPersonalInfoSchema = z.object({
     .optional(),
 });
 
-// Onboarding-specific schema (excludes relationship, adds date_of_birth)
+// Onboarding-specific schema (excludes relationship, adds date_of_birth, makes address optional)
 export const onboardingPersonalInfoSchema = sharedPersonalInfoSchema
   .omit({
     relationship_type: true,
   })
   .extend({
     date_of_birth: z.string().min(1, "Date of birth is required"),
+    // Make address fields optional for onboarding (can be completed later)
+    address_line_1: z.string().max(255).optional().or(z.literal("")),
+    city: z.string().max(100).optional().or(z.literal("")),
   });
 
 // Beneficiary-specific schema (requires relationship + additional required fields)

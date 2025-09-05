@@ -68,7 +68,7 @@ export const RuleConditionsDisplay: React.FC<RuleConditionsDisplayProps> = ({
   const conditions = parseRuleDefinition(ruleDefinition);
 
   return (
-    <div className="border rounded-lg p-4 bg-white">
+    <div className="border rounded-lg p-4 bg-white" data-testid="rule-conditions-display">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Conditions</h3>
         <p className="text-sm text-gray-600">

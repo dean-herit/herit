@@ -146,7 +146,7 @@ export default function SignupPage() {
 
         <Form
           className="flex flex-col gap-3"
-          data-testid="Form-78zgrpafw"
+          data-testid="auth-form"
           validationBehavior="native"
           onSubmit={handleSubmit}
         >
@@ -160,7 +160,7 @@ export default function SignupPage() {
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
                 errorMessage: "text-danger-300",
               }}
-              data-testid="Input-p8hzp4ygq"
+              data-testid="auth-input"
               errorMessage={errors.firstName}
               isInvalid={!!errors.firstName}
               label="First Name"
@@ -179,7 +179,7 @@ export default function SignupPage() {
                   "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
                 errorMessage: "text-danger-300",
               }}
-              data-testid="Input-x276tzkfu"
+              data-testid="auth-input"
               errorMessage={errors.lastName}
               isInvalid={!!errors.lastName}
               label="Last Name"
@@ -200,7 +200,7 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
-            data-testid="Input-5mpge24f9"
+            data-testid="auth-input"
             errorMessage={errors.email}
             isInvalid={!!errors.email}
             label="Email Address"
@@ -221,10 +221,10 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
-            data-testid="Input-700eymxo4"
+            data-testid="auth-input"
             endContent={
               <button
-                data-testid="button-o88zxmwaf"
+                data-testid="auth-button"
                 type="button"
                 onClick={toggleVisibility}
               >
@@ -261,10 +261,10 @@ export default function SignupPage() {
                 "border-white/50 hover:border-white/70 data-[focus=true]:border-white",
               errorMessage: "text-danger-300",
             }}
-            data-testid="Input-555pso95r"
+            data-testid="auth-input"
             endContent={
               <button
-                data-testid="button-i5j1w1bds"
+                data-testid="auth-button"
                 type="button"
                 onClick={toggleConfirmVisibility}
               >

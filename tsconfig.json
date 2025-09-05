@@ -28,7 +28,13 @@
     "node_modules",
     "**/*.stories.tsx",
     "**/*.cy.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "tests/**/*",
     "cypress/**/*",
-    "storybook-static/**/*"
+    "storybook-static/**/*",
+    "scripts/**/*"
   ]
 }

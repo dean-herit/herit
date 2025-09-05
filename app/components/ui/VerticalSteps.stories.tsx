@@ -273,7 +273,7 @@ export const InteractiveDemo: Story = {
         <div className="flex gap-2">
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded"
-            data-testid="button-w1pdzptrn"
+            data-testid="button"
             disabled={currentStep === 0}
             onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
           >
@@ -281,7 +281,7 @@ export const InteractiveDemo: Story = {
           </button>
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded"
-            data-testid="button-8ebcqgf9s"
+            data-testid="button"
             disabled={currentStep === mockSteps.length - 1}
             onClick={() =>
               setCurrentStep(Math.min(mockSteps.length - 1, currentStep + 1))

@@ -26,7 +26,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
   return (
-    <div>
+    <div data-testid="providers">
       <QueryProvider>
         <HeroUIProvider navigate={router.push}>
           <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>

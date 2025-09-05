@@ -62,8 +62,16 @@ export function SharedPersonalInfoFormProvider({
   // Reset form when initialData changes (for OAuth pre-population)
   useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
-      console.log("SharedPersonalInfoFormProvider: Resetting form with initialData:", initialData);
-      console.log("SharedPersonalInfoFormProvider: Mode:", mode, "OAuth?", isFromOAuth);
+      console.log(
+        "SharedPersonalInfoFormProvider: Resetting form with initialData:",
+        initialData,
+      );
+      console.log(
+        "SharedPersonalInfoFormProvider: Mode:",
+        mode,
+        "OAuth?",
+        isFromOAuth,
+      );
       methods.reset({
         country: "Ireland",
         ...initialData,
@@ -91,7 +99,7 @@ export function SharedPersonalInfoFormProvider({
     <FormProvider
       {...methods}
       data-component-category="ui"
-      data-testid="form-provider"
+      data-testid="button"
     >
       <form
         className={`max-w-6xl mx-auto ${className}`}
@@ -120,7 +128,7 @@ export function SharedPersonalInfoFormProvider({
         <div
           className="flex justify-end gap-3 pt-4"
           data-component-category="ui"
-          data-testid="form-actions"
+          data-testid="button"
         >
           {showCancelButton && onCancel && (
             <Button

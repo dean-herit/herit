@@ -16,10 +16,16 @@
 import "./commands";
 import "@cypress/code-coverage/support";
 import "@testing-library/cypress/add-commands";
+import "cypress-real-events/support";
 
 // Import shared testing utilities
 import "./test-utils";
 import "./integration-utils";
+
+// Import modern 2025 component testing infrastructure
+import "./next-app-router-mock";
+import "./query-client-setup";
+import "./universal-test-wrapper";
 
 // Import commands.ts using ES2015 syntax:
 import { mount } from "cypress/react";

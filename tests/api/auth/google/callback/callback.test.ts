@@ -1,166 +1,92 @@
 /**
- * /api/auth/google/callback API Route Test - REAL IMPLEMENTATION
- * Enhanced 8-section test structure with production-grade validation
- * Auto-generated Phase 1 real implementation
- * Complexity: 6/10
- * Priority: critical
+ * /api/auth/google/callback API Route Test - REAL AUTHENTICATION
+ * Migrated to TestAuthManager for real JWT tokens and database sessions
+ * Auto-migrated from complex mocking system
  */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Import the actual route handlers
 import * as routeHandlers from '@/app/api/auth/google/callback/route';
 
-// Real testing utilities
-import { db } from '@/db/db';
-import { logger } from '@/app/lib/logger';
-
-// Mock external dependencies
-vi.mock('@/db/db', () => ({
-  db: {
-    execute: vi.fn(),
-    query: {
-      users: { findFirst: vi.fn(), findMany: vi.fn() },
-      assets: { findFirst: vi.fn(), findMany: vi.fn() },
-      beneficiaries: { findFirst: vi.fn(), findMany: vi.fn() },
-      documents: { findFirst: vi.fn(), findMany: vi.fn() },
-    },
-    insert: vi.fn().mockReturnValue({ returning: vi.fn() }),
-    update: vi.fn().mockReturnValue({ where: vi.fn().mockReturnValue({ returning: vi.fn() }) }),
-    delete: vi.fn().mockReturnValue({ where: vi.fn() }),
-  },
-}));
-
-vi.mock('@/app/lib/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
-
-vi.mock('@/app/lib/env', () => ({
-  env: {
-    NODE_ENV: 'test',
-    SESSION_SECRET: 'test-session-secret-32-chars-long',
-    GOOGLE_CLIENT_ID: 'test-google-client-id',
-    GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
-    GITHUB_CLIENT_ID: 'test-github-client-id',
-    GITHUB_CLIENT_SECRET: 'test-github-client-secret',
-  },
-}));
-
-const mockDb = vi.mocked(db);
-const mockLogger = vi.mocked(logger);
+// Real authentication testing utilities
+import { setupApiTestHooks, setupAuthenticatedTest, setupUnauthenticatedTest, TestAssertions, createAuthenticatedRequest } from '../../../../test-setup-real-auth';
 
 describe("/api/auth/google/callback", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Reset environment variables
-    process.env.NODE_ENV = 'test';
-  });
+  // Setup authentication test hooks with real JWT tokens
+  setupApiTestHooks();
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  const url = 'http://localhost:3000/api/auth/google/callback';
 
   describe("Core Functionality", () => {
-    
-    it("handles GET requests successfully", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
+    it("handles GET requests with valid authentication", async () => {
+      // OAuth callback always redirects - this is correct behavior
+      const request = new NextRequest(`${url}?code=test_code&state=test_state`, { method: 'GET' });
 
       const response = await routeHandlers.GET(request);
       
-      expect(response.status).toBeLessThan(400);
+      // OAuth callback should redirect (307), not return JSON (200)
+      expect(response.status).toBe(307);
+      
+      // Should have a redirect location header
+      expect(response.headers.get('location')).toBeTruthy();
     });
-    
-    
-    
 
-    it("processes operations correctly", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ success: true }]);
-      
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
+    it("handles OAuth callback redirects correctly", async () => {
+      // OAuth callback should redirect, not return JSON
+      const request = new NextRequest(`${url}?code=test_code&state=test_state`, { method: 'GET' });
 
       const response = await routeHandlers.GET(request);
       
-      expect(response).toBeDefined();
-      expect(response.status).toBeLessThan(500);
+      // OAuth callback returns a redirect (307) not a success response (200)
+      expect(response.status).toBe(307);
     });
   });
 
   describe("Error States", () => {
-    it("handles database failures gracefully", async () => {
-      const dbError = new Error('Database connection failed');
-      mockDb.execute.mockRejectedValueOnce(dbError);
+    it("returns proper error for unauthenticated requests", async () => {
+      await setupUnauthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
+      // OAuth callback without proper parameters should redirect with error
+      const request = new NextRequest(url, { method: 'GET' });
       const response = await routeHandlers.GET(request);
-      
-      expect(response.status).toBeGreaterThanOrEqual(400);
-    });
-
-    it("validates request parameters", async () => {
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invalid: 'data' }),
-      });
-
-      if (routeHandlers.POST) {
-        const response = await routeHandlers.POST(request);
-        expect(response).toBeDefined();
-      }
+      expect(response.status).toBe(307); // OAuth redirects to login with error
     });
   });
 
   describe("Security", () => {
-    it("validates authentication when required", async () => {
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
-      const response = await routeHandlers.GET(request);
+    it("redirects to login when OAuth parameters are missing", async () => {
+      await setupUnauthenticatedTest();
       
-      // Test passes if route handles auth appropriately
-      expect(response).toBeDefined();
+      const request = new NextRequest(url, { method: 'GET' });
+      const response = await routeHandlers.GET(request);
+      expect(response.status).toBe(307); // Redirect to login with error
+      
+      // Should redirect to login with error message
+      const location = response.headers.get('location');
+      expect(location).toContain('/login');
+      expect(location).toContain('error=');
     });
 
-    it("prevents injection attacks", async () => {
-      const maliciousData = {
-        name: "'; DROP TABLE users; --",
-        value: "<script>alert('xss')</script>"
-      };
+    it("redirects to login when OAuth state validation fails", async () => {
+      await setupUnauthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(maliciousData),
-      });
-
-      if (routeHandlers.POST) {
-        const response = await routeHandlers.POST(request);
-        expect(response).toBeDefined();
-      }
+      const request = new NextRequest(`${url}?code=test_code`, { method: 'GET' });
+      const response = await routeHandlers.GET(request);
+      expect(response.status).toBe(307); // Redirect to login with error
+      
+      // Should redirect to login with state validation error
+      const location = response.headers.get('location');
+      expect(location).toContain('/login');
+      expect(location).toContain('error=');
     });
   });
 
   describe("Performance", () => {
-    it("responds within acceptable time", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ result: 'success' }]);
+    it("responds within acceptable time with real authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
+      const request = createAuthenticatedRequest(url, { method: 'GET' }, authContext);
 
       const startTime = performance.now();
       const response = await routeHandlers.GET(request);
@@ -172,30 +98,21 @@ describe("/api/auth/google/callback", () => {
   });
 
   describe("Database Integrity", () => {
-    it("maintains data consistency", async () => {
-      mockDb.execute.mockResolvedValueOnce([{ id: 1, success: true }]);
+    it("maintains data consistency with real database operations", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
+      const request = createAuthenticatedRequest(url, { method: 'GET' }, authContext);
       const response = await routeHandlers.GET(request);
       
       expect(response).toBeDefined();
-      if (response.status < 400) {
-        expect(mockDb.execute).toHaveBeenCalled();
-      }
     });
   });
 
   describe("Integration Scenarios", () => {
-    it("handles complex workflow", async () => {
-      mockDb.execute.mockResolvedValue([{ workflow: 'success' }]);
+    it("integrates with authentication workflow", async () => {
+      const authContext = await setupAuthenticatedTest();
       
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
+      const request = createAuthenticatedRequest(url, { method: 'GET' }, authContext);
       const response = await routeHandlers.GET(request);
       
       expect(response).toBeDefined();
@@ -203,11 +120,10 @@ describe("/api/auth/google/callback", () => {
   });
 
   describe("Compliance", () => {
-    it("meets API standards", async () => {
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
+    it("meets API standards with proper authentication", async () => {
+      const authContext = await setupAuthenticatedTest();
+      
+      const request = createAuthenticatedRequest(url, { method: 'GET' }, authContext);
       const response = await routeHandlers.GET(request);
       
       expect(response).toBeDefined();
@@ -216,30 +132,12 @@ describe("/api/auth/google/callback", () => {
   });
 
   describe("Edge Cases", () => {
-    it("handles empty requests", async () => {
-      const request = new NextRequest('http://localhost:3000/api/auth/google/callback', {
-        method: 'GET',
-      });
-
+    it("handles malformed OAuth parameters appropriately", async () => {
+      // OAuth callback with malformed state parameter should redirect with error
+      const request = new NextRequest(`${url}?code=test_code&state=malformed%20state`, { method: 'GET' });
       const response = await routeHandlers.GET(request);
-      
       expect(response).toBeDefined();
-    });
-
-    it("handles concurrent requests", async () => {
-      mockDb.execute.mockResolvedValue([{ concurrent: 'success' }]);
-      
-      const requests = Array(3).fill(0).map(() => 
-        new NextRequest('http://localhost:3000/api/auth/google/callback', { method: 'GET' })
-      );
-
-      const responses = await Promise.all(
-        requests.map(req => routeHandlers.GET(req))
-      );
-      
-      responses.forEach(response => {
-        expect(response).toBeDefined();
-      });
+      expect(response.status).toBe(307); // Redirect to login with error
     });
   });
 });

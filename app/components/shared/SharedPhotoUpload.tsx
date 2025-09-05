@@ -362,7 +362,7 @@ export function SharedPhotoUpload({
             showValueLabel
             color="primary"
             data-component-category="ui"
-            data-testid="upload-progress"
+            data-testid="button"
             size="sm"
             value={uploadProgress}
           />
@@ -377,7 +377,7 @@ export function SharedPhotoUpload({
                 : "border-default-300 hover:border-default-400"
             }
           `}
-          data-testid="div-jkw0zt1ps"
+          data-testid="button"
           role="button"
           tabIndex={0}
           onClick={triggerFileSelect}
@@ -395,7 +395,7 @@ export function SharedPhotoUpload({
             ref={fileInputRef}
             accept="image/*"
             className="hidden"
-            data-testid="input-m9c9s7n1s"
+            data-testid="button"
             type="file"
             onChange={handleFileInputChange}
           />
@@ -410,7 +410,7 @@ export function SharedPhotoUpload({
               {!isDragging && (
                 <Button
                   className="font-medium"
-                  data-testid="Button-mpgluhsvg"
+                  data-testid="button"
                   size="md"
                   variant="bordered"
                   onPress={triggerFileSelect}

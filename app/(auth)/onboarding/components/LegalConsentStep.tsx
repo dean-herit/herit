@@ -492,7 +492,7 @@ export function LegalConsentStep({
       <div className="flex justify-between pt-6">
         {onBack ? (
           <Button
-            data-testid="Button-0v2b2ukzh"
+            data-testid="auth-button"
             isDisabled={loading}
             variant="bordered"
             onPress={onBack}

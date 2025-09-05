@@ -152,7 +152,7 @@ export function BeneficiaryPhotoInput({
               isIconOnly
               className="absolute -top-2 -right-2 min-w-6 w-6 h-6"
               color="danger"
-              data-testid="Button-awjfqhs4x"
+              data-testid="beneficiary-button"
               size="sm"
               variant="solid"
               onPress={clearPhoto}
@@ -195,7 +195,7 @@ export function BeneficiaryPhotoInput({
                 : "border-default-300 hover:border-default-400"
             }
           `}
-          data-testid="div-37usd6hkm"
+          data-testid="beneficiary-button"
           role="button"
           tabIndex={0}
           onClick={triggerFileSelect}
@@ -213,7 +213,7 @@ export function BeneficiaryPhotoInput({
             ref={fileInputRef}
             accept="image/*"
             className="hidden"
-            data-testid="input-wbl472oob"
+            data-testid="beneficiary-button"
             type="file"
             onChange={handleFileInputChange}
           />

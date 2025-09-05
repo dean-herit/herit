@@ -50,9 +50,9 @@ const convertFromSharedFormat = (
     date_of_birth: sharedData.date_of_birth || "",
     phone_number: sharedData.phone || "",
     pps_number: sharedData.pps_number || "",
-    address_line_1: sharedData.address_line_1,
+    address_line_1: sharedData.address_line_1 || "",
     address_line_2: sharedData.address_line_2 || "",
-    city: sharedData.city,
+    city: sharedData.city || "",
     county: sharedData.county || "",
     eircode: sharedData.eircode || "",
     profile_photo: sharedData.photo_url || null,
@@ -359,7 +359,7 @@ export function PersonalInfoStep({
         <>
           {/* Shared Personal Information Form */}
           <SharedPersonalInfoFormProvider
-            data-testid="SharedPersonalInfoFormProvider-h7k487otg"
+            data-testid="auth-button"
             initialData={convertToSharedFormat(initialData)}
             initialPhotoUrl={initialData.profile_photo || undefined}
             isFromOAuth={isFromOAuth}

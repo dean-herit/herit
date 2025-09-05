@@ -1,0 +1,38 @@
+{
+  "executionId": "test-1757003194380",
+  "timestamp": "2025-09-04T16:26:34.381Z",
+  "status": "completed",
+  "overallSuccess": true,
+  "results": {
+    "backendTests": {
+      "command": "",
+      "status": "pending",
+      "output": "",
+      "startTime": 1757003194381
+    },
+    "linting": {
+      "command": "",
+      "status": "pending",
+      "output": "",
+      "startTime": 1757003194381
+    },
+    "build": {
+      "command": "",
+      "status": "pending",
+      "output": "",
+      "startTime": 1757003194381
+    },
+    "componentTestsAccessibility": {
+      "command": "",
+      "status": "pending",
+      "output": "",
+      "startTime": 1757003194381
+    },
+    "componentTestsCore": {
+      "command": "",
+      "status": "pending",
+      "output": "",
+      "startTime": 1757003194381
+    }
+  }
+}

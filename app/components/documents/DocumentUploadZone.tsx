@@ -306,7 +306,7 @@ export default function DocumentUploadZone({
             }
           `}
         >
-          <input {...getInputProps()} data-testid="input-hk7issz7h" />
+          <input {...getInputProps()} data-testid="document-button" />
           <CloudArrowUpIcon className="w-12 h-12 mx-auto mb-4 text-default-400" />
           {isDragActive ? (
             <p className="text-lg font-medium">Drop files here...</p>
@@ -348,7 +348,7 @@ export default function DocumentUploadZone({
                       {item.status === "complete" && (
                         <Button
                           isIconOnly
-                          data-testid="Button-zsv9ht88a"
+                          data-testid="document-button"
                           size="sm"
                           variant="light"
                           onPress={() => removeFromQueue(item.fileName)}
@@ -492,7 +492,7 @@ export default function DocumentUploadZone({
           </ModalBody>
           <ModalFooter>
             <Button
-              data-testid="Button-it5tfkc2y"
+              data-testid="document-button"
               variant="light"
               onPress={() => setIsModalOpen(false)}
             >
@@ -500,7 +500,7 @@ export default function DocumentUploadZone({
             </Button>
             <Button
               color="primary"
-              data-testid="Button-4nmhaidqb"
+              data-testid="document-button"
               isDisabled={
                 !documentMetadata.category ||
                 !documentMetadata.documentType.trim()

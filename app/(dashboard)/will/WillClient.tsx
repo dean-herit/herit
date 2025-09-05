@@ -58,7 +58,7 @@ export function WillClient({ user }: WillClientProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-testid="willclient">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Your Will</h1>
@@ -109,6 +109,7 @@ export function WillClient({ user }: WillClientProps) {
                 color="primary"
                 size="lg"
                 startContent={<PlusIcon className="w-5 h-5" />}
+                data-testid="will-button"
               >
                 Create Will
               </Button>

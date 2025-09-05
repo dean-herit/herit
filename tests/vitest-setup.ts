@@ -19,36 +19,98 @@ vi.mock('next/headers', () => ({
   })),
 }));
 
-// Mock the auth module with comprehensive authentication context
+// PROPER AUTH MOCK - Matches real auth.ts structure exactly
 vi.mock('@/app/lib/auth', async () => {
   const actual = await vi.importActual('@/app/lib/auth');
-  const mockUser = {
-    id: 'user-123',
-    email: 'test@example.com',
-    first_name: 'Test',
-    last_name: 'User',
+  
+  // Create mock user that matches the real User type from schema
+  const createRealMockUser = (overrides: any = {}) => ({
+    id: overrides.id || 'user-123',
+    email: overrides.email || 'test@example.com',
+    first_name: overrides.first_name || 'Test',
+    last_name: overrides.last_name || 'User',
     createdAt: new Date(),
     updatedAt: new Date(),
-    emailVerified: new Date(),
-    image: null,
-    onboarding_completed: true,
-    personal_info_completed: true,
-    signature_completed: true,
-    legal_consent_completed: true,
-    verification_completed: true,
-    verification_status: 'verified',
+    emailVerified: overrides.emailVerified || new Date(),
+    image: overrides.image || null,
+    onboarding_completed: overrides.onboarding_completed ?? true,
+    personal_info_completed: overrides.personal_info_completed ?? true,
+    signature_completed: overrides.signature_completed ?? true,
+    legal_consent_completed: overrides.legal_consent_completed ?? true,
+    verification_completed: overrides.verification_completed ?? true,
+    verification_status: overrides.verification_status || 'verified',
+  });
+
+  // Create session that matches exact SessionResult type from auth.ts
+  const createRealSession = (overrides: any = {}): any => {
+    if (overrides.isAuthenticated === false) {
+      // NoSession type - exactly matches auth.ts
+      return {
+        user: null,
+        isAuthenticated: false,
+        error: overrides.error || 'token_missing'
+      };
+    }
+    
+    // Session type - exactly matches auth.ts  
+    return {
+      user: createRealMockUser(overrides.user),
+      isAuthenticated: true
+    };
   };
+
+  // Different session contexts for different test scenarios
+  const sessionContexts = {
+    authenticated: createRealSession({ isAuthenticated: true }),
+    unauthenticated: createRealSession({ 
+      isAuthenticated: false, 
+      error: 'token_missing' 
+    }),
+    expired: createRealSession({ 
+      isAuthenticated: false, 
+      error: 'token_expired' 
+    }),
+    invalid: createRealSession({ 
+      isAuthenticated: false, 
+      error: 'token_invalid' 
+    }),
+  };
+
+  // Smart session mock that returns proper structure
+  const getSession = vi.fn().mockResolvedValue(sessionContexts.authenticated);
+  const requireAuth = vi.fn().mockResolvedValue(sessionContexts.authenticated);
+
+  // Context switcher for tests
+  (globalThis as any).setAuthContext = (contextName: keyof typeof sessionContexts) => {
+    const context = sessionContexts[contextName];
+    getSession.mockResolvedValue(context);
+    requireAuth.mockResolvedValue(context);
+    return context;
+  };
+
+  // Smart session mock that returns proper structure
+  const smartGetSession = vi.fn().mockResolvedValue({
+    user: createRealMockUser(),
+    isAuthenticated: true
+  });
   
+  const smartRequireAuth = vi.fn().mockResolvedValue({
+    user: createRealMockUser(),
+    isAuthenticated: true
+  });
+
+  // Context switcher for tests
+  (globalThis as any).setAuthContext = (contextName: keyof typeof sessionContexts) => {
+    const context = sessionContexts[contextName];
+    smartGetSession.mockResolvedValue(context);
+    smartRequireAuth.mockResolvedValue(context);
+    return context;
+  };
+
   return {
     ...actual,
-    getSession: vi.fn().mockResolvedValue({
-      user: mockUser,
-      isAuthenticated: true,
-    }),
-    requireAuth: vi.fn().mockResolvedValue({
-      user: mockUser,
-      isAuthenticated: true,
-    }),
+    getSession: getSession,  // Use controllable getSession instead of smartGetSession
+    requireAuth: requireAuth,  // Use controllable requireAuth instead of smartRequireAuth
     hashPassword: vi.fn().mockResolvedValue('hashed-password'),
     setAuthCookies: vi.fn().mockResolvedValue(undefined),
     clearAuthCookies: vi.fn().mockResolvedValue(undefined),
@@ -66,7 +128,7 @@ vi.mock('@/app/lib/env', () => ({
     GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
     GITHUB_CLIENT_ID: 'test-github-client-id',
     GITHUB_CLIENT_SECRET: 'test-github-client-secret',
-    POSTGRES_URL: 'postgresql://test:test@localhost:5432/test',
+    POSTGRES_URL: process.env.POSTGRES_URL!, // Use real database URL from environment
     BLOB_READ_WRITE_TOKEN: 'test-blob-token',
     STRIPE_SECRET_KEY: 'sk_test_mock',
     STRIPE_PUBLISHABLE_KEY: 'pk_test_mock',
@@ -83,62 +145,7 @@ vi.mock('@/app/lib/logger', () => ({
   },
 }));
 
-// Mock database with comprehensive query interface
-vi.mock('@/db/db', () => ({
-  db: {
-    execute: vi.fn().mockResolvedValue([{ success: true }]),
-    query: {
-      users: { 
-        findFirst: vi.fn().mockResolvedValue(BackendTestUtils.createMockUser()), 
-        findMany: vi.fn().mockResolvedValue([BackendTestUtils.createMockUser()]) 
-      },
-      assets: { 
-        findFirst: vi.fn().mockResolvedValue(BackendTestUtils.createMockAsset()), 
-        findMany: vi.fn().mockResolvedValue([BackendTestUtils.createMockAsset()]) 
-      },
-      beneficiaries: { 
-        findFirst: vi.fn().mockResolvedValue(BackendTestUtils.createMockBeneficiary()), 
-        findMany: vi.fn().mockResolvedValue([BackendTestUtils.createMockBeneficiary()]) 
-      },
-      documents: { 
-        findFirst: vi.fn().mockResolvedValue({ 
-          id: 'doc-1', 
-          userId: 'user-1', 
-          name: 'test-doc.pdf' 
-        }), 
-        findMany: vi.fn().mockResolvedValue([{ 
-          id: 'doc-1', 
-          userId: 'user-1', 
-          name: 'test-doc.pdf' 
-        }]) 
-      },
-      refreshTokens: {
-        findFirst: vi.fn().mockResolvedValue(null),
-        findMany: vi.fn().mockResolvedValue([])
-      },
-    },
-    insert: vi.fn().mockReturnValue({ 
-      values: vi.fn().mockReturnValue({
-        returning: vi.fn().mockResolvedValue([{ id: 'new-id' }])
-      })
-    }),
-    update: vi.fn().mockReturnValue({ 
-      where: vi.fn().mockReturnValue({ 
-        returning: vi.fn().mockResolvedValue([{ id: 'updated-id' }]) 
-      }) 
-    }),
-    delete: vi.fn().mockReturnValue({ 
-      where: vi.fn().mockResolvedValue([{ id: 'deleted-id' }])
-    }),
-    select: vi.fn().mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([BackendTestUtils.createMockUser()])
-        })
-      })
-    }),
-  },
-}));
+// Database now uses real connection - no mocking needed
 
 // Mock external services
 vi.mock('stripe', () => ({

@@ -37,7 +37,7 @@ export function LoginForm() {
                   ? "border-primary text-primary"
                   : "border-transparent text-default-600 hover:text-default-800"
               }`}
-              data-testid="button-lx5v9feqo"
+              data-testid="login-button"
               onClick={() => setAuthMode("login")}
             >
               Sign In
@@ -48,7 +48,7 @@ export function LoginForm() {
                   ? "border-primary text-primary"
                   : "border-transparent text-default-600 hover:text-default-800"
               }`}
-              data-testid="button-49upe617l"
+              data-testid="login-button"
               onClick={() => setAuthMode("signup")}
             >
               Sign Up
@@ -60,7 +60,7 @@ export function LoginForm() {
           <div className="text-center">
             <Button
               className="text-sm"
-              data-testid="Button-co0u5n8vx"
+              data-testid="login-button"
               variant="light"
               onPress={() => setShowEmailAuth(false)}
             >
@@ -73,7 +73,7 @@ export function LoginForm() {
           {/* Email Authentication Button */}
           <Button
             className="w-full"
-            data-testid="Button-exgn9dade"
+            data-testid="login-button"
             size="lg"
             startContent={
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -108,7 +108,7 @@ export function LoginForm() {
           By continuing, you agree to our{" "}
           <a
             className="text-primary hover:underline"
-            data-testid="a-98syk3o3b"
+            data-testid="login-button"
             href="/terms"
           >
             Terms of Service
@@ -116,7 +116,7 @@ export function LoginForm() {
           and{" "}
           <a
             className="text-primary hover:underline"
-            data-testid="a-hi2buocoj"
+            data-testid="login-button"
             href="/privacy"
           >
             Privacy Policy

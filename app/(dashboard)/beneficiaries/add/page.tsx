@@ -37,7 +37,7 @@ export default function AddBeneficiaryPage() {
       <div className="mb-6">
         <Button
           className="mb-4"
-          data-testid="Button-55qwfzcfn"
+          data-testid="beneficiary-button"
           startContent={<ArrowLeftIcon className="h-4 w-4" />}
           variant="light"
           onPress={handleCancel}
@@ -54,7 +54,7 @@ export default function AddBeneficiaryPage() {
       {/* Form */}
       <div>
         <BeneficiaryForm
-          data-testid="BeneficiaryForm-5ayleu00u"
+          data-testid="beneficiary-button"
           loading={loading || createMutation.isPending}
           mode="create"
           onCancel={handleCancel}

@@ -65,3 +65,78 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session.isAuthenticated) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    const body = await request.json();
+    const { status, title, content, willType } = body;
+
+    // Get user ID from email
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, session.user.email))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Get the most recent will for the current user
+    const userWills = await db
+      .select()
+      .from(wills)
+      .where(eq(wills.user_id, user.id))
+      .orderBy(desc(wills.updated_at))
+      .limit(1);
+
+    if (userWills.length === 0) {
+      return NextResponse.json(
+        { error: "No will found to update" },
+        { status: 404 },
+      );
+    }
+
+    const latestWill = userWills[0];
+
+    // Update the will status and other fields if provided
+    const [updatedWill] = await db
+      .update(wills)
+      .set({
+        status: status || latestWill.status,
+        title: title || latestWill.title,
+        content: content || latestWill.content,
+        will_type: willType || latestWill.will_type,
+        updated_at: new Date(),
+      })
+      .where(eq(wills.id, latestWill.id))
+      .returning({
+        id: wills.id,
+        title: wills.title,
+        status: wills.status,
+        will_type: wills.will_type,
+        legal_review_status: wills.legal_review_status,
+        created_at: wills.created_at,
+        updated_at: wills.updated_at,
+      });
+
+    return NextResponse.json({
+      success: true,
+      data: { will: updatedWill },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to update will status" },
+      { status: 500 },
+    );
+  }
+}

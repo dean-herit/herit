@@ -401,7 +401,7 @@ export default function OnboardingPage() {
         return (
           <PersonalInfoStep
             {...commonProps}
-            data-testid="PersonalInfoStep-twu18t3j0"
+            data-testid="auth-button"
             initialData={personalInfo}
             onChange={setPersonalInfo}
             onComplete={() => handleStepComplete(currentStep, personalInfo)}
@@ -411,7 +411,7 @@ export default function OnboardingPage() {
         return (
           <SignatureStep
             {...commonProps}
-            data-testid="SignatureStep-azx0ietmz"
+            data-testid="auth-button"
             initialSignature={signature}
             personalInfo={personalInfo}
             onChange={setSignature}
@@ -424,7 +424,7 @@ export default function OnboardingPage() {
         return signature ? (
           <LegalConsentStep
             {...commonProps}
-            data-testid="LegalConsentStep-v25op4v5f"
+            data-testid="auth-button"
             initialConsents={consents}
             signature={signature}
             onChange={setConsents}

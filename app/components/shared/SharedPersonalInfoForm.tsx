@@ -85,7 +85,10 @@ export function SharedPersonalInfoForm({
   }, [isFromOAuth, oauthProvider, originalEmail, getValues, setValue, mode]);
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div
+      className={`space-y-6 ${className}`}
+      data-testid="shared-personal-info-form"
+    >
       {/* Unified Form - No Section Headers */}
       <div className="space-y-6">
         {/* Relationship Type - Only for beneficiaries */}
@@ -320,7 +323,7 @@ export function SharedPersonalInfoForm({
                 name="photo_url"
                 render={({ field }) => (
                   <SharedPhotoUpload
-                    data-testid="SharedPhotoUpload-ogos1i4pk"
+                    data-testid="button"
                     hasExistingPhoto={!!initialPhotoUrl}
                     mode={mode}
                     name={watch("name") || ""}

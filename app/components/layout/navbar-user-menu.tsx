@@ -66,10 +66,7 @@ export const NavbarUserMenu = () => {
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
-        <button
-          className="mt-1 transition-transform"
-          data-testid="button-269wfst0z"
-        >
+        <button className="mt-1 transition-transform" data-testid="button">
           {user.profile_photo_url ? (
             <Avatar
               className="h-8 w-8"
@@ -98,7 +95,7 @@ export const NavbarUserMenu = () => {
         <DropdownItem
           key="logout"
           color="danger"
-          data-testid="DropdownItem-3slqgrgx1"
+          data-testid="dropdown-item"
           onPress={handleLogout}
         >
           Log Out

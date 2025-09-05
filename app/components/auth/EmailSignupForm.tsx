@@ -68,13 +68,13 @@ export function EmailSignupForm() {
   return (
     <form
       className="space-y-4"
-      data-testid="form-v6460rlcl"
+      data-testid="email-signup-form"
       onSubmit={handleSubmit}
     >
       <div className="grid grid-cols-2 gap-3">
         <Input
           isRequired
-          data-testid="Input-oyn7jvuvk"
+          data-testid="signup-input"
           errorMessage={errors.firstName}
           isInvalid={!!errors.firstName}
           label="First Name"
@@ -86,7 +86,7 @@ export function EmailSignupForm() {
 
         <Input
           isRequired
-          data-testid="Input-6910kw7o7"
+          data-testid="signup-input"
           errorMessage={errors.lastName}
           isInvalid={!!errors.lastName}
           label="Last Name"
@@ -99,7 +99,7 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
-        data-testid="Input-77q8l81vs"
+        data-testid="signup-input"
         errorMessage={errors.email}
         isInvalid={!!errors.email}
         label="Email"
@@ -112,11 +112,11 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
-        data-testid="Input-vf6nu2vzm"
+        data-testid="signup-input"
         endContent={
           <button
             className="focus:outline-none"
-            data-testid="button-yz403emj6"
+            data-testid="password-visibility-toggle"
             type="button"
             onClick={() => setShowPassword(!showPassword)}
           >
@@ -139,11 +139,11 @@ export function EmailSignupForm() {
 
       <Input
         isRequired
-        data-testid="Input-tdmdy5y7u"
+        data-testid="signup-input"
         endContent={
           <button
             className="focus:outline-none"
-            data-testid="button-iyqqiqu98"
+            data-testid="confirm-password-visibility-toggle"
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
@@ -167,6 +167,7 @@ export function EmailSignupForm() {
       <Button
         className="w-full"
         color="primary"
+        data-testid="signup-submit-button"
         isDisabled={isSigningUp}
         isLoading={isSigningUp}
         size="lg"

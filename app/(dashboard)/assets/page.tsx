@@ -119,7 +119,7 @@ export default function AssetsPage() {
             </p>
             <Button
               color="primary"
-              data-testid="Button-xlpl0l09u"
+              data-testid="asset-button"
               onPress={() => window.location.reload()}
             >
               Retry
@@ -143,7 +143,7 @@ export default function AssetsPage() {
         <div className="flex gap-2">
           <Button
             color="primary"
-            data-testid="Button-ujud7t020"
+            data-testid="asset-button"
             startContent={<PlusIcon className="h-4 w-4" />}
             onPress={handleAddAsset}
           >
@@ -296,7 +296,7 @@ export default function AssetsPage() {
               <div className="flex gap-2 flex-wrap justify-center">
                 <Button
                   color="primary"
-                  data-testid="Button-4zpcht9tm"
+                  data-testid="asset-button"
                   startContent={<PlusIcon className="h-4 w-4" />}
                   onPress={handleAddAsset}
                 >
@@ -368,7 +368,7 @@ export default function AssetsPage() {
                         <DropdownMenu>
                           <DropdownItem
                             key="edit"
-                            data-testid="DropdownItem-lsox2zctl"
+                            data-testid="asset-dropdown-item"
                             startContent={<PencilIcon className="h-4 w-4" />}
                             onPress={() =>
                               router.push(`/assets/${asset.id}/edit`)
@@ -380,7 +380,7 @@ export default function AssetsPage() {
                             key="delete"
                             className="text-danger"
                             color="danger"
-                            data-testid="DropdownItem-zdznhb6xv"
+                            data-testid="asset-dropdown-item"
                             startContent={<TrashIcon className="h-4 w-4" />}
                             onPress={() => handleDeleteAsset(asset.id)}
                           >

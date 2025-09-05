@@ -1,0 +1,38 @@
+{
+  "executionId": "test-1757002878602",
+  "timestamp": "2025-09-04T16:21:18.602Z",
+  "status": "completed",
+  "overallSuccess": true,
+  "results": {
+    "backendTests": {
+      "command": "npm run test:unit",
+      "status": "completed",
+      "output": "",
+      "startTime": 1757002878602
+    },
+    "linting": {
+      "command": "npm run lint",
+      "status": "completed",
+      "output": "",
+      "startTime": 1757002878602
+    },
+    "build": {
+      "command": "npm run typecheck",
+      "status": "completed",
+      "output": "",
+      "startTime": 1757002878602
+    },
+    "componentTestsAccessibility": {
+      "command": "npm run test:ct:accessibility",
+      "status": "completed",
+      "output": "",
+      "startTime": 1757002878602
+    },
+    "componentTestsCore": {
+      "command": "npm run test:ct:core",
+      "status": "completed",
+      "output": "",
+      "startTime": 1757002878602
+    }
+  }
+}

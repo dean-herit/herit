@@ -269,14 +269,14 @@ export async function POST(request: NextRequest) {
     const validationData = {
       name: `${firstName} ${lastName}`.trim(),
       email: sessionEmail, // Always use session email for OAuth users, form email for others
-      phone: phoneNumber,
-      date_of_birth: dateOfBirth,
+      phone: phoneNumber || "",
+      date_of_birth: dateOfBirth || "",
       pps_number: ppsNumber || "",
-      address_line_1: addressLine1,
+      address_line_1: addressLine1 || "",
       address_line_2: addressLine2 || "",
-      city: city,
-      county: county,
-      eircode: eircode,
+      city: city || "",
+      county: county || "",
+      eircode: eircode || "",
       country: "Ireland", // Always Ireland for Irish compliance
     };
 

@@ -299,8 +299,9 @@ export async function GET(request: NextRequest) {
           const processedPhotoUrl = await processGoogleProfilePhoto(
             googleUser.picture,
             existingUser.id,
-            existingUser.email
+            existingUser.email,
           );
+
           if (processedPhotoUrl) {
             updateFields.profile_photo_url = processedPhotoUrl;
           }
@@ -395,9 +396,9 @@ export async function GET(request: NextRequest) {
           const processedPhotoUrl = await processGoogleProfilePhoto(
             googleUser.picture,
             newUser.id,
-            googleUser.email
+            googleUser.email,
           );
-          
+
           // Update user with processed photo URL if we got a valid photo
           if (processedPhotoUrl) {
             await db

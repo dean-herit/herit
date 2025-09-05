@@ -1,0 +1,554 @@
+/**
+ * /api/auth/login API Route Test - REAL AUTHENTICATION
+ * Enhanced 8-section test structure with production-grade validation
+ * Migrated to TestAuthManager for real JWT tokens and database sessions
+ * Complexity: 5/10
+ * Priority: critical
+ */
+import { describe, it, expect } from 'vitest';
+import { NextRequest } from 'next/server';
+
+// Import the actual route handlers
+import * as routeHandlers from '@/app/api/auth/login/route';
+
+// Real authentication testing utilities
+import { setupApiTestHooks, TestAssertions, TestDatabaseUtils, TestAuthManager } from '../../../test-setup-real-auth';
+
+describe("/api/auth/login", () => {
+  // Setup authentication test hooks with real JWT tokens
+  setupApiTestHooks();
+
+  const url = 'http://localhost:3000/api/auth/login';
+
+  describe("Core Functionality", () => {
+    it("handles POST requests with valid credentials", async () => {
+      // Create a test user with known credentials
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'login-test@example.com',
+        password: 'test-password-123'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password-123'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.user).toBeDefined();
+      expect(data.user.email).toBe(testUser.user.email);
+      
+      // Verify tokens are set in cookies
+      const setCookieHeader = response.headers.get('Set-Cookie');
+      expect(setCookieHeader).toContain('herit_access_token');
+      expect(setCookieHeader).toContain('herit_refresh_token');
+    });
+
+    it("returns user data with login response", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'user-data-test@example.com',
+        password: 'test-password-456',
+        first_name: 'Login',
+        last_name: 'TestUser'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password-456'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.user.first_name).toBe('Login');
+      expect(data.user.last_name).toBe('TestUser');
+    });
+  });
+
+  describe("Error States", () => {
+    it("returns 401 for invalid credentials", async () => {
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'nonexistent@example.com',
+          password: 'wrong-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(401);
+      const data = await response.json();
+      expect(data.error).toContain('Invalid credentials');
+    });
+
+    it("returns 400 for missing email", async () => {
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(400);
+    });
+
+    it("returns 400 for missing password", async () => {
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'test@example.com'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBe(400);
+    });
+
+    it("handles malformed JSON gracefully", async () => {
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: 'invalid-json'
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.status).toBeGreaterThanOrEqual(400);
+    });
+  });
+
+  describe("Security", () => {
+    it("validates password security", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'security-test@example.com',
+        password: 'secure-password-789'
+      });
+
+      // Test correct password
+      const validRequest = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'secure-password-789'
+        })
+      });
+
+      const validResponse = await routeHandlers.POST(validRequest);
+      TestAssertions.expectSuccessfulResponse(validResponse);
+
+      // Test incorrect password
+      const invalidRequest = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'wrong-password'
+        })
+      });
+
+      const invalidResponse = await routeHandlers.POST(invalidRequest);
+      expect(invalidResponse.status).toBe(401);
+    });
+
+    it("prevents SQL injection attacks", async () => {
+      const maliciousRequest = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: "'; DROP TABLE users; --",
+          password: "anything"
+        })
+      });
+
+      const response = await routeHandlers.POST(maliciousRequest);
+      
+      // Should handle malicious input gracefully
+      expect(response.status).toBe(401);
+    });
+
+    it("prevents timing attacks with consistent response times", async () => {
+      // Create valid user
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'timing-test@example.com',
+        password: 'test-password'
+      });
+
+      // Test valid vs invalid email timing
+      const validEmailRequest = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'wrong-password'
+        })
+      });
+
+      const invalidEmailRequest = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'nonexistent@example.com',
+          password: 'wrong-password'
+        })
+      });
+
+      const startTime1 = performance.now();
+      await routeHandlers.POST(validEmailRequest);
+      const time1 = performance.now() - startTime1;
+
+      const startTime2 = performance.now();
+      await routeHandlers.POST(invalidEmailRequest);
+      const time2 = performance.now() - startTime2;
+
+      // Times should be reasonably similar (within 50ms) to prevent timing attacks
+      const timeDifference = Math.abs(time1 - time2);
+      expect(timeDifference).toBeLessThan(50);
+    });
+  });
+
+  describe("Performance", () => {
+    it("responds within acceptable time for valid login", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'performance-test@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const startTime = performance.now();
+      const response = await routeHandlers.POST(request);
+      const responseTime = performance.now() - startTime;
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      expect(responseTime).toBeLessThan(2000); // 2 second limit
+    });
+
+    it("handles concurrent login attempts efficiently", async () => {
+      const testUsers = await Promise.all([
+        TestAuthManager.createTestUser({
+          email: 'concurrent1@example.com',
+          password: 'password1'
+        }),
+        TestAuthManager.createTestUser({
+          email: 'concurrent2@example.com',
+          password: 'password2'
+        }),
+        TestAuthManager.createTestUser({
+          email: 'concurrent3@example.com',
+          password: 'password3'
+        })
+      ]);
+
+      const requests = testUsers.map((testUser, i) => 
+        new NextRequest(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: testUser.user.email,
+            password: `password${i + 1}`
+          })
+        })
+      );
+
+      const startTime = performance.now();
+      const responses = await Promise.all(
+        requests.map(req => routeHandlers.POST(req))
+      );
+      const responseTime = performance.now() - startTime;
+      
+      responses.forEach(response => {
+        TestAssertions.expectSuccessfulResponse(response);
+      });
+      expect(responseTime).toBeLessThan(3000); // 3 second limit for concurrent requests
+    });
+  });
+
+  describe("Database Integrity", () => {
+    it("maintains user authentication state in database", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'db-integrity-test@example.com',
+        password: 'test-password',
+        first_name: 'Database',
+        last_name: 'Integrity'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.user.id).toBe(testUser.user.id);
+      expect(data.user.first_name).toBe('Database');
+      expect(data.user.last_name).toBe('Integrity');
+    });
+  });
+
+  describe("Integration Scenarios", () => {
+    it("integrates with refresh token creation", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'refresh-integration@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const setCookieHeader = response.headers.get('Set-Cookie');
+      expect(setCookieHeader).toContain('herit_access_token');
+      expect(setCookieHeader).toContain('herit_refresh_token');
+      expect(setCookieHeader).toContain('HttpOnly');
+      expect(setCookieHeader).toContain('Secure');
+    });
+
+    it("handles user onboarding status workflow", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'onboarding-workflow@example.com',
+        password: 'test-password',
+        onboarding_completed: false,
+        personal_info_completed: true
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.user.onboarding_completed).toBe(false);
+      expect(data.user.personal_info_completed).toBe(true);
+    });
+  });
+
+  describe("Compliance", () => {
+    it("meets API standards for authentication", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'compliance-test@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(Response);
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data).toHaveProperty('user');
+    });
+
+    it("follows REST API conventions for login", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'rest-compliance@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      expect(response.headers.get('Content-Type')).toContain('application/json');
+      TestAssertions.expectSuccessfulResponse(response);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("handles email case insensitivity", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'CaseTest@Example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'casetest@example.com', // lowercase
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const data = await response.json();
+      expect(data.user.email).toBe(testUser.user.email);
+    });
+
+    it("handles very long email addresses", async () => {
+      const longEmail = 'a'.repeat(50) + '@' + 'b'.repeat(50) + '.com';
+      const testUser = await TestAuthManager.createTestUser({
+        email: longEmail,
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: longEmail,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+    });
+
+    it("handles special characters in passwords", async () => {
+      const specialPassword = 'P@ssw0rd!#$%^&*()_+-=[]{}|;:,.<>?';
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'special-chars@example.com',
+        password: specialPassword
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: specialPassword
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+    });
+  });
+
+  describe("Cookie Management", () => {
+    it("sets secure authentication cookies", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'cookie-test@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const setCookieHeader = response.headers.get('Set-Cookie');
+      expect(setCookieHeader).toContain('HttpOnly');
+      expect(setCookieHeader).toContain('SameSite');
+      expect(setCookieHeader).toContain('Path=/');
+    });
+
+    it("sets appropriate cookie expiration", async () => {
+      const testUser = await TestAuthManager.createTestUser({
+        email: 'expiration-test@example.com',
+        password: 'test-password'
+      });
+
+      const request = new NextRequest(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: testUser.user.email,
+          password: 'test-password'
+        })
+      });
+
+      const response = await routeHandlers.POST(request);
+      
+      TestAssertions.expectSuccessfulResponse(response);
+      
+      const setCookieHeader = response.headers.get('Set-Cookie');
+      expect(setCookieHeader).toContain('Max-Age');
+    });
+  });
+});
+
+// Login endpoint specific test helpers
+function expectValidLoginResponse(response: Response) {
+  expect(response.status).toBe(200);
+  expect(response.headers.get('Content-Type')).toContain('application/json');
+  expect(response.headers.get('Set-Cookie')).toContain('herit_access_token');
+}
+
+function expectSecureCookies(setCookieHeader: string | null) {
+  expect(setCookieHeader).toContain('HttpOnly');
+  expect(setCookieHeader).toContain('Secure');
+  expect(setCookieHeader).toContain('SameSite');
+}

@@ -20,9 +20,11 @@ function NavbarSkeleton() {
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Check if we're on the login or signup page
+  // Check if we're on the login, signup, or test-status page
   const isAuthPage =
-    pathname?.startsWith("/login") || pathname?.startsWith("/signup");
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/signup") ||
+    pathname?.startsWith("/test-status");
 
   if (isAuthPage) {
     // For auth pages, render children directly without container, navbar, or footer

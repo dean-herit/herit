@@ -49,10 +49,11 @@ export default defineConfig({
         },
       },
     },
-    // Mock environment variables for tests
+    // Use real database for tests (shared dev database)
     env: {
       NODE_ENV: "test",
-      POSTGRES_URL: "postgresql://test:test@localhost:5432/test_db",
+      // POSTGRES_URL: Use the real database URL from environment
+      // No override - uses actual POSTGRES_URL environment variable
       SESSION_SECRET: "test-session-secret-for-vitest-testing-only",
       REFRESH_SECRET: "test-refresh-secret-for-vitest-testing-only",
     },

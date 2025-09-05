@@ -46,12 +46,12 @@ export function EmailLoginForm() {
   return (
     <form
       className="space-y-4"
-      data-testid="form-z2e08t8x9"
+      data-testid="email-login-form"
       onSubmit={handleSubmit}
     >
       <Input
         isRequired
-        data-testid="Input-1941ii3lf"
+        data-testid="login-input"
         errorMessage={errors.email}
         isInvalid={!!errors.email}
         label="Email"
@@ -64,11 +64,11 @@ export function EmailLoginForm() {
 
       <Input
         isRequired
-        data-testid="Input-7n737w9rp"
+        data-testid="login-input"
         endContent={
           <button
             className="focus:outline-none"
-            data-testid="button-nl3c28v60"
+            data-testid="login-button"
             type="button"
             onClick={() => setShowPassword(!showPassword)}
           >

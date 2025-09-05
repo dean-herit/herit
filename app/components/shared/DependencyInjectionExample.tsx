@@ -57,9 +57,13 @@ const defaultApiService: ApiService = {
 };
 
 const defaultStorageService: StorageService = {
-  setItem: (key, value) => localStorage.setItem(key, value),
-  getItem: (key) => localStorage.getItem(key),
-  removeItem: (key) => localStorage.removeItem(key),
+  setItem: (key, value) => {
+    // No-op: Local storage removed from architecture
+  },
+  getItem: (key) => null, // Always return null since no storage
+  removeItem: (key) => {
+    // No-op: Local storage removed from architecture
+  },
 };
 
 // =============================================================================
@@ -128,7 +132,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
       setUser(currentUser);
 
-      // Store in local storage using injected storage service
+      // Store using injected storage service (no-op since local storage removed)
       if (currentUser) {
         storageService.setItem("lastUser", currentUser.name);
       }
@@ -183,7 +187,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center p-4" data-testid="loading-state">
+      <div className="flex justify-center p-4" data-testid="button">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
@@ -193,14 +197,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
     return (
       <div
         className="p-4 bg-red-50 border border-red-200 rounded"
-        data-testid="error-state"
+        data-testid="button"
       >
-        <p className="text-red-700" data-testid="error-message">
+        <p className="text-red-700" data-testid="button">
           {error}
         </p>
         <button
           className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          data-testid="retry-button"
+          data-testid="button"
           onClick={loadUser}
         >
           Retry
@@ -218,22 +222,23 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
   }
 
   return (
-    <div
-      className="p-4 bg-white border rounded shadow"
-      data-testid="user-profile"
-    >
+    <div className="p-4 bg-white border rounded shadow" data-testid="button">
       <h2 className="text-xl font-semibold mb-4">User Profile</h2>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label
+            className="block text-sm font-medium text-gray-700"
+            htmlFor="name-input"
+          >
             Name:
           </label>
           <div className="flex gap-2 mt-1">
             <input
               className="flex-1 border border-gray-300 rounded px-3 py-2"
-              data-testid="name-input"
+              data-testid="button"
               defaultValue={user.name}
+              id="name-input"
               type="text"
             />
             <button
@@ -254,14 +259,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
 
         <div>
           <p className="text-sm text-gray-600">
-            User ID: <span data-testid="user-id">{user.id}</span>
+            User ID: <span data-testid="button">{user.id}</span>
           </p>
         </div>
 
         <div className="pt-4 border-t">
           <button
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-            data-testid="logout-button"
+            data-testid="button"
             disabled={loading}
             onClick={handleLogout}
           >
@@ -313,3 +318,28 @@ export const useUserData = () => {
 
   return { user, loading, refetch: loadUser };
 };
+
+// =============================================================================
+// COMPLETE DEPENDENCY INJECTION EXAMPLE (DEFAULT EXPORT)
+// =============================================================================
+
+function DependencyInjectionExample() {
+  return (
+    <div className="max-w-md mx-auto space-y-6" data-testid="dependency-injection-example">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-2">Dependency Injection Example</h1>
+        <p className="text-gray-600 text-sm">
+          Demonstrates testable components with injected dependencies
+        </p>
+      </div>
+
+      <ServicesProvider>
+        <UserProfile />
+      </ServicesProvider>
+    </div>
+  );
+}
+
+// Export as both default and named export
+export default DependencyInjectionExample;
+export { DependencyInjectionExample };

@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Card className="max-w-md mx-auto mt-8">
+        <Card className="max-w-md mx-auto mt-8" data-testid="error-boundary">
           <CardBody className="text-center space-y-4 p-6">
             <AlertCircle className="h-12 w-12 text-danger mx-auto" />
             <div>
@@ -67,7 +67,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <Button
               color="primary"
-              data-testid="Button-6ekqkjah5"
+              data-testid="button"
               startContent={<RefreshCw className="h-4 w-4" />}
               variant="solid"
               onClick={this.handleRetry}
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return this.props.children;
+    return <div data-testid="error-boundary">{this.props.children}</div>;
   }
 }
 

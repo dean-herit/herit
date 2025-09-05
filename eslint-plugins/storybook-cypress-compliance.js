@@ -232,7 +232,7 @@ export default {
       meta: {
         type: "problem",
         docs: {
-          description: "Enforce 8-section enhanced test structure in Cypress component tests",
+          description: "Enforce 8-section enhanced test structure in Cypress component tests with V2 schema compliance",
           category: "Testing",
         },
         fixable: null,
@@ -240,6 +240,8 @@ export default {
         messages: {
           missingTestSection: "Cypress test is missing required section: '{{section}}'",
           useAiGeneration: "Consider using 'npm run generate:test' to create enhanced 8-section tests with AI analysis",
+          missingV2SchemaCompliance: "Test should include V2 schema validation patterns (discriminated unions, specific_fields)",
+          missingRealAuthPatterns: "Test should use real authentication patterns instead of complex mocks",
         },
       },
       create(context) {
@@ -272,6 +274,20 @@ export default {
               return !sectionRegex.test(text);
             });
 
+            // Check for V2 schema compliance patterns
+            const hasV2Patterns = [
+              /specific_fields/.test(text),
+              /discriminated.union|asset_type.*irish_|individual_stock_holding|irish_bank_account/.test(text),
+              /data\.data\./.test(text), // Response format pattern
+            ].some(Boolean);
+
+            // Check for real auth patterns (learned from Hail Mary project)
+            const hasRealAuthPatterns = [
+              /TestAuthManager|setupAuthenticatedTest/.test(text),
+              /createAuthenticatedRequest/.test(text),
+              /real.auth|JWT.token/.test(text),
+            ].some(Boolean);
+
             // Report missing sections
             if (missingSections.length > 0) {
               // Check if this might be a legacy test that needs AI upgrade
@@ -291,6 +307,26 @@ export default {
                     messageId: "missingTestSection",
                     data: { section },
                   });
+                });
+              }
+            }
+
+            // Check V2 schema compliance for form/data-related tests
+            if (filename.includes("Form") || filename.includes("Asset") || filename.includes("Beneficiar")) {
+              if (!hasV2Patterns) {
+                context.report({
+                  node,
+                  messageId: "missingV2SchemaCompliance",
+                });
+              }
+            }
+
+            // Check auth patterns for protected components
+            if (filename.includes("Auth") || filename.includes("Login") || filename.includes("Dashboard")) {
+              if (!hasRealAuthPatterns && /auth|login|session/.test(text.toLowerCase())) {
+                context.report({
+                  node,
+                  messageId: "missingRealAuthPatterns",
                 });
               }
             }
@@ -364,7 +400,7 @@ export default {
       meta: {
         type: "suggestion",
         docs: {
-          description: "Suggest using AI-powered test generation for optimal test quality",
+          description: "Suggest using AI-powered test generation for optimal test quality with V2 schema patterns",
           category: "Testing",
         },
         fixable: null,
@@ -372,6 +408,7 @@ export default {
         messages: {
           suggestAiGeneration: "Consider using 'npm run generate:tests:upgrade' to enhance this test with AI-powered 8-section structure and compliance validation",
           outdatedTestPattern: "This test appears to use outdated patterns. Run 'npm run test:compliance' to get a quality score and improvement suggestions",
+          missingHailMaryLessons: "Test missing patterns learned from Hail Mary project: V2 schema compliance, real auth, field name corrections",
         },
       },
       create(context) {
@@ -401,7 +438,22 @@ export default {
               !/Accessibility/.test(text),
             ];
 
+            // Check for Hail Mary project lessons (learned from divine victory)
+            const hailMaryPatterns = [
+              // V2 schema patterns
+              !/specific_fields|discriminated.union|asset_type.*irish_/.test(text),
+              // Real authentication (no mocks)
+              !/TestAuthManager|setupAuthenticatedTest|createAuthenticatedRequest/.test(text) && /mock.*auth|vi\.mock.*auth/.test(text),
+              // Response format expectations
+              !/data\.data\.|response\.data\.data/.test(text),
+              // Field name corrections
+              !/asset_type.*:|ticker_symbol|stockbroker/.test(text) && /type.*:|stock_symbol|irish_broker/.test(text),
+              // POST validation patterns
+              !/POST.*validation|400.*error|enum.*values/.test(text),
+            ];
+
             const legacyIndicators = legacyPatterns.filter(Boolean).length;
+            const hailMaryIndicators = hailMaryPatterns.filter(Boolean).length;
 
             if (legacyIndicators >= 3) {
               // High confidence this is a legacy test
@@ -414,6 +466,14 @@ export default {
               context.report({
                 node,
                 messageId: "outdatedTestPattern",
+              });
+            }
+
+            // Check for missing Hail Mary project lessons
+            if (hailMaryIndicators >= 2 && (filename.includes("Asset") || filename.includes("Auth") || filename.includes("Form"))) {
+              context.report({
+                node,
+                messageId: "missingHailMaryLessons",
               });
             }
           },

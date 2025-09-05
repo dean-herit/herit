@@ -220,7 +220,7 @@ export function VerificationStep({
   }
 
   return (
-    <div className="space-y-6" data-testid="verification-step">
+    <div className="space-y-6" data-testid="auth-button">
       <div className="text-left">
         <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
           Identity Verification
@@ -446,7 +446,7 @@ export function VerificationStep({
       <div className="flex justify-between pt-6">
         {onBack ? (
           <Button
-            data-testid="Button-k3y61g9wd"
+            data-testid="auth-button"
             isDisabled={loading || isLoading}
             variant="bordered"
             onPress={onBack}

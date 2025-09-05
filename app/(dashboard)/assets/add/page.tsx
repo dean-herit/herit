@@ -600,7 +600,7 @@ export default function AddAssetV2Page() {
                           ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                           : "hover:border-default-400"
                       }`}
-                      data-testid="Card-bwazpg3xp"
+                      data-testid="asset-card"
                       onPress={() =>
                         handleFieldChange("category", key as AssetCategory)
                       }
@@ -660,7 +660,7 @@ export default function AddAssetV2Page() {
                             ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                             : "hover:border-default-400"
                         }`}
-                        data-testid="Card-i9d24eo55"
+                        data-testid="asset-card"
                         onPress={() => {
                           handleFieldChange("asset_type", assetType);
                           handleFieldChange(
@@ -933,7 +933,7 @@ export default function AddAssetV2Page() {
       <div className="flex items-center gap-4">
         <Button
           isIconOnly
-          data-testid="Button-ysvt7a7zn"
+          data-testid="asset-button"
           variant="light"
           onPress={() => router.back()}
         >
@@ -1014,7 +1014,7 @@ export default function AddAssetV2Page() {
         <CardBody className="py-4">
           <div className="flex justify-between">
             <Button
-              data-testid="Button-oozn8ch0v"
+              data-testid="asset-button"
               isDisabled={isLoading}
               variant="bordered"
               onPress={currentStep === 0 ? () => router.back() : handlePrevious}
@@ -1024,7 +1024,7 @@ export default function AddAssetV2Page() {
 
             <Button
               color="primary"
-              data-testid="Button-xh0sk2xip"
+              data-testid="asset-button"
               isDisabled={
                 (currentStep === 0 && !formData.category) ||
                 (currentStep === 1 && !formData.asset_type) ||
